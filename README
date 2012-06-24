@@ -1,4 +1,6 @@
 
+    $ git submodule init
+    $ git submodule update
     $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install cherrypy

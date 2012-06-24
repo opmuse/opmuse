@@ -1,6 +1,6 @@
 #!env python
 
-import cherrypy
+import os, cherrypy
 
 from opmuse.jinja import Jinja
 
@@ -9,7 +9,11 @@ if __name__ == '__main__':
     import opmuse.root
 
     cherrypy.tree.mount(opmuse.root.Root(), '/', {
-        '/': { }
+        '/': { },
+        '/scripts': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': os.path.join(os.path.abspath("."), "public/scripts"),
+        }
     })
 
     cherrypy.engine.start()
