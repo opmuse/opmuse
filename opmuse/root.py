@@ -2,6 +2,7 @@ import cherrypy
 
 class Root(object):
     @cherrypy.expose
+    @cherrypy.tools.jinja(filename='index.html')
     def index(self):
-        return "Hello world!"
+        return { 'name': 'world' }
 
