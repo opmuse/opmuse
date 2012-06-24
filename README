@@ -4,5 +4,6 @@
     $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install cherrypy
+    $ pip install lesscpy
     $ ./opmuse/boot.py
 
