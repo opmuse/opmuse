@@ -1,3 +1,26 @@
+@import 'boilerplate';
+
+.boxybox {
+    .borderRadius(6px);
+    .boxShadow(2px 2px 4px #aaa);
+    background: #eee;
+    margin: 10px 20px 10px 20px;
+    padding: 10px;
+}
+
 body {
-    color: blue;
+    width: 800px;
+    color: #222;
+    font-family: Verdana, sans-serif;
+    &> h1 {
+        font-size: 2em;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        .boxybox;
+    }
+}
+
+#content {
+    .boxybox;
+    min-height: 200px;
 }

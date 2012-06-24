@@ -27,7 +27,7 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index.html')
     def index(self):
-        return { 'name': 'world' }
+        return { }
 
     @cherrypy.expose
     def stream(self):
