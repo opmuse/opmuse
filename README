@@ -2,3 +2,5 @@
     $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install cherrypy
+    $ ./opmuse/boot.py
+
