@@ -9,9 +9,7 @@ if __name__ == '__main__':
     import opmuse.root
 
     cherrypy.tree.mount(opmuse.root.Root(), '/', {
-        '/': {
-            'tools.jinja.on': True,
-        }
+        '/': { }
     })
 
     cherrypy.engine.start()

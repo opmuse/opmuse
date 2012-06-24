@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <p>
     Hello {{ name }}!
+    </p>
+    <audio controls="controls">
+        <source src="/stream" />
+        Your browser does not support the audio tag.
+    </audio>
 {% endblock %}
