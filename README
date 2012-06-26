@@ -1,3 +1,4 @@
+Get up and running...
 
     $ git submodule init
     $ git submodule update
@@ -7,3 +8,7 @@
     $ pip install lesscpy
     $ ./opmuse/boot.py
 
+... get back to work...
+
+    $ source virtualenv/bin/activate
+    $ ./opmuse/boot.py
