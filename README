@@ -4,10 +4,7 @@ Get up and running...
     $ git submodule update
     $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
-    $ pip install cherrypy
-    $ pip install jinja2
-    $ pip install ply
-    $ pip install lesscpy
+    $ pip install -r requirements.txt
     $ ./opmuse/boot.py
 
 ... get back to work...
