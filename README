@@ -5,6 +5,8 @@ Get up and running...
     $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install cherrypy
+    $ pip install jinja2
+    $ pip install ply
     $ pip install lesscpy
     $ ./opmuse/boot.py
 
