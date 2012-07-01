@@ -6,7 +6,7 @@ class LibraryTest(unittest.TestCase):
         library = Library(os.path.join(os.path.dirname(__file__), "../sample_library"))
         tracks = library.get_tracks()
 
-        self.assertEqual(tracks[0].artist, "opmuse")
-        self.assertEqual(tracks[0].album, "opmuse")
-        self.assertEqual(tracks[0].title, "opmuse")
+        self.assertEqual(tracks[0].artist.name, "opmuse")
+        self.assertEqual(tracks[0].album.name, "opmuse")
+        self.assertEqual(tracks[0].name, "opmuse")
 
