@@ -30,4 +30,8 @@ class Jinja(HandlerWrapperTool):
             raise Exception('No template filename specified!')
 
         template = env.get_template(conf['filename'])
-        return template.render(response_dict)
+
+        html = template.render(response_dict)
+        html = html.encode('utf8', 'replace').decode()
+
+        return html

@@ -146,7 +146,7 @@ class Library:
 
         for filename in files:
             slug = self._parse_slug(filename)
-            track = Track(*((slug, filename.encode('utf8', 'replace')) + self._reader.get(filename)))
+            track = Track(*((slug, filename) + self._reader.get(filename)))
             self._tracks_by_filename[filename] = track
             self._tracks.append(track)
 
