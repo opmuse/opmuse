@@ -158,13 +158,16 @@ class Library:
         else:
             slug = os.path.splitext(os.path.basename(filename))[0]
 
-        slug = re.sub(r'[\'" ()]', '_', slug.lower())
+        slug = re.sub(r'[\'" ()/]', '_', slug.lower())
 
-        if slug not in self._slugs:
-            self._slugs[slug] = filename
-            return slug
+        index = 0
 
-        raise Exception("Slug '%s' for '%s' isn't unique." % (slug, filename))
+        while True:
+            if slug not in self._slugs:
+                self._slugs[slug] = filename
+                return slug
+            index += 1
+            slug = "%s_%s" % (slug, index)
 
     def get_track_by_slug(self, slug):
         if slug in self._slugs:
