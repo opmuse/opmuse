@@ -44,7 +44,7 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
-        library = Library(cherrypy.config['opmuse']['library.path'])
+        library = cherrypy.engine.library.library
 
         return {'tracks': library.getTracks()}
 

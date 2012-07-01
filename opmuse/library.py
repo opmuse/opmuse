@@ -1,4 +1,4 @@
-import os, stagger
+import cherrypy, re, os, stagger
 from stagger.errors import NoTagError
 
 class TagParser:
@@ -161,4 +161,10 @@ class Track:
             self.artist is None or len(self.artist) == 0 or
             self.album is None or len(self.album) == 0 or
             self.title is None or len(self.title) == 0)
+
+class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
+
+    def start(self):
+        self.library = Library(cherrypy.config['opmuse']['library.path'])
+
 
