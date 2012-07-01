@@ -1,4 +1,3 @@
-[![Build Status](https://secure.travis-ci.org/inty/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
       ________________________________________________
      /\     _____ _____ __  ___ __  __ _____ _____    \
      \/    /    //    //  |/  // / / //  __// ___/    /
@@ -25,3 +24,5 @@ Get up and running...
 
     $ source virtualenv/bin/activate
     $ ./opmuse/boot.py
+
+![Build status](https://secure.travis-ci.org/inty/opmuse.png?branch=master)
