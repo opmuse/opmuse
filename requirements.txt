@@ -2,4 +2,4 @@ cherrypy
 jinja2
 ply
 lesscpy
-stagger
+hsaudiotag3k

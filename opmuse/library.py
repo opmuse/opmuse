@@ -1,5 +1,4 @@
-import cherrypy, re, os, stagger
-from stagger.errors import NoTagError
+import cherrypy, re, os, hsaudiotag.auto
 
 class TagParser:
     def __init__(self, reader):
@@ -8,26 +7,16 @@ class TagParser:
     def parse(self, filename):
         raise NotImplementedError()
 
-class Id3Parser(TagParser):
-    """
-    Tries to find tags for file by looking for id3 tags
-    """
+class AutoTagParser(TagParser):
     def parse(self, filename):
-        artist = None
-        album = None
-        title = None
+        tag = hsaudiotag.auto.File(filename)
 
-        try:
-            tag = stagger.read_tag(filename)
-
-            artist = tag.artist
-            album = tag.album
-            title = tag.title
-
-        except (NoTagError):
-            pass
+        artist = tag.artist
+        album = tag.album
+        title = tag.title
 
         return artist, album, title
+
 
 class PathParser(TagParser):
     """
@@ -75,7 +64,7 @@ class TagReader:
     _files = []
 
     def __init__(self):
-        self._parsers.append(Id3Parser(self))
+        self._parsers.append(AutoTagParser(self))
         self._parsers.append(PathParser(self))
 
     def add(self, filename):
