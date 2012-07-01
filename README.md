@@ -16,6 +16,7 @@ Get up and running...
     $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
+    $ cp config/opmuse.ini.dist config/opmuse.ini
     $ ./opmuse/boot.py
 
 ... get back to work...

@@ -1,2 +1,3 @@
+/config/opmuse.ini
 /virtualenv/*
 *.pyc
