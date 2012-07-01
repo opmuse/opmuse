@@ -46,12 +46,11 @@ class Root(object):
     def library(self):
         library = cherrypy.engine.library.library
 
-        return {'tracks': library.getTracks()}
+        return {'tracks': library.get_tracks()}
 
     @cherrypy.expose
-    def stream(self):
-        return cherrypy.lib.static.serve_file(
-            os.path.join(os.path.abspath("."), "data", "sample.ogg"),
-            'audio/ogg'
-        )
+    def stream(self, slug):
+        library = cherrypy.engine.library.library
+        track = library.get_track_by_slug(slug)
+        return cherrypy.lib.static.serve_file(track.filename, track.format)
 

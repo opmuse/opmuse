@@ -122,13 +122,17 @@ class TagReader:
 class Library:
 
     _tracks = []
+    _slugs = {}
+    _tracks_by_filename = {}
 
     _reader = TagReader()
 
-    SUPPORTED = [".mp3"]
+    SUPPORTED = [".mp3", ".ogg"]
 
     def __init__(self, path):
         files = []
+
+        path = os.path.abspath(path)
 
         for path, dirnames, filenames in os.walk(path):
             for filename in filenames:
@@ -141,20 +145,53 @@ class Library:
         self._reader.parse()
 
         for filename in files:
-            self._tracks.append(
-                Track(*((filename.encode('utf8', 'replace'), ) + self._reader.get(filename)))
-            )
+            slug = self._parse_slug(filename)
+            track = Track(*((slug, filename.encode('utf8', 'replace')) + self._reader.get(filename)))
+            self._tracks_by_filename[filename] = track
+            self._tracks.append(track)
 
-    def getTracks(self):
+    def _parse_slug(self, filename):
+        artist, album, title = self._reader.get(filename)
+
+        if artist is not None and album is not None and title is not None:
+            slug = "%s_%s_%s" % (artist, album, title)
+        else:
+            slug = os.path.splitext(os.path.basename(filename))[0]
+
+        slug = re.sub(r'[\'" ()]', '_', slug.lower())
+
+        if slug not in self._slugs:
+            self._slugs[slug] = filename
+            return slug
+
+        raise Exception("Slug '%s' for '%s' isn't unique." % (slug, filename))
+
+    def get_track_by_slug(self, slug):
+        if slug in self._slugs:
+            filename = self._slugs[slug]
+            if filename in self._tracks_by_filename:
+                return self._tracks_by_filename[filename]
+
+    def get_tracks(self):
         return self._tracks
 
 class Track:
 
-    def __init__(self, filename, artist, album, title):
+    def __init__(self, slug, filename, artist, album, title):
+        self.slug = slug
         self.filename = filename
         self.artist = artist
         self.album = album
         self.title = title
+
+        ext = os.path.splitext(filename)[1].lower()
+
+        if ext == ".mp3":
+            self.format = 'audio/mp3'
+        elif ext == ".ogg":
+            self.format = 'audio/ogg'
+        else:
+            self.format = 'audio/unknown'
 
     def incomplete(self):
         return (

@@ -1,2 +1,2 @@
 [opmuse]
-library.path = '/path/to/lib'
+library.path = './sample_library'

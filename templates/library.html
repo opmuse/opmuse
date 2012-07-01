@@ -15,6 +15,10 @@
             <dt>Title</dt>
             <dd>{{ track.title }}</dd>
         </dl>
+        <audio controls="controls">
+            <source src="/stream/{{ track.slug|urlencode }}" />
+            Your browser does not support the audio tag.
+        </audio>
         <hr />
     </li>
     {% endfor %}
