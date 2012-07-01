@@ -1,5 +1,4 @@
 cherrypy
 jinja2
 ply
-lesscpy
 hsaudiotag3k
