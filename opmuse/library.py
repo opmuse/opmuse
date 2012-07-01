@@ -1,0 +1,164 @@
+import os, stagger
+from stagger.errors import NoTagError
+
+class TagParser:
+    def __init__(self, reader):
+        self._reader = reader
+
+    def parse(self, filename):
+        raise NotImplementedError()
+
+class Id3Parser(TagParser):
+    """
+    Tries to find tags for file by looking for id3 tags
+    """
+    def parse(self, filename):
+        artist = None
+        album = None
+        title = None
+
+        try:
+            tag = stagger.read_tag(filename)
+
+            artist = tag.artist
+            album = tag.album
+            title = tag.title
+
+        except (NoTagError):
+            pass
+
+        return artist, album, title
+
+class PathParser(TagParser):
+    """
+    Tries to find tags for file by looking at path components (e.g. containing folder
+    might be album name, parent folder might be artist name ...)
+
+    This also uses previously parsed tag as a sort of validator if the artist and album
+    names are sane.
+    """
+    def parse(self, filename):
+        artist = None
+        album = None
+        title = None
+
+        artist_comp, album_comp, title_comp = self._get_path_components(filename)
+
+        if artist_comp in self._reader._by_artists:
+            artist = artist_comp
+
+        if artist_comp in self._reader._by_artists and album_comp in self._reader._by_artists[artist_comp]:
+            album = album_comp
+
+        if artist_comp in self._reader._by_artists and album_comp in self._reader._by_artists[artist_comp]:
+            title = title_comp
+
+        return artist, album, title
+
+    def _get_path_components(self, filename):
+        title = os.path.splitext(os.path.basename(filename))[0]
+        title = title.split("-")[-1]
+        path_comp = os.path.split(os.path.dirname(filename))
+        album = path_comp[1]
+        path_comp = os.path.split(path_comp[0])
+        artist = path_comp[1]
+
+        return artist, album, title
+
+class TagReader:
+
+    _parsed = False
+
+    _parsers = []
+    _by_artists = {}
+    _by_filename = {}
+    _files = []
+
+    def __init__(self):
+        self._parsers.append(Id3Parser(self))
+        self._parsers.append(PathParser(self))
+
+    def add(self, filename):
+        self._files.append(filename)
+
+    def parse(self):
+        for parser in self._parsers:
+            if not isinstance(parser, TagParser):
+                raise Exception("Parser does not implement TagParser")
+
+            for filename in self._files:
+                if filename in self._by_filename:
+                    continue
+
+                artist, album, title = parser.parse(filename)
+
+                if artist is not None and len(artist) > 0:
+                    if artist not in self._by_artists:
+                        self._by_artists[artist] = {}
+
+                    if album is not None and len(album) > 0:
+                        if album not in self._by_artists[artist]:
+                            self._by_artists[artist][album] = []
+
+                        if title is not None and len(title) > 0:
+                            self._by_artists[artist][album].append((filename, title))
+                            self._by_filename[filename] = (artist, album, title)
+
+        self._parsed = True
+
+    def get(self, filename):
+        if not self._parsed:
+            raise Exception("Logic error, parse() must be run before get()")
+
+        artist = None
+        album = None
+        title = None
+
+        if filename in self._by_filename:
+            artist, album, title = self._by_filename[filename]
+
+        return artist, album, title
+
+class Library:
+
+    _tracks = []
+
+    _reader = TagReader()
+
+    SUPPORTED = [".mp3"]
+
+    def __init__(self, path):
+        files = []
+
+        for path, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                if os.path.splitext(filename)[1].lower() in self.SUPPORTED:
+                    filename = os.path.join(path, filename)
+                    files.append(filename)
+
+        [self._reader.add(filename) for filename in files]
+
+        self._reader.parse()
+
+        for filename in files:
+            self._tracks.append(
+                Track(*((filename.encode('utf8', 'replace'), ) + self._reader.get(filename)))
+            )
+
+    def getTracks(self):
+        return self._tracks
+
+class Track:
+
+    def __init__(self, filename, artist, album, title):
+        self.filename = filename
+        self.artist = artist
+        self.album = album
+        self.title = title
+
+    def incomplete(self):
+        return (
+            self.artist is None or len(self.artist) == 0 or
+            self.album is None or len(self.album) == 0 or
+            self.title is None or len(self.title) == 0)
+

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="library">
+<ul>
+    {% for track in tracks %}
+    <li class="track {{ "incomplete" if track.incomplete() }}">
+        <dl>
+            <dt>Filename</dt>
+            <dd class="filename">{{ track.filename }}</dd>
+            <dt>Artist</dt>
+            <dd>{{ track.artist }}</dd>
+            <dt>Album</dt>
+            <dd>{{ track.album }}</dd>
+            <dt>Title</dt>
+            <dd>{{ track.title }}</dd>
+        </dl>
+        <hr />
+    </li>
+    {% endfor %}
+</u>
+</div>
+{% endblock %}

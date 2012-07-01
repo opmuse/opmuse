@@ -1,5 +1,6 @@
 import os, cherrypy
 from lesscpy.lessc import parser
+from opmuse.library import Library
 
 class Styles(object):
     @cherrypy.expose
@@ -28,6 +29,13 @@ class Root(object):
     @cherrypy.tools.jinja(filename='index.html')
     def index(self):
         return { }
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='library.html')
+    def library(self):
+        library = Library(cherrypy.config['opmuse']['library.path'])
+
+        return {'tracks': library.getTracks()}
 
     @cherrypy.expose
     def stream(self):
