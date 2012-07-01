@@ -1,10 +1,18 @@
 import os
 from cherrypy._cptools import HandlerWrapperTool
 from jinja2 import Environment, FileSystemLoader
+from urllib.parse import quote
 
 env = Environment(
     loader=FileSystemLoader(os.path.join(os.path.abspath("."), "templates"))
 )
+
+# TODO this has been added in master
+#       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
+def urlencode(value):
+    return quote(value)
+
+env.filters['urlencode'] = urlencode
 
 class Jinja(HandlerWrapperTool):
 
