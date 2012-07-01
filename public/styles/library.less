@@ -1,12 +1,14 @@
 #library {
     .track {
-        &.incomplete {
-            color: #ff0000;
+        margin: 4px 0 4px 0;
+        p {
+            float: left;
         }
         .play {
+            display: block;
             text-transform: uppercase;
             background: #999;
-            padding: 2px 4px 2px 4px;
+            padding: 2px 3px 2px 3px;
             color: #fefefe;
             font-weight: bold;
             float: right;
@@ -14,6 +16,27 @@
                 color: #999;
                 background: #fefefe;
             }
+        }
+    }
+
+    .artist > p {
+        font-weight: bold;
+    }
+
+    .album > p {
+        font-size: .9em;
+    }
+
+    .track > p {
+        font-size: .8em;
+    }
+
+    ul {
+        margin-left: 10px;
+        li {
+            height: 21px;
+            display: block;
+            clear: both;
         }
     }
 }

@@ -45,8 +45,7 @@ class Root(object):
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
         library = cherrypy.engine.library.library
-
-        return {'tracks': library.get_tracks()}
+        return {'artists': library.get_artists()}
 
     @cherrypy.expose
     def stream(self, slug):

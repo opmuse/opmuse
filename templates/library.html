@@ -7,24 +7,28 @@
 </p>
 <hr />
 <p>
-<ul>
-    {% for track in tracks %}
-    <li class="track {{ "incomplete" if track.incomplete() }}">
-        <a class="play" href="/stream/{{ track.slug|urlencode }}">Play</a>
-        <dl>
-            <dt>Filename</dt>
-            <dd class="filename">{{ track.filename }}</dd>
-            <dt>Artist</dt>
-            <dd>{{ track.artist }}</dd>
-            <dt>Album</dt>
-            <dd>{{ track.album }}</dd>
-            <dt>Title</dt>
-            <dd>{{ track.title }}</dd>
-        </dl>
-        <hr />
-    </li>
+    <ul>
+    {% for artist in artists %}
+        <li class="artist">
+            <p>{{ artist.name }}</p>
+            <ul>
+            {% for album in artist.get_albums() %}
+                <li class="album">
+                <p>{{ album.name }}</p>
+                <ul>
+                {% for track in album.get_tracks() %}
+                    <li class="track">
+                        <p>{{ track.name }}</p>
+                        <a class="play" href="/stream/{{ track.slug|urlencode }}">Play</a>
+                    </li>
+                {% endfor %}
+                </ul>
+                </li>
+            {% endfor %}
+            </ul>
+        </li>
     {% endfor %}
-</ul>
+    </ul>
 </p>
 </div>
 {% endblock %}
