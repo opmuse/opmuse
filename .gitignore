@@ -1,4 +1,5 @@
 /config/opmuse.ini
 /virtualenv/*
 /build/*
+/public/styles/*.css
 *.pyc
