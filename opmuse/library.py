@@ -15,8 +15,16 @@ class AutoTagParser(TagParser):
         album = tag.album
         title = tag.title
 
-        return artist, album, title
+        if len(artist) == 0:
+            artist = None
 
+        if len(album) == 0:
+            album = None
+
+        if len(title) == 0:
+            title = None
+
+        return artist, album, title
 
 class PathParser(TagParser):
     """
@@ -76,10 +84,24 @@ class TagReader:
                 raise Exception("Parser does not implement TagParser")
 
             for filename in self._files:
+                artist = album = title = None
+
                 if filename in self._by_filename:
+                    artist, album, title = self._by_filename[filename]
+
+                if artist is not None and album is not None and title is not None:
                     continue
 
-                artist, album, title = parser.parse(filename)
+                new_artist, new_album, new_title = parser.parse(filename)
+
+                if artist is None:
+                    artist = new_artist
+
+                if album is None:
+                    album = new_album
+
+                if title is None:
+                    title = new_title
 
                 if artist is not None and len(artist) > 0:
                     if artist not in self._by_artists:
@@ -91,7 +113,8 @@ class TagReader:
 
                         if title is not None and len(title) > 0:
                             self._by_artists[artist][album].append((filename, title))
-                            self._by_filename[filename] = (artist, album, title)
+
+                self._by_filename[filename] = (artist, album, title)
 
         self._parsed = True
 
