@@ -2,9 +2,15 @@
 
 {% block content %}
 <div id="library">
+<p>
+    <audio controls="controls" id="player" />
+</p>
+<hr />
+<p>
 <ul>
     {% for track in tracks %}
     <li class="track {{ "incomplete" if track.incomplete() }}">
+        <a class="play" href="/stream/{{ track.slug|urlencode }}">Play</a>
         <dl>
             <dt>Filename</dt>
             <dd class="filename">{{ track.filename }}</dd>
@@ -15,13 +21,10 @@
             <dt>Title</dt>
             <dd>{{ track.title }}</dd>
         </dl>
-        <audio controls="controls">
-            <source src="/stream/{{ track.slug|urlencode }}" />
-            Your browser does not support the audio tag.
-        </audio>
         <hr />
     </li>
     {% endfor %}
-</u>
+</ul>
+</p>
 </div>
 {% endblock %}

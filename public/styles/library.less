@@ -1,5 +1,19 @@
 #library {
-    .track.incomplete {
-        color: #ff0000;
+    .track {
+        &.incomplete {
+            color: #ff0000;
+        }
+        .play {
+            text-transform: uppercase;
+            background: #999;
+            padding: 2px 4px 2px 4px;
+            color: #fefefe;
+            font-weight: bold;
+            float: right;
+            &:hover {
+                color: #999;
+                background: #fefefe;
+            }
+        }
     }
 }
