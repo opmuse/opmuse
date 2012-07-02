@@ -17,12 +17,12 @@ Get up and running...
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ cp config/opmuse.ini.dist config/opmuse.ini
-    $ ./opmuse/boot.py
+    $ ./run.sh
 
 ... get back to work...
 -----------------------
 
     $ source virtualenv/bin/activate
-    $ ./opmuse/boot.py
+    $ ./run.sh
 
 [![Build Status](https://secure.travis-ci.org/inty/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)

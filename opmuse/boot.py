@@ -1,5 +1,3 @@
-#!env python
-
 import cherrypy
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja
