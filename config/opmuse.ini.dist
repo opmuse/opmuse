@@ -1,2 +1,3 @@
 [opmuse]
+server_name = 'opmuse - Audio Streaming Service'
 library.path = './sample_library'
