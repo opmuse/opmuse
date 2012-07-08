@@ -1,5 +1,5 @@
 import os, cherrypy
-from opmuse.library import Library
+from opmuse.transcoder import Transcoder
 
 class Styles(object):
     @cherrypy.expose
@@ -48,8 +48,23 @@ class Root(object):
         return {'artists': library.get_artists()}
 
     @cherrypy.expose
+    @cherrypy.config(**{'response.stream': True})
     def stream(self, slug):
         library = cherrypy.engine.library.library
         track = library.get_track_by_slug(slug)
-        return cherrypy.lib.static.serve_file(track.filename, track.format)
 
+        accepts = cherrypy.request.headers.elements('Accept')
+        supportedFormat = False
+
+        for accept in accepts:
+            if accept.value == track.format:
+                supportedFormat = True
+
+
+        if track.format == 'audio/ogg' or supportedFormat:
+            return cherrypy.lib.static.serve_file(track.filename,
+                                                  track.format)
+
+        cherrypy.response.headers['Content-Type'] = 'audio/ogg'
+
+        return Transcoder().transcode(track.filename)
