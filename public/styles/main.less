@@ -1,58 +1,10 @@
 @import 'boilerplate';
+@import 'variables';
+@import 'typography';
+@import 'layout';
+
 /**
  * TODO these controller/module specific lesses should probably be defined
  * within the affected controller/view...
  */
 @import 'library';
-
-@textcolor: #222;
-
-dl {
-    dt {
-        font-weight: bold;
-    }
-    dd {
-        margin-left: 5px;
-    }
-}
-
-a {
-    color: @textcolor;
-    text-decoration: none;
-}
-
-.boxybox {
-    .borderRadius(6px);
-    .boxShadow(2px 2px 4px #aaa);
-    background: #eee;
-    margin: 10px 20px 10px 20px;
-    padding: 10px;
-}
-
-body {
-    width: 800px;
-    color: @textcolor;
-    font-family: Verdana, sans-serif;
-    &> h1 {
-        font-size: 2em;
-        font-family: Arial, sans-serif;
-        font-weight: bold;
-        .boxybox;
-    }
-}
-
-#menu {
-    .boxybox;
-    li {
-        display: inline;
-        margin: 0 5px 0 0;
-        font-weight: bold;
-    }
-}
-
-#content {
-    .boxybox;
-    min-height: 200px;
-    clear: both;
-    overflow: hidden;
-}

@@ -1,0 +1,40 @@
+header {
+    padding: 10px 15px 15px 15px;
+    display: block;
+    margin-bottom: 15px;
+    border-bottom: 4px solid @accent_color;
+    background-color: darken(@header_background_color, 10%);
+
+    h1 {
+        font-size: 1.5em;
+
+        a:link, a:visited, a:hover, a:focus, a:active {
+            color: lighten(@accent_color, 10%);
+        }
+    }
+}
+
+.boxybox {
+    .borderRadius(6px);
+    .boxShadow(2px 2px 4px #aaa);
+    background: @background_color;
+    background: @box_color;
+    margin: 20px;
+    padding: 10px;
+    width: 960px;
+}
+
+#menu {
+    .boxybox;
+    li {
+        display: inline;
+        margin: 0 5px 0 0;
+        font-weight: bold;
+    }
+}
+
+#content {
+    .boxybox;
+    min-height: 200px;
+    overflow: hidden;
+}
