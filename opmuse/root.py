@@ -70,12 +70,15 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.config(**{'response.stream': True})
+    # TODO reimplement Accept header support
     def stream(self, **kwargs):
 
         playlist = cherrypy.session.get('playlist', [])
 
         if len(playlist) == 0:
             raise cherrypy.HTTPError(409)
+
+        cherrypy.response.headers['Content-Type'] = 'audio/ogg'
 
         return Transcoder().transcode([track.filename for track in playlist])
 
