@@ -1,6 +1,26 @@
 import os, cherrypy
 from opmuse.transcoder import Transcoder
 
+class Playlist:
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='playlist.html')
+    def list(self):
+        playlist = cherrypy.session.get('playlist', [])
+
+        return {'playlist': playlist}
+
+    @cherrypy.expose
+    def add(self, slug):
+        library = cherrypy.engine.library.library
+        track = library.get_track_by_slug(slug)
+
+        cherrypy.session.acquire_lock()
+        playlist = cherrypy.session.get('playlist', [])
+        playlist.append(track)
+
+        cherrypy.session['playlist'] = playlist
+        cherrypy.session.release_lock()
+
 class Styles(object):
     @cherrypy.expose
     def default(self, file):
@@ -35,6 +55,7 @@ class Styles(object):
 
 class Root(object):
     styles = Styles()
+    playlist = Playlist()
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index.html')
@@ -49,22 +70,13 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.config(**{'response.stream': True})
-    def stream(self, slug):
-        library = cherrypy.engine.library.library
-        track = library.get_track_by_slug(slug)
+    def stream(self, **kwargs):
 
-        accepts = cherrypy.request.headers.elements('Accept')
-        supportedFormat = False
+        playlist = cherrypy.session.get('playlist', [])
 
-        for accept in accepts:
-            if accept.value == track.format:
-                supportedFormat = True
+        if len(playlist) == 0:
+            raise cherrypy.HTTPError(409)
+
+        return Transcoder().transcode([track.filename for track in playlist])
 
 
-        if track.format == 'audio/ogg' or supportedFormat:
-            return cherrypy.lib.static.serve_file(track.filename,
-                                                  track.format)
-
-        cherrypy.response.headers['Content-Type'] = 'audio/ogg'
-
-        return Transcoder().transcode(track.filename)

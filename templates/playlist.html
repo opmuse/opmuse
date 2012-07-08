@@ -1,0 +1,7 @@
+<ul class="tracks">
+    {% for track in playlist %}
+    <li>
+        {{ track.artist.name }} - {{ track.album.name }} - {{ track.name }}
+    </li>
+    {% endfor %}
+</ul>

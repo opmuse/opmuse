@@ -8,8 +8,12 @@ if __name__ == '__main__':
     import opmuse.root
 
     cherrypy.tree.mount(opmuse.root.Root(), '/', {
-        '/': {},
-        '/scripts': {
+        '/': {
+            'tools.sessions.on': True,
+            'tools.sessions.storage_type': "ram",
+            'tools.sessions.locking': "explicit",
+            'tools.sessions.timeout': 60 * 30,
+        }, '/scripts': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
                                         "../public/scripts"),
