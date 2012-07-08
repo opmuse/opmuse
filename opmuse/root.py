@@ -21,6 +21,13 @@ class Playlist:
         cherrypy.session['playlist'] = playlist
         cherrypy.session.release_lock()
 
+    @cherrypy.expose
+    def clear(self):
+        cherrypy.session.acquire_lock()
+        cherrypy.session['playlist'] = []
+        cherrypy.session.release_lock()
+
+
 class Styles(object):
     @cherrypy.expose
     def default(self, file):

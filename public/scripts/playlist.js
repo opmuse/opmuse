@@ -21,6 +21,16 @@ require(['jquery'], function($) {
         return false;
     });
 
+    $('#clear-playlist').click(function (event) {
+        var url = $(this).attr('href');
+        $.ajax(url, {
+            success: function (data) {
+                $("#playlist").empty();
+            }
+        });
+        return false;
+    });
+
     play();
 
     $("#playlist").load(listUrl);
