@@ -17,7 +17,12 @@ if __name__ == '__main__':
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
                                         "../public/scripts"),
-        }
+        },
+        '/images': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': join(abspath(dirname(__file__)),
+                                        "../public/images"),
+        },
     })
 
     cherrypy.engine.library = LibraryPlugin(cherrypy.engine)

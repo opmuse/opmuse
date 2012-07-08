@@ -1,0 +1,29 @@
+body {
+    color: @text_color;
+    font-family: Verdana, sans-serif;
+    font-size: 16px;
+    background-color: @background_color;
+}
+
+h1 {
+    font-size: 1em;
+}
+
+dl {
+    dt {
+        font-weight: bold;
+    }
+
+    dd {
+        margin-left: 5px;
+    }
+}
+
+a {
+    color: @text_color;
+    text-decoration: none;
+
+    &:hover, &:focus {
+        color: lighten(@text_color, 15%);
+    }
+}

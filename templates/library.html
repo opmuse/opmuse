@@ -7,7 +7,10 @@
 {% block content %}
 <div id="library">
 <p>
-    <audio controls="controls" id="player" preload="none" />
+    <audio
+        controls="controls"
+        id="player"
+        preload="none" />
 </p>
 <hr />
 <p>
@@ -23,7 +26,11 @@
                 {% for track in album.get_tracks() %}
                     <li class="track">
                         <p>{{ track.name }}</p>
-                        <a class="playlist add" href="/playlist/add/{{ track.slug|urlencode }}">Add</a>
+                        <a
+                            class="playlist add"
+                            href="/playlist/add/{{ track.slug|urlencode }}">
+                            Add
+                        </a>
                     </li>
                 {% endfor %}
                 </ul>
