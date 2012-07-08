@@ -3,18 +3,30 @@ body {
 }
 
 header {
-    padding: 10px 15px 15px 15px;
+    padding: 10px;
     display: block;
     margin-bottom: 15px;
     border-bottom: 4px solid @accent_color;
     background-color: darken(@header_background_color, 10%);
     background-image: url("/images/noise.png");
+    overflow: hidden;
 
     h1 {
-        font-size: 1.5em;
-
         a:link, a:visited, a:hover, a:focus, a:active {
-            color: lighten(@accent_color, 10%);
+            color: #cfb9b0;
+        }
+
+        img, small {
+            display: block;
+            float: left;
+        }
+
+        img {
+            margin-right: 15px;
+        }
+
+        small {
+            .textShadow(1px, 1px 1px, #fff);
         }
     }
 }
