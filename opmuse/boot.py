@@ -2,13 +2,16 @@ import cherrypy
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin
+from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 
 if __name__ == '__main__':
     cherrypy.tools.jinja = Jinja()
+    cherrypy.tools.database = SqlAlchemyTool()
     import opmuse.root
 
     cherrypy.tree.mount(opmuse.root.Root(), '/', {
         '/': {
+            'tools.database.on': True,
             'tools.sessions.on': True,
             'tools.sessions.storage_type': "ram",
             'tools.sessions.locking': "explicit",
@@ -24,6 +27,9 @@ if __name__ == '__main__':
                                         "../public/images"),
         },
     })
+
+    cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
+    cherrypy.engine.database.subscribe()
 
     cherrypy.engine.library = LibraryPlugin(cherrypy.engine)
     cherrypy.engine.library.subscribe()

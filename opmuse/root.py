@@ -7,6 +7,9 @@ class Playlist:
     def list(self):
         playlist = cherrypy.session.get('playlist', [])
 
+        for track in playlist:
+            cherrypy.request.database.add(track)
+
         return {'playlist': playlist}
 
     @cherrypy.expose
@@ -86,6 +89,9 @@ class Root(object):
             raise cherrypy.HTTPError(409)
 
         cherrypy.response.headers['Content-Type'] = 'audio/ogg'
+
+        for track in playlist:
+            cherrypy.request.database.add(track)
 
         return Transcoder().transcode([track.filename for track in playlist])
 

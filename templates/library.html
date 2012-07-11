@@ -19,11 +19,11 @@
         <li class="artist">
             <p>{{ artist.name }}</p>
             <ul>
-            {% for album in artist.get_albums() %}
+            {% for album in artist.albums %}
                 <li class="album">
                 <p>{{ album.name }}</p>
                 <ul>
-                {% for track in album.get_tracks() %}
+                {% for track in album.tracks %}
                     <li class="track">
                         <p>{{ track.name }}</p>
                         <a

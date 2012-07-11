@@ -2,4 +2,5 @@
 /virtualenv/*
 /build/*
 /public/styles/*.css
+/opmuse.db
 *.pyc
