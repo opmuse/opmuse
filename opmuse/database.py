@@ -14,9 +14,8 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
         self.bus.subscribe("bind", self.bind)
 
     def start(self):
-        db_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                               '..', 'opmuse.db'))
-        self.engine = create_engine('sqlite:///%s' % db_path, echo=True)
+        url = cherrypy.config['opmuse']['database.url']
+        self.engine = create_engine(url, echo=True)
         Base.metadata.create_all(self.engine)
 
     # TODO use decorator?

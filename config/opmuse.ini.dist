@@ -1,3 +1,4 @@
 [opmuse]
 server_name = 'opmuse - Audio Streaming Service'
 library.path = './sample_library'
+database.url = 'sqlite:///./opmuse.db'
