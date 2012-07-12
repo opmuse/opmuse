@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title  %}
+    {{ album.artist.name }} - {{ album.name }}
+{% endblock %}
+
+{% block content %}
+<div id="library">
+<p>
+    <ul>
+    {% for track in album.tracks %}
+        <li class="track">
+            <p>{{ track.name }}</p>
+            <a
+                class="playlist add"
+                href="/playlist/add/{{ track.slug|urlencode }}">
+                Add
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+</p>
+</div>
+{% endblock %}
+

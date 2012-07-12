@@ -73,6 +73,18 @@ class Root(object):
         return { }
 
     @cherrypy.expose
+    @cherrypy.tools.jinja(filename='album.html')
+    def album(self, slug):
+        library = cherrypy.engine.library.library
+        return {'album': library.get_album_by_slug(slug)}
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='artist.html')
+    def artist(self, slug):
+        library = cherrypy.engine.library.library
+        return {'artist': library.get_artist_by_slug(slug)}
+
+    @cherrypy.expose
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
         library = cherrypy.engine.library.library

@@ -17,26 +17,7 @@
     <ul>
     {% for artist in artists %}
         <li class="artist">
-            <p>{{ artist.name }}</p>
-            <ul>
-            {% for album in artist.albums %}
-                <li class="album">
-                <p>{{ album.name }}</p>
-                <ul>
-                {% for track in album.tracks %}
-                    <li class="track">
-                        <p>{{ track.name }}</p>
-                        <a
-                            class="playlist add"
-                            href="/playlist/add/{{ track.slug|urlencode }}">
-                            Add
-                        </a>
-                    </li>
-                {% endfor %}
-                </ul>
-                </li>
-            {% endfor %}
-            </ul>
+            <p><a href="/artist/{{ artist.slug }}">{{ artist.name }}</a></p>
         </li>
     {% endfor %}
     </ul>

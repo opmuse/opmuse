@@ -291,6 +291,18 @@ class Library:
     def slugify(self, string):
         return re.sub(r'[\'" :()/]', '_', string.lower())
 
+    def get_album_by_slug(self, slug):
+        try:
+            return cherrypy.request.database.query(Album).filter_by(slug=slug).one()
+        except NoResultFound:
+            pass
+
+    def get_artist_by_slug(self, slug):
+        try:
+            return cherrypy.request.database.query(Artist).filter_by(slug=slug).one()
+        except NoResultFound:
+            pass
+
     def get_track_by_slug(self, slug):
         try:
             return cherrypy.request.database.query(Track).filter_by(slug=slug).one()
