@@ -130,21 +130,21 @@ class TagReader:
     _parsers = []
     _by_artists = {}
     _by_filename = {}
-    _files = []
+    files = set()
 
     def __init__(self):
         self._parsers.append(AutoTagParser(self))
         self._parsers.append(PathParser(self).validate(False))
 
     def add(self, filename):
-        self._files.append(filename)
+        self.files.add(filename)
 
     def parse(self):
         for parser in self._parsers:
             if not isinstance(parser, TagParser):
                 raise Exception("Parser does not implement TagParser")
 
-            for filename in self._files:
+            for filename in self.files:
                 artist = album = track = None
 
                 if filename in self._by_filename:
@@ -201,7 +201,6 @@ class Library:
     SUPPORTED = [".mp3", ".ogg"]
 
     def __init__(self, path, database):
-        files = []
 
         self._database = database
 
@@ -211,19 +210,14 @@ class Library:
             for filename in filenames:
                 if os.path.splitext(filename)[1].lower() in self.SUPPORTED:
                     filename = os.path.join(path, filename)
-                    files.append(filename)
-
-        for filename in files:
-            self._reader.add(filename)
+                    try:
+                        self._database.query(Track).filter_by(filename=filename).one()
+                    except NoResultFound:
+                        self._reader.add(filename)
 
         self._reader.parse()
 
-        for filename in files:
-            try:
-                self._database.query(Track).filter_by(filename=filename).one()
-                continue
-            except NoResultFound:
-                pass
+        for filename in self._reader.files:
 
             artist_name, album_name, track_name = self._reader.get(filename)
 
