@@ -10,21 +10,25 @@ class Artist(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    slug = Column(String)
 
-    def __init__(self, name):
+    def __init__(self, name, slug):
         self.name = name
+        self.slug = slug
 
 class Album(Base):
     __tablename__ = 'albums'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    slug = Column(String)
     artist_id = Column(Integer, ForeignKey('artists.id'))
 
     artist = relationship("Artist", backref=backref('albums', order_by=id))
 
-    def __init__(self, name):
+    def __init__(self, name, slug):
         self.name = name
+        self.slug = slug
 
 class Track(Base):
     __tablename__ = 'tracks'
@@ -194,8 +198,6 @@ class TagReader:
 
 class Library:
 
-    _slugs = {}
-
     _reader = TagReader()
 
     SUPPORTED = [".mp3", ".ogg"]
@@ -224,52 +226,70 @@ class Library:
             if artist_name is None or album_name is None or track_name is None:
                 continue
 
-            slug = self._parse_slug(filename)
+            artist_slug = self._produce_artist_slug(artist_name)
+            album_slug = self._produce_album_slug(artist_name, album_name)
+            track_slug = self._produce_track_slug(artist_name, album_name, track_name)
 
             artist = None
             album = None
 
+
             try:
                 artist = self._database.query(Artist).filter_by(name=artist_name).one()
             except NoResultFound:
-                artist = Artist(artist_name)
+                artist = Artist(artist_name, artist_slug)
                 self._database.add(artist)
 
             try:
                 album = self._database.query(Album).filter_by(name=album_name).one()
             except NoResultFound:
-                album = Album(album_name)
+                album = Album(album_name, album_slug)
                 self._database.add(album)
 
             artist.albums.append(album)
 
-            track = Track(slug, filename, track_name)
+            track = Track(track_slug, filename, track_name)
             self._database.add(track)
 
             album.tracks.append(track)
 
             self._database.commit()
-            #self._session.close()
-            #self._session = None
 
-    def _parse_slug(self, filename):
-        artist, album, track = self._reader.get(filename)
-
-        if artist is not None and album is not None and track is not None:
-            slug = "%s_%s_%s" % (artist, album, track)
-        else:
-            slug = os.path.splitext(os.path.basename(filename))[0]
-
-        slug = re.sub(r'[\'" ()/]', '_', slug.lower())
-
+    def _produce_artist_slug(self, artist):
         index = 0
-
+        slug = self.slugify(artist)
         while True:
-            if slug not in self._slugs:
-                self._slugs[slug] = filename
+            try:
+                self._database.query(Artist).filter_by(slug=slug).one()
+            except NoResultFound:
                 return slug
             index += 1
             slug = "%s_%s" % (slug, index)
+
+    def _produce_album_slug(self, artist, album):
+        index = 0
+        slug = self.slugify("%s_%s" % (artist, album))
+        while True:
+            try:
+                self._database.query(Album).filter_by(slug=slug).one()
+            except NoResultFound:
+                return slug
+            index += 1
+            slug = "%s_%s" % (slug, index)
+
+    def _produce_track_slug(self, artist, album, track):
+        index = 0
+        slug = self.slugify("%s_%s_%s" % (artist, album, track))
+        while True:
+            try:
+                self._database.query(Track).filter_by(slug=slug).one()
+            except NoResultFound:
+                return slug
+            index += 1
+            slug = "%s_%s" % (slug, index)
+
+    def slugify(self, string):
+        return re.sub(r'[\'" :()/]', '_', string.lower())
 
     def get_track_by_slug(self, slug):
         try:
