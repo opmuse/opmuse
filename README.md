@@ -17,7 +17,7 @@ Get up and running...
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ pip install -r optional-requirements.txt
-    $ cp config/opmuse.ini.dist config/opmuse.ini
+    $ cp config/opmuse.dist.ini config/opmuse.ini
     $ ./run.sh
 
 ... get back to work...
