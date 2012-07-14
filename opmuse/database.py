@@ -15,7 +15,8 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
         url = cherrypy.config['opmuse']['database.url']
-        self.engine = create_engine(url, echo=True)
+        echo = cherrypy.config['opmuse']['database.echo']
+        self.engine = create_engine(url, echo=echo)
         Base.metadata.create_all(self.engine)
 
     # TODO use decorator?
