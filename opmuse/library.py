@@ -60,12 +60,32 @@ class TagParser:
     def __init__(self, reader):
         self._reader = reader
 
+    def is_supported(self, filename):
+        extensions = self.supported_extensions()
+
+        if extensions is None:
+            return True
+
+        ext = os.path.splitext(filename)[1].lower()[1:]
+
+        return ext in extensions
+
+    def supported_extensions(self):
+        """
+            Should return a list of supported file extensions this parser
+            supports or None if it supports everything.
+        """
+        raise NotImplementedError()
+
     def parse(self, filename):
         raise NotImplementedError()
 
-class AutoTagParser(TagParser):
+class HsaudiotagParser(TagParser):
     def parse(self, filename):
-        tag = hsaudiotag.auto.File(filename)
+        tag = self.get_tag(filename)
+
+        if tag is None:
+            return None, None, None
 
         artist = tag.artist
         album = tag.album
@@ -80,7 +100,27 @@ class AutoTagParser(TagParser):
         if len(track) == 0:
             track = None
 
+        tag = None
         return artist, album, track
+
+    def get_tag(self, filename):
+        raise NotImplementedError()
+
+class OggParser(HsaudiotagParser):
+
+    def get_tag(self, filename):
+        return hsaudiotag.ogg.Vorbis(filename)
+
+    def supported_extensions(self):
+        return ['ogg']
+
+class Id3Parser(HsaudiotagParser):
+
+    def get_tag(self, filename):
+        return hsaudiotag.mpeg.Mpeg(filename).tag
+
+    def supported_extensions(self):
+        return ['mp3']
 
 class PathParser(TagParser):
     """
@@ -117,6 +157,9 @@ class PathParser(TagParser):
 
         return artist, album, track
 
+    def supported_extensions(self):
+        return None
+
     def _get_path_components(self, filename):
         track = os.path.splitext(os.path.basename(filename))[0]
         track = track.split("-")[-1]
@@ -137,8 +180,11 @@ class TagReader:
     files = set()
 
     def __init__(self):
-        self._parsers.append(AutoTagParser(self))
-        self._parsers.append(PathParser(self).validate(False))
+        self._parsers.extend([
+            Id3Parser(self),
+            OggParser(self),
+            PathParser(self).validate(False)
+        ])
 
     def add(self, filename):
         self.files.add(filename)
@@ -148,7 +194,21 @@ class TagReader:
             if not isinstance(parser, TagParser):
                 raise Exception("Parser does not implement TagParser")
 
+            parser_name = parser.__class__.__name__
+
+            cherrypy.log("Parsing with %s" % parser_name)
+
+            index = 0
+            total = len(self.files)
             for filename in self.files:
+                index += 1
+
+                if index % 1000 == 0:
+                    cherrypy.log("%d of %d parsed with %s" % (index, total, parser_name))
+
+                if not parser.is_supported(filename):
+                    continue
+
                 artist = album = track = None
 
                 if filename in self._by_filename:
@@ -200,7 +260,7 @@ class Library:
 
     _reader = TagReader()
 
-    SUPPORTED = [".mp3", ".ogg"]
+    SUPPORTED = ["mp3", "ogg"]
 
     def __init__(self, path, database):
 
@@ -208,14 +268,27 @@ class Library:
 
         path = os.path.abspath(path)
 
+        cherrypy.log("Searching library path")
+        index = 0
         for path, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                if os.path.splitext(filename)[1].lower() in self.SUPPORTED:
+                index += 1
+                if index % 1000 == 0:
+                    cherrypy.log("%d files found" % index)
+
+                if os.path.splitext(filename)[1].lower()[1:] in self.SUPPORTED:
                     filename = os.path.join(path, filename)
+
+                    # we just ignore files with non-utf8 chars
+                    if filename != filename.encode('utf8', 'replace').decode():
+                        continue
+
                     try:
                         self._database.query(Track).filter_by(filename=filename).one()
                     except NoResultFound:
                         self._reader.add(filename)
+
+        cherrypy.log("Starting tag parsing.")
 
         self._reader.parse()
 
@@ -232,7 +305,6 @@ class Library:
 
             artist = None
             album = None
-
 
             try:
                 artist = self._database.query(Artist).filter_by(name=artist_name).one()
