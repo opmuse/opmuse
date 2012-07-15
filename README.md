@@ -26,4 +26,9 @@ Get up and running...
     $ source virtualenv/bin/activate
     $ ./run.sh
 
+MySQL
+-----
+
+For MySQL support you'll have to [download and install oursql manually](https://launchpad.net/oursql/py3k/py3k-0.9.3).
+
 [![Build Status](https://secure.travis-ci.org/inty/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
