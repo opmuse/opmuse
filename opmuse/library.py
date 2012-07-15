@@ -364,6 +364,16 @@ class Library:
             if len(track.paths) == 0:
                 self._database.delete(track)
 
+        # remove albums without tracks
+        for album in self._database.query(Album).all():
+            if len(album.tracks) == 0:
+                self._database.delete(album)
+
+        # remove artists without albums
+        for artist in self._database.query(Artist).all():
+            if len(artist.albums) == 0:
+                self._database.delete(artist)
+
         self._database.commit()
 
     def _produce_artist_slug(self, artist):
