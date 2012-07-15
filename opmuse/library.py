@@ -1,5 +1,6 @@
-import cherrypy, re, os, hsaudiotag.auto
+import cherrypy, re, os, hsaudiotag.auto, hashlib
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
@@ -9,8 +10,8 @@ class Artist(Base):
     __tablename__ = 'artists'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    slug = Column(String)
+    name = Column(String(255))
+    slug = Column(String(255), index=True)
 
     def __init__(self, name, slug):
         self.name = name
@@ -20,8 +21,8 @@ class Album(Base):
     __tablename__ = 'albums'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    slug = Column(String)
+    name = Column(String(255))
+    slug = Column(String(255), index=True)
     artist_id = Column(Integer, ForeignKey('artists.id'))
 
     artist = relationship("Artist", backref=backref('albums', order_by=id))
@@ -30,31 +31,35 @@ class Album(Base):
         self.name = name
         self.slug = slug
 
+class TrackPath(Base):
+    __tablename__ = 'track_paths'
+
+    id = Column(Integer, primary_key=True)
+    path = Column(String(512))
+    track_id = Column(Integer, ForeignKey('tracks.id'))
+
+    tracks = relationship("Track", backref=backref('paths', order_by=id))
+
+    def __init__(self, path):
+        self.path = path
+
 class Track(Base):
     __tablename__ = 'tracks'
 
     id = Column(Integer, primary_key=True)
-    slug = Column(String)
-    filename = Column(String)
-    name = Column(String)
-    format = Column(String)
+    slug = Column(String(255), index=True)
+    name = Column(String(255))
+    format = Column(String(128))
     album_id = Column(Integer, ForeignKey('albums.id'))
+    hash = Column(String(40), index=True, unique=True)
 
     album = relationship("Album", backref=backref('tracks', order_by=id))
 
-    def __init__(self, slug, filename, name):
+    def __init__(self, hash, slug, name, format):
+        self.hash = hash
         self.slug = slug
-        self.filename = filename
         self.name = name
-
-        ext = os.path.splitext(filename)[1].lower()
-
-        if ext == ".mp3":
-            self.format = 'audio/mp3'
-        elif ext == ".ogg":
-            self.format = 'audio/ogg'
-        else:
-            self.format = 'audio/unknown'
+        self.format = format
 
 class TagParser:
     def __init__(self, reader):
@@ -126,36 +131,10 @@ class PathParser(TagParser):
     """
     Tries to find tags for file by looking at path components (e.g. containing folder
     might be album name, parent folder might be artist name ...)
-
-    This also uses previously parsed tag as a sort of validator if the artist and album
-    names are sane.
     """
-    _validate = True
-
-    def validate(self, validate = True):
-        self._validate = validate
-        return self
 
     def parse(self, filename):
-        artist = None
-        album = None
-        track = None
-
-        if self._validate:
-            artist_comp, album_comp, track_comp = self._get_path_components(filename)
-
-            if artist_comp in self._reader._by_artists:
-                artist = artist_comp
-
-            if artist_comp in self._reader._by_artists and album_comp in self._reader._by_artists[artist_comp]:
-                album = album_comp
-
-            if artist_comp in self._reader._by_artists and album_comp in self._reader._by_artists[artist_comp]:
-                track = track_comp
-        else:
-            artist, album, track = self._get_path_components(filename)
-
-        return artist, album, track
+        return self._get_path_components(filename)
 
     def supported_extensions(self):
         return None
@@ -183,7 +162,7 @@ class TagReader:
         self._parsers.extend([
             Id3Parser(self),
             OggParser(self),
-            PathParser(self).validate(False)
+            PathParser(self)
         ])
 
     def add(self, filename):
@@ -268,7 +247,21 @@ class Library:
 
         path = os.path.abspath(path)
 
-        cherrypy.log("Searching library path")
+        cherrypy.log("Searching library path.")
+
+        # remove paths that doesn't exist anymore
+        for track in self._database.query(Track).all():
+            for track_path in track.paths:
+                # remove path if it has "moved" outside of library path or it
+                # doesn't exist anymore
+                if track_path.path.find(path) != 0 or not os.path.exists(track_path.path):
+                    self._database.delete(track_path)
+
+        self._database.commit()
+
+        filename_by_hash = {}
+        hash_by_filename = {}
+
         index = 0
         for path, dirnames, filenames in os.walk(path):
             for filename in filenames:
@@ -283,17 +276,34 @@ class Library:
                     if filename != filename.encode('utf8', 'replace').decode():
                         continue
 
+                    hash = self.get_hash(filename)
+
+                    hash_by_filename[filename] = hash
+
+                    # don't parse two identical files more than once
+                    if hash in filename_by_hash:
+                        filename_by_hash[hash].append(filename)
+                        continue
+                    else:
+                        filename_by_hash[hash] = [filename]
+
                     try:
-                        self._database.query(Track).filter_by(filename=filename).one()
+                        track = self._database.query(Track).filter_by(hash=hash).one()
+                        # file most likely just moved
+                        if filename not in [path.path for path in track.paths]:
+                            track.paths.append(TrackPath(filename))
+                            self._database.add(track)
+                    # file doesn't exist
                     except NoResultFound:
                         self._reader.add(filename)
+
+        self._database.commit()
 
         cherrypy.log("Starting tag parsing.")
 
         self._reader.parse()
 
         for filename in self._reader.files:
-
             artist_name, album_name, track_name = self._reader.get(filename)
 
             if artist_name is None or album_name is None or track_name is None:
@@ -320,12 +330,41 @@ class Library:
 
             artist.albums.append(album)
 
-            track = Track(track_slug, filename, track_name)
+            hash = hash_by_filename[filename]
+
+            ext = os.path.splitext(filename)[1].lower()
+
+            if ext == ".mp3":
+                format = 'audio/mp3'
+            elif ext == ".ogg":
+                format = 'audio/ogg'
+            else:
+                format = 'audio/unknown'
+
+            track = Track(hash, track_slug, track_name, format)
             self._database.add(track)
+
+            for filename in filename_by_hash[hash]:
+                track.paths.append(TrackPath(filename))
 
             album.tracks.append(track)
 
-            self._database.commit()
+            try:
+                self._database.commit()
+            except IntegrityError:
+                print(track)
+
+
+        # remove tracks without any paths (e.g. removed since previous search)
+        #
+        # because if the file moved it will be found by the hash and just have
+        # the new path readded as opposed to when it was completely removed
+        # from the library path
+        for track in self._database.query(Track).all():
+            if len(track.paths) == 0:
+                self._database.delete(track)
+
+        self._database.commit()
 
     def _produce_artist_slug(self, artist):
         index = 0
@@ -386,6 +425,15 @@ class Library:
 
     def get_artists(self):
         return cherrypy.request.database.query(Artist).all()
+
+    def get_hash(self, filename):
+        with open(filename, "rb") as f:
+            m = hashlib.sha1()
+            b = f.read(128)
+            while b:
+                m.update(b)
+                b = f.read(128)
+        return m.hexdigest()
 
 class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 

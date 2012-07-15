@@ -105,6 +105,6 @@ class Root(object):
         for track in playlist:
             cherrypy.request.database.add(track)
 
-        return Transcoder().transcode([track.filename for track in playlist])
+        return Transcoder().transcode([track.paths[0].path for track in playlist])
 
 
