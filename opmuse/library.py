@@ -49,17 +49,64 @@ class Track(Base):
     id = Column(Integer, primary_key=True)
     slug = Column(String(255), index=True)
     name = Column(String(255))
+    duration = Column(Integer)
     format = Column(String(128))
     album_id = Column(Integer, ForeignKey('albums.id'))
     hash = Column(String(40), index=True, unique=True)
 
     album = relationship("Album", backref=backref('tracks', order_by=id))
 
-    def __init__(self, hash, slug, name, format):
+    def __init__(self, hash, slug, name, duration, format):
         self.hash = hash
         self.slug = slug
         self.name = name
+        self.duration = duration
         self.format = format
+
+class FileMetadata:
+
+    def __init__(self, *args):
+        self.artist_name = args[0]
+        self.album_name = args[1]
+        self.track_name = args[2]
+        self.track_duration = args[3]
+
+        self.metadatas = args
+
+        self.pos = 0
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self.pos > len(self.metadatas) - 1:
+            raise StopIteration
+        else:
+            self.pos += 1
+            return self.metadatas[self.pos - 1]
+
+    def has_required(self):
+        return (self.artist_name is not None and
+                self.album_name is not None and
+                self.track_name is not None)
+
+    def merge(self, metadata):
+
+        metadatas = []
+
+        while True:
+            try:
+                this = self.next()
+                that = metadata.next()
+            except StopIteration:
+                break
+
+            if this is None:
+                metadatas.append(that)
+            else:
+                metadatas.append(this)
+
+        return FileMetadata(*metadatas)
 
 class TagParser:
     def __init__(self, reader):
@@ -90,11 +137,12 @@ class HsaudiotagParser(TagParser):
         tag = self.get_tag(filename)
 
         if tag is None:
-            return None, None, None
+            return FileMetadata(None, None, None, None)
 
         artist = tag.artist
         album = tag.album
         track = tag.title
+        duration = tag.duration if hasattr(tag, 'duration') else None
 
         if len(artist) == 0:
             artist = None
@@ -106,7 +154,8 @@ class HsaudiotagParser(TagParser):
             track = None
 
         tag = None
-        return artist, album, track
+
+        return FileMetadata(artist, album, track, duration)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -134,7 +183,7 @@ class PathParser(TagParser):
     """
 
     def parse(self, filename):
-        return self._get_path_components(filename)
+        return FileMetadata(*(self._get_path_components(filename) + (None, )))
 
     def supported_extensions(self):
         return None
@@ -154,7 +203,6 @@ class TagReader:
     _parsed = False
 
     _parsers = []
-    _by_artists = {}
     _by_filename = {}
     files = set()
 
@@ -188,37 +236,22 @@ class TagReader:
                 if not parser.is_supported(filename):
                     continue
 
-                artist = album = track = None
+                previous_metadata = None
 
                 if filename in self._by_filename:
-                    artist, album, track = self._by_filename[filename]
+                    previous_metadata = self._by_filename[filename]
 
-                if artist is not None and album is not None and track is not None:
-                    continue
+                new_metadata = parser.parse(filename)
 
-                new_artist, new_album, new_track = parser.parse(filename)
+                if not isinstance(new_metadata, FileMetadata):
+                    raise Exception("TagParser.parse must return a FileMetadata instance.")
 
-                if artist is None:
-                    artist = new_artist
+                if previous_metadata is not None:
+                    metadata = previous_metadata.merge(new_metadata)
+                else:
+                    metadata = new_metadata
 
-                if album is None:
-                    album = new_album
-
-                if track is None:
-                    track = new_track
-
-                if artist is not None and len(artist) > 0:
-                    if artist not in self._by_artists:
-                        self._by_artists[artist] = {}
-
-                    if album is not None and len(album) > 0:
-                        if album not in self._by_artists[artist]:
-                            self._by_artists[artist][album] = []
-
-                        if track is not None and len(track) > 0:
-                            self._by_artists[artist][album].append((filename, track))
-
-                self._by_filename[filename] = (artist, album, track)
+                self._by_filename[filename] = metadata
 
         self._parsed = True
 
@@ -226,14 +259,8 @@ class TagReader:
         if not self._parsed:
             raise Exception("Logic error, parse() must be run before get()")
 
-        artist = None
-        album = None
-        track = None
-
         if filename in self._by_filename:
-            artist, album, track = self._by_filename[filename]
-
-        return artist, album, track
+            return self._by_filename[filename]
 
 class Library:
 
@@ -304,28 +331,38 @@ class Library:
         self._reader.parse()
 
         for filename in self._reader.files:
-            artist_name, album_name, track_name = self._reader.get(filename)
+            metadata = self._reader.get(filename)
 
-            if artist_name is None or album_name is None or track_name is None:
+            if not metadata.has_required():
                 continue
 
-            artist_slug = self._produce_artist_slug(artist_name)
-            album_slug = self._produce_album_slug(artist_name, album_name)
-            track_slug = self._produce_track_slug(artist_name, album_name, track_name)
+            artist_slug = self._produce_artist_slug(
+                metadata.artist_name
+            )
+            album_slug = self._produce_album_slug(
+                metadata.artist_name, metadata.album_name
+            )
+            track_slug = self._produce_track_slug(
+                metadata.artist_name, metadata.album_name, metadata.track_name
+            )
 
             artist = None
             album = None
 
             try:
-                artist = self._database.query(Artist).filter_by(name=artist_name).one()
+                artist = self._database.query(Artist).filter_by(
+                    name=metadata.artist_name
+                ).one()
             except NoResultFound:
-                artist = Artist(artist_name, artist_slug)
+                artist = Artist(metadata.artist_name, artist_slug)
                 self._database.add(artist)
 
             try:
-                album = self._database.query(Album).filter_by(name=album_name).one()
+                album = self._database.query(Album).filter_by(
+                    artist=artist, name=metadata.album_name
+                ).one()
             except NoResultFound:
-                album = Album(album_name, album_slug)
+                album = Album(metadata.album_name, album_slug)
                 self._database.add(album)
 
             artist.albums.append(album)
@@ -341,7 +378,7 @@ class Library:
             else:
                 format = 'audio/unknown'
 
-            track = Track(hash, track_slug, track_name, format)
+            track = Track(hash, track_slug, metadata.track_name, metadata.track_duration, format)
             self._database.add(track)
 
             for filename in filename_by_hash[hash]:
@@ -349,11 +386,7 @@ class Library:
 
             album.tracks.append(track)
 
-            try:
-                self._database.commit()
-            except IntegrityError:
-                print(track)
-
+        self._database.commit()
 
         # remove tracks without any paths (e.g. removed since previous search)
         #
