@@ -3,3 +3,4 @@ jinja2
 ply
 hsaudiotag3k
 sqlalchemy
+mmh3

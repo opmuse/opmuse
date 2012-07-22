@@ -1,7 +1,6 @@
-import cherrypy, re, os, hsaudiotag.auto, hashlib
+import cherrypy, re, os, hsaudiotag.auto, base64, mmh3
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, BINARY
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 from opmuse.database import Base
@@ -52,7 +51,7 @@ class Track(Base):
     duration = Column(Integer)
     format = Column(String(128))
     album_id = Column(Integer, ForeignKey('albums.id'))
-    hash = Column(String(40), index=True, unique=True)
+    hash = Column(BINARY(24), index=True, unique=True)
 
     album = relationship("Album", backref=backref('tracks', order_by=id))
 
@@ -471,12 +470,8 @@ class Library:
 
     def get_hash(self, filename):
         with open(filename, "rb") as f:
-            m = hashlib.sha1()
-            b = f.read(128)
-            while b:
-                m.update(b)
-                b = f.read(128)
-        return m.hexdigest()
+            b = f.read()
+            return base64.b64encode(mmh3.hash_bytes(b))
 
 class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 
