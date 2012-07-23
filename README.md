@@ -23,7 +23,6 @@ Get up and running...
 ... get back to work...
 -----------------------
 
-    $ source virtualenv/bin/activate
     $ ./run.sh
 
 MySQL
