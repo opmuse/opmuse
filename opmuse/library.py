@@ -24,7 +24,7 @@ class Album(Base):
     slug = Column(String(255), index=True)
     artist_id = Column(Integer, ForeignKey('artists.id'))
 
-    artist = relationship("Artist", backref=backref('albums', order_by=id))
+    artist = relationship("Artist", backref=backref('albums', order_by=name))
 
     def __init__(self, name, slug):
         self.name = name
@@ -53,7 +53,7 @@ class Track(Base):
     album_id = Column(Integer, ForeignKey('albums.id'))
     hash = Column(BINARY(24), index=True, unique=True)
 
-    album = relationship("Album", backref=backref('tracks', order_by=id))
+    album = relationship("Album", backref=backref('tracks', order_by=name))
 
     def __init__(self, hash, slug, name, duration, format):
         self.hash = hash
@@ -462,11 +462,8 @@ class Library:
         except NoResultFound:
             pass
 
-    def get_tracks(self):
-        return self._tracks
-
     def get_artists(self):
-        return cherrypy.request.database.query(Artist).all()
+        return cherrypy.request.database.query(Artist).order_by(Artist.name).all()
 
     def get_hash(self, filename):
 
