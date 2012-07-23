@@ -1,4 +1,4 @@
-import cherrypy, re, os, hsaudiotag.auto, base64, mmh3
+import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, BINARY
 from sqlalchemy.orm import relationship, backref
@@ -469,9 +469,24 @@ class Library:
         return cherrypy.request.database.query(Artist).all()
 
     def get_hash(self, filename):
-        with open(filename, "rb") as f:
-            b = f.read()
-            return base64.b64encode(mmh3.hash_bytes(b))
+
+        byte_size = 1024 * 128
+
+        with open(filename, "rb", 0) as f:
+            # fetch first 512k and last 512k to get a reasonably secure
+            # unique set of bytes from this file. also because id3 tags
+            # might be located at the end or the beginning of a file,
+            # we want to be able to detect changes to them
+
+            if os.path.getsize(filename) < byte_size * 2:
+                bytes = f.read()
+            else:
+                begin_bytes = f.read(byte_size)
+                f.seek(-byte_size, io.SEEK_END)
+                end_bytes = f.read(byte_size)
+                bytes = begin_bytes + end_bytes
+
+            return base64.b64encode(mmh3.hash_bytes(bytes))
 
 class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 
