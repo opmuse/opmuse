@@ -291,11 +291,13 @@ class Library:
         index = 0
         for path, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                index += 1
-                if index % 1000 == 0:
-                    cherrypy.log("%d files found" % index)
 
                 if os.path.splitext(filename)[1].lower()[1:] in self.SUPPORTED:
+
+                    index += 1
+                    if index % 1000 == 0:
+                        cherrypy.log("%d files found" % index)
+
                     filename = os.path.join(path, filename)
 
                     # we just ignore files with non-utf8 chars
