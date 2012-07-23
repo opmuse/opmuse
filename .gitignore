@@ -4,3 +4,4 @@
 /public/styles/*.css
 /opmuse.db
 *.pyc
+/tests/opmuse.db
