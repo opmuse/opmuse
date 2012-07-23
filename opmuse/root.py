@@ -24,11 +24,25 @@ class Playlist:
         cherrypy.session['playlist'] = playlist
         cherrypy.session.release_lock()
 
+
+    @cherrypy.expose
+    def remove(self, track_number):
+
+        cherrypy.session.acquire_lock()
+
+        playlist = cherrypy.session.get('playlist', [])
+        playlist.pop(int(track_number))
+
+        cherrypy.session['playlist'] = playlist
+        cherrypy.session.release_lock()
+
+
     @cherrypy.expose
     def clear(self):
         cherrypy.session.acquire_lock()
         cherrypy.session['playlist'] = []
         cherrypy.session.release_lock()
+
 
 
 class Styles(object):

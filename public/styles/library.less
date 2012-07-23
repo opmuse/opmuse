@@ -4,17 +4,20 @@
         p {
             float: left;
         }
+
         .playlist.add {
+            background: white
+                url("/images/icon_spritesheet.png")
+                no-repeat
+                left
+                top;
             display: block;
             text-transform: uppercase;
-            background: #999;
-            padding: 2px 3px 2px 3px;
-            color: #fefefe;
-            font-weight: bold;
+            width: 30px;
+            height: 30px;
+            color: transparent;
             float: right;
             &:hover {
-                color: #999;
-                background: #fefefe;
             }
         }
     }
@@ -34,10 +37,10 @@
     ul {
         margin-left: 10px;
         li {
-            height: 21px;
+            height: 30px;
+            margin-bottom:4px;
             display: block;
             clear: both;
         }
     }
 }
-
