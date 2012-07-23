@@ -329,7 +329,17 @@ class Library:
 
         self._reader.parse()
 
+        cherrypy.log("Starting database update.")
+
+        files = index = len(self._reader.files)
+
         for filename in self._reader.files:
+
+            if index % 1000 == 0:
+                cherrypy.log("Updated %d of %d files." % (index, files))
+
+            index -= 1
+
             metadata = self._reader.get(filename)
 
             if not metadata.has_required():
