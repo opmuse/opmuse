@@ -7,6 +7,12 @@
 {% block content %}
 <div id="library">
 <p>
+    <a
+        class="playlist add"
+        href="/playlist/add_album/{{ album.slug|urlencode }}">
+        Add album
+    </a>
+
     <ul>
     {% for track in album.tracks %}
         <li class="track">
