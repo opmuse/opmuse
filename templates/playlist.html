@@ -2,6 +2,11 @@
     {% for track in playlist %}
     <li>
         {{ track.album.artist.name }} - {{ track.album.name }} - {{ track.name }}
+        <a
+            class="remove"
+            href="/playlist/remove/{{ loop.index - 1 }}">
+            Remove
+        </a>
     </li>
     {% endfor %}
 </ul>

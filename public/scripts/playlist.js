@@ -23,6 +23,16 @@ require(['jquery'], function($) {
         return false;
     });
 
+    $('#playlist .remove').live("click", function (event) {
+        var url = $(this).attr('href');
+        $.ajax(url, {
+            success: function (data) {
+                $("#playlist").load(listUrl);
+            }
+        });
+        return false;
+    });
+
     $('#clear-playlist').click(function (event) {
         var url = $(this).attr('href');
         $.ajax(url, {
