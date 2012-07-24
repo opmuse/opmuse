@@ -179,6 +179,14 @@ class FlacParser(HsaudiotagParser):
     def supported_extensions(self):
         return ['flac']
 
+class Mp4Parser(HsaudiotagParser):
+
+    def get_tag(self, filename):
+        return hsaudiotag.mp4.File(filename)
+
+    def supported_extensions(self):
+        return ['m4p', 'mp4', 'm4a']
+
 class OggParser(HsaudiotagParser):
 
     def get_tag(self, filename):
@@ -237,6 +245,7 @@ class TagReader:
         self._parsers.extend([
             Id3Parser(self),
             OggParser(self),
+            Mp4Parser(self),
             FlacParser(self),
             WmaParser(self),
             PathParser(self)
@@ -295,7 +304,8 @@ class Library:
 
     _reader = TagReader()
 
-    SUPPORTED = ["mp3", "ogg", "flac", "wma"]
+    # TODO figure out from TagParsers?
+    SUPPORTED = ["mp3", "ogg", "flac", "wma", "m4p", "mp4", "m4a"]
 
     def __init__(self, path, database):
 
