@@ -426,6 +426,8 @@ class Library:
                 format = 'audio/mp3'
             elif ext == ".wma":
                 format = 'audio/x-ms-wma'
+            elif ext == ".m4a" or ext == ".m4p" or ext == ".mp4":
+                format = 'audio/mp4a-latm'
             elif ext == ".flac":
                 format = 'audio/flac'
             elif ext == ".ogg":
