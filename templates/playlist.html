@@ -1,7 +1,8 @@
 <ul class="tracks">
     {% for track in playlist %}
     <li>
-        {{ track.album.artist.name }} - {{ track.album.name }} - {{ track.name }}
+        {{ track.album.artist.name }} - {{ track.album.name }} -
+        {{ track.name }} - {{ track.duration|format_seconds }}
         <a
             class="remove"
             href="/playlist/remove/{{ loop.index - 1 }}">

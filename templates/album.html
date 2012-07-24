@@ -16,7 +16,12 @@
     <ul>
     {% for track in album.tracks %}
         <li class="track">
-            <p>{{ track.name }}</p>
+            <p class="name">
+                {{ track.name }}
+            </p>
+            <p class="duration">
+                {{ track.duration|format_seconds }}
+            </p>
             <a
                 class="playlist add"
                 href="/playlist/add/{{ track.slug|urlencode }}">

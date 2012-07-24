@@ -7,11 +7,15 @@ env = Environment(
     loader=FileSystemLoader(os.path.join(os.path.abspath("."), "templates"))
 )
 
+def format_seconds(seconds):
+    return "%02d:%02d" % divmod(seconds, 60)
+
 # TODO this has been added in master
 #       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
 def urlencode(value):
     return quote(value)
 
+env.filters['format_seconds'] = format_seconds
 env.filters['urlencode'] = urlencode
 
 class Jinja(HandlerWrapperTool):
