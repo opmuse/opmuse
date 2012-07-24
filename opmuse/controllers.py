@@ -1,63 +1,33 @@
-import os, cherrypy
+import os
+import cherrypy
 from opmuse.transcoder import Transcoder
+import opmuse.playlist
+
 
 class Playlist:
+    def __init__(self):
+        self.model = opmuse.playlist.Model()
+
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='playlist.html')
     def list(self):
-        playlist = cherrypy.session.get('playlist', [])
-
-        for track in playlist:
-            cherrypy.request.database.add(track)
-
-        return {'playlist': playlist}
+        return {'playlist': self.model.getTracks()}
 
     @cherrypy.expose
     def add(self, slug):
-        library = cherrypy.engine.library.library
-        track = library.get_track_by_slug(slug)
-
-        cherrypy.session.acquire_lock()
-        playlist = cherrypy.session.get('playlist', [])
-        playlist.append(track)
-
-        cherrypy.session['playlist'] = playlist
-        cherrypy.session.release_lock()
-
+        self.model.addTrack(slug)
 
     @cherrypy.expose
     def add_album(self, slug):
-        library = cherrypy.engine.library.library
-        album = library.get_album_by_slug(slug)
-
-        cherrypy.session.acquire_lock()
-        playlist = cherrypy.session.get('playlist', [])
-
-        for track in album.tracks:
-            playlist.append(track)
-
-        cherrypy.session['playlist'] = playlist
-        cherrypy.session.release_lock()
-
+        self.model.addAlbum(slug)
 
     @cherrypy.expose
     def remove(self, track_number):
-
-        cherrypy.session.acquire_lock()
-
-        playlist = cherrypy.session.get('playlist', [])
-        playlist.pop(int(track_number))
-
-        cherrypy.session['playlist'] = playlist
-        cherrypy.session.release_lock()
-
+        self.model.removeTrack(track_number)
 
     @cherrypy.expose
     def clear(self):
-        cherrypy.session.acquire_lock()
-        cherrypy.session['playlist'] = []
-        cherrypy.session.release_lock()
-
+        self.model.clear()
 
 
 class Styles(object):
@@ -92,6 +62,7 @@ class Styles(object):
 
             return ''.join([u.fmt(items) for u in p.result if u]).strip()
 
+
 class Root(object):
     styles = Styles()
     playlist = Playlist()
@@ -99,7 +70,7 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index.html')
     def index(self):
-        return { }
+        return {}
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='album.html')
@@ -135,5 +106,3 @@ class Root(object):
             cherrypy.request.database.add(track)
 
         return Transcoder().transcode([track.paths[0].path for track in playlist])
-
-
