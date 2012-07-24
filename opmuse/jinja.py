@@ -8,7 +8,8 @@ env = Environment(
 )
 
 def format_seconds(seconds):
-    return "%02d:%02d" % divmod(seconds, 60)
+    if seconds is not None:
+        return "%02d:%02d" % divmod(seconds, 60)
 
 # TODO this has been added in master
 #       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
