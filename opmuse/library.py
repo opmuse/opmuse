@@ -159,6 +159,14 @@ class HsaudiotagParser(TagParser):
     def get_tag(self, filename):
         raise NotImplementedError()
 
+class FlacParser(HsaudiotagParser):
+
+    def get_tag(self, filename):
+        return hsaudiotag.flac.FLAC(filename)
+
+    def supported_extensions(self):
+        return ['flac']
+
 class OggParser(HsaudiotagParser):
 
     def get_tag(self, filename):
@@ -209,6 +217,7 @@ class TagReader:
         self._parsers.extend([
             Id3Parser(self),
             OggParser(self),
+            FlacParser(self),
             PathParser(self)
         ])
 
@@ -265,7 +274,7 @@ class Library:
 
     _reader = TagReader()
 
-    SUPPORTED = ["mp3", "ogg"]
+    SUPPORTED = ["mp3", "ogg", "flac"]
 
     def __init__(self, path, database):
 
@@ -384,6 +393,8 @@ class Library:
 
             if ext == ".mp3":
                 format = 'audio/mp3'
+            elif ext == ".flac":
+                format = 'audio/flac'
             elif ext == ".ogg":
                 format = 'audio/ogg'
             else:
