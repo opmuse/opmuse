@@ -7,9 +7,9 @@ from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 if __name__ == '__main__':
     cherrypy.tools.jinja = Jinja()
     cherrypy.tools.database = SqlAlchemyTool()
-    import opmuse.root
+    import opmuse.controllers
 
-    cherrypy.tree.mount(opmuse.root.Root(), '/', {
+    cherrypy.tree.mount(opmuse.controllers.Root(), '/', {
         '/': {
             'tools.database.on': True,
             'tools.sessions.on': True,
