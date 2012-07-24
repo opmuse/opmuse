@@ -16,6 +16,11 @@
     <ul>
     {% for track in album.tracks %}
         <li class="track">
+        {% if track.number %}
+            <p class="number">
+                {{ track.number }}
+            </p>
+        {% endif %}
             <p class="name">
                 {{ track.name }}
             </p>

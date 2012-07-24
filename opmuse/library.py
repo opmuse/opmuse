@@ -49,17 +49,19 @@ class Track(Base):
     slug = Column(String(255), index=True)
     name = Column(String(255))
     duration = Column(Integer)
+    number = Column(Integer)
     format = Column(String(128))
     album_id = Column(Integer, ForeignKey('albums.id'))
     hash = Column(BINARY(24), index=True, unique=True)
 
-    album = relationship("Album", backref=backref('tracks', order_by=name))
+    album = relationship("Album", backref=backref('tracks', order_by=number))
 
-    def __init__(self, hash, slug, name, duration, format):
+    def __init__(self, hash, slug, name, duration, number, format):
         self.hash = hash
         self.slug = slug
         self.name = name
         self.duration = duration
+        self.number = number
         self.format = format
 
 class FileMetadata:
@@ -69,6 +71,7 @@ class FileMetadata:
         self.album_name = args[1]
         self.track_name = args[2]
         self.track_duration = args[3]
+        self.track_number = args[4]
 
         self.metadatas = args
 
@@ -136,12 +139,13 @@ class HsaudiotagParser(TagParser):
         tag = self.get_tag(filename)
 
         if tag is None:
-            return FileMetadata(None, None, None, None)
+            return FileMetadata(None, None, None, None, None)
 
         artist = tag.artist
         album = tag.album
         track = tag.title
         duration = tag.duration if hasattr(tag, 'duration') else None
+        number = tag.track if tag.track > 0 else None
 
         if len(artist) == 0:
             artist = None
@@ -154,7 +158,7 @@ class HsaudiotagParser(TagParser):
 
         tag = None
 
-        return FileMetadata(artist, album, track, duration)
+        return FileMetadata(artist, album, track, duration, number)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -198,20 +202,28 @@ class PathParser(TagParser):
     """
 
     def parse(self, filename):
-        return FileMetadata(*(self._get_path_components(filename) + (None, )))
-
-    def supported_extensions(self):
-        return None
-
-    def _get_path_components(self, filename):
-        track = os.path.splitext(os.path.basename(filename))[0]
-        track = track.split("-")[-1]
+        track_name = os.path.splitext(os.path.basename(filename))[0]
+        track = track_name.split("-")[-1]
         path_comp = os.path.split(os.path.dirname(filename))
         album = path_comp[1]
         path_comp = os.path.split(path_comp[0])
         artist = path_comp[1]
 
-        return artist, album, track
+        number = None
+
+        match = re.search('([0-9]+)', track_name)
+        if match is not None:
+            number = int(match.group(0))
+            # i don't know of any albums with more than 100 tracks, so we're
+            # going to assume it's not a track number if the number is greater
+            # than that
+            if number > 100:
+                number = None
+
+        return FileMetadata(artist, album, track, None, number)
+
+    def supported_extensions(self):
+        return None
 
 class TagReader:
 
@@ -411,7 +423,8 @@ class Library:
             else:
                 format = 'audio/unknown'
 
-            track = Track(hash, track_slug, metadata.track_name, metadata.track_duration, format)
+            track = Track(hash, track_slug, metadata.track_name,
+                    metadata.track_duration, metadata.track_number, format)
             self._database.add(track)
 
             for filename in filename_by_hash[hash]:
