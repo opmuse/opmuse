@@ -159,6 +159,14 @@ class HsaudiotagParser(TagParser):
     def get_tag(self, filename):
         raise NotImplementedError()
 
+class WmaParser(HsaudiotagParser):
+
+    def get_tag(self, filename):
+        return hsaudiotag.wma.WMADecoder(filename)
+
+    def supported_extensions(self):
+        return ['wma']
+
 class FlacParser(HsaudiotagParser):
 
     def get_tag(self, filename):
@@ -218,6 +226,7 @@ class TagReader:
             Id3Parser(self),
             OggParser(self),
             FlacParser(self),
+            WmaParser(self),
             PathParser(self)
         ])
 
@@ -274,7 +283,7 @@ class Library:
 
     _reader = TagReader()
 
-    SUPPORTED = ["mp3", "ogg", "flac"]
+    SUPPORTED = ["mp3", "ogg", "flac", "wma"]
 
     def __init__(self, path, database):
 
@@ -393,6 +402,8 @@ class Library:
 
             if ext == ".mp3":
                 format = 'audio/mp3'
+            elif ext == ".wma":
+                format = 'audio/x-ms-wma'
             elif ext == ".flac":
                 format = 'audio/flac'
             elif ext == ".ogg":
