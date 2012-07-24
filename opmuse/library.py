@@ -2,8 +2,8 @@ import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, BINARY
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.orm import sessionmaker
-from opmuse.database import Base
+from multiprocessing import Process
+from opmuse.database import Base, get_session
 
 class Artist(Base):
     __tablename__ = 'artists'
@@ -273,7 +273,7 @@ class Library:
 
         path = os.path.abspath(path)
 
-        cherrypy.log("Searching library path.")
+        cherrypy.log("Starting library update.")
 
         # remove paths that doesn't exist anymore
         for track in self._database.query(Track).all():
@@ -420,6 +420,8 @@ class Library:
 
         self._database.commit()
 
+        cherrypy.log("Done updating library.")
+
     def _produce_artist_slug(self, artist):
         index = 0
         slug = self.slugify(artist)
@@ -456,6 +458,28 @@ class Library:
     def slugify(self, string):
         return re.sub(r'[\'" :()/]', '_', string.lower())
 
+    def get_hash(self, filename):
+
+        byte_size = 1024 * 128
+
+        with open(filename, "rb", 0) as f:
+            # fetch first 512k and last 512k to get a reasonably secure
+            # unique set of bytes from this file. also because id3 tags
+            # might be located at the end or the beginning of a file,
+            # we want to be able to detect changes to them
+
+            if os.path.getsize(filename) < byte_size * 2:
+                bytes = f.read()
+            else:
+                begin_bytes = f.read(byte_size)
+                f.seek(-byte_size, io.SEEK_END)
+                end_bytes = f.read(byte_size)
+                bytes = begin_bytes + end_bytes
+
+            return base64.b64encode(mmh3.hash_bytes(bytes))
+
+class LibraryDao:
+
     def get_album_by_slug(self, slug):
         try:
             return cherrypy.request.database.query(Album).filter_by(slug=slug).one()
@@ -477,32 +501,17 @@ class Library:
     def get_artists(self):
         return cherrypy.request.database.query(Artist).order_by(Artist.name).all()
 
-    def get_hash(self, filename):
-
-        byte_size = 1024 * 128
-
-        with open(filename, "rb", 0) as f:
-            # fetch first 512k and last 512k to get a reasonably secure
-            # unique set of bytes from this file. also because id3 tags
-            # might be located at the end or the beginning of a file,
-            # we want to be able to detect changes to them
-
-            if os.path.getsize(filename) < byte_size * 2:
-                bytes = f.read()
-            else:
-                begin_bytes = f.read(byte_size)
-                f.seek(-byte_size, io.SEEK_END)
-                end_bytes = f.read(byte_size)
-                bytes = begin_bytes + end_bytes
-
-            return base64.b64encode(mmh3.hash_bytes(bytes))
-
 class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
-        session = sessionmaker(autoflush=True, autocommit=False)
-        cherrypy.engine.publish('bind', session)
-        self.library = Library(cherrypy.config['opmuse']['library.path'], session())
+        def process():
+            Library(cherrypy.config['opmuse']['library.path'], get_session())
+
+        cherrypy.log("Spawning library process.")
+        p = Process(target=process)
+        p.start()
+
+        self.library = LibraryDao()
 
     # TODO use decorator?
     start.priority = 20

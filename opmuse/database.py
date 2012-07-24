@@ -1,10 +1,13 @@
-import os
 import cherrypy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 Base = declarative_base()
+
+def get_session():
+    url = cherrypy.config['opmuse']['database.url']
+    return sessionmaker(bind=create_engine(url))()
 
 class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
 
