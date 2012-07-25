@@ -471,38 +471,40 @@ class Library:
 
     def _produce_artist_slug(self, artist):
         index = 0
-        slug = self.slugify(artist)
         while True:
+            slug = self.slugify(artist, index)
             try:
                 self._database.query(Artist).filter_by(slug=slug).one()
             except NoResultFound:
                 return slug
             index += 1
-            slug = "%s_%s" % (slug, index)
 
     def _produce_album_slug(self, artist, album):
         index = 0
-        slug = self.slugify("%s_%s" % (artist, album))
         while True:
+            slug = self.slugify("%s_%s" % (artist, album), index)
             try:
                 self._database.query(Album).filter_by(slug=slug).one()
             except NoResultFound:
                 return slug
             index += 1
-            slug = "%s_%s" % (slug, index)
 
     def _produce_track_slug(self, artist, album, track):
         index = 0
-        slug = self.slugify("%s_%s_%s" % (artist, album, track))
         while True:
+            slug = self.slugify("%s_%s_%s" % (artist, album, track), index)
             try:
                 self._database.query(Track).filter_by(slug=slug).one()
             except NoResultFound:
                 return slug
             index += 1
-            slug = "%s_%s" % (slug, index)
 
-    def slugify(self, string):
+    def slugify(self, string, index):
+        if index > 0:
+            index = str(index)
+            string = "%s_%s" % (string[:(255 - len(index))], index)
+        else:
+            string = string[:255]
         return re.sub(r'[\'" :()/]', '_', string.lower())
 
     def get_hash(self, filename):
