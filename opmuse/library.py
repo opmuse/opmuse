@@ -1,6 +1,6 @@
 import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import Column, Integer, String, ForeignKey, BINARY
+from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB
 from sqlalchemy.orm import relationship, backref
 from multiprocessing import Process
 from opmuse.database import Base, get_session
@@ -34,7 +34,7 @@ class TrackPath(Base):
     __tablename__ = 'track_paths'
 
     id = Column(Integer, primary_key=True)
-    path = Column(String(512))
+    path = Column(BLOB)
     track_id = Column(Integer, ForeignKey('tracks.id'))
 
     tracks = relationship("Track", backref=backref('paths', order_by=id))
@@ -166,26 +166,41 @@ class HsaudiotagParser(TagParser):
 class WmaParser(HsaudiotagParser):
 
     def get_tag(self, filename):
+        try:
+            # parser doesn't work with byte filenames
+            filename = filename.decode()
+        except UnicodeDecodeError:
+            return None
         return hsaudiotag.wma.WMADecoder(filename)
 
     def supported_extensions(self):
-        return ['wma']
+        return [b'wma']
 
 class FlacParser(HsaudiotagParser):
 
     def get_tag(self, filename):
+        try:
+            # parser doesn't work with byte filenames
+            filename = filename.decode()
+        except UnicodeDecodeError:
+            return None
         return hsaudiotag.flac.FLAC(filename)
 
     def supported_extensions(self):
-        return ['flac']
+        return [b'flac']
 
 class Mp4Parser(HsaudiotagParser):
 
     def get_tag(self, filename):
+        try:
+            # parser doesn't work with byte filenames
+            filename = filename.decode()
+        except UnicodeDecodeError:
+            return None
         return hsaudiotag.mp4.File(filename)
 
     def supported_extensions(self):
-        return ['m4p', 'mp4', 'm4a']
+        return [b'm4p', b'mp4', b'm4a']
 
 class OggParser(HsaudiotagParser):
 
@@ -193,15 +208,21 @@ class OggParser(HsaudiotagParser):
         return hsaudiotag.ogg.Vorbis(filename)
 
     def supported_extensions(self):
-        return ['ogg']
+        return [b'ogg']
 
 class Id3Parser(HsaudiotagParser):
 
     def get_tag(self, filename):
+        try:
+            # parser doesn't work with byte filenames
+            filename = filename.decode()
+        except UnicodeDecodeError:
+            return None
+
         return hsaudiotag.mpeg.Mpeg(filename).tag
 
     def supported_extensions(self):
-        return ['mp3']
+        return [b'mp3']
 
 class PathParser(TagParser):
     """
@@ -210,6 +231,12 @@ class PathParser(TagParser):
     """
 
     def parse(self, filename):
+        try:
+            # parser doesn't work with byte filenames
+            filename = filename.decode()
+        except UnicodeDecodeError:
+            return FileMetadata(None, None, None, None, None)
+
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track = track_name.split("-")[-1]
         path_comp = os.path.split(os.path.dirname(filename))
@@ -305,11 +332,15 @@ class Library:
     _reader = TagReader()
 
     # TODO figure out from TagParsers?
-    SUPPORTED = ["mp3", "ogg", "flac", "wma", "m4p", "mp4", "m4a"]
+    SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a"]
 
     def __init__(self, path, database):
 
         self._database = database
+
+        # always treat paths as bytes to avoid encoding issues we don't
+        # care about
+        path = path.encode() if isinstance(path, str) else path
 
         path = os.path.abspath(path)
 
@@ -341,8 +372,8 @@ class Library:
                     filename = os.path.join(path, filename)
 
                     # we just ignore files with non-utf8 chars
-                    if filename != filename.encode('utf8', 'replace').decode():
-                        continue
+                    #if filename != filename.encode('utf8', 'replace').decode():
+                    #    continue
 
                     hash = self.get_hash(filename)
 
@@ -422,15 +453,15 @@ class Library:
 
             ext = os.path.splitext(filename)[1].lower()
 
-            if ext == ".mp3":
+            if ext == b".mp3":
                 format = 'audio/mp3'
-            elif ext == ".wma":
+            elif ext == b".wma":
                 format = 'audio/x-ms-wma'
-            elif ext == ".m4a" or ext == ".m4p" or ext == ".mp4":
-                format = 'audio/mp4a-latm'
-            elif ext == ".flac":
+            elif ext == b".m4a" or ext == b".m4p" or ext == b".mp4":
+                format = b'audio/mp4a-latm'
+            elif ext == b".flac":
                 format = 'audio/flac'
-            elif ext == ".ogg":
+            elif ext == b".ogg":
                 format = 'audio/ogg'
             else:
                 format = 'audio/unknown'
