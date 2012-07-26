@@ -1,53 +1,29 @@
 #library {
-    .track {
-        margin: 4px 0 4px 0;
-        p {
-            float: left;
-        }
+    .playlist.add {
+        display: block;
+        text-transform: uppercase;
+        color: transparent;
+        float: right;
+        font-size: 0;
 
-        .playlist.add {
-            background: white
-                url("/images/icon_spritesheet.png")
-                no-repeat
-                left
-                top;
-            display: block;
-            text-transform: uppercase;
-            width: 30px;
-            height: 30px;
-            color: transparent;
-            float: right;
-            &:hover {
-            }
+        &:before {
+            font-size: @font_size;
+            color: black;
+            content: "+";
         }
     }
 
-    .artist > p {
-        font-weight: bold;
-    }
+    .album .album-tracks-count {
+        color: #888;
+        font-size: 0.8em;
 
-    .album > p {
-        font-size: .9em;
-    }
-
-    .track > p {
-        font-size: .8em;
-        &.number {
-            margin-right: 1em;
-        }
-        &.duration {
-            margin-left: 1em;
-            color: #888;
+        &:before {
+            content: "- ";
         }
     }
 
-    ul {
-        margin-left: 10px;
-        li {
-            height: 30px;
-            margin-bottom:4px;
-            display: block;
-            clear: both;
-        }
+    .add-album {
+        float: right;
+        clear: both;
     }
 }

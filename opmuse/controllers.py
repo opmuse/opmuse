@@ -9,7 +9,7 @@ class Playlist:
         self.model = opmuse.playlist.Model()
 
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='playlist.html')
+    @cherrypy.tools.jinja(filename='playlist-tracks.html')
     def list(self):
         return {'playlist': self.model.getTracks()}
 

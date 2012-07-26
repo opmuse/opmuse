@@ -6,36 +6,54 @@
 
 {% block content %}
 <div id="library">
-<p>
+    <h1>
+        <span class="silent">album</span>
+        {{ album.name }}
+        <small>
+            by
+            <a
+                class=""
+                href="/artist/{{ album.artist.slug }}">
+                {{ album.artist.name }}
+            </a>
+        </small>
+    </h1>
+
     <a
-        class="playlist add"
+        class="playlist add-album"
         href="/playlist/add_album/{{ album.slug|urlencode }}">
-        Add album
+        Add all to playlist
     </a>
 
-    <ul>
-    {% for track in album.tracks %}
-        <li class="track">
-        {% if track.number %}
-            <p class="number">
-                {{ track.number }}
-            </p>
-        {% endif %}
-            <p class="name">
-                {{ track.name }}
-            </p>
-            <p class="duration">
-                {{ track.duration|format_seconds }}
-            </p>
-            <a
-                class="playlist add"
-                href="/playlist/add/{{ track.slug|urlencode }}">
-                Add
-            </a>
-        </li>
-    {% endfor %}
+    <ul class="tracks">
+
+        {% for track in album.tracks %}
+
+            <li class="track">
+
+                {% if track.number %}
+                    <span class="track-number">{{ track.number }}</span>
+                {% endif %}
+
+                <span class="artist-name">{{ track.album.artist.name }}</span>
+                <span class="album-name">{{ track.album.name }}</span>
+                <span class="track-name">{{ track.name }}</span>
+                <span class="track-duration">
+                    ( {{ track.duration|format_seconds }} )
+                </span>
+
+                <a
+                    class="playlist add"
+                    href="/playlist/add/{{ track.slug|urlencode }}">
+                    Add
+                </a>
+
+            </li>
+
+        {% endfor %}
+
     </ul>
-</p>
+
 </div>
 {% endblock %}
 

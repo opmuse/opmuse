@@ -11,11 +11,11 @@ require(['jquery'], function($) {
 
     var listUrl = '/playlist/list';
 
-    $('.playlist.add').click(function (event) {
+    $('.playlist.add, .playlist.add-album').click(function (event) {
         var url = $(this).attr('href');
         $.ajax(url, {
             success: function (data) {
-                $("#playlist").load(listUrl, {}, function () {
+                $("#playlist-tracks").load(listUrl, {}, function () {
                     play();
                 });
             }
@@ -27,7 +27,7 @@ require(['jquery'], function($) {
         var url = $(this).attr('href');
         $.ajax(url, {
             success: function (data) {
-                $("#playlist").load(listUrl);
+                $("#playlist-tracks").load(listUrl);
             }
         });
         return false;
@@ -37,7 +37,7 @@ require(['jquery'], function($) {
         var url = $(this).attr('href');
         $.ajax(url, {
             success: function (data) {
-                $("#playlist").empty();
+                $("#playlist-tracks").empty();
             }
         });
         return false;
@@ -45,6 +45,6 @@ require(['jquery'], function($) {
 
     play();
 
-    $("#playlist").load(listUrl);
+    $("#playlist-tracks").load(listUrl);
 });
 

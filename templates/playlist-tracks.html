@@ -1,0 +1,21 @@
+<ol
+    id="playlist-tracks"
+    class="tracks">
+
+    {% for track in playlist %}
+        <li>
+            <span class="artist-name">{{ track.album.artist.name }}</span>
+            <span class="album-name">{{ track.album.name }}</span>
+            <span class="track-name">{{ track.name }}</span>
+            <span class="track-duration">
+                ( {{ track.duration|format_seconds }} )
+            </span>
+            <a
+                class="remove"
+                href="/playlist/remove/{{ loop.index - 1 }}">
+                X
+            </a>
+        </li>
+    {% endfor %}
+
+</ol>

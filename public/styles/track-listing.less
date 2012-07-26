@@ -1,0 +1,45 @@
+.tracks {
+    clear: both;
+    li:hover,
+    li:hover:nth-child(2n + 1) {
+        background-color: lighten(@accent_color, 45%);
+    }
+
+    li:nth-child(2n + 1) {
+        background-color: #f4f4f4;
+    }
+
+    li.active {
+        font-weight: bold;
+    }
+
+    li {
+        .artist-name {
+
+        }
+        .album-name {
+            display: none;
+            &:before {
+                content: "- ";
+            }
+        }
+        .track-name {
+            &:before {
+                content: "- ";
+            }
+
+        }
+        .track-duration {
+            display: none;
+            &:before {
+                content: "- ";
+            }
+        }
+
+        .track-number {
+            width: 2em;
+            display: inline-block;
+            color: #888;
+        }
+    }
+}

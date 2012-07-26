@@ -1,13 +1,10 @@
-<ul class="tracks">
-    {% for track in playlist %}
-    <li>
-        {{ track.album.artist.name }} - {{ track.album.name }} -
-        {{ track.name }} - {{ track.duration|format_seconds }}
-        <a
-            class="remove"
-            href="/playlist/remove/{{ loop.index - 1 }}">
-            Remove
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+<div id="playlist">
+    <h1><span class="silent">playlist</span> current</h1>
+
+    <a
+        id="clear-playlist"
+        href="/playlist/clear">
+        Clear playlist</a>
+
+    {% include "playlist-tracks.html" %}
+</div>

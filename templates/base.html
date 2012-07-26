@@ -26,26 +26,35 @@
                         src="/images/opmuse-logo.png"
                         alt="opmuse"/>
                     <small class="server-name">
-                    {{ server_name }}
-                </small>
+                        {{ server_name }}
+                    </small>
                 </a>
             </h1>
         </header>
 
         <div id="menu">
             <ul>
-                <li><a href="/">Index</a></li>
-                <li><a href="/library">Library</a></li>
+                <li>
+                    <a href="/">
+                        <div class="icon home-icon"></div>
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="/library">
+                        <div class="icon library-icon"></div>
+                        Library
+                    </a>
+                </li>
             </ul>
+            <audio
+                controls="controls"
+                id="player"
+                preload="none">
+            </audio>
         </div>
 
-        <div id="playlist">
-        </div>
-
-        <a
-            id="clear-playlist"
-            href="/playlist/clear">
-            Clear playlist</a>
+        {% include "playlist.html" %}
 
         <div id="content">
             {% block content %}{% endblock %}
