@@ -205,6 +205,11 @@ class Mp4Parser(HsaudiotagParser):
 class OggParser(HsaudiotagParser):
 
     def get_tag(self, filename):
+        try:
+            # parser doesn't work with byte filenames
+            filename = filename.decode()
+        except UnicodeDecodeError:
+            return None
         return hsaudiotag.ogg.Vorbis(filename)
 
     def supported_extensions(self):
