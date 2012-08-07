@@ -541,7 +541,7 @@ class Library:
             string = "%s_%s" % (string[:(255 - len(index))], index)
         else:
             string = string[:255]
-        return re.sub(r'[\'" :()/]', '_', string.lower())
+        return re.sub(r'[^A-Za-z0-9_]', '_', string.lower())
 
     def get_hash(self, filename):
 
