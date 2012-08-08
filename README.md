@@ -30,6 +30,20 @@ Get up and running...
 
     $ ./run.sh
 
+Upgrading
+---------
+
+One of these upgrade steps might be required upon fetching new changesets
+
+    $ git submodule init
+    $ git submodule update
+
+    $ merge config/opmuse.dist.ini config/opmuse.ini
+
+    $ pip install -r requirements.txt
+
+    $ rm opmuse.db # e.g. drop database..
+
 MySQL
 -----
 
