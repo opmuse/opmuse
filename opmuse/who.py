@@ -1,14 +1,29 @@
-import cherrypy
 import sys
 import logging
-from io import StringIO
+import hashlib
+import cherrypy
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import Column, Integer, String
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
-from repoze.who.plugins.htpasswd import HTPasswdPlugin
 from repoze.who.plugins.redirector import RedirectorPlugin
 from repoze.who.classifiers import default_request_classifier
 from repoze.who.classifiers import default_challenge_decider
 from opmuse.jinja import env
+from opmuse.database import Base
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    login = Column(String(128), index=True, unique=True)
+    password = Column(String(128))
+    salt = Column(String(128))
+
+    def __init__(self, login, password, salt):
+        self.login = login
+        self.password = password
+        self.salt = salt
 
 class AuthenticatedTool(cherrypy.Tool):
     def __init__(self):
@@ -29,21 +44,42 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
         env.globals['authenticated'] = ('repoze.who.identity' in cherrypy.request.wsgi_environ and
             cherrypy.request.wsgi_environ.get('repoze.who.identity'))
 
+class DatabaseAuthenticator(object):
+
+    def authenticate(self, environ, identity):
+        try:
+            login = identity['login']
+            password = identity['password']
+        except KeyError:
+            return None
+
+
+        try:
+            user = (cherrypy.request.database.query(User)
+                .filter_by(login=login).one())
+
+            hashed = password
+
+            # 4556 iterations of sha512
+            for i in range(0, 4556):
+                hashed = hashlib.sha512(("%s%s" % (hashed, user.salt)).encode()).hexdigest()
+
+            if hashed == user.password:
+                return user.login
+
+        except NoResultFound:
+            pass
+
+        return None
+
 def repozewho_pipeline(app):
 
-    io = StringIO()
-    salt = 'aa'
-    for name, password in [('admin', 'admin')]:
-        io.write('%s:%s\n' % (name, password))
-    io.seek(0)
-    def cleartext_check(password, hashed):
-        return password == hashed
-
-    htpasswd = HTPasswdPlugin(io, cleartext_check)
+    database = DatabaseAuthenticator()
     redirector = RedirectorPlugin('/login')
     auth_tkt = AuthTktCookiePlugin('secret', 'auth_tkt')
+
     identifiers = [('auth_tkt', auth_tkt)]
-    authenticators = [('auth_tkt', auth_tkt), ('htpasswd', htpasswd)]
+    authenticators = [('auth_tkt', auth_tkt), ('database', database)]
     challengers = [('redirector', redirector)]
     mdproviders = []
 

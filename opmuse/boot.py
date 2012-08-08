@@ -5,7 +5,7 @@ from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
-from opmuse.who import repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
+from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 
 def multi_headers():
     if hasattr(cherrypy.response, 'multiheaders'):
