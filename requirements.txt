@@ -4,3 +4,4 @@ ply
 hsaudiotag3k
 sqlalchemy
 mmh3
+vendor/repoze.who.tar.bz2

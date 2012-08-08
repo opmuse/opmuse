@@ -1,4 +1,8 @@
 require(['jquery'], function($) {
+    if ($('#player').length == 0) {
+        return;
+    }
+
     var player = $('#player').get(0);
 
     var play = function () {

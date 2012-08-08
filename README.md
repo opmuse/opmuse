@@ -8,6 +8,11 @@
 Software supposed to expose your media files and let you stream it anywhere
 from the comfort of your web browser.
 
+Requirements
+------------
+
+  - Python 3.2
+
 Get up and running...
 ---------------------
 

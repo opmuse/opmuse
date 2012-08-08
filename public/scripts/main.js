@@ -1,2 +1,6 @@
 require(['jquery', 'playlist'], function($) {
+    $.ajaxSetup({
+        // repoze.who middleware expects content-type to be set :/
+        headers: { 'Content-type': 'text/plain' }
+    });
 });

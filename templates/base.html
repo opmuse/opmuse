@@ -47,14 +47,18 @@
                     </a>
                 </li>
             </ul>
+        {% if authenticated %}
             <audio
                 controls="controls"
                 id="player"
                 preload="none">
             </audio>
+        {% endif %}
         </div>
 
-        {% include "playlist.html" %}
+        {% if authenticated %}
+            {% include "playlist.html" %}
+        {% endif %}
 
         <div id="content">
             {% block content %}{% endblock %}
