@@ -44,9 +44,4 @@ One of these upgrade steps might be required upon fetching new changesets
 
     $ rm opmuse.db # e.g. drop database..
 
-MySQL
------
-
-For MySQL support you'll have to [download and install oursql manually](https://launchpad.net/oursql/py3k/py3k-0.9.3).
-
 [![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
