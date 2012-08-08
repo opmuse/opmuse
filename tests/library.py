@@ -4,6 +4,7 @@ from opmuse.database import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+# TODO implement fixtures for tests...
 class LibraryTest(unittest.TestCase):
     def test_tracks(self):
         db_path = 'tests/opmuse.db'

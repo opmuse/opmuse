@@ -19,7 +19,7 @@ def multi_headers():
             headers.append(new_header)
         cherrypy.response.header_list.extend(headers)
 
-if __name__ == '__main__':
+def configure():
     cherrypy.tools.jinja = Jinja()
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
@@ -60,5 +60,11 @@ if __name__ == '__main__':
     cherrypy.config.update(config)
     env.globals['server_name'] = cherrypy.config['opmuse']['server_name']
 
+def boot():
     cherrypy.engine.start()
     cherrypy.engine.block()
+
+if __name__ == '__main__':
+    configure()
+    boot()
+

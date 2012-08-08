@@ -18,7 +18,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     login = Column(String(128), index=True, unique=True)
     password = Column(String(128))
-    salt = Column(String(128))
+    salt = Column(String(64))
 
     def __init__(self, login, password, salt):
         self.login = login
@@ -58,11 +58,7 @@ class DatabaseAuthenticator(object):
             user = (cherrypy.request.database.query(User)
                 .filter_by(login=login).one())
 
-            hashed = password
-
-            # 4556 iterations of sha512
-            for i in range(0, 4556):
-                hashed = hashlib.sha512(("%s%s" % (hashed, user.salt)).encode()).hexdigest()
+            hashed = hash_password(password, user.salt)
 
             if hashed == user.password:
                 return user.login
@@ -71,6 +67,15 @@ class DatabaseAuthenticator(object):
             pass
 
         return None
+
+def hash_password(password, salt):
+    hashed = password
+
+    # 4556 iterations of sha512
+    for i in range(0, 4556):
+        hashed = hashlib.sha512(("%s%s" % (hashed, salt)).encode()).hexdigest()
+
+    return hashed
 
 def repozewho_pipeline(app):
 

@@ -25,6 +25,10 @@ Get up and running...
     $ cp config/opmuse.dist.ini config/opmuse.ini
     $ ./run.sh
 
+You probably want fixtures for some default data.
+
+    $ python opmuse/fixtures.py
+
 ... get back to work...
 -----------------------
 
