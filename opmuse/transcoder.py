@@ -26,9 +26,13 @@ class Transcoder:
             p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
                                  stderr = FNULL, stdin = stdin)
 
-            data = p.stdout.read()
+            while True:
+                data = p.stdout.read(8192)
+
+                if len(data) == 0:
+                    break
+
+                yield data
 
             p.kill()
-
-            yield data
 
