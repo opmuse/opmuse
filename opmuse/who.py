@@ -37,12 +37,17 @@ class AuthenticatedTool(cherrypy.Tool):
 
 class JinjaAuthenticatedTool(cherrypy.Tool):
     def __init__(self):
-        cherrypy.Tool.__init__(self, 'on_start_resource',
+        cherrypy.Tool.__init__(self, 'before_handler',
                                self.start, priority=20)
 
     def start(self):
         env.globals['authenticated'] = ('repoze.who.identity' in cherrypy.request.wsgi_environ and
             cherrypy.request.wsgi_environ.get('repoze.who.identity'))
+
+        if 'user_id' in cherrypy.session:
+            env.globals['user_id'] = cherrypy.session['user_id']
+        else:
+            env.globals['user_id'] = None
 
 class DatabaseAuthenticator(object):
 
