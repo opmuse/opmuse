@@ -40,6 +40,7 @@ def configure():
                                             '../cache/session/'),
             'tools.sessions.locking': "explicit",
             'tools.sessions.timeout': 60 * 30,
+            'tools.sessions.httponly': True,
         }, '/scripts': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
