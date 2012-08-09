@@ -1,11 +1,10 @@
 import cherrypy
-import sys
-import logging
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
+from opmuse.transcoder import TranscodingSubprocessTool
 
 def multi_headers():
     if hasattr(cherrypy.response, 'multiheaders'):
@@ -24,6 +23,7 @@ def configure():
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
+    cherrypy.tools.transcodingsubprocess = TranscodingSubprocessTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     import opmuse.controllers
 

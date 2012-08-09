@@ -1,6 +1,22 @@
 import io
 import os
 import subprocess
+import cherrypy
+
+class TranscodingSubprocessTool(cherrypy.Tool):
+    """
+    This tool makes sure the ffmpeg subprocess is ended
+    properly when a request is cancelled
+    """
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'on_end_request',
+                               self.end, priority=20)
+
+    def end(self):
+        if hasattr(cherrypy.request, 'transcoder_subprocess'):
+            p = cherrypy.request.transcoder_subprocess
+            p.stdout.read()
+            p.wait()
 
 class Transcoder:
     def transcode(self, filenames):
@@ -20,11 +36,13 @@ class Transcoder:
                 stdin = None
                 cmd = ffmpeg % filename
             else:
-                stdin = io.open(filename, buffering = 1024)
+                stdin = io.open(filename, buffering = 8192)
                 cmd = ffmpeg % "-"
 
             p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
                                  stderr = FNULL, stdin = stdin)
+
+            cherrypy.request.transcoder_subprocess = p
 
             while True:
                 data = p.stdout.read(8192)
@@ -34,5 +52,5 @@ class Transcoder:
 
                 yield data
 
-            p.kill()
+            p.wait()
 

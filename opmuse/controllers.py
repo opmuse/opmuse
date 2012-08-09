@@ -123,6 +123,7 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    @cherrypy.tools.transcodingsubprocess()
     @cherrypy.config(**{'response.stream': True})
     # TODO reimplement Accept header support
     def stream(self, **kwargs):
