@@ -1,4 +1,5 @@
 import os
+import re
 import cherrypy
 from opmuse.playlist import playlist_model
 from opmuse.transcoder import Transcoder
@@ -123,12 +124,24 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='play.m3u')
+    def play_m3u(self):
+        cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
+        return {}
+
+    @cherrypy.expose
     @cherrypy.tools.transcodingsubprocess()
     @cherrypy.config(**{'response.stream': True})
     # TODO reimplement Accept header support
-    def stream(self, **kwargs):
+    # TODO implement some sort of security here :|
+    def stream(self, slug = None, **kwargs):
 
-        tracks = playlist_model.getTracks()
+        user_id = None
+
+        if slug is not None and re.compile("^[0-9]+$").match(slug):
+            user_id = slug
+
+        tracks = playlist_model.getTracks(user_id)
 
         if len(tracks) == 0:
             raise cherrypy.HTTPError(409)

@@ -2,7 +2,6 @@ import cherrypy
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
-from sqlalchemy.orm.exc import NoResultFound
 from opmuse.database import Base
 from opmuse.who import User
 from opmuse.library import Track
@@ -24,8 +23,10 @@ class Playlist(Base):
 
 # TODO use underscore for method names?
 class Model:
-    def getTracks(self):
-        user_id = cherrypy.session.get('user_id')
+    def getTracks(self, user_id = None):
+
+        if user_id is None:
+            user_id = cherrypy.session.get('user_id')
 
         playlists = (cherrypy.request.database.query(Playlist)
                 .filter_by(user_id=user_id).order_by(Playlist.pos).all())
