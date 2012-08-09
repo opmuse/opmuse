@@ -53,7 +53,6 @@ class DatabaseAuthenticator(object):
         except KeyError:
             return None
 
-
         try:
             user = (cherrypy.request.database.query(User)
                 .filter_by(login=login).one())
@@ -61,12 +60,18 @@ class DatabaseAuthenticator(object):
             hashed = hash_password(password, user.salt)
 
             if hashed == user.password:
+                self.set_session(user)
                 return user.login
 
         except NoResultFound:
             pass
 
         return None
+
+    def set_session(self, user):
+        cherrypy.session.acquire_lock()
+        cherrypy.session['user_id'] = user.id
+        cherrypy.session.release_lock()
 
 def hash_password(password, salt):
     hashed = password
