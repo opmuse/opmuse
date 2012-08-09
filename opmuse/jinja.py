@@ -37,6 +37,6 @@ class Jinja(HandlerWrapperTool):
         template = env.get_template(conf['filename'])
 
         html = template.render(response_dict)
-        html = html.encode('utf8', 'replace').decode()
+        html = html.encode('utf8', 'replace')
 
         return html
