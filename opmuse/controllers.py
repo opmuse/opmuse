@@ -1,38 +1,36 @@
 import os
 import cherrypy
-import opmuse.playlist
+from opmuse.playlist import playlist_model
 from opmuse.transcoder import Transcoder
 from repoze.who.api import get_api
 
 class Playlist:
-    def __init__(self):
-        self.model = opmuse.playlist.Model()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='playlist-tracks.html')
     def list(self):
-        return {'playlist': self.model.getTracks()}
+        return {'playlist': playlist_model.getTracks()}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def add(self, slug):
-        self.model.addTrack(slug)
+        playlist_model.addTrack(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def add_album(self, slug):
-        self.model.addAlbum(slug)
+        playlist_model.addAlbum(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def remove(self, track_number):
-        self.model.removeTrack(track_number)
+    def remove(self, slug):
+        playlist_model.removeTrack(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def clear(self):
-        self.model.clear()
+        playlist_model.clear()
 
 
 class Styles(object):
@@ -129,15 +127,12 @@ class Root(object):
     # TODO reimplement Accept header support
     def stream(self, **kwargs):
 
-        playlist = cherrypy.session.get('playlist', [])
+        tracks = playlist_model.getTracks()
 
-        if len(playlist) == 0:
+        if len(tracks) == 0:
             raise cherrypy.HTTPError(409)
 
         cherrypy.response.headers['Content-Type'] = 'audio/ogg'
 
-        for track in playlist:
-            cherrypy.request.database.add(track)
-
-        return Transcoder().transcode([track.paths[0].path for track in playlist])
+        return Transcoder().transcode([track.paths[0].path for track in tracks])
 
