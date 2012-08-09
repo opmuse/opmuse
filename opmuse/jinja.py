@@ -1,4 +1,5 @@
 import os
+import cherrypy
 from cherrypy._cptools import HandlerWrapperTool
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
@@ -40,3 +41,13 @@ class Jinja(HandlerWrapperTool):
         html = html.encode('utf8', 'replace')
 
         return html
+
+
+class JinjaGlobalsTool(cherrypy.Tool):
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'before_handler',
+                               self.start, priority=20)
+
+    def start(self):
+        env.globals['request'] = cherrypy.request
+
