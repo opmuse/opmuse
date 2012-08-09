@@ -81,7 +81,9 @@ def repozewho_pipeline(app):
 
     database = DatabaseAuthenticator()
     redirector = RedirectorPlugin('/login')
-    auth_tkt = AuthTktCookiePlugin('secret', 'auth_tkt')
+
+    # TODO secret needs to be set properly (by config or whatever)
+    auth_tkt = AuthTktCookiePlugin('secret', 'auth_tkt', include_ip = True)
 
     identifiers = [('auth_tkt', auth_tkt)]
     authenticators = [('auth_tkt', auth_tkt), ('database', database)]
