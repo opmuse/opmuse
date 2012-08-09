@@ -32,7 +32,9 @@ def configure():
             'tools.database.on': True,
             'tools.sessions.on': True,
             'tools.jinjaauthenticated.on': True,
-            'tools.sessions.storage_type': "ram",
+            'tools.sessions.storage_type': "file",
+            'tools.sessions.storage_path': join(abspath(dirname(__file__)),
+                                            '../cache/session/'),
             'tools.sessions.locking': "explicit",
             'tools.sessions.timeout': 60 * 30,
         }, '/scripts': {

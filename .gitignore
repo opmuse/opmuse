@@ -5,3 +5,4 @@
 /opmuse.db
 *.pyc
 /tests/opmuse.db
+/cache/*
