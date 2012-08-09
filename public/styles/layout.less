@@ -1,20 +1,18 @@
 body {
     background-image: url("/images/noise.png");
+    overflow-y: scroll;
 }
 
 header {
     padding: 10px;
     display: block;
-    margin-bottom: 15px;
     border-bottom: 4px solid @accent_color;
     background-color: darken(@header_background_color, 10%);
     background-image: url("/images/noise.png");
     overflow: hidden;
 
     h1 {
-        a:link, a:visited, a:hover, a:focus, a:active {
-            color: #cfb9b0;
-        }
+        color: #cfb9b0;
 
         img, small {
             display: block;
@@ -27,66 +25,47 @@ header {
     }
 }
 
-.boxybox {
-    .boxShadow(0 0 1px @box_background_color);
-    border: 1px solid @box_border_color;
-    background: @background_color;
-    background: @box_background_color;
-    margin: 20px auto;
-    padding: 10px;
-    width: 960px;
-}
-
-#menu {
-    .boxybox;
-    overflow: hidden;
-    height: 45px;
-
-    ul {
-        width: 560px;
-        float: left;
-
-        li {
-            display: block;
-            float: left;
-            margin: 0 5px 0 0;
-            font-weight: bold;
-            text-align: center;
-
-            a {
-                width: 100px;
-                height: 15px;
-                display: block;
-            }
-
-        }
-    }
-}
-
-.icon {
-    width: 30px;
-    height: 30px;
+#wrapper {
     margin: 0 auto;
+}
 
-    &.library-icon {
-        background: white
-            url("/images/icon_spritesheet.png")
-            no-repeat
-            left
-            -240px;
-    }
+.boxybox {
+    border: 1px solid @box_border_color;
+    background: @box_background_color;
+    padding: 2%;
+}
 
-    &.home-icon {
-        background: white
-            url("/images/icon_spritesheet.png")
-            no-repeat
-            left
-            -180px;
-    }
+#primary-content,
+#secondary-content {
+    margin-bottom: @gutter / @em;
 }
 
 #content {
     .boxybox;
     min-height: 200px;
     overflow: hidden;
+}
+
+#menu {
+    padding: 6px;
+    overflow: hidden;
+
+    ul {
+        overflow: hidden;
+        padding: 6px;
+        float: left;
+
+        li {
+            float: left;
+            overflow: hidden;
+            margin: 0 5px 0 0;
+
+            a {
+                height: 32px;
+                width: 64px;
+                display: block;
+            }
+
+        }
+    }
 }

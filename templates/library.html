@@ -10,14 +10,8 @@
         <span class="silent">library</span>
         Browse
     </h1>
-<p>
-    <ul>
-    {% for artist in artists %}
-        <li class="artist">
-            <p><a href="/artist/{{ artist.slug }}">{{ artist.name }}</a></p>
-        </li>
-    {% endfor %}
-    </ul>
-</p>
+
+    {% include "partials/artist-list.html" %}
+
 </div>
 {% endblock %}

@@ -64,9 +64,16 @@ def configure():
     config = cherrypy._cpconfig.Config(file=join(abspath(dirname(__file__)),
                                                  "../config/opmuse.ini"))
     cherrypy.config.update(config)
+
     env.globals['server_name'] = cherrypy.config['opmuse']['server_name']
 
 def boot():
+
+    cherrypy.config.update({
+        'server.socket_host': "192.168.1.156",
+        'server.socket_port': 8080,
+    })
+
     cherrypy.engine.start()
     cherrypy.engine.block()
 

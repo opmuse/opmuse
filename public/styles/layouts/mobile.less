@@ -1,0 +1,27 @@
+@media screen and (min-width: @2cols) and (max-width: @8cols) {
+    header {
+        height: 20px;
+        padding: 0;
+        border-bottom: 2px solid @accent_color;
+
+        h1 img {
+            display: none;
+        }
+    }
+
+    #menu, #player-controls {
+        ul li a {
+            width: @1cols;
+            padding: 0;
+        }
+    }
+
+    #wrapper {
+        width: @5cols;
+    }
+
+    #primary-content, #secondary-content {
+        width: @5cols;
+        float: left;
+    }
+}

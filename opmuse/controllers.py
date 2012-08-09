@@ -9,7 +9,7 @@ class Playlist:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='playlist-tracks.html')
+    @cherrypy.tools.jinja(filename='partials/playlist-tracks.html')
     def list(self):
         return {'playlist': playlist_model.getTracks()}
 

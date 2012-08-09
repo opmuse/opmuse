@@ -1,16 +1,16 @@
 #library {
-    .playlist.add {
+    ul .playlist.add,
+    ul .playlist.add-album {
         display: block;
         text-transform: uppercase;
-        color: transparent;
         float: right;
-        font-size: 0;
+        font-weight: bold;
+        width: 32px;
+        text-align: center;
+    }
 
-        &:before {
-            font-size: @font_size;
-            color: black;
-            content: "+";
-        }
+    ul {
+        .zebra-striping;
     }
 
     .album .album-tracks-count {

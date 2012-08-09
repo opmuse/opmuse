@@ -1,13 +1,7 @@
 .tracks {
-    clear: both;
-    li:hover,
-    li:hover:nth-child(2n + 1) {
-        background-color: lighten(@accent_color, 45%);
-    }
+    .zebra-striping;
 
-    li:nth-child(2n + 1) {
-        background-color: #f4f4f4;
-    }
+    clear: both;
 
     li.active {
         font-weight: bold;
@@ -15,19 +9,16 @@
 
     li {
         .artist-name {
+        }
 
-        }
-        .album-name {
-            display: none;
-            &:before {
-                content: "- ";
-            }
-        }
         .track-name {
             &:before {
                 content: "- ";
             }
+        }
 
+        .album-name {
+            display: none;
         }
         .track-duration {
             display: none;
@@ -37,9 +28,17 @@
         }
 
         .track-number {
-            width: 2em;
             display: inline-block;
             color: #888;
+            width: 12px;
+            font-size: 0.6em;
         }
     }
+
+    &.album {
+        .track-name:before {
+            content: "";
+        }
+    }
+
 }

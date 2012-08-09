@@ -1,6 +1,3 @@
 [submodule "vendor/requirejs"]
 	path = vendor/requirejs
 	url = https://github.com/jrburke/requirejs.git
-[submodule "vendor/Less-Boilerplate"]
-	path = vendor/Less-Boilerplate
-	url = git://github.com/mgeraci/Less-Boilerplate

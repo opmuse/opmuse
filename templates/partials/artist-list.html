@@ -1,0 +1,31 @@
+{% set last_letter = "?" %}
+
+<div class="artist-list">
+    {% for artist in artists %}
+        {% set active_letter = artist.name|truncate(1, True, '')|capitalize %}
+        {% if active_letter != last_letter %}
+
+            {% if artists|first() != artist %}
+                </ul>
+                </div>
+            {% endif %}
+
+            {% set last_letter = active_letter %}
+
+            <div class="letter letter-{{ active_letter }}">
+            <h2>{{ active_letter }}</h2>
+
+            <ul>
+        {% endif %}
+
+        <li class="artist">
+            <a href="/artist/{{ artist.slug }}">{{ artist.name }}</a>
+        </li>
+
+        {% if artists|last() == artist %}
+            </ul>
+        </div>
+        {% endif %}
+
+    {% endfor %}
+</div>

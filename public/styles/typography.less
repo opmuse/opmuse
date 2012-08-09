@@ -1,33 +1,36 @@
 body {
     color: @text_color;
     font-family: "Dejavu Sans", "Lucida Grande", "Lucida Sans Unicode", Verdana, sans-serif;
-    font-size: @font_size;
     background-color: @background_color;
 }
 
 h1 {
-    font-size: 1.5em;
-    margin-bottom: 0.5em;
+    font-size: 1.1em;
+    margin-bottom: 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     small {
         font-size: 0.6em;
     }
 
-    .silent {
-        color: lighten(@text_color, 60%);
-
-        &:after {
-            content: ": ";
-        }
+    .silent:after {
+        content: ": ";
     }
 }
 
+.silent {
+    color: lighten(@text_color, 60%);
+}
+
 h2 {
-    font-size: 1.1em;
+    font-size: 1.05em;
 }
 
 header h1 {
     font-size: 1em;
+    margin-bottom: 0;
     font-weight: normal;
 
     small {
@@ -52,4 +55,9 @@ a {
     &:hover, &:focus {
         color: lighten(@text_color, 20%);
     }
+}
+
+#wrapper ul li,
+#wrapper ol li {
+    padding:5px;
 }

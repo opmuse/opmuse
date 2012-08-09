@@ -5,5 +5,15 @@
 {% endblock %}
 
 {% block content %}
-    <p>Hey hey hey!</p>
+    <h1>
+        <span class="silent">home</span>
+        Hey hey hey!
+    </h1>
+    <p>
+        {% if authenticated %}
+            Everythings seems to be in order! Move along, please.
+        {% else %}
+            Login, will ya?
+        {% endif %}
+    </p>
 {% endblock %}

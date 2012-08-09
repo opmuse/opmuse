@@ -17,5 +17,11 @@
             </a>
         </li>
     {% endfor %}
-
 </ol>
+
+{% if playlist|count > 0 %}
+    <a
+        id="clear-playlist"
+        href="/playlist/clear">
+        Clear playlist</a>
+{% endif %}
