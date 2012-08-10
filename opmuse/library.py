@@ -215,6 +215,19 @@ class OggParser(HsaudiotagParser):
     def supported_extensions(self):
         return [b'ogg']
 
+class Id3Tag:
+    """
+    Wrapper for Mpeg object, because hsaudiotag api is inconsistent it seems
+    and some stuff is on the Mpeg object and some on the tag object...
+    """
+
+    def __init__(self, mpeg):
+        self.artist = mpeg.tag.artist
+        self.album = mpeg.tag.album
+        self.title = mpeg.tag.title
+        self.duration = mpeg.duration
+        self.track = mpeg.tag.track
+
 class Id3Parser(HsaudiotagParser):
 
     def get_tag(self, filename):
@@ -224,7 +237,12 @@ class Id3Parser(HsaudiotagParser):
         except UnicodeDecodeError:
             return None
 
-        return hsaudiotag.mpeg.Mpeg(filename).tag
+        mpeg = hsaudiotag.mpeg.Mpeg(filename)
+
+        if mpeg.tag is None:
+            return None
+        else:
+            return Id3Tag(mpeg)
 
     def supported_extensions(self):
         return [b'mp3']
