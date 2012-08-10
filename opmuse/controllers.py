@@ -36,7 +36,8 @@ class Playlist:
 
 class Styles(object):
     @cherrypy.expose
-    def default(self, file):
+    def default(self, *args):
+        file = os.path.join(*args)
         cherrypy.response.headers['Content-Type'] = 'text/css'
 
         path = os.path.join(os.path.abspath("."), "public", "styles")
@@ -49,22 +50,7 @@ class Styles(object):
         ext = os.path.splitext(file)
         lesspath = os.path.join(path, "%s%s" % (ext[0], ".less"))
 
-        if os.path.exists(lesspath):
-            from lesscpy.lessc import parser
-            p = parser.LessParser()
-            p.parse(
-                filename=lesspath,
-                debuglevel=0
-            )
-
-            items = {
-                'nl': '\n',
-                'tab': '\t',
-                'ws': ' ',
-                'eb': '\n'
-            }
-
-            return ''.join([u.fmt(items) for u in p.result if u]).strip()
+        return cherrypy.lib.static.serve_file(lesspath)
 
 
 class Root(object):
