@@ -72,6 +72,17 @@ class Root(object):
     playlist = Playlist()
 
     @cherrypy.expose
+    @cherrypy.tools.multiheaders()
+    def logout(self):
+        who_api = get_api(cherrypy.request.wsgi_environ)
+
+        headers = who_api.forget()
+
+        cherrypy.response.multiheaders = headers
+
+        raise cherrypy.HTTPRedirect('/')
+
+    @cherrypy.expose
     @cherrypy.tools.jinja(filename='login.html')
     @cherrypy.tools.multiheaders()
     def login(self, login = None, password = None, came_from = None):
