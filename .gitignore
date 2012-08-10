@@ -2,7 +2,7 @@
 /virtualenv/*
 /build/*
 /public/styles/*.css
-!/public/styles/reset.css
+/public/styles/*/*.css
 /opmuse.db
 *.pyc
 /tests/opmuse.db
