@@ -39,7 +39,7 @@ def configure():
             'tools.sessions.storage_path': join(abspath(dirname(__file__)),
                                             '../cache/session/'),
             'tools.sessions.locking': "explicit",
-            'tools.sessions.timeout': 60 * 30,
+            'tools.sessions.persistent': False,
             'tools.sessions.httponly': True,
         }, '/scripts': {
             'tools.staticdir.on': True,
