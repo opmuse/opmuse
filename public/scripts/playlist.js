@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance'], function($, inheritance) {
+define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 
@@ -16,39 +16,37 @@ define(['jquery', 'inheritance'], function($, inheritance) {
 
             this.listUrl = '/playlist/list';
 
-            $(function() {
-                $('.playlist.add, .playlist.add-album').click(function (event) {
-                    var url = $(this).attr('href');
-                    $.ajax(url, {
-                        success: function (data) {
-                            that.reload();
-                        }
-                    });
-                    return false;
+            $('.playlist.add, .playlist.add-album').click(function (event) {
+                var url = $(this).attr('href');
+                $.ajax(url, {
+                    success: function (data) {
+                        that.reload();
+                    }
                 });
-
-                $('#playlist .remove').live("click", function (event) {
-                    var url = $(this).attr('href');
-                    $.ajax(url, {
-                        success: function (data) {
-                            that.reload();
-                        }
-                    });
-                    return false;
-                });
-
-                $('#clear-playlist').click(function (event) {
-                    var url = $(this).attr('href');
-                    $.ajax(url, {
-                        success: function (data) {
-                            $("#playlist-tracks").empty();
-                        }
-                    });
-                    return false;
-                });
-
-                that.reload();
+                return false;
             });
+
+            $('#playlist .remove').live("click", function (event) {
+                var url = $(this).attr('href');
+                $.ajax(url, {
+                    success: function (data) {
+                        that.reload();
+                    }
+                });
+                return false;
+            });
+
+            $('#clear-playlist').live('click', function (event) {
+                var url = $(this).attr('href');
+                $.ajax(url, {
+                    success: function (data) {
+                        $("#playlist-tracks").empty();
+                    }
+                });
+                return false;
+            });
+
+            that.reload();
         },
         reload: function () {
             $("#playlist-tracks").load(this.listUrl, {});

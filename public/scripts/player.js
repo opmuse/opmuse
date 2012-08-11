@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'playlist'], function($, inheritance, playlist) {
+define(['jquery', 'inheritance', 'playlist', 'domReady!'], function($, inheritance, playlist) {
     var instance = null;
 
     var Player = Class.extend({
@@ -14,35 +14,31 @@ define(['jquery', 'inheritance', 'playlist'], function($, inheritance, playlist)
             this.play_button = $('#play-button');
             this.pause_button = $('#pause-button');
 
-            // TODO replace with requirejs domready plugin
-            $(function() {
-
-                $(that.player).bind('playing', function (event) {
-                    playlist.reload();
-                });
-
-                $(that.player).bind('ended', function (event) {
-                    that.load();
-                    that.player.play();
-                });
-
-                that.play_button.click(function() {
-                    that.player.play();
-                    that.play_button.hide();
-                    that.pause_button.show();
-                });
-
-                that.pause_button.click(function() {
-                    that.player.pause();
-                    that.pause_button.hide();
-                    that.play_button.show();
-                });
-
-                that.pause_button.hide();
-                that.player_controls.show();
-
-                that.load();
+            $(that.player).bind('playing', function (event) {
+                playlist.reload();
             });
+
+            $(that.player).bind('ended', function (event) {
+                that.load();
+                that.player.play();
+            });
+
+            that.play_button.click(function() {
+                that.player.play();
+                that.play_button.hide();
+                that.pause_button.show();
+            });
+
+            that.pause_button.click(function() {
+                that.player.pause();
+                that.pause_button.hide();
+                that.play_button.show();
+            });
+
+            that.pause_button.hide();
+            that.player_controls.show();
+
+            that.load();
         },
         load: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {

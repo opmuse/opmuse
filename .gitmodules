@@ -4,3 +4,6 @@
 [submodule "vendor/less.js"]
 	path = vendor/less.js
 	url = git://github.com/cloudhead/less.js.git
+[submodule "vendor/requirejs-domReady"]
+	path = vendor/requirejs-domReady
+	url = git://github.com/requirejs/domReady.git
