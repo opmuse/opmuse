@@ -2,24 +2,24 @@
     id="playlist-tracks"
     class="tracks">
 
-    {% for track in playlist %}
-        <li>
-            <span class="artist-name">{{ track.album.artist.name }}</span>
-            <span class="album-name">{{ track.album.name }}</span>
-            <span class="track-name">{{ track.name }}</span>
+    {% for playlist in playlists %}
+        <li class="{{ "playing" if playlist.playing }}">
+            <span class="artist-name">{{ playlist.track.album.artist.name }}</span>
+            <span class="album-name">{{ playlist.track.album.name }}</span>
+            <span class="track-name">{{ playlist.track.name }}</span>
             <span class="track-duration">
-                ( {{ track.duration|format_seconds }} )
+                ( {{ playlist.track.duration|format_seconds }} )
             </span>
             <a
                 class="remove"
-                href="/playlist/remove/{{ track.slug }}">
+                href="/playlist/remove/{{ playlist.track.slug }}">
                 X
             </a>
         </li>
     {% endfor %}
 </ol>
 
-{% if playlist|count > 0 %}
+{% if playlists|count > 0 %}
     <a
         id="clear-playlist"
         href="/playlist/clear">

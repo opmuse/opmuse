@@ -1,54 +1,66 @@
-require(['jquery'], function($) {
-    if ($('#player').length == 0) {
-        return;
-    }
+define(['jquery', 'inheritance'], function($, inheritance) {
 
-    var player = $('#player').get(0);
+    var instance = null;
 
-    var play = function () {
-        if (typeof player != 'undefined' && player !== null) {
-            // stupid cache bustin because firefox seems to refuse to not cache
-            player.src = '/stream?b=' + Math.random();
-            player.load();
-        }
-    };
+    var Playlist = Class.extend({
+        init: function () {
+            if (instance !== null) {
+                throw Error('Only one instance of Playlist allowed!');
+            }
 
-    var listUrl = '/playlist/list';
+            if ($('#playlist').length == 0) {
+                return;
+            }
 
-    $('.playlist.add, .playlist.add-album').click(function (event) {
-        var url = $(this).attr('href');
-        $.ajax(url, {
-            success: function (data) {
-                $("#playlist-tracks").load(listUrl, {}, function () {
-                    play();
+            var that = this;
+
+            this.listUrl = '/playlist/list';
+
+            $(function() {
+                $('.playlist.add, .playlist.add-album').click(function (event) {
+                    var url = $(this).attr('href');
+                    $.ajax(url, {
+                        success: function (data) {
+                            that.reload();
+                        }
+                    });
+                    return false;
                 });
-            }
-        });
-        return false;
+
+                $('#playlist .remove').live("click", function (event) {
+                    var url = $(this).attr('href');
+                    $.ajax(url, {
+                        success: function (data) {
+                            that.reload();
+                        }
+                    });
+                    return false;
+                });
+
+                $('#clear-playlist').click(function (event) {
+                    var url = $(this).attr('href');
+                    $.ajax(url, {
+                        success: function (data) {
+                            $("#playlist-tracks").empty();
+                        }
+                    });
+                    return false;
+                });
+
+                that.reload();
+            });
+        },
+        reload: function () {
+            $("#playlist-tracks").load(this.listUrl, {});
+        },
     });
 
-    $('#playlist .remove').live("click", function (event) {
-        var url = $(this).attr('href');
-        $.ajax(url, {
-            success: function (data) {
-                $("#playlist-tracks").load(listUrl);
-            }
-        });
-        return false;
-    });
+    return (function() {
+        if (instance === null) {
+            instance = new Playlist();
+        }
 
-    $('#clear-playlist').click(function (event) {
-        var url = $(this).attr('href');
-        $.ajax(url, {
-            success: function (data) {
-                $("#playlist-tracks").empty();
-            }
-        });
-        return false;
-    });
-
-    play();
-
-    $("#playlist-tracks").load(listUrl);
+        return instance;
+    })();
 });
 

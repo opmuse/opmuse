@@ -18,6 +18,8 @@ class TranscodingSubprocessTool(cherrypy.Tool):
             p.stdout.read()
             p.wait()
 
+# generate silence...
+# ffmpeg -ar 44100 -acodec pcm_s16le -f s16le -i /dev/zero -acodec libvorbis -f ogg -aq 0 -
 class Transcoder:
     def transcode(self, filenames):
         for filename in filenames:
@@ -54,3 +56,4 @@ class Transcoder:
 
             p.wait()
 
+transcoder = Transcoder()

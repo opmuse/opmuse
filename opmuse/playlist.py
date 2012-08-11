@@ -1,7 +1,8 @@
 import cherrypy
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
+from sqlalchemy.orm.exc import NoResultFound
 from opmuse.database import Base
 from opmuse.who import User
 from opmuse.library import Track
@@ -12,24 +13,58 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     track_id = Column(Integer, ForeignKey('tracks.id'))
-    pos = Column(Integer, index = True)
+    weight = Column(Integer, index = True)
+    playing = Column(Boolean)
 
     user = relationship("User", backref=backref('users', order_by=id))
     track = relationship("Track", backref=backref('tracks', order_by=id))
 
-    def __init__(self, pos):
-        self.pos = pos
+    def __init__(self, weight):
+        self.weight = weight
 
 
 # TODO use underscore for method names?
 class Model:
-    def getTracks(self, user_id = None):
+    def getNextTrack(self, user_id):
+        database = cherrypy.request.database
+        playlist = next_playlist = None
+        try:
+            playlist = (database.query(Playlist)
+                .filter_by(user_id=user_id, playing=True)
+                .order_by(Playlist.weight).one())
 
-        if user_id is None:
-            user_id = cherrypy.session.get('user_id')
+            next_playlist = (database.query(Playlist)
+                .filter_by(user_id=user_id)
+                .filter(Playlist.weight > playlist.weight)
+                .order_by(Playlist.weight).first())
+        except NoResultFound:
+            pass
 
+        if next_playlist is None:
+            next_playlist = (database.query(Playlist)
+                .filter_by(user_id=user_id)
+                .order_by(Playlist.weight).first())
+
+        if next_playlist is None:
+            return None
+
+        next_playlist.playing = True
+
+        if playlist is not None:
+            playlist.playing = False
+
+        database.commit()
+
+        return next_playlist.track
+
+    def getPlaylists(self, user_id):
         playlists = (cherrypy.request.database.query(Playlist)
-                .filter_by(user_id=user_id).order_by(Playlist.pos).all())
+            .filter_by(user_id=user_id).order_by(Playlist.weight).all())
+
+        return playlists
+
+    def getTracks(self, user_id):
+        playlists = self.getPlaylists(user_id)
 
         tracks = [playlist.track for playlist in playlists]
 
@@ -46,9 +81,9 @@ class Model:
         user_id = cherrypy.session.get('user_id')
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
 
-        pos = self.getNewPos(user_id)
+        weight = self.getNewPos(user_id)
 
-        playlist = Playlist(pos)
+        playlist = Playlist(weight)
         playlist.track = track
         playlist.user = user
 
@@ -66,27 +101,27 @@ class Model:
         user_id = cherrypy.session.get('user_id')
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
 
-        pos = self.getNewPos(user_id)
+        weight = self.getNewPos(user_id)
 
         for track in album.tracks:
-            playlist = Playlist(pos)
+            playlist = Playlist(weight)
             playlist.track = track
             playlist.user = user
 
             cherrypy.request.database.add(playlist)
 
-            pos += 1
+            weight += 1
 
     def getNewPos(self, user_id):
-        pos = (cherrypy.request.database.query(func.max(Playlist.pos))
+        weight = (cherrypy.request.database.query(func.max(Playlist.weight))
             .filter_by(user_id=user_id).scalar())
 
-        if pos is None:
-            pos = 0
+        if weight is None:
+            weight = 0
         else:
-            pos += 1
+            weight += 1
 
-        return pos
+        return weight
 
 playlist_model = Model()
 

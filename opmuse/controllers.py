@@ -2,7 +2,7 @@ import os
 import re
 import cherrypy
 from opmuse.playlist import playlist_model
-from opmuse.transcoder import Transcoder
+from opmuse.transcoder import transcoder
 from repoze.who.api import get_api
 
 class Playlist:
@@ -11,7 +11,8 @@ class Playlist:
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='partials/playlist-tracks.html')
     def list(self):
-        return {'playlist': playlist_model.getTracks()}
+        user_id = cherrypy.session.get('user_id')
+        return {'playlists': playlist_model.getPlaylists(user_id)}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -137,13 +138,24 @@ class Root(object):
 
         if slug is not None and re.compile("^[0-9]+$").match(slug):
             user_id = slug
+        else:
+            user_id = cherrypy.session.get('user_id')
 
-        tracks = playlist_model.getTracks(user_id)
-
-        if len(tracks) == 0:
-            raise cherrypy.HTTPError(409)
 
         cherrypy.response.headers['Content-Type'] = 'audio/ogg'
 
-        return Transcoder().transcode([track.paths[0].path for track in tracks])
+        def track_generator():
+            while True:
+                track = playlist_model.getNextTrack(user_id)
+
+                # TODO play silence..
+                if track is None:
+                    raise cherrypy.HTTPError(409)
+
+                yield track.paths[0].path
+
+                if slug == "one":
+                    break
+
+        return transcoder.transcode(track_generator())
 
