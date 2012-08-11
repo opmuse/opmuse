@@ -35,19 +35,27 @@ class AuthenticatedTool(cherrypy.Tool):
             not cherrypy.request.wsgi_environ.get('repoze.who.identity')):
             raise cherrypy.HTTPError(401)
 
+# TODO move this to AuthenticatedTool
 class JinjaAuthenticatedTool(cherrypy.Tool):
     def __init__(self):
         cherrypy.Tool.__init__(self, 'before_handler',
                                self.start, priority=20)
 
     def start(self):
+
         env.globals['authenticated'] = ('repoze.who.identity' in cherrypy.request.wsgi_environ and
             cherrypy.request.wsgi_environ.get('repoze.who.identity'))
 
-        if 'user_id' in cherrypy.session:
-            env.globals['user_id'] = cherrypy.session['user_id']
-        else:
-            env.globals['user_id'] = None
+        identity = cherrypy.request.wsgi_environ.get('repoze.who.identity')
+
+        if identity is not None:
+
+            login = identity['repoze.who.plugins.auth_tkt.userid']
+
+            user = (cherrypy.request.database.query(User)
+                .filter_by(login=login).one())
+
+            env.globals['user'] = cherrypy.request.user = user
 
 class DatabaseAuthenticator(object):
 
@@ -65,18 +73,12 @@ class DatabaseAuthenticator(object):
             hashed = hash_password(password, user.salt)
 
             if hashed == user.password:
-                self.set_session(user)
                 return user.login
 
         except NoResultFound:
             pass
 
         return None
-
-    def set_session(self, user):
-        cherrypy.session.acquire_lock()
-        cherrypy.session['user_id'] = user.id
-        cherrypy.session.release_lock()
 
 def hash_password(password, salt):
     hashed = password

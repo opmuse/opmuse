@@ -71,14 +71,14 @@ class Model:
         return tracks
 
     def clear(self):
-        user_id = cherrypy.session.get('user_id')
+        user_id = cherrypy.request.user.id
         cherrypy.request.database.query(Playlist).filter_by(user_id=user_id).delete()
 
     def addTrack(self, slug):
         library = cherrypy.engine.library.library
         track = library.get_track_by_slug(slug)
 
-        user_id = cherrypy.session.get('user_id')
+        user_id = cherrypy.request.user.id
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
 
         weight = self.getNewPos(user_id)
@@ -90,7 +90,7 @@ class Model:
         cherrypy.request.database.add(playlist)
 
     def removeTrack(self, slug):
-        user_id = cherrypy.session.get('user_id')
+        user_id = cherrypy.request.user.id
         track = cherrypy.request.database.query(Track).filter_by(slug=slug).one()
         cherrypy.request.database.query(Playlist).filter_by(user_id=user_id, track_id = track.id).delete()
 
@@ -98,7 +98,7 @@ class Model:
         library = cherrypy.engine.library.library
         album = library.get_album_by_slug(slug)
 
-        user_id = cherrypy.session.get('user_id')
+        user_id = cherrypy.request.user.id
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
 
         weight = self.getNewPos(user_id)

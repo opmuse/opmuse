@@ -11,7 +11,7 @@ class Playlist:
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='partials/playlist-tracks.html')
     def list(self):
-        user_id = cherrypy.session.get('user_id')
+        user_id = cherrypy.request.user.id
         return {'playlists': playlist_model.getPlaylists(user_id)}
 
     @cherrypy.expose
@@ -139,8 +139,7 @@ class Root(object):
         if slug is not None and re.compile("^[0-9]+$").match(slug):
             user_id = slug
         else:
-            user_id = cherrypy.session.get('user_id')
-
+            user_id = cherrypy.request.user.id
 
         cherrypy.response.headers['Content-Type'] = 'audio/ogg'
 
