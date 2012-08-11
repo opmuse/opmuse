@@ -42,7 +42,7 @@ class SqlAlchemyTool(cherrypy.Tool):
 
     def _setup(self):
         cherrypy.Tool._setup(self)
-        cherrypy.request.hooks.attach('on_end_resource',
+        cherrypy.request.hooks.attach('on_end_request',
                                       self.commit_transaction,
                                       priority=80)
 
