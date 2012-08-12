@@ -43,8 +43,16 @@ class Transcoder:
             # TODO only works on unix...
             FNULL = open('/dev/null', 'w')
 
+            artist = track.album.artist.name
+            album = track.album.name
+            title = track.name
+            track_number = track.number if track.number is not None else 0
+
             # -aq 6 is about 192kbit/s
-            ffmpeg = 'ffmpeg -i "%s" -acodec libvorbis -f ogg -aq 6 -'
+            ffmpeg = ('ffmpeg -i "%s" -acodec libvorbis -f ogg -aq 6 ' +
+                '-metadata artist="%s" -metadata album="%s" -metadata title="%s" -metadata tracknumber="%d" ' %
+                    (artist, album, title, track_number) +
+                '-')
 
             # TODO "hack" for mp4 until we can get mp4's to stream properly
             #       maybe use https://github.com/danielgtaylor/qtfaststart ?
