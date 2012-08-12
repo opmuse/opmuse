@@ -20,7 +20,7 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
         url = cherrypy.config['opmuse']['database.url']
         echo = cherrypy.config['opmuse']['database.echo']
         self.engine = create_engine(url, echo=echo,
-                                    isolation_level="READ COMMITTED")
+                                    isolation_level="READ UNCOMMITTED")
         Base.metadata.create_all(self.engine)
 
     # TODO use decorator?
