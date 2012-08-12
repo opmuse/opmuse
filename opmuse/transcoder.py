@@ -1,5 +1,6 @@
 import io
 import os
+import time
 import subprocess
 import cherrypy
 
@@ -21,8 +22,12 @@ class TranscodingSubprocessTool(cherrypy.Tool):
 # generate silence...
 # ffmpeg -ar 44100 -acodec pcm_s16le -f s16le -i /dev/zero -acodec libvorbis -f ogg -aq 0 -
 class Transcoder:
-    def transcode(self, filenames):
-        for filename in filenames:
+    def transcode(self, tracks):
+        for track in tracks:
+
+            filename = track.paths[0].path
+
+            start_time = time.time()
 
             ext = os.path.splitext(os.path.basename(filename))[1].lower()[1:]
 
@@ -55,5 +60,14 @@ class Transcoder:
                 yield data
 
             p.wait()
+
+            total_time = int(time.time() - start_time)
+
+            # wait to send next track until this track has played (this assumes
+            # the player doesn't pause or anything)
+            # we do this to get more correct "now playing" status in playlists
+            if track.duration is not None:
+                time.sleep(track.duration - total_time)
+
 
 transcoder = Transcoder()

@@ -151,7 +151,7 @@ class Root(object):
                 if track is None:
                     raise cherrypy.HTTPError(409)
 
-                yield track.paths[0].path
+                yield track
 
                 if slug == "one":
                     break
