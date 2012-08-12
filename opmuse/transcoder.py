@@ -19,15 +19,24 @@ class TranscodingSubprocessTool(cherrypy.Tool):
             p.stdout.read()
             p.wait()
 
-# generate silence...
-# ffmpeg -ar 44100 -acodec pcm_s16le -f s16le -i /dev/zero -acodec libvorbis -f ogg -aq 0 -
+
+# TODO only works on unix...
 class Transcoder:
+    def __init__(self):
+        self.silence_seconds = 2
+        self.silence = self.generate_silence(self.silence_seconds)
+
     def transcode(self, tracks):
         for track in tracks:
 
-            filename = track.paths[0].path
-
             start_time = time.time()
+
+            if track is None:
+                yield self.silence
+                time.sleep(self.silence_seconds)
+                continue
+
+            filename = track.paths[0].path
 
             ext = os.path.splitext(os.path.basename(filename))[1].lower()[1:]
 
@@ -35,7 +44,7 @@ class Transcoder:
             FNULL = open('/dev/null', 'w')
 
             # -aq 6 is about 192kbit/s
-            ffmpeg = "ffmpeg -i '%s' -acodec libvorbis -f ogg -aq 6 -"
+            ffmpeg = 'ffmpeg -i "%s" -acodec libvorbis -f ogg -aq 6 -'
 
             # TODO "hack" for mp4 until we can get mp4's to stream properly
             #       maybe use https://github.com/danielgtaylor/qtfaststart ?
@@ -66,8 +75,35 @@ class Transcoder:
             # wait to send next track until this track has played (this assumes
             # the player doesn't pause or anything)
             # we do this to get more correct "now playing" status in playlists
-            if track.duration is not None:
+            if track.duration is not None and track.duration != 0:
                 time.sleep(track.duration - total_time)
+
+    def generate_silence(self, seconds = 1):
+
+        FNULL = open('/dev/null', 'w')
+
+        zero_cmd = 'dd if=/dev/zero bs=%d count=%d' % (44100 * 2 * 2, seconds)
+
+        zero_proc = subprocess.Popen(zero_cmd, shell = True, stdout = subprocess.PIPE,
+                             stderr = FNULL, stdin = None)
+
+        artist = album = 'opmuse'
+        title = 'Your playlist is empty, enjoy the silence...'
+
+        cmd = ('ffmpeg -ac 2 -ar 44100 -acodec pcm_s16le -f s16le ' +
+            '-i - -acodec libvorbis -f ogg -aq 0 ' +
+            '-metadata artist="%s" -metadata album="%s" -metadata title="%s" ' % (artist, album, title) +
+            '-')
+
+        proc = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
+                             stderr = FNULL, stdin = zero_proc.stdout)
+
+        data = proc.stdout.read()
+
+        proc.wait()
+        zero_proc.wait()
+
+        return data
 
 
 transcoder = Transcoder()

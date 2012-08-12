@@ -145,13 +145,7 @@ class Root(object):
 
         def track_generator():
             while True:
-                track = playlist_model.getNextTrack(user_id)
-
-                # TODO play silence..
-                if track is None:
-                    raise cherrypy.HTTPError(409)
-
-                yield track
+                yield playlist_model.getNextTrack(user_id)
 
                 if slug == "one":
                     break
