@@ -1,6 +1,9 @@
 import cherrypy
+import calendar
+import datetime
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError
+from pydispatch import dispatcher
 from opmuse.who import User
 
 User.lastfm_session_key = Column(String(32))
@@ -10,6 +13,30 @@ class NoSessionError(Exception):
     pass
 
 class Lastfm:
+    def __init__(self):
+        dispatcher.connect(
+            self.start_transcoding,
+            signal='start_transcoding',
+            sender=dispatcher.Any
+        )
+        dispatcher.connect(
+            self.end_transcoding,
+            signal='end_transcoding',
+            sender=dispatcher.Any
+        )
+
+    def end_transcoding(self, sender):
+        try:
+            self.scrobble(sender)
+        except NoSessionError: # user hasn't authenticated his lastfm account, ignore
+            pass
+
+    def start_transcoding(self, sender):
+        try:
+            self.update_now_playing(sender)
+        except NoSessionError: # user hasn't authenticated his lastfm account, ignore
+            pass
+
     def get_network(self, session_key = ''):
         key = cherrypy.config['opmuse']['lastfm.key']
         secret = cherrypy.config['opmuse']['lastfm.secret']
@@ -27,6 +54,51 @@ class Lastfm:
 
         if user is not None:
             return user.get_name()
+
+    def update_now_playing(self, track):
+        session_key = cherrypy.request.user.lastfm_session_key
+
+        if session_key is None:
+            raise NoSessionError
+
+        network = self.get_network(session_key)
+
+        network.update_now_playing(
+            artist = track.album.artist.name,
+            title = track.name,
+            album = track.album.name,
+            album_artist = None,
+            duration = track.duration,
+            track_number = track.number
+        )
+
+    def scrobble(self, track):
+        session_key = cherrypy.request.user.lastfm_session_key
+
+        if session_key is None:
+            raise NoSessionError
+
+        network = self.get_network(session_key)
+
+        # assume track started playing track length seconds ago
+        timestamp = self.get_utc_timestamp() - track.duration
+
+        network.scrobble(
+            timestamp = timestamp,
+            artist = track.album.artist.name,
+            title = track.name,
+            album = track.album.name,
+            album_artist = None,
+            duration = track.duration,
+            track_number = track.number
+        )
+
+    def get_utc_timestamp(self):
+        return calendar.timegm(
+            datetime.datetime
+                .utcnow()
+                .utctimetuple()
+        )
 
 
 class SessionKey:
@@ -50,3 +122,4 @@ class SessionKey:
         return key
 
 lastfm = Lastfm()
+

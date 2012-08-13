@@ -3,6 +3,7 @@ import os
 import time
 import subprocess
 import cherrypy
+from pydispatch import dispatcher
 
 class TranscodingSubprocessTool(cherrypy.Tool):
     """
@@ -68,6 +69,8 @@ class Transcoder:
 
             cherrypy.request.transcoder_subprocess = p
 
+            dispatcher.send(signal='start_transcoding', sender=track)
+
             while True:
                 data = p.stdout.read(8192)
 
@@ -85,6 +88,8 @@ class Transcoder:
             # we do this to get more correct "now playing" status in playlists
             if track.duration is not None and track.duration != 0:
                 time.sleep(track.duration - total_time)
+
+            dispatcher.send(signal='end_transcoding', sender=track)
 
     def generate_silence(self, seconds = 1):
 
