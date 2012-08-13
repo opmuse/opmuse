@@ -2,6 +2,7 @@ import sys
 import logging
 import hashlib
 import cherrypy
+import urllib
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String
 from repoze.who.middleware import PluggableAuthenticationMiddleware
@@ -80,6 +81,39 @@ class DatabaseAuthenticator(object):
 
         return None
 
+class AuthTktQueryStringIdentifier:
+    """
+    identifier plugin that fakes a cookie from a query string param to auth
+    with AuthTktCookiePlugin
+    """
+    def identify(self, environ):
+        qs = urllib.parse.parse_qsl(environ.get('QUERY_STRING'))
+
+        remove_index = auth_tkt = None
+        for index, pair in enumerate(qs):
+            # TODO use "cookie_name" prop from authtkt plugin...
+            if pair[0] == 'auth_tkt':
+                auth_tkt = pair[1]
+                remove_index = index
+
+        if remove_index is None:
+            return
+
+        qs.pop(remove_index)
+
+        cookie = environ.get('HTTP_COOKIE')
+
+        environ['QUERY_STRING'] = urllib.parse.urlencode(qs)
+        # TODO use "cookie_name" prop from authtkt plugin...
+        # TODO use repoze.who._compat.get_cookies
+        environ['HTTP_COOKIE'] = 'auth_tkt="%s"; %s' % (auth_tkt, cookie)
+
+    def remember(self, environ, identity):
+        pass
+
+    def forget(self, environ, identity):
+        pass
+
 def hash_password(password, salt):
     hashed = password
 
@@ -96,8 +130,9 @@ def repozewho_pipeline(app):
 
     # TODO secret needs to be set properly (by config or whatever)
     auth_tkt = AuthTktCookiePlugin('secret', 'auth_tkt', include_ip = True)
+    query_string = AuthTktQueryStringIdentifier()
 
-    identifiers = [('auth_tkt', auth_tkt)]
+    identifiers = [('query_string', query_string), ('auth_tkt', auth_tkt)]
     authenticators = [('auth_tkt', auth_tkt), ('database', database)]
     challengers = [('redirector', redirector)]
     mdproviders = []
