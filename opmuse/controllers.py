@@ -5,6 +5,7 @@ from opmuse.playlist import playlist_model
 from opmuse.transcoder import transcoder
 from opmuse.lastfm import SessionKey, lastfm
 from repoze.who.api import get_api
+from repoze.who._compat import get_cookies
 
 class Lastfm:
     @cherrypy.expose
@@ -160,21 +161,19 @@ class Root(object):
     @cherrypy.tools.jinja(filename='play.m3u')
     def play_m3u(self):
         cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
-        return {}
+        cookies = get_cookies(cherrypy.request.wsgi_environ)
+        # TODO use "cookie_name" prop from authtkt plugin...
+        auth_tkt = cookies.get('auth_tkt').value
+        return {'auth_tkt': auth_tkt}
 
     @cherrypy.expose
     @cherrypy.tools.transcodingsubprocess()
+    @cherrypy.tools.authenticated()
     @cherrypy.config(**{'response.stream': True})
     # TODO reimplement Accept header support
-    # TODO implement some sort of security here :|
     def stream(self, slug = None, **kwargs):
 
-        user_id = None
-
-        if slug is not None and re.compile("^[0-9]+$").match(slug):
-            user_id = slug
-        else:
-            user_id = cherrypy.request.user.id
+        user_id = cherrypy.request.user.id
 
         cherrypy.response.headers['Content-Type'] = 'audio/ogg'
 
