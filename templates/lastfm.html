@@ -31,5 +31,5 @@
 {% endblock %}
 
 {% macro user_href() %}
-    <a href="http://www.last.fm/user/{{ authenticated_user }}">{{ authenticated_user }}</a>
+    <a href="http://www.last.fm/user/{{ user.lastfm_user }}">{{ user.lastfm_user }}</a>
 {% endmacro %}

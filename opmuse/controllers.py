@@ -24,6 +24,7 @@ class Lastfm:
                 if key is not None:
                     cherrypy.session.pop('lastfm_session_key')
                     cherrypy.request.user.lastfm_session_key = key
+                    cherrypy.request.user.lastfm_user = lastfm.get_authenticated_user_name()
                     auth_url = None
                     new_auth = True
             else:
@@ -31,12 +32,8 @@ class Lastfm:
                 auth_url = session_key.get_auth_url()
                 cherrypy.session['lastfm_session_key'] = session_key
 
-        if auth_url is None:
-            authenticated_user = lastfm.get_authenticated_user(cherrypy.request.user.lastfm_session_key)
-
         return {
             'auth_url': auth_url,
-            'authenticated_user': authenticated_user,
             'new_auth': new_auth
         }
 

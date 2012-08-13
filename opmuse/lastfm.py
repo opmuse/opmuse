@@ -4,6 +4,10 @@ from pylast import get_lastfm_network, SessionKeyGenerator, WSError
 from opmuse.who import User
 
 User.lastfm_session_key = Column(String(32))
+User.lastfm_user = Column(String(64))
+
+class NoSessionError(Exception):
+    pass
 
 class Lastfm:
     def get_network(self, session_key = ''):
@@ -11,9 +15,19 @@ class Lastfm:
         secret = cherrypy.config['opmuse']['lastfm.secret']
         return get_lastfm_network(key, secret, session_key)
 
-    def get_authenticated_user(self, session_key):
+    def get_authenticated_user_name(self):
+        session_key = cherrypy.request.user.lastfm_session_key
+
+        if session_key is None:
+            raise NoSessionError
+
         network = self.get_network(session_key)
-        return network.get_authenticated_user()
+
+        user = network.get_authenticated_user()
+
+        if user is not None:
+            return user.get_name()
+
 
 class SessionKey:
 
