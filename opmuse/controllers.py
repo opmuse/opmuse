@@ -3,7 +3,41 @@ import re
 import cherrypy
 from opmuse.playlist import playlist_model
 from opmuse.transcoder import transcoder
+from opmuse.lastfm import SessionKey, lastfm
 from repoze.who.api import get_api
+
+class Lastfm:
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='lastfm.html')
+    @cherrypy.tools.authenticated()
+    def default(self):
+
+        auth_url = authenticated_user = new_auth = None
+
+        if cherrypy.request.user.lastfm_session_key is None:
+            if 'lastfm_session_key' in cherrypy.session:
+                session_key = cherrypy.session['lastfm_session_key']
+                auth_url = session_key.get_auth_url()
+                key = session_key.get_session_key()
+
+                if key is not None:
+                    cherrypy.session.pop('lastfm_session_key')
+                    cherrypy.request.user.lastfm_session_key = key
+                    auth_url = None
+                    new_auth = True
+            else:
+                session_key = SessionKey()
+                auth_url = session_key.get_auth_url()
+                cherrypy.session['lastfm_session_key'] = session_key
+
+        if auth_url is None:
+            authenticated_user = lastfm.get_authenticated_user(cherrypy.request.user.lastfm_session_key)
+
+        return {
+            'auth_url': auth_url,
+            'authenticated_user': authenticated_user,
+            'new_auth': new_auth
+        }
 
 class Playlist:
 
@@ -57,6 +91,7 @@ class Styles(object):
 class Root(object):
     styles = Styles()
     playlist = Playlist()
+    lastfm = Lastfm()
 
     @cherrypy.expose
     @cherrypy.tools.multiheaders()

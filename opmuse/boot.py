@@ -6,6 +6,7 @@ from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 from opmuse.transcoder import TranscodingSubprocessTool
 from opmuse.jinja import JinjaGlobalsTool
+import opmuse.lastfm
 
 def multi_headers():
     if hasattr(cherrypy.response, 'multiheaders'):

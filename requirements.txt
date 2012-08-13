@@ -5,3 +5,4 @@ hsaudiotag3k==1.1.3
 sqlalchemy
 mmh3
 vendor/repoze.who.tar.bz2
+pylast
