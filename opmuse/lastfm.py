@@ -38,8 +38,8 @@ class Lastfm:
             pass
 
     def get_network(self, session_key = ''):
-        key = cherrypy.config['opmuse']['lastfm.key']
-        secret = cherrypy.config['opmuse']['lastfm.secret']
+        key = cherrypy.request.app.config['opmuse']['lastfm.key']
+        secret = cherrypy.request.app.config['opmuse']['lastfm.secret']
         return get_lastfm_network(key, secret, session_key)
 
     def get_authenticated_user_name(self):

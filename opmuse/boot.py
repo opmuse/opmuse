@@ -33,6 +33,8 @@ def configure():
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     import opmuse.controllers
 
+    config_file = join(abspath(dirname(__file__)), '..', 'config', 'opmuse.ini')
+
     app_config = {
         '/': {
             'tools.database.on': True,
@@ -60,6 +62,8 @@ def configure():
 
     app = cherrypy.tree.mount(opmuse.controllers.Root(), '/', app_config)
 
+    app.merge(config_file)
+
     app.wsgiapp.pipeline.append(('repoze.who', repozewho_pipeline))
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
@@ -68,11 +72,10 @@ def configure():
     cherrypy.engine.library = LibraryPlugin(cherrypy.engine)
     cherrypy.engine.library.subscribe()
 
-    config = cherrypy._cpconfig.Config(file=join(abspath(dirname(__file__)),
-                                                 '..', 'config', 'opmuse.ini'))
+    config = cherrypy._cpconfig.Config(file=config_file)
     cherrypy.config.update(config)
 
-    env.globals['server_name'] = cherrypy.config['opmuse']['server_name']
+    env.globals['server_name'] = app.config['opmuse']['server_name']
 
 def boot():
     cherrypy.engine.start()

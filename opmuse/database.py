@@ -8,7 +8,8 @@ Base = declarative_base()
 Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
 
 def get_session():
-    url = cherrypy.config['opmuse']['database.url']
+    config = cherrypy.tree.apps[''].config['opmuse']
+    url = config['database.url']
     session = sessionmaker(bind=create_engine(url))()
     dispatcher.send(signal='start_db_session', sender=session)
     return session
@@ -21,8 +22,9 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
         self.bus.subscribe("bind", self.bind)
 
     def start(self):
-        url = cherrypy.config['opmuse']['database.url']
-        echo = cherrypy.config['opmuse']['database.echo']
+        config = cherrypy.tree.apps[''].config['opmuse']
+        url = config['database.url']
+        echo = config['database.echo']
         self.engine = create_engine(url, echo=echo,
                                     isolation_level="READ UNCOMMITTED")
         Base.metadata.create_all(self.engine)
