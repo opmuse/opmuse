@@ -8,5 +8,5 @@ fi
 
 export PYTHONPATH=.
 
-python ./opmuse/boot.py
+python ./opmuse/boot.py $@
 

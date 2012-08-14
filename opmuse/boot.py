@@ -1,4 +1,5 @@
 import cherrypy
+import os
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin
@@ -73,6 +74,37 @@ def boot():
     cherrypy.engine.block()
 
 if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description='opmuse')
+    parser.add_argument('-d', '--daemon', action='store_true', help='Run as daemon')
+    parser.add_argument('-l', '--log', action='store', help='Log file location.')
+    parser.add_argument('-u', '--user', action='store', help='When running as daemon, what user to run as.', default='nobody')
+    parser.add_argument('-e', '--env', action='store', help='cherrypy environment.')
+
+    args = parser.parse_args()
+
     configure()
+
+    if args.env is not None:
+        cherrypy.config.update({
+            'environment': args.env
+        })
+
+    if args.log is not None:
+        cherrypy.config.update({
+            'log.screen': False,
+            'log.error_file': args.log,
+            'log.access_file': args.log
+        })
+
+    if args.daemon:
+        if os.getuid() != 0:
+            parser.error('Needs to run as root when running as daemon.')
+
+        from cherrypy.process.plugins import Daemonizer, DropPrivileges
+        Daemonizer(cherrypy.engine).subscribe()
+        DropPrivileges(cherrypy.engine, uid=args.user).subscribe()
+
     boot()
 
