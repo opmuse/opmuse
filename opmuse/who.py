@@ -145,7 +145,7 @@ def repozewho_pipeline(app):
         mdproviders,
         default_request_classifier,
         default_challenge_decider,
-        log_stream = sys.stdout,
-        log_level = logging.DEBUG
+        log_stream = cherrypy.log.access_log,
+        log_level = logging.INFO
     )
 
