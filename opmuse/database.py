@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 Base = declarative_base()
+Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
 
 def get_session():
     url = cherrypy.config['opmuse']['database.url']
