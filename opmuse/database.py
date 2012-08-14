@@ -2,13 +2,16 @@ import cherrypy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from pydispatch import dispatcher
 
 Base = declarative_base()
 Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
 
 def get_session():
     url = cherrypy.config['opmuse']['database.url']
-    return sessionmaker(bind=create_engine(url))()
+    session = sessionmaker(bind=create_engine(url))()
+    dispatcher.send(signal='start_db_session', sender=session)
+    return session
 
 class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
 
@@ -37,7 +40,7 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
 class SqlAlchemyTool(cherrypy.Tool):
     def __init__(self):
         cherrypy.Tool.__init__(self, 'on_start_resource',
-                               self.bind_session, priority=20)
+                               self.bind_session, priority=10)
 
         self.session = scoped_session(sessionmaker(autoflush=True,
                                                    autocommit=False))

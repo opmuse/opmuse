@@ -7,3 +7,6 @@
 [submodule "vendor/requirejs-domReady"]
 	path = vendor/requirejs-domReady
 	url = git://github.com/requirejs/domReady.git
+[submodule "vendor/WhooshAlchemy"]
+	path = vendor/WhooshAlchemy
+	url = git@github.com:opmuse/WhooshAlchemy.git

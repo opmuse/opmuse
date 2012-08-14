@@ -4,6 +4,7 @@ import cherrypy
 from opmuse.playlist import playlist_model
 from opmuse.transcoder import transcoder
 from opmuse.lastfm import SessionKey, lastfm
+from opmuse.library import Track
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 
@@ -129,6 +130,12 @@ class Root(object):
                 raise cherrypy.HTTPRedirect(came_from)
 
         return {}
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='search.html')
+    def search(self, query):
+        tracks = Track.search_query(query).all()
+        return {'tracks': tracks}
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index.html')

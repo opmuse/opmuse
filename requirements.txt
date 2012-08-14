@@ -7,3 +7,4 @@ mmh3
 vendor/repoze.who.tar.bz2
 pylast
 pydispatcher
+Whoosh

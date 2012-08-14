@@ -44,6 +44,7 @@ class TrackPath(Base):
 
 class Track(Base):
     __tablename__ = 'tracks'
+    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     slug = Column(String(255), index=True)

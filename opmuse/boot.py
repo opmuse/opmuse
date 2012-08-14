@@ -7,6 +7,7 @@ from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 from opmuse.transcoder import TranscodingSubprocessTool
 from opmuse.jinja import JinjaGlobalsTool
+from opmuse.search import WhooshTool
 import opmuse.lastfm
 
 def multi_headers():
@@ -28,32 +29,36 @@ def configure():
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
     cherrypy.tools.jinjaglobals = JinjaGlobalsTool()
     cherrypy.tools.transcodingsubprocess = TranscodingSubprocessTool()
+    cherrypy.tools.whoosh = WhooshTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     import opmuse.controllers
 
-    app = cherrypy.tree.mount(opmuse.controllers.Root(), '/', {
+    app_config = {
         '/': {
             'tools.database.on': True,
             'tools.sessions.on': True,
             'tools.jinjaauthenticated.on': True,
             'tools.jinjaglobals.on': True,
+            'tools.whoosh.on': True,
             'tools.sessions.storage_type': "file",
             'tools.sessions.storage_path': join(abspath(dirname(__file__)),
-                                            '../cache/session/'),
+                                            '..', 'cache', 'session'),
             'tools.sessions.locking': "explicit",
             'tools.sessions.persistent': False,
             'tools.sessions.httponly': True,
         }, '/scripts': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
-                                        "../public/scripts"),
+                                        '..', 'public', 'scripts'),
         },
         '/images': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
-                                        "../public/images"),
+                                        '..', 'public', 'images'),
         },
-    })
+    }
+
+    app = cherrypy.tree.mount(opmuse.controllers.Root(), '/', app_config)
 
     app.wsgiapp.pipeline.append(('repoze.who', repozewho_pipeline))
 
@@ -64,7 +69,7 @@ def configure():
     cherrypy.engine.library.subscribe()
 
     config = cherrypy._cpconfig.Config(file=join(abspath(dirname(__file__)),
-                                                 "../config/opmuse.ini"))
+                                                 '..', 'config', 'opmuse.ini'))
     cherrypy.config.update(config)
 
     env.globals['server_name'] = cherrypy.config['opmuse']['server_name']

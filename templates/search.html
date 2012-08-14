@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title  %}
+    Search
+{% endblock %}
+
+{% block content %}
+<div id="search">
+    <h1>
+        <span class="silent">search</span>
+        Results
+    </h1>
+
+    <ul class="tracks">
+        {% for track in tracks %}
+        <li>
+            <a href="/album/{{ track.album.slug }}">
+                <span class="artist-name">{{ track.album.artist.name }}</span>
+                <span class="album-name">{{ track.album.name }}</span>
+                <span class="track-name">{{ track.name }}</span>
+                <span class="track-duration">
+                    ( {{ track.duration|format_seconds }} )
+                </span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+
+</div>
+{% endblock %}
