@@ -376,8 +376,7 @@ class Library:
                 # doesn't exist anymore
                 if track_path.path.find(path) != 0 or not os.path.exists(track_path.path):
                     self._database.delete(track_path)
-
-        self._database.commit()
+                    self._database.commit()
 
         filename_by_hash = {}
         hash_by_filename = {}
@@ -415,11 +414,11 @@ class Library:
                         if filename not in [path.path for path in track.paths]:
                             track.paths.append(TrackPath(filename))
                             self._database.add(track)
+                            self._database.commit()
                     # file doesn't exist
                     except NoResultFound:
                         self._reader.add(filename)
 
-        self._database.commit()
 
         cherrypy.log("Starting tag parsing.")
 
@@ -461,6 +460,7 @@ class Library:
             except NoResultFound:
                 artist = Artist(metadata.artist_name, artist_slug)
                 self._database.add(artist)
+                self._database.commit()
 
             try:
                 album = self._database.query(Album).filter_by(
@@ -469,6 +469,7 @@ class Library:
             except NoResultFound:
                 album = Album(metadata.album_name, album_slug)
                 self._database.add(album)
+                self._database.commit()
 
             artist.albums.append(album)
 
@@ -498,7 +499,7 @@ class Library:
 
             album.tracks.append(track)
 
-        self._database.commit()
+            self._database.commit()
 
         # remove tracks without any paths (e.g. removed since previous search)
         #
@@ -508,18 +509,19 @@ class Library:
         for track in self._database.query(Track).all():
             if len(track.paths) == 0:
                 self._database.delete(track)
+                self._database.commit()
 
         # remove albums without tracks
         for album in self._database.query(Album).all():
             if len(album.tracks) == 0:
                 self._database.delete(album)
+                self._database.commit()
 
         # remove artists without albums
         for artist in self._database.query(Artist).all():
             if len(artist.albums) == 0:
                 self._database.delete(artist)
-
-        self._database.commit()
+                self._database.commit()
 
         cherrypy.log("Done updating library.")
 
