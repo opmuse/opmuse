@@ -1,4 +1,4 @@
-cherrypy
+CherryPy
 jinja2
 ply
 hsaudiotag3k==1.1.3
