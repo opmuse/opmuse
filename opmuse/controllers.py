@@ -73,7 +73,10 @@ class Styles(object):
         file = os.path.join(*args)
         cherrypy.response.headers['Content-Type'] = 'text/css'
 
-        path = os.path.join(os.path.abspath("."), "public", "styles")
+        path = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            '..', 'public', 'styles'
+        )
 
         csspath = os.path.join(path, file)
 
