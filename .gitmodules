@@ -9,4 +9,4 @@
 	url = git://github.com/requirejs/domReady.git
 [submodule "vendor/WhooshAlchemy"]
 	path = vendor/WhooshAlchemy
-	url = git@github.com:opmuse/WhooshAlchemy.git
+	url = git://github.com/opmuse/WhooshAlchemy.git
