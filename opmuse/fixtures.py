@@ -1,12 +1,12 @@
 import string
 import random
 from opmuse.boot import configure
-from opmuse.database import get_session
+from opmuse.database import get_raw_session
 from opmuse.who import User, hash_password
 
 configure()
 
-database = get_session()
+database = get_raw_session()
 
 # begin fixtures
 

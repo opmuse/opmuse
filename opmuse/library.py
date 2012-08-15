@@ -615,8 +615,10 @@ class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
         def process():
+            session = get_session()
             config = cherrypy.tree.apps[''].config['opmuse']
-            Library(config['library.path'], get_session())
+            Library(config['library.path'], session)
+            session.remove()
 
         cherrypy.log("Spawning library process.")
         p = Process(target=process)

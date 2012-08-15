@@ -151,7 +151,12 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
 
         user = database.query(User).filter_by(login = login).one()
 
-        return user.salt
+        salt = user.salt
+
+        database.remove()
+
+        return salt
+
 
 def hash_password(password, salt):
     hashed = password

@@ -7,11 +7,26 @@ from pydispatch import dispatcher
 Base = declarative_base()
 Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
 
-def get_session():
+def get_engine():
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']
-    session = sessionmaker(bind=create_engine(url))()
+    echo = config['database.echo']
+    return create_engine(url, echo=echo,
+                                isolation_level="READ UNCOMMITTED")
+
+def get_raw_session():
+    session = sessionmaker(bind=get_engine())()
+    return session
+
+def get_session():
+
+    session = scoped_session(sessionmaker(autoflush=True,
+                                          autocommit=False))
+
+    cherrypy.engine.publish('bind', session)
+
     dispatcher.send(signal='start_db_session', sender=session)
+
     return session
 
 class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
@@ -22,11 +37,7 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
         self.bus.subscribe("bind", self.bind)
 
     def start(self):
-        config = cherrypy.tree.apps[''].config['opmuse']
-        url = config['database.url']
-        echo = config['database.echo']
-        self.engine = create_engine(url, echo=echo,
-                                    isolation_level="READ UNCOMMITTED")
+        self.engine = get_engine()
         Base.metadata.create_all(self.engine)
 
     # TODO use decorator?
