@@ -19,13 +19,9 @@ def get_raw_session():
     return session
 
 def get_session():
-
     session = scoped_session(sessionmaker(autoflush=True,
                                           autocommit=False))
-
     cherrypy.engine.publish('bind', session)
-
-    dispatcher.send(signal='start_db_session', sender=session)
 
     return session
 

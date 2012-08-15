@@ -7,25 +7,9 @@ from pydispatch import dispatcher
 from opmuse.library import Artist, Album, Track
 
 indexdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'cache', 'index')
-
 config = {"WHOOSH_BASE": indexdir}
 
-def start_db_session(sender):
-    create_index_service(sender)
-
-dispatcher.connect(
-    start_db_session,
-    signal='start_db_session',
-    sender=dispatcher.Any
-)
-
-def create_index_service(session):
-    index_service = IndexService(config=config, session=session)
-    # TODO would be nice to have these where they are defined (e.g. in library)
-    index_service.register_class(Artist)
-    index_service.register_class(Album)
-    index_service.register_class(Track)
-    return index_service
+index_service = IndexService(config=config)
 
 class WhooshTool(cherrypy.Tool):
     def __init__(self):
@@ -33,5 +17,7 @@ class WhooshTool(cherrypy.Tool):
                                self.start, priority=20)
 
     def start(self):
-        index_service = create_index_service(cherrypy.request.database)
+        index_service.register_class(Artist, cherrypy.request.database)
+        index_service.register_class(Album, cherrypy.request.database)
+        index_service.register_class(Track, cherrypy.request.database)
 
