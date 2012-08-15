@@ -2,7 +2,7 @@ import cherrypy
 import calendar
 import datetime
 from sqlalchemy import Column, String
-from pylast import get_lastfm_network, SessionKeyGenerator, WSError
+from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError
 from pydispatch import dispatcher
 from opmuse.who import User
 
@@ -28,12 +28,17 @@ class Lastfm:
     def end_transcoding(self, sender):
         try:
             self.scrobble(sender)
+        except NetworkError:
+            # TODO put in queue and scrobble later
+            cherrypy.log('Network error, failed to scrobble.')
         except NoSessionError: # user hasn't authenticated his lastfm account, ignore
             pass
 
     def start_transcoding(self, sender):
         try:
             self.update_now_playing(sender)
+        except NetworkError:
+            cherrypy.log('Network error, failed to update now playing.')
         except NoSessionError: # user hasn't authenticated his lastfm account, ignore
             pass
 
