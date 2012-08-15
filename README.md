@@ -12,6 +12,7 @@ Requirements
 ------------
 
   - Python 3.2
+  - ffmpeg on PATH
 
 Get up and running...
 ---------------------
