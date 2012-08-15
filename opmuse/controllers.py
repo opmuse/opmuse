@@ -132,6 +132,7 @@ class Root(object):
         return {}
 
     @cherrypy.expose
+    @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='search.html')
     def search(self, query):
         artists = Artist.search_query(query).all()

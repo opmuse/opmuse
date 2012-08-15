@@ -58,9 +58,8 @@
                     </li>
                 </ul>
 
-                <input id="search" type="text" placeholder="Search" />
-
                 {% if authenticated %}
+                    <input id="search" type="text" placeholder="Search" />
                     {% include "player.html" %}
                 {% endif %}
             </div>
