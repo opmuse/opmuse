@@ -10,8 +10,9 @@ from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
 from repoze.who.plugins.redirector import RedirectorPlugin
 from repoze.who.classifiers import default_request_classifier
 from repoze.who.classifiers import default_challenge_decider
+from repoze.who._compat import get_cookies
 from opmuse.jinja import env
-from opmuse.database import Base
+from opmuse.database import Base, get_session
 
 class User(Base):
     __tablename__ = 'users'
@@ -114,6 +115,44 @@ class AuthTktQueryStringIdentifier:
     def forget(self, environ, identity):
         pass
 
+class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
+    """
+    wrapper class around AuthTktCookiePlugin that uses the users unique salt
+    as secret for the auth cookie
+    """
+
+    def __init__(self, **kwargs):
+        secret = None
+        AuthTktCookiePlugin.__init__(self, secret, **kwargs)
+
+    def remember(self, environ, identity):
+        self.secret = self.get_secret(environ, identity)
+        return AuthTktCookiePlugin.remember(self, environ, identity)
+
+    def identify(self, environ):
+        self.secret = self.get_secret(environ)
+        return AuthTktCookiePlugin.identify(self, environ)
+
+    def get_secret(self, environ, identity = None):
+        if identity is None or 'login' not in identity:
+            cookies = get_cookies(environ)
+            cookie = cookies.get(self.cookie_name)
+
+            if cookie is None or not cookie.value:
+                return None
+
+            # XXX stolen from repoze.who._auth_tkt.parse_ticket(),
+            #     which hopefully, and likely, won't change for a while...
+            login, junk = cookie.value[40:].split('!', 1)
+        else:
+            login = identity['login']
+
+        database = get_session()
+
+        user = database.query(User).filter_by(login = login).one()
+
+        return user.salt
+
 def hash_password(password, salt):
     hashed = password
 
@@ -128,8 +167,7 @@ def repozewho_pipeline(app):
     database = DatabaseAuthenticator()
     redirector = RedirectorPlugin('/login')
 
-    # TODO secret needs to be set properly (by config or whatever)
-    auth_tkt = AuthTktCookiePlugin('secret', 'auth_tkt', include_ip = True)
+    auth_tkt = UserSecretAuthTktCookiePlugin(cookie_name = 'auth_tkt', include_ip = True)
     query_string = AuthTktQueryStringIdentifier()
 
     identifiers = [('query_string', query_string), ('auth_tkt', auth_tkt)]
