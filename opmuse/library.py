@@ -7,6 +7,7 @@ from opmuse.database import Base, get_session
 
 class Artist(Base):
     __tablename__ = 'artists'
+    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
@@ -18,6 +19,7 @@ class Artist(Base):
 
 class Album(Base):
     __tablename__ = 'albums'
+    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))

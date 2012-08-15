@@ -11,20 +11,38 @@
         Results
     </h1>
 
-    <ul class="tracks">
-        {% for track in tracks %}
+    <ul class="artists">
+        {% for key, artist in results.items() %}
         <li>
-            <a href="/album/{{ track.album.slug }}">
-                <span class="artist-name">{{ track.album.artist.name }}</span>
-                <span class="album-name">{{ track.album.name }}</span>
-                <span class="track-name">{{ track.name }}</span>
-                <span class="track-duration">
-                    ( {{ track.duration|format_seconds }} )
-                </span>
-            </a>
+            <span class="silent">artist</span>
+            <a href="/artist/{{ artist.entity.slug }}">{{ artist.entity.name }}</a>
+            <ul class="albums">
+                {% for key, album in artist.albums.items() %}
+                <li>
+                    <span class="silent">album</span>
+                    <a href="/album/{{ album.entity.slug }}">{{ album.entity.name }}</a>
+                    <a
+                        class="playlist add-album"
+                        href="/playlist/add_album/{{ album.entity.slug }}">
+                        +
+                    </a>
+                    <ul class="tracks">
+                        {% for key, track in album.tracks.items() %}
+                        <li>
+                            {{ track.entity.name }}
+                            <a
+                                class="playlist add"
+                                href="/playlist/add/{{ track.entity.slug }}">
+                                +
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
         </li>
         {% endfor %}
     </ul>
-
 </div>
 {% endblock %}

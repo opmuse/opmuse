@@ -4,7 +4,7 @@ import cherrypy
 from opmuse.playlist import playlist_model
 from opmuse.transcoder import transcoder
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import Track
+from opmuse.library import Artist, Album, Track
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 
@@ -134,8 +134,48 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='search.html')
     def search(self, query):
+        artists = Artist.search_query(query).all()
+        albums = Album.search_query(query).all()
         tracks = Track.search_query(query).all()
-        return {'tracks': tracks}
+
+        results = {}
+
+        for artist in artists:
+            results[artist.id] = {
+                'entity': artist,
+                'albums': {}
+            }
+
+        for album in albums:
+            if album.artist.id not in results:
+                results[album.artist.id] = {
+                    'entity': album.artist,
+                    'albums': {}
+                }
+
+            results[album.artist.id]['albums'][album.id] = {
+                'entity': album,
+                'tracks': {}
+            }
+
+        for track in tracks:
+            if track.album.artist.id not in results:
+                results[track.album.artist.id] = {
+                    'entity': track.album.artist,
+                    'albums': {}
+                }
+
+            if track.album.id not in results[track.album.artist.id]['albums']:
+                results[track.album.artist.id]['albums'][track.album.id] = {
+                    'entity': track.album,
+                    'tracks': {}
+                }
+
+            results[track.album.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
+                'entity': track
+            }
+
+        return {'results': results}
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index.html')

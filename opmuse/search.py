@@ -4,7 +4,7 @@ from whooshalchemy import IndexService
 from whoosh.filedb.fileindex import FileIndex
 from whoosh.filedb.filestore import FileStorage
 from pydispatch import dispatcher
-from opmuse.library import Track
+from opmuse.library import Artist, Album, Track
 
 indexdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'cache', 'index')
 
@@ -21,6 +21,9 @@ dispatcher.connect(
 
 def create_index_service(session):
     index_service = IndexService(config=config, session=session)
+    # TODO would be nice to have these where they are defined (e.g. in library)
+    index_service.register_class(Artist)
+    index_service.register_class(Album)
     index_service.register_class(Track)
     return index_service
 
