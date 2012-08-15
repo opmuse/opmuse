@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
 from opmuse.database import Base
 from opmuse.who import User
-from opmuse.library import Track
+from opmuse.library import Track, library
 
 class Playlist(Base):
     __tablename__ = 'playlists'
@@ -75,7 +75,6 @@ class Model:
         cherrypy.request.database.query(Playlist).filter_by(user_id=user_id).delete()
 
     def addTrack(self, slug):
-        library = cherrypy.engine.library.library
         track = library.get_track_by_slug(slug)
 
         user_id = cherrypy.request.user.id
@@ -95,7 +94,6 @@ class Model:
         cherrypy.request.database.query(Playlist).filter_by(user_id=user_id, track_id = track.id).delete()
 
     def addAlbum(self, slug):
-        library = cherrypy.engine.library.library
         album = library.get_album_by_slug(slug)
 
         user_id = cherrypy.request.user.id

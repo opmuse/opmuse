@@ -4,7 +4,7 @@ import cherrypy
 from opmuse.playlist import playlist_model
 from opmuse.transcoder import transcoder
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import Artist, Album, Track
+from opmuse.library import Artist, Album, Track, library
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 
@@ -186,21 +186,18 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='album.html')
     def album(self, slug):
-        library = cherrypy.engine.library.library
         return {'album': library.get_album_by_slug(slug)}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='artist.html')
     def artist(self, slug):
-        library = cherrypy.engine.library.library
         return {'artist': library.get_artist_by_slug(slug)}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
-        library = cherrypy.engine.library.library
         return {'artists': library.get_artists()}
 
     @cherrypy.expose

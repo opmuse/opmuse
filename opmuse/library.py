@@ -609,6 +609,8 @@ class LibraryDao:
     def get_artists(self):
         return cherrypy.request.database.query(Artist).order_by(Artist.name).all()
 
+library = LibraryDao()
+
 class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
@@ -619,8 +621,6 @@ class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
         cherrypy.log("Spawning library process.")
         p = Process(target=process)
         p.start()
-
-        self.library = LibraryDao()
 
     # TODO use decorator?
     start.priority = 20
