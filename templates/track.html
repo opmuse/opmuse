@@ -25,7 +25,10 @@
         <dd>
         <ul>
             {% for path in track.paths %}
-            <li>{{ path.path.decode('utf8') }}</li>
+            {# when displaying non-utf8 filenames the names will be incorrect,
+            don't think we can solve this, maybe aid the user in renaming the
+            files with our metadata... #}
+            <li>{{ path.path.decode('utf8', 'replace') }}</li>
             {% endfor %}
         </ul>
         </dd>
