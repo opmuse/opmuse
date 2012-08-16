@@ -25,7 +25,7 @@
                 {% endif %}
 
                 <span class="album-name">{{ track.album.name }}</span>
-                <span class="track-name">{{ track.name }}</span>
+                <span class="track-name"><a href="/track/{{ track.slug }}">{{ track.name }}</a></span>
                 <span class="track-duration">
                     ( {{ track.duration|format_seconds }} )
                 </span>

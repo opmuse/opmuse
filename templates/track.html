@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title  %}
+    {{ track.album.artist.name }} - {{ track.album.name }} - {{ track.name }}
+{% endblock %}
+
+{% block content %}
+<div id="library">
+    <h1>
+        <a
+            class="silent"
+            href="/album/{{ track.album.slug }}">
+            {{ track.album.artist.name }} - {{ track.album.name }}</a>
+        {{ track.name }}
+    </h1>
+
+    <dl>
+        <dt>Number</dt>
+        <dd>{{ track.number }}</dd>
+        <dt>Duration</dt>
+        <dd>{{ track.duration|format_seconds }}</dd>
+        <dt>Format</dt>
+        <dd>{{ track.format }}</dd>
+        <dt>Files</dt>
+        <dd>
+        <ul>
+            {% for path in track.paths %}
+            <li>{{ path.path.decode('utf8') }}</li>
+            {% endfor %}
+        </ul>
+        </dd>
+    </dl>
+
+    <a
+        class="playlist add"
+        href="/playlist/add/{{ track.slug|urlencode }}">
+        Add track
+    </a>
+
+</div>
+{% endblock %}
+

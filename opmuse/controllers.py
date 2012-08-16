@@ -185,6 +185,12 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='track.html')
+    def track(self, slug):
+        return {'track': library.get_track_by_slug(slug)}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='album.html')
     def album(self, slug):
         return {'album': library.get_album_by_slug(slug)}
