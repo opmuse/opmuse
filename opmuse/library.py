@@ -169,12 +169,7 @@ class HsaudiotagParser(TagParser):
 class WmaParser(HsaudiotagParser):
 
     def get_tag(self, filename):
-        try:
-            # parser doesn't work with byte filenames
-            filename = filename.decode()
-        except UnicodeDecodeError:
-            return None
-        return hsaudiotag.wma.WMADecoder(filename)
+        return hsaudiotag.wma.WMADecoder(open(filename, 'rb'))
 
     def supported_extensions(self):
         return [b'wma']
@@ -182,12 +177,7 @@ class WmaParser(HsaudiotagParser):
 class FlacParser(HsaudiotagParser):
 
     def get_tag(self, filename):
-        try:
-            # parser doesn't work with byte filenames
-            filename = filename.decode()
-        except UnicodeDecodeError:
-            return None
-        return hsaudiotag.flac.FLAC(filename)
+        return hsaudiotag.flac.FLAC(open(filename, 'rb'))
 
     def supported_extensions(self):
         return [b'flac']
@@ -195,12 +185,7 @@ class FlacParser(HsaudiotagParser):
 class Mp4Parser(HsaudiotagParser):
 
     def get_tag(self, filename):
-        try:
-            # parser doesn't work with byte filenames
-            filename = filename.decode()
-        except UnicodeDecodeError:
-            return None
-        return hsaudiotag.mp4.File(filename)
+        return hsaudiotag.mp4.File(open(filename, 'rb'))
 
     def supported_extensions(self):
         return [b'm4p', b'mp4', b'm4a']
@@ -208,12 +193,7 @@ class Mp4Parser(HsaudiotagParser):
 class OggParser(HsaudiotagParser):
 
     def get_tag(self, filename):
-        try:
-            # parser doesn't work with byte filenames
-            filename = filename.decode()
-        except UnicodeDecodeError:
-            return None
-        return hsaudiotag.ogg.Vorbis(filename)
+        return hsaudiotag.ogg.Vorbis(open(filename, 'rb'))
 
     def supported_extensions(self):
         return [b'ogg']
@@ -234,13 +214,7 @@ class Id3Tag:
 class Id3Parser(HsaudiotagParser):
 
     def get_tag(self, filename):
-        try:
-            # parser doesn't work with byte filenames
-            filename = filename.decode()
-        except UnicodeDecodeError:
-            return None
-
-        mpeg = hsaudiotag.mpeg.Mpeg(filename)
+        mpeg = hsaudiotag.mpeg.Mpeg(open(filename, 'rb'))
 
         if mpeg.tag is None:
             return None
