@@ -232,10 +232,12 @@ class PathParser(TagParser):
 
     def parse(self, filename):
         try:
-            # parser doesn't work with byte filenames
-            filename = filename.decode()
+            filename = filename.decode('utf8')
         except UnicodeDecodeError:
-            return FileMetadata(None, None, None, None, None)
+            try:
+                filename = filename.decode('latin1')
+            except UnicodeDecodeError:
+                return FileMetadata(None, None, None, None, None)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track = track_name.split("-")[-1]
@@ -369,10 +371,6 @@ class Library:
                         cherrypy.log("%d files found" % index)
 
                     filename = os.path.join(path, filename)
-
-                    # we just ignore files with non-utf8 chars
-                    #if filename != filename.encode('utf8', 'replace').decode():
-                    #    continue
 
                     hash = self.get_hash(filename)
 
