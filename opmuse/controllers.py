@@ -1,5 +1,6 @@
 import os
 import re
+import datetime
 import cherrypy
 from opmuse.playlist import playlist_model
 from opmuse.transcoder import transcoder
@@ -7,6 +8,7 @@ from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
+from collections import OrderedDict
 
 class Lastfm:
     @cherrypy.expose
@@ -209,7 +211,31 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
-        return {'artists': library.get_artists()}
+        tracks = library.get_new_tracks(datetime.datetime.now() - datetime.timedelta(days=30))
+
+        added = OrderedDict({})
+
+        for title in ('Today', 'Yesterday', '7 Days', '30 Days'):
+            added[title] = []
+
+        today = datetime.date.today()
+
+        for track in tracks:
+            if track.added.date() == today:
+                added['Today'].append(track)
+            elif track.added.date() == today - datetime.timedelta(days=1):
+                added['Yesterday'].append(track)
+            elif track.added.date() >= today - datetime.timedelta(days=7):
+                added['7 Days'].append(track)
+            else:
+                added['30 Days'].append(track)
+
+        for title, tracks in added.items():
+            added[title] = sorted(tracks,
+                key = lambda track : (track.artist.name, track.album.name, track.number, track.name)
+            )
+
+        return {'added': added}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

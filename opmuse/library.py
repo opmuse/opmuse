@@ -1,6 +1,6 @@
-import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io
+import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io, datetime
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB
+from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB, DateTime
 from sqlalchemy.orm import relationship, backref
 from multiprocessing import Process
 from opmuse.database import Base, get_session
@@ -58,17 +58,19 @@ class Track(Base):
     album_id = Column(Integer, ForeignKey('albums.id'))
     artist_id = Column(Integer, ForeignKey('artists.id'))
     hash = Column(BINARY(24), index=True, unique=True)
+    added = Column(DateTime, index=True)
 
     album = relationship("Album", backref=backref('tracks', order_by=number))
     artist = relationship("Artist", backref=backref('tracks', order_by=name))
 
-    def __init__(self, hash, slug, name, duration, number, format):
+    def __init__(self, hash, slug, name, duration, number, format, added):
         self.hash = hash
         self.slug = slug
         self.name = name
         self.duration = duration
         self.number = number
         self.format = format
+        self.added = added
 
 class FileMetadata:
 
@@ -78,6 +80,7 @@ class FileMetadata:
         self.track_name = args[2]
         self.track_duration = args[3]
         self.track_number = args[4]
+        self.added = args[5]
 
         self.metadatas = args
 
@@ -145,7 +148,7 @@ class HsaudiotagParser(TagParser):
         tag = self.get_tag(filename)
 
         if tag is None:
-            return FileMetadata(None, None, None, None, None)
+            return FileMetadata(None, None, None, None, None, None)
 
         artist = tag.artist
         album = tag.album
@@ -164,7 +167,7 @@ class HsaudiotagParser(TagParser):
 
         tag = None
 
-        return FileMetadata(artist, album, track, duration, number)
+        return FileMetadata(artist, album, track, duration, number, None)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -234,13 +237,14 @@ class PathParser(TagParser):
     """
 
     def parse(self, filename):
+        bfilename = filename
         try:
             filename = filename.decode('utf8')
         except UnicodeDecodeError:
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(None, None, None, None, None)
+                return FileMetadata(None, None, None, None, None, None)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track = track_name.split("-")[-1]
@@ -248,6 +252,9 @@ class PathParser(TagParser):
         album = path_comp[1]
         path_comp = os.path.split(path_comp[0])
         artist = path_comp[1]
+
+        stat = os.stat(bfilename)
+        added = datetime.datetime.fromtimestamp(stat.st_mtime)
 
         number = None
 
@@ -260,7 +267,7 @@ class PathParser(TagParser):
             if number > 100:
                 number = None
 
-        return FileMetadata(artist, album, track, None, number)
+        return FileMetadata(artist, album, track, None, number, added)
 
     def supported_extensions(self):
         return None
@@ -466,8 +473,11 @@ class Library:
             else:
                 format = 'audio/unknown'
 
+            added = metadata.added
+
             track = Track(hash, track_slug, metadata.track_name,
-                    metadata.track_duration, metadata.track_number, format)
+                    metadata.track_duration, metadata.track_number,
+                    format, added)
             self._database.add(track)
 
             for filename in filename_by_hash[hash]:
@@ -582,6 +592,10 @@ class LibraryDao:
 
     def get_artists(self):
         return cherrypy.request.database.query(Artist).order_by(Artist.name).all()
+
+    def get_new_tracks(self, age):
+        return (cherrypy.request.database.query(Track).filter(Track.added > age)
+            .order_by(Track.added.desc()).all())
 
 library = LibraryDao()
 

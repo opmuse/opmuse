@@ -8,10 +8,40 @@
 <div id="library">
     <h1>
         <span class="silent">library</span>
-        Browse
+        New tracks
     </h1>
 
-    {% include "partials/artist-list.html" %}
+    {% for title, tracks in added.items() %}
+    <h2>{{ title }}</h2>
+    <ul class="tracks new_tracks">
+        {% for track in tracks %}
+            <li class="track">
+                <span class="text">
+                    <span class="artist-name">
+                        <a href="/artist/{{ track.artist.slug }}">
+                            {{ track.artist.name }}
+                        </a>
+                    </span>
+                    <span class="album-name">
+                        <a href="/album/{{ track.artist.slug }}/{{ track.album.slug }}">
+                            {{ track.album.name }}
+                        </a>
+                    </span>
+                    <span class="track-name">
+                        <a href="/track/{{ track.slug }}">
+                            {{ track.name }}
+                        </a>
+                    </span>
+                </span>
+                <a
+                    class="playlist add"
+                    href="/playlist/add/{{ track.slug|urlencode }}">
+                    +
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
 
 </div>
 {% endblock %}
