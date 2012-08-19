@@ -2,7 +2,7 @@ import cherrypy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from pydispatch import dispatcher
+from sqlalchemy.pool import NullPool
 
 Base = declarative_base()
 Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
@@ -11,7 +11,7 @@ def get_engine():
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']
     echo = config['database.echo']
-    return create_engine(url, echo=echo,
+    return create_engine(url, echo=echo, poolclass=NullPool,
                                 isolation_level="READ UNCOMMITTED")
 
 def get_raw_session():
