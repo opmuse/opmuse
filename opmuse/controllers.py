@@ -180,6 +180,7 @@ class Root(object):
         return {'results': results}
 
     @cherrypy.expose
+    @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='index.html')
     def index(self):
         return {}

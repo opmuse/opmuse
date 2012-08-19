@@ -41,6 +41,7 @@
                             <div class="icon home-icon"></div>
                         </a>
                     </li>
+                {% if authenticated %}
                     <li>
                         <a href="/library">
                             <div class="icon library-icon"></div>
@@ -56,6 +57,7 @@
                             Logout
                         </a>
                     </li>
+                {% endif %}
                 </ul>
 
                 {% if authenticated %}
