@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title  %}
-    {{ album.artist.name }} - {{ album.name }}
+    {{ artist.name }} - {{ album.name }}
 {% endblock %}
 
 {% block content %}
@@ -9,8 +9,8 @@
     <h1>
         <a
             class="silent"
-            href="/artist/{{ album.artist.slug }}">
-            {{ album.artist.name }}</a>
+            href="/artist/{{ artist.slug }}">
+            {{ artist.name }}</a>
         {{ album.name }}
     </h1>
 
@@ -18,10 +18,18 @@
 
         {% for track in album.tracks %}
 
+            {% if album.artists|length > 1%}
+            <li class="track {{ "current_artist" if track.artist.id == artist.id else "other_artist" }}">
+            {% else %}
             <li class="track">
+            {% endif %}
 
                 {% if track.number %}
                     <span class="track-number">{{ track.number }}</span>
+                {% endif %}
+
+                {% if album.artists|length > 1%}
+                    <span class="artist-name"><a href="/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a></span>
                 {% endif %}
 
                 <span class="album-name">{{ track.album.name }}</span>

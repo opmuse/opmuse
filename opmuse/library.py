@@ -13,6 +13,8 @@ class Artist(Base):
     name = Column(String(255))
     slug = Column(String(255), index=True)
 
+    albums = relationship("Album", secondary='tracks')
+
     def __init__(self, name, slug):
         self.name = name
         self.slug = slug
@@ -24,9 +26,8 @@ class Album(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     slug = Column(String(255), index=True)
-    artist_id = Column(Integer, ForeignKey('artists.id'))
 
-    artist = relationship("Artist", backref=backref('albums', order_by=name))
+    artists = relationship("Artist", secondary='tracks')
 
     def __init__(self, name, slug):
         self.name = name
@@ -55,9 +56,11 @@ class Track(Base):
     number = Column(Integer)
     format = Column(String(128))
     album_id = Column(Integer, ForeignKey('albums.id'))
+    artist_id = Column(Integer, ForeignKey('artists.id'))
     hash = Column(BINARY(24), index=True, unique=True)
 
     album = relationship("Album", backref=backref('tracks', order_by=number))
+    artist = relationship("Artist", backref=backref('tracks', order_by=name))
 
     def __init__(self, hash, slug, name, duration, number, format):
         self.hash = hash
@@ -419,7 +422,7 @@ class Library:
                 metadata.artist_name
             )
             album_slug = self._produce_album_slug(
-                metadata.artist_name, metadata.album_name
+                metadata.album_name
             )
             track_slug = self._produce_track_slug(
                 metadata.artist_name, metadata.album_name, metadata.track_name
@@ -439,14 +442,12 @@ class Library:
 
             try:
                 album = self._database.query(Album).filter_by(
-                    artist=artist, name=metadata.album_name
+                    name=metadata.album_name
                 ).one()
             except NoResultFound:
                 album = Album(metadata.album_name, album_slug)
                 self._database.add(album)
                 self._database.commit()
-
-            artist.albums.append(album)
 
             hash = hash_by_filename[filename]
 
@@ -473,6 +474,7 @@ class Library:
                 track.paths.append(TrackPath(filename))
 
             album.tracks.append(track)
+            artist.tracks.append(track)
 
             self._database.commit()
 
@@ -510,10 +512,10 @@ class Library:
                 return slug
             index += 1
 
-    def _produce_album_slug(self, artist, album):
+    def _produce_album_slug(self, album):
         index = 0
         while True:
-            slug = self.slugify("%s_%s" % (artist, album), index)
+            slug = self.slugify(album, index)
             try:
                 self._database.query(Album).filter_by(slug=slug).one()
             except NoResultFound:

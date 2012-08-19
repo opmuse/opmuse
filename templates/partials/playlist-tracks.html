@@ -5,8 +5,8 @@
     {% for playlist in playlists %}
         <li class="{{ "playing" if playlist.playing }}">
             <span class="artist-name">
-                <a href="/artist/{{ playlist.track.album.artist.slug }}">
-                    {{ playlist.track.album.artist.name }}
+                <a href="/artist/{{ playlist.track.artist.slug }}">
+                    {{ playlist.track.artist.name }}
                 </a>
             </span>
             <span class="album-name">

@@ -44,7 +44,7 @@ class Transcoder:
             # TODO only works on unix...
             FNULL = open('/dev/null', 'w')
 
-            artist = track.album.artist.name
+            artist = track.artist.name
             album = track.album.name
             title = track.name
             track_number = track.number if track.number is not None else 0

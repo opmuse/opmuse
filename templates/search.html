@@ -20,7 +20,7 @@
                 {% for key, album in artist.albums.items() %}
                 <li>
                     <span class="silent">album</span>
-                    <a href="/album/{{ album.entity.slug }}">{{ album.entity.name }}</a>
+                    <a href="/album/{{ artist.entity.slug }}/{{ album.entity.slug }}">{{ album.entity.name }}</a>
                     <a
                         class="playlist add-album"
                         href="/playlist/add_album/{{ album.entity.slug }}">

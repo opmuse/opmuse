@@ -69,7 +69,7 @@ class Lastfm:
         network = self.get_network(session_key)
 
         network.update_now_playing(
-            artist = track.album.artist.name,
+            artist = track.artist.name,
             title = track.name,
             album = track.album.name,
             album_artist = None,
@@ -90,7 +90,7 @@ class Lastfm:
 
         network.scrobble(
             timestamp = timestamp,
-            artist = track.album.artist.name,
+            artist = track.artist.name,
             title = track.name,
             album = track.album.name,
             album_artist = None,

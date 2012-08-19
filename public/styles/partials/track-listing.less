@@ -9,6 +9,19 @@
 
     li {
         .artist-name {
+            &:after {
+                content: " -";
+            }
+        }
+
+        &.other_artist {
+            .track-name,
+            .track-number,
+            .album-name,
+            .artist-name,
+            a {
+                color: #777;
+            }
         }
 
         .track-name {

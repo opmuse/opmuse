@@ -18,7 +18,7 @@
         {% for album in artist.albums %}
             <li class="album">
                 <a
-                    href="/album/{{ album.slug }}">
+                    href="/album/{{ artist.slug }}/{{ album.slug }}">
                     <span class="album-name">{{ album.name }}</span>
                     <span class="album-tracks-count">
                         {{ album.tracks|count }}

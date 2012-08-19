@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title  %}
-    {{ track.album.artist.name }} - {{ track.album.name }} - {{ track.name }}
+    {{ track.artist.name }} - {{ track.album.name }} - {{ track.name }}
 {% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@
         <a
             class="silent"
             href="/album/{{ track.album.slug }}">
-            {{ track.album.artist.name }} - {{ track.album.name }}</a>
+            {{ track.artist.name }} - {{ track.album.name }}</a>
         {{ track.name }}
     </h1>
 

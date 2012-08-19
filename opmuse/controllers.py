@@ -148,31 +148,32 @@ class Root(object):
             }
 
         for album in albums:
-            if album.artist.id not in results:
-                results[album.artist.id] = {
-                    'entity': album.artist,
-                    'albums': {}
-                }
+            for artist in album.artists:
+                if artist.id not in results:
+                    results[artist.id] = {
+                        'entity': artist,
+                        'albums': {}
+                    }
 
-            results[album.artist.id]['albums'][album.id] = {
-                'entity': album,
-                'tracks': {}
-            }
+                results[artist.id]['albums'][album.id] = {
+                    'entity': album,
+                    'tracks': {}
+                }
 
         for track in tracks:
-            if track.album.artist.id not in results:
-                results[track.album.artist.id] = {
-                    'entity': track.album.artist,
+            if track.artist.id not in results:
+                results[track.artist.id] = {
+                    'entity': track.artist,
                     'albums': {}
                 }
 
-            if track.album.id not in results[track.album.artist.id]['albums']:
-                results[track.album.artist.id]['albums'][track.album.id] = {
+            if track.album.id not in results[track.artist.id]['albums']:
+                results[track.artist.id]['albums'][track.album.id] = {
                     'entity': track.album,
                     'tracks': {}
                 }
 
-            results[track.album.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
+            results[track.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
                 'entity': track
             }
 
@@ -192,8 +193,10 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='album.html')
-    def album(self, slug):
-        return {'album': library.get_album_by_slug(slug)}
+    def album(self, artist_slug, album_slug):
+        artist = library.get_artist_by_slug(artist_slug)
+        album = library.get_album_by_slug(album_slug)
+        return {'artist': artist, 'album': album}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
