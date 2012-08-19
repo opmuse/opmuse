@@ -36,8 +36,7 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
         self.engine = get_engine()
         Base.metadata.create_all(self.engine)
 
-    # TODO use decorator?
-    start.priority = 10
+    start.priority = 100
 
     def bind(self, session):
         session.configure(bind=self.engine)

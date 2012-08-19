@@ -612,6 +612,5 @@ class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
         p = Process(target=process)
         p.start()
 
-    # TODO use decorator?
-    start.priority = 20
+    start.priority = 110
 
