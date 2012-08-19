@@ -8,6 +8,18 @@
     }
 
     li {
+        clear: both;
+        overflow: hidden;
+
+        .text {
+            float: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            width: 390px;
+        }
+
         .artist-name {
             &:after {
                 content: " -";
@@ -21,12 +33,6 @@
             .artist-name,
             a {
                 color: #777;
-            }
-        }
-
-        .track-name {
-            &:before {
-                content: "- ";
             }
         }
 

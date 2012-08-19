@@ -23,19 +23,21 @@
             {% else %}
             <li class="track">
             {% endif %}
+                <span class="text">
 
-                {% if track.number %}
-                    <span class="track-number">{{ track.number }}</span>
-                {% endif %}
+                    {% if track.number %}
+                        <span class="track-number">{{ track.number }}</span>
+                    {% endif %}
 
-                {% if album.artists|length > 1%}
-                    <span class="artist-name"><a href="/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a></span>
-                {% endif %}
+                    {% if album.artists|length > 1%}
+                        <span class="artist-name"><a href="/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a></span>
+                    {% endif %}
 
-                <span class="album-name">{{ track.album.name }}</span>
-                <span class="track-name"><a href="/track/{{ track.slug }}">{{ track.name }}</a></span>
-                <span class="track-duration">
-                    ( {{ track.duration|format_seconds }} )
+                    <span class="album-name">{{ track.album.name }}</span>
+                    <span class="track-name"><a href="/track/{{ track.slug }}">{{ track.name }}</a></span>
+                    <span class="track-duration">
+                        ( {{ track.duration|format_seconds }} )
+                    </span>
                 </span>
 
                 <a

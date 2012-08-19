@@ -4,23 +4,25 @@
 
     {% for playlist in playlists %}
         <li class="{{ "playing" if playlist.playing }}">
-            <span class="artist-name">
-                <a href="/artist/{{ playlist.track.artist.slug }}">
-                    {{ playlist.track.artist.name }}
-                </a>
-            </span>
-            <span class="album-name">
-                <a href="/album/{{ playlist.track.album.slug }}">
-                    {{ playlist.track.album.name }}
-                </a>
-            </span>
-            <span class="track-name">
-                <a href="/track/{{ playlist.track.slug }}">
-                    {{ playlist.track.name }}
-                </a>
-            </span>
-            <span class="track-duration">
-                ( {{ playlist.track.duration|format_seconds }} )
+            <span class="text">
+                <span class="artist-name">
+                    <a href="/artist/{{ playlist.track.artist.slug }}">
+                        {{ playlist.track.artist.name }}
+                    </a>
+                </span>
+                <span class="album-name">
+                    <a href="/album/{{ playlist.track.album.slug }}">
+                        {{ playlist.track.album.name }}
+                    </a>
+                </span>
+                <span class="track-name">
+                    <a href="/track/{{ playlist.track.slug }}">
+                        {{ playlist.track.name }}
+                    </a>
+                </span>
+                <span class="track-duration">
+                    ( {{ playlist.track.duration|format_seconds }} )
+                </span>
             </span>
             <a
                 class="remove"
