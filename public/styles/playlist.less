@@ -20,6 +20,24 @@
         background: #E0BBBB;
     }
 
+    .tracks li {
+        height: 1em;
+        line-height: 1em;
+        display: block;
+        .text {
+            font-size: .8em;
+        }
+        .album-name {
+            display: inline;
+            &:after {
+                content: ' -';
+            }
+        }
+        .track-duration {
+            display: inline;
+        }
+    }
+
 }
 
 .remove {
