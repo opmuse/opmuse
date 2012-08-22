@@ -1,4 +1,4 @@
-import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io, datetime
+import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io, datetime, math
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB, DateTime
 from sqlalchemy.orm import relationship, backref
@@ -11,7 +11,7 @@ class Artist(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
-    slug = Column(String(255), index=True)
+    slug = Column(String(255), index=True, unique=True)
 
     albums = relationship("Album", secondary='tracks')
 
@@ -25,7 +25,7 @@ class Album(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
-    slug = Column(String(255), index=True)
+    slug = Column(String(255), index=True, unique=True)
 
     artists = relationship("Artist", secondary='tracks')
 
@@ -50,7 +50,7 @@ class Track(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    slug = Column(String(255), index=True)
+    slug = Column(String(255), index=True, unique=True)
     name = Column(String(255))
     duration = Column(Integer)
     number = Column(Integer)
@@ -63,14 +63,8 @@ class Track(Base):
     album = relationship("Album", backref=backref('tracks', order_by=number))
     artist = relationship("Artist", backref=backref('tracks', order_by=name))
 
-    def __init__(self, hash, slug, name, duration, number, format, added):
+    def __init__(self, hash):
         self.hash = hash
-        self.slug = slug
-        self.name = name
-        self.duration = duration
-        self.number = number
-        self.format = format
-        self.added = added
 
 class FileMetadata:
 
@@ -274,13 +268,11 @@ class PathParser(TagParser):
 
 class TagReader:
 
-    _parsed = False
-
-    _parsers = []
-    _by_filename = {}
-    files = set()
-
     def __init__(self):
+
+        self._parsers = []
+        self._by_filename = {}
+
         self._parsers.extend([
             Id3Parser(self),
             OggParser(self),
@@ -290,65 +282,37 @@ class TagReader:
             PathParser(self)
         ])
 
-    def add(self, filename):
-        self.files.add(filename)
+    def parse(self, filename):
+        metadata = None
 
-    def parse(self):
         for parser in self._parsers:
-            if not isinstance(parser, TagParser):
-                raise Exception("Parser does not implement TagParser")
 
             parser_name = parser.__class__.__name__
 
-            cherrypy.log("Parsing with %s" % parser_name)
+            if not parser.is_supported(filename):
+                continue
 
-            index = 0
-            total = len(self.files)
-            for filename in self.files:
-                index += 1
+            new_metadata = parser.parse(filename)
 
-                if index % 1000 == 0:
-                    cherrypy.log("%d of %d parsed with %s" % (index, total, parser_name))
+            if not isinstance(new_metadata, FileMetadata):
+                raise Exception("TagParser.parse must return a FileMetadata instance.")
 
-                if not parser.is_supported(filename):
-                    continue
+            if metadata is not None:
+                metadata = metadata.merge(new_metadata)
+            else:
+                metadata = new_metadata
 
-                previous_metadata = None
-
-                if filename in self._by_filename:
-                    previous_metadata = self._by_filename[filename]
-
-                new_metadata = parser.parse(filename)
-
-                if not isinstance(new_metadata, FileMetadata):
-                    raise Exception("TagParser.parse must return a FileMetadata instance.")
-
-                if previous_metadata is not None:
-                    metadata = previous_metadata.merge(new_metadata)
-                else:
-                    metadata = new_metadata
-
-                self._by_filename[filename] = metadata
-
-        self._parsed = True
-
-    def get(self, filename):
-        if not self._parsed:
-            raise Exception("Logic error, parse() must be run before get()")
-
-        if filename in self._by_filename:
-            return self._by_filename[filename]
+        return metadata
 
 class Library:
-
-    _reader = TagReader()
 
     # TODO figure out from TagParsers?
     SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a"]
 
-    def __init__(self, path, database):
+    PROC_NUM = 3
 
-        self._database = database
+    def __init__(self, path):
+        self._database = get_session()
 
         # always treat paths as bytes to avoid encoding issues we don't
         # care about
@@ -367,126 +331,45 @@ class Library:
                     self._database.delete(track_path)
                     self._database.commit()
 
-        filename_by_hash = {}
-        hash_by_filename = {}
-
         index = 0
+
+        queue = []
+
         for path, dirnames, filenames in os.walk(path):
             for filename in filenames:
-
                 if os.path.splitext(filename)[1].lower()[1:] in self.SUPPORTED:
 
                     index += 1
+
                     if index % 1000 == 0:
                         cherrypy.log("%d files found" % index)
 
                     filename = os.path.join(path, filename)
 
-                    hash = self.get_hash(filename)
+                    queue.append(filename)
 
-                    hash_by_filename[filename] = hash
+        processes = []
 
-                    # don't parse two identical files more than once
-                    if hash in filename_by_hash:
-                        filename_by_hash[hash].append(filename)
-                        continue
-                    else:
-                        filename_by_hash[hash] = [filename]
+        queue_len = len(queue)
+        chunk_size = math.ceil(queue_len / self.PROC_NUM)
 
-                    try:
-                        track = self._database.query(Track).filter_by(hash=hash).one()
-                        # file most likely just moved
-                        if filename not in [path.path for path in track.paths]:
-                            track.paths.append(TrackPath(filename))
-                            self._database.add(track)
-                            self._database.commit()
-                    # file doesn't exist
-                    except NoResultFound:
-                        self._reader.add(filename)
+        to_process = []
 
+        for index, filename in enumerate(queue):
 
-        cherrypy.log("Starting tag parsing.")
+            to_process.append(filename)
 
-        self._reader.parse()
+            if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
+                cherrypy.log("Spawning library subprocess.")
+                p = Process(target=LibraryProcess, args = (to_process, ))
+                p.start()
 
-        cherrypy.log("Starting database update.")
+                processes.append(p)
 
-        files = index = len(self._reader.files)
+                to_process = []
 
-        for filename in self._reader.files:
-
-            if index % 1000 == 0:
-                cherrypy.log("Updated %d of %d files." % (index, files))
-
-            index -= 1
-
-            metadata = self._reader.get(filename)
-
-            if not metadata.has_required():
-                continue
-
-            artist_slug = self._produce_artist_slug(
-                metadata.artist_name
-            )
-            album_slug = self._produce_album_slug(
-                metadata.album_name
-            )
-            track_slug = self._produce_track_slug(
-                metadata.artist_name, metadata.album_name, metadata.track_name
-            )
-
-            artist = None
-            album = None
-
-            try:
-                artist = self._database.query(Artist).filter_by(
-                    name=metadata.artist_name
-                ).one()
-            except NoResultFound:
-                artist = Artist(metadata.artist_name, artist_slug)
-                self._database.add(artist)
-                self._database.commit()
-
-            try:
-                album = self._database.query(Album).filter_by(
-                    name=metadata.album_name
-                ).one()
-            except NoResultFound:
-                album = Album(metadata.album_name, album_slug)
-                self._database.add(album)
-                self._database.commit()
-
-            hash = hash_by_filename[filename]
-
-            ext = os.path.splitext(filename)[1].lower()
-
-            if ext == b".mp3":
-                format = 'audio/mp3'
-            elif ext == b".wma":
-                format = 'audio/x-ms-wma'
-            elif ext == b".m4a" or ext == b".m4p" or ext == b".mp4":
-                format = b'audio/mp4a-latm'
-            elif ext == b".flac":
-                format = 'audio/flac'
-            elif ext == b".ogg":
-                format = 'audio/ogg'
-            else:
-                format = 'audio/unknown'
-
-            added = metadata.added
-
-            track = Track(hash, track_slug, metadata.track_name,
-                    metadata.track_duration, metadata.track_number,
-                    format, added)
-            self._database.add(track)
-
-            for filename in filename_by_hash[hash]:
-                track.paths.append(TrackPath(filename))
-
-            album.tracks.append(track)
-            artist.tracks.append(track)
-
-            self._database.commit()
+        for process in processes:
+            process.join()
 
         # remove tracks without any paths (e.g. removed since previous search)
         #
@@ -510,7 +393,105 @@ class Library:
                 self._database.delete(artist)
                 self._database.commit()
 
+        self._database.remove()
+
         cherrypy.log("Done updating library.")
+
+class LibraryProcess:
+
+    def __init__(self, queue):
+
+        self._database = get_session()
+        self._reader = TagReader()
+
+        for filename in queue:
+            self.process(filename)
+
+        self._database.remove()
+
+    def process(self, filename):
+
+        hash = self.get_hash(filename)
+
+        try:
+            track = self._database.query(Track).filter_by(hash=hash).one()
+            # file most likely just moved
+            if filename not in [path.path for path in track.paths]:
+                track.paths.append(TrackPath(filename))
+                self._database.commit()
+            return
+        # file doesn't exist
+        except NoResultFound:
+            track = Track(hash)
+            self._database.add(track)
+            self._database.commit()
+
+        metadata = self._reader.parse(filename)
+
+        if not metadata.has_required():
+            return
+
+        artist_slug = self._produce_artist_slug(
+            metadata.artist_name
+        )
+        album_slug = self._produce_album_slug(
+            metadata.album_name
+        )
+        track_slug = self._produce_track_slug(
+            metadata.artist_name, metadata.album_name, metadata.track_name
+        )
+
+        artist = None
+        album = None
+
+        try:
+            artist = self._database.query(Artist).filter_by(
+                name=metadata.artist_name
+            ).one()
+        except NoResultFound:
+            artist = Artist(metadata.artist_name, artist_slug)
+            self._database.add(artist)
+            self._database.commit()
+
+        try:
+            album = self._database.query(Album).filter_by(
+                name=metadata.album_name
+            ).one()
+        except NoResultFound:
+            album = Album(metadata.album_name, album_slug)
+            self._database.add(album)
+            self._database.commit()
+
+        ext = os.path.splitext(filename)[1].lower()
+
+        if ext == b".mp3":
+            format = 'audio/mp3'
+        elif ext == b".wma":
+            format = 'audio/x-ms-wma'
+        elif ext == b".m4a" or ext == b".m4p" or ext == b".mp4":
+            format = b'audio/mp4a-latm'
+        elif ext == b".flac":
+            format = 'audio/flac'
+        elif ext == b".ogg":
+            format = 'audio/ogg'
+        else:
+            format = 'audio/unknown'
+
+        added = metadata.added
+
+        track.slug = track_slug
+        track.name = metadata.track_name
+        track.duration = metadata.track_duration
+        track.number = metadata.track_number
+        track.format = format
+        track.added = added
+
+        track.paths.append(TrackPath(filename))
+
+        album.tracks.append(track)
+        artist.tracks.append(track)
+
+        self._database.commit()
 
     def _produce_artist_slug(self, artist):
         index = 0
@@ -555,7 +536,7 @@ class Library:
         byte_size = 1024 * 128
 
         with open(filename, "rb", 0) as f:
-            # fetch first 512k and last 512k to get a reasonably secure
+            # fetch first 128k and last 128k to get a reasonably secure
             # unique set of bytes from this file. also because id3 tags
             # might be located at the end or the beginning of a file,
             # we want to be able to detect changes to them
@@ -603,10 +584,8 @@ class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
         def process():
-            session = get_session()
             config = cherrypy.tree.apps[''].config['opmuse']
-            Library(config['library.path'], session)
-            session.remove()
+            Library(config['library.path'])
 
         cherrypy.log("Spawning library process.")
         p = Process(target=process)
