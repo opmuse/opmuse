@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 
@@ -47,6 +47,8 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
             });
 
             that.reload();
+
+            setInterval(this.reload.bind(this), 3 * 60 * 1000);
         },
         reload: function () {
             $("#playlist-tracks").load(this.listUrl, {});
