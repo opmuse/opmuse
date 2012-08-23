@@ -4,5 +4,5 @@ require(['jquery', 'less'], function($) {
         headers: { 'Content-type': 'text/plain' }
     });
 
-    require(['playlist', 'player', 'search']);
+    require(['queue', 'player', 'search']);
 });

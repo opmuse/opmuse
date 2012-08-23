@@ -41,8 +41,8 @@
                 </span>
 
                 <a
-                    class="playlist add"
-                    href="/playlist/add/{{ track.slug|urlencode }}">
+                    class="queue add"
+                    href="/queue/add/{{ track.slug|urlencode }}">
                     +
                 </a>
 
@@ -53,9 +53,9 @@
     </ul>
 
     <a
-        class="playlist add-album"
-        href="/playlist/add_album/{{ album.slug|urlencode }}">
-        Add all to playlist
+        class="queue add-album"
+        href="/queue/add_album/{{ album.slug|urlencode }}">
+        Add all to queue
     </a>
 
 </div>

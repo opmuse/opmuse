@@ -22,8 +22,8 @@
                     <span class="silent">album</span>
                     <a href="/album/{{ artist.entity.slug }}/{{ album.entity.slug }}">{{ album.entity.name }}</a>
                     <a
-                        class="playlist add-album"
-                        href="/playlist/add_album/{{ album.entity.slug }}">
+                        class="queue add-album"
+                        href="/queue/add_album/{{ album.entity.slug }}">
                         +
                     </a>
                     <ul class="tracks">
@@ -31,8 +31,8 @@
                         <li>
                             {{ track.entity.name }}
                             <a
-                                class="playlist add"
-                                href="/playlist/add/{{ track.entity.slug }}">
+                                class="queue add"
+                                href="/queue/add/{{ track.entity.slug }}">
                                 +
                             </a>
                         </li>

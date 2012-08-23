@@ -85,7 +85,7 @@ class Transcoder:
 
             # wait to send next track until this track has played (this assumes
             # the player doesn't pause or anything)
-            # we do this to get more correct "now playing" status in playlists
+            # we do this to get more correct "now playing" status in the queue
             if track.duration is not None and track.duration != 0:
                 time.sleep(track.duration - total_time)
 
@@ -101,7 +101,7 @@ class Transcoder:
                              stderr = FNULL, stdin = None)
 
         artist = album = 'opmuse'
-        title = 'Your playlist is empty, enjoy the silence...'
+        title = 'Your queue is empty, enjoy the silence...'
 
         cmd = ('ffmpeg -ac 2 -ar 44100 -acodec pcm_s16le -f s16le ' +
             '-i - -acodec libvorbis -f ogg -aq 0 ' +

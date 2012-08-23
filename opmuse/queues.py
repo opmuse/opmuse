@@ -7,8 +7,8 @@ from opmuse.database import Base
 from opmuse.who import User
 from opmuse.library import Track, library
 
-class Playlist(Base):
-    __tablename__ = 'playlists'
+class Queue(Base):
+    __tablename__ = 'queues'
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
@@ -27,52 +27,52 @@ class Playlist(Base):
 class Model:
     def getNextTrack(self, user_id):
         database = cherrypy.request.database
-        playlist = next_playlist = None
+        queue = next_queue = None
         try:
-            playlist = (database.query(Playlist)
+            queue = (database.query(Queue)
                 .filter_by(user_id=user_id, playing=True)
-                .order_by(Playlist.weight).one())
+                .order_by(Queue.weight).one())
 
-            next_playlist = (database.query(Playlist)
+            next_queue = (database.query(Queue)
                 .filter_by(user_id=user_id)
-                .filter(Playlist.weight > playlist.weight)
-                .order_by(Playlist.weight).first())
+                .filter(Queue.weight > queue.weight)
+                .order_by(Queue.weight).first())
         except NoResultFound:
             pass
 
-        if next_playlist is None:
-            next_playlist = (database.query(Playlist)
+        if next_queue is None:
+            next_queue = (database.query(Queue)
                 .filter_by(user_id=user_id)
-                .order_by(Playlist.weight).first())
+                .order_by(Queue.weight).first())
 
-        if next_playlist is None:
+        if next_queue is None:
             return None
 
-        next_playlist.playing = True
+        next_queue.playing = True
 
-        if playlist is not None:
-            playlist.playing = False
+        if queue is not None:
+            queue.playing = False
 
         database.commit()
 
-        return next_playlist.track
+        return next_queue.track
 
-    def getPlaylists(self, user_id):
-        playlists = (cherrypy.request.database.query(Playlist)
-            .filter_by(user_id=user_id).order_by(Playlist.weight).all())
+    def getQueues(self, user_id):
+        queues = (cherrypy.request.database.query(Queue)
+            .filter_by(user_id=user_id).order_by(Queue.weight).all())
 
-        return playlists
+        return queues
 
     def getTracks(self, user_id):
-        playlists = self.getPlaylists(user_id)
+        queues = self.getQueues(user_id)
 
-        tracks = [playlist.track for playlist in playlists]
+        tracks = [queue.track for queue in queues]
 
         return tracks
 
     def clear(self):
         user_id = cherrypy.request.user.id
-        cherrypy.request.database.query(Playlist).filter_by(user_id=user_id).delete()
+        cherrypy.request.database.query(Queue).filter_by(user_id=user_id).delete()
 
     def addTrack(self, slug):
         track = library.get_track_by_slug(slug)
@@ -82,16 +82,16 @@ class Model:
 
         weight = self.getNewPos(user_id)
 
-        playlist = Playlist(weight)
-        playlist.track = track
-        playlist.user = user
+        queue = Queue(weight)
+        queue.track = track
+        queue.user = user
 
-        cherrypy.request.database.add(playlist)
+        cherrypy.request.database.add(queue)
 
     def removeTrack(self, slug):
         user_id = cherrypy.request.user.id
         track = cherrypy.request.database.query(Track).filter_by(slug=slug).one()
-        cherrypy.request.database.query(Playlist).filter_by(user_id=user_id, track_id = track.id).delete()
+        cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = track.id).delete()
 
     def addAlbum(self, slug):
         album = library.get_album_by_slug(slug)
@@ -102,16 +102,16 @@ class Model:
         weight = self.getNewPos(user_id)
 
         for track in album.tracks:
-            playlist = Playlist(weight)
-            playlist.track = track
-            playlist.user = user
+            queue = Queue(weight)
+            queue.track = track
+            queue.user = user
 
-            cherrypy.request.database.add(playlist)
+            cherrypy.request.database.add(queue)
 
             weight += 1
 
     def getNewPos(self, user_id):
-        weight = (cherrypy.request.database.query(func.max(Playlist.weight))
+        weight = (cherrypy.request.database.query(func.max(Queue.weight))
             .filter_by(user_id=user_id).scalar())
 
         if weight is None:
@@ -121,5 +121,5 @@ class Model:
 
         return weight
 
-playlist_model = Model()
+queue_model = Model()
 

@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'playlist', 'domReady!'], function($, inheritance, playlist) {
+define(['jquery', 'inheritance', 'queue', 'domReady!'], function($, inheritance, queue) {
     var instance = null;
 
     var Player = Class.extend({
@@ -15,7 +15,7 @@ define(['jquery', 'inheritance', 'playlist', 'domReady!'], function($, inheritan
             this.pause_button = $('#pause-button');
 
             $(that.player).bind('playing', function (event) {
-                playlist.reload();
+                queue.reload();
             });
 
             $(that.player).bind('ended', function (event) {

@@ -2,7 +2,7 @@ import os
 import re
 import datetime
 import cherrypy
-from opmuse.playlist import playlist_model
+from opmuse.queues import queue_model
 from opmuse.transcoder import transcoder
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library
@@ -40,34 +40,34 @@ class Lastfm:
             'new_auth': new_auth
         }
 
-class Playlist:
+class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='partials/playlist-tracks.html')
+    @cherrypy.tools.jinja(filename='partials/queue-tracks.html')
     def list(self):
         user_id = cherrypy.request.user.id
-        return {'playlists': playlist_model.getPlaylists(user_id)}
+        return {'queues': queue_model.getQueues(user_id)}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def add(self, slug):
-        playlist_model.addTrack(slug)
+        queue_model.addTrack(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def add_album(self, slug):
-        playlist_model.addAlbum(slug)
+        queue_model.addAlbum(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def remove(self, slug):
-        playlist_model.removeTrack(slug)
+        queue_model.removeTrack(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def clear(self):
-        playlist_model.clear()
+        queue_model.clear()
 
 
 class Styles(object):
@@ -94,7 +94,7 @@ class Styles(object):
 
 class Root(object):
     styles = Styles()
-    playlist = Playlist()
+    queue = Queue()
     lastfm = Lastfm()
 
     @cherrypy.expose
@@ -260,7 +260,7 @@ class Root(object):
 
         def track_generator():
             while True:
-                yield playlist_model.getNextTrack(user_id)
+                yield queue_model.getNextTrack(user_id)
 
                 if slug == "one":
                     break

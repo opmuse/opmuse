@@ -2,21 +2,21 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
     var instance = null;
 
-    var Playlist = Class.extend({
+    var Queue = Class.extend({
         init: function () {
             if (instance !== null) {
-                throw Error('Only one instance of Playlist allowed!');
+                throw Error('Only one instance of Queue allowed!');
             }
 
-            if ($('#playlist').length == 0) {
+            if ($('#queue').length == 0) {
                 return;
             }
 
             var that = this;
 
-            this.listUrl = '/playlist/list';
+            this.listUrl = '/queue/list';
 
-            $('.playlist.add, .playlist.add-album').click(function (event) {
+            $('.queue.add, .queue.add-album').click(function (event) {
                 var url = $(this).attr('href');
                 $.ajax(url, {
                     success: function (data) {
@@ -26,7 +26,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 return false;
             });
 
-            $('#playlist .remove').live("click", function (event) {
+            $('#queue .remove').live("click", function (event) {
                 var url = $(this).attr('href');
                 $.ajax(url, {
                     success: function (data) {
@@ -36,11 +36,11 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 return false;
             });
 
-            $('#clear-playlist').live('click', function (event) {
+            $('#clear-queue').live('click', function (event) {
                 var url = $(this).attr('href');
                 $.ajax(url, {
                     success: function (data) {
-                        $("#playlist-tracks").empty();
+                        $("#queue-tracks").empty();
                     }
                 });
                 return false;
@@ -51,13 +51,13 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             setInterval(this.reload.bind(this), 3 * 60 * 1000);
         },
         reload: function () {
-            $("#playlist-tracks").load(this.listUrl, {});
+            $("#queue-tracks").load(this.listUrl, {});
         },
     });
 
     return (function() {
         if (instance === null) {
-            instance = new Playlist();
+            instance = new Queue();
         }
 
         return instance;
