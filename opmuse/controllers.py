@@ -218,7 +218,7 @@ class Root(object):
 
         added = OrderedDict({})
 
-        for title in ('Today', 'Yesterday', '7 Days', '30 Days'):
+        for title in ('Today', 'Yesterday', '7 Days', '14 Days', '30 Days'):
             added[title] = []
 
         today = datetime.date.today()
@@ -230,6 +230,8 @@ class Root(object):
                 added['Yesterday'].append(track)
             elif track.added.date() >= today - datetime.timedelta(days=7):
                 added['7 Days'].append(track)
+            elif track.added.date() >= today - datetime.timedelta(days=14):
+                added['14 Days'].append(track)
             else:
                 added['30 Days'].append(track)
 
