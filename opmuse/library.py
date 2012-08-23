@@ -2,7 +2,7 @@ import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io, datetime, math
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB, DateTime
 from sqlalchemy.orm import relationship, backref
-from multiprocessing import Process
+from multiprocessing import Process, cpu_count
 from opmuse.database import Base, get_session
 
 class Artist(Base):
@@ -309,8 +309,6 @@ class Library:
     # TODO figure out from TagParsers?
     SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a"]
 
-    PROC_NUM = 3
-
     def __init__(self, path):
         self._database = get_session()
 
@@ -350,8 +348,12 @@ class Library:
 
         processes = []
 
+        proc_num = math.ceil(cpu_count() / 2)
+
+        cherrypy.log("Going to use %d library subprocess(es)." % proc_num)
+
         queue_len = len(queue)
-        chunk_size = math.ceil(queue_len / self.PROC_NUM)
+        chunk_size = math.ceil(queue_len / proc_num)
 
         to_process = []
 
