@@ -66,8 +66,11 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def clear(self):
-        queue_model.clear()
+    def clear(self, what = None):
+        if what is not None and what == 'played':
+            queue_model.clear_played()
+        else:
+            queue_model.clear()
 
 
 class Styles(object):

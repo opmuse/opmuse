@@ -3,7 +3,7 @@
     class="tracks">
 
     {% for queue in queues %}
-        <li class="{{ "playing" if queue.playing }}">
+        <li class="{{ "playing" if queue.playing }} {{ "played" if queue.played }}">
             <span class="text">
                 <span class="artist-name">
                     <a href="/artist/{{ queue.track.artist.slug }}">
@@ -34,6 +34,10 @@
 </ol>
 
 {% if queues|count > 0 %}
+    <a
+        id="clear-played-queue"
+        href="/queue/clear/played">
+        Clear played</a>
     <a
         id="clear-queue"
         href="/queue/clear">

@@ -15,6 +15,7 @@ class Queue(Base):
     track_id = Column(Integer, ForeignKey('tracks.id'))
     weight = Column(Integer, index = True)
     playing = Column(Boolean)
+    played = Column(Boolean)
 
     user = relationship("User", backref=backref('users', order_by=id))
     track = relationship("Track", backref=backref('tracks', order_by=id))
@@ -51,6 +52,7 @@ class Model:
         next_queue.playing = True
 
         if queue is not None:
+            queue.played = True
             queue.playing = False
 
         database.commit()
@@ -73,6 +75,10 @@ class Model:
     def clear(self):
         user_id = cherrypy.request.user.id
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id).delete()
+
+    def clear_played(self):
+        user_id = cherrypy.request.user.id
+        cherrypy.request.database.query(Queue).filter_by(user_id=user_id, played=True).delete()
 
     def addTrack(self, slug):
         track = library.get_track_by_slug(slug)

@@ -36,11 +36,11 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 return false;
             });
 
-            $('#clear-queue').live('click', function (event) {
+            $('#clear-queue, #clear-played-queue').live('click', function (event) {
                 var url = $(this).attr('href');
                 $.ajax(url, {
                     success: function (data) {
-                        $("#queue-tracks").empty();
+                        that.reload();
                     }
                 });
                 return false;

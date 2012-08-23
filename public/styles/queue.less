@@ -2,9 +2,11 @@
     .boxybox;
     overflow: hidden;
 
+    #clear-played-queue,
     #clear-queue {
+        display: block;
         float: right;
-        clear: both;
+        margin-left: .5em;
     }
 
     .remove {
@@ -14,6 +16,10 @@
         font-weight: bold;
         width: 32px;
         text-align: center;
+    }
+
+    .played {
+        background: #BBE0BB;
     }
 
     .playing {
