@@ -240,12 +240,25 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='play.m3u')
-    def play_m3u(self):
+    def play_m3u(self, url_pattern = None):
         cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
+
         cookies = get_cookies(cherrypy.request.wsgi_environ)
         # TODO use "cookie_name" prop from authtkt plugin...
         auth_tkt = cookies.get('auth_tkt').value
-        return {'auth_tkt': auth_tkt}
+
+        if url_pattern is None:
+            url_pattern = "%s/stream?auth_tkt=%s"
+
+        url = url_pattern % (cherrypy.request.base, auth_tkt)
+
+        return {'url': url }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='play.m3u')
+    def play_one_m3u(self):
+        return self.play_m3u("%s/stream/one?auth_tkt=%s")
 
     @cherrypy.expose
     @cherrypy.tools.transcodingsubprocess()
