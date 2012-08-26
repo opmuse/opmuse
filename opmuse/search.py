@@ -9,15 +9,16 @@ from opmuse.library import Artist, Album, Track
 indexdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'cache', 'index')
 config = {"WHOOSH_BASE": indexdir}
 
-index_service = IndexService(config=config)
+class WhooshPlugin(cherrypy.process.plugins.SimplePlugin):
 
-class WhooshTool(cherrypy.Tool):
-    def __init__(self):
-        cherrypy.Tool.__init__(self, 'on_start_resource',
-                               self.start, priority=20)
+    def __init__(self, bus):
+        cherrypy.process.plugins.SimplePlugin.__init__(self, bus)
+        self.bus.subscribe("bind", self.bind)
 
-    def start(self):
-        index_service.register_class(Artist, cherrypy.request.database)
-        index_service.register_class(Album, cherrypy.request.database)
-        index_service.register_class(Track, cherrypy.request.database)
+    def bind(self, session):
+        index_service = IndexService(session, config=config)
+        index_service.register_class(Artist)
+        index_service.register_class(Album)
+        index_service.register_class(Track)
+
 

@@ -7,7 +7,7 @@ from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 from opmuse.transcoder import TranscodingSubprocessTool
 from opmuse.jinja import JinjaGlobalsTool
-from opmuse.search import WhooshTool
+from opmuse.search import WhooshPlugin
 import opmuse.lastfm
 
 def multi_headers():
@@ -29,7 +29,6 @@ def configure():
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
     cherrypy.tools.jinjaglobals = JinjaGlobalsTool()
     cherrypy.tools.transcodingsubprocess = TranscodingSubprocessTool()
-    cherrypy.tools.whoosh = WhooshTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     import opmuse.controllers
 
@@ -43,7 +42,6 @@ def configure():
             'tools.sessions.on': True,
             'tools.jinjaauthenticated.on': True,
             'tools.jinjaglobals.on': True,
-            'tools.whoosh.on': True,
             'tools.sessions.storage_type': "file",
             'tools.sessions.storage_path': join(abspath(dirname(__file__)),
                                             '..', 'cache', 'session'),
@@ -73,6 +71,9 @@ def configure():
 
     cherrypy.engine.library = LibraryPlugin(cherrypy.engine)
     cherrypy.engine.library.subscribe()
+
+    cherrypy.engine.whoosh = WhooshPlugin(cherrypy.engine)
+    cherrypy.engine.whoosh.subscribe()
 
     config = cherrypy._cpconfig.Config(file=config_file)
     cherrypy.config.update(config)

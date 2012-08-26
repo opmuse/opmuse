@@ -3,6 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB, DateTime
 from sqlalchemy.orm import relationship, backref
 from multiprocessing import Process, cpu_count
+from threading import Thread
 from opmuse.database import Base, get_session
 
 class Artist(Base):
@@ -346,14 +347,12 @@ class Library:
 
                     queue.append(filename)
 
-        processes = []
+        threads = []
 
-        proc_num = math.ceil(cpu_count() / 2)
-
-        cherrypy.log("Going to use %d library subprocess(es)." % proc_num)
+        thread_num = math.ceil(cpu_count() / 2)
 
         queue_len = len(queue)
-        chunk_size = math.ceil(queue_len / proc_num)
+        chunk_size = math.ceil(queue_len / thread_num)
 
         to_process = []
 
@@ -362,16 +361,17 @@ class Library:
             to_process.append(filename)
 
             if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                cherrypy.log("Spawning library subprocess.")
-                p = Process(target=LibraryProcess, args = (to_process, ))
+                p = Thread(target=LibraryProcess, args = (to_process, ))
                 p.start()
 
-                processes.append(p)
+                threads.append(p)
 
                 to_process = []
 
-        for process in processes:
-            process.join()
+        cherrypy.log("Spawned %d library thread(s)." % thread_num)
+
+        for thread in threads:
+            thread.join()
 
         # remove tracks without any paths (e.g. removed since previous search)
         #
