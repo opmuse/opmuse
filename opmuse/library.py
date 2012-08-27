@@ -340,16 +340,16 @@ class Library:
 
                     index += 1
 
-                    if index % 1000 == 0:
-                        cherrypy.log("%d files found" % index)
-
                     filename = os.path.join(path, filename)
 
                     queue.append(filename)
 
+        cherrypy.log("%d files found" % index)
+
         threads = []
 
         thread_num = math.ceil(cpu_count() / 2)
+        thread_num = thread_num if thread_num > 2 else 2
 
         queue_len = len(queue)
         chunk_size = math.ceil(queue_len / thread_num)
