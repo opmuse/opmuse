@@ -20,6 +20,9 @@
                 <a
                     href="/album/{{ artist.slug }}/{{ album.slug }}">
                     <span class="album-name">{{ album.name }}</span>
+                    {% if album.year %}
+                        <span class="album-year">{{ album.year }}</span>
+                    {% endif %}
                     <span class="album-tracks-count">
                         {{ album.tracks|count }}
                         tracks

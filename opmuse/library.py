@@ -27,11 +27,13 @@ class Album(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     slug = Column(String(255), index=True, unique=True)
+    year = Column(String(32))
 
     artists = relationship("Artist", secondary='tracks')
 
-    def __init__(self, name, slug):
+    def __init__(self, name, year, slug):
         self.name = name
+        self.year = year
         self.slug = slug
 
 class TrackPath(Base):
@@ -76,6 +78,7 @@ class FileMetadata:
         self.track_duration = args[3]
         self.track_number = args[4]
         self.added = args[5]
+        self.year = args[6]
 
         self.metadatas = args
 
@@ -143,13 +146,14 @@ class HsaudiotagParser(TagParser):
         tag = self.get_tag(filename)
 
         if tag is None:
-            return FileMetadata(None, None, None, None, None, None)
+            return FileMetadata(None, None, None, None, None, None, None)
 
         artist = tag.artist
         album = tag.album
         track = tag.title
         duration = tag.duration if hasattr(tag, 'duration') else None
         number = tag.track if tag.track > 0 else None
+        year = tag.year if tag.year != '' and tag.year != '0' and len(tag.year) >= 4 else None
 
         if len(artist) == 0:
             artist = None
@@ -162,7 +166,7 @@ class HsaudiotagParser(TagParser):
 
         tag = None
 
-        return FileMetadata(artist, album, track, duration, number, None)
+        return FileMetadata(artist, album, track, duration, number, None, year)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -211,6 +215,7 @@ class Id3Tag:
         self.title = mpeg.tag.title
         self.duration = mpeg.duration
         self.track = mpeg.tag.track
+        self.year = mpeg.tag.year
 
 class Id3Parser(HsaudiotagParser):
 
@@ -239,7 +244,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(None, None, None, None, None, None)
+                return FileMetadata(None, None, None, None, None, None, None)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track = track_name.split("-")[-1]
@@ -262,7 +267,7 @@ class PathParser(TagParser):
             if number > 100:
                 number = None
 
-        return FileMetadata(artist, album, track, None, number, added)
+        return FileMetadata(artist, album, track, None, number, added, None)
 
     def supported_extensions(self):
         return None
@@ -460,9 +465,14 @@ class LibraryProcess:
                 name=metadata.album_name
             ).one()
         except NoResultFound:
-            album = Album(metadata.album_name, album_slug)
+            album = Album(metadata.album_name, metadata.year, album_slug)
             self._database.add(album)
             self._database.commit()
+
+        # if the first track on the album didn't have year data maybe another
+        # one does...
+        if album.year is None:
+            album.year = metadata.year
 
         ext = os.path.splitext(filename)[1].lower()
 
