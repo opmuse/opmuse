@@ -2,13 +2,14 @@ import os
 import re
 import datetime
 import cherrypy
+from repoze.who.api import get_api
+from repoze.who._compat import get_cookies
+from collections import OrderedDict
 from opmuse.queues import queue_model
 from opmuse.transcoder import transcoder
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library
-from repoze.who.api import get_api
-from repoze.who._compat import get_cookies
-from collections import OrderedDict
+from opmuse.who import User
 
 class Lastfm:
     @cherrypy.expose
@@ -40,11 +41,36 @@ class Lastfm:
             'new_auth': new_auth
         }
 
+class Users:
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='users.html')
+    def default(self, login = None):
+        if login is not None:
+            raise cherrypy.InternalRedirect('/users/user/%s' % login)
+
+        users = (cherrypy.request.database.query(User)
+            .order_by(User.login).all())
+
+        return {'users': users}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='user.html')
+    def user(self, login):
+        user = (cherrypy.request.database.query(User)
+            .filter_by(login=login)
+            .order_by(User.login).one())
+
+        queues = queue_model.getQueues(user.id)
+
+        return {'user': user, 'queues': queues}
+
 class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='partials/queue-tracks.html')
+    @cherrypy.tools.jinja(filename='queue.html')
     def list(self):
         user_id = cherrypy.request.user.id
         return {'queues': queue_model.getQueues(user_id)}
@@ -99,6 +125,7 @@ class Root(object):
     styles = Styles()
     queue = Queue()
     lastfm = Lastfm()
+    users = Users()
 
     @cherrypy.expose
     @cherrypy.tools.multiheaders()

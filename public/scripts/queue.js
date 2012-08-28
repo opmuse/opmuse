@@ -51,7 +51,11 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             setInterval(this.reload.bind(this), 3 * 60 * 1000);
         },
         reload: function () {
-            $("#queue-tracks").load(this.listUrl, {});
+            $.ajax(this.listUrl, {
+                success: function (data) {
+                    $("#queue").html(data);
+                }
+            });
         },
     });
 

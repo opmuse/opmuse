@@ -53,6 +53,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="/users">
+                            Users
+                        </a>
+                    </li>
+                    <li>
                         <a href="/logout">
                             Logout
                         </a>
@@ -74,7 +79,7 @@
 
             <div id="secondary-content">
                 {% if authenticated %}
-                    {% include "queue.html" %}
+                    <div id="queue"></div>
                 {% endif %}
             </div>
 

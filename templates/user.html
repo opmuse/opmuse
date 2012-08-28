@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}
+    User - {{ user.login }}
+{% endblock %}
+
+{% block content %}
+<div id="users">
+    <h1>
+        <span class="silent">users</span>
+        {{ user.login }}
+    </h1>
+
+    <p>In users queue...</p>
+
+    <ul class="tracks">
+    {% for queue in queues %}
+        <li class="{{ "playing" if queue.playing }} {{ "played" if queue.played }}">
+            <span class="text">
+                <span class="artist-name">
+                    <a href="/artist/{{ queue.track.artist.slug }}">
+                        {{ queue.track.artist.name }}
+                    </a>
+                </span>
+                <span class="track-name">
+                    <a href="/track/{{ queue.track.slug }}">
+                        {{ queue.track.name }}
+                    </a>
+                </span>
+            </span>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
