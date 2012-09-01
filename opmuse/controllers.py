@@ -6,7 +6,7 @@ from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
 from opmuse.queues import queue_model
-from opmuse.transcoder import transcoder
+from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library
 from opmuse.who import User
@@ -310,5 +310,5 @@ class Root(object):
                 if slug == "one":
                     break
 
-        return transcoder.transcode(track_generator())
+        return transcoding.transcode(track_generator())
 

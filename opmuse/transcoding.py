@@ -21,8 +21,7 @@ class TranscodingSubprocessTool(cherrypy.Tool):
             p.wait()
 
 
-# TODO only works on unix...
-class Transcoder:
+class Transcoding:
     def __init__(self):
         self.silence_seconds = 2
         self.silence = self.generate_silence(self.silence_seconds)
@@ -119,4 +118,5 @@ class Transcoder:
         return data
 
 
-transcoder = Transcoder()
+transcoding = Transcoding()
+

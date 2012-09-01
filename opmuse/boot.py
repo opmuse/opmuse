@@ -5,7 +5,7 @@ from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
-from opmuse.transcoder import TranscodingSubprocessTool
+from opmuse.transcoding import TranscodingSubprocessTool
 from opmuse.jinja import JinjaGlobalsTool
 from opmuse.search import WhooshPlugin
 import opmuse.lastfm
