@@ -111,6 +111,7 @@ class Transcoding:
         ['NSPlayer', ['audio/mp3']],
         ['WinampMPEG', ['audio/mp3']],
         ['iTunes.*Windows', ['audio/mp3']],
+        ['iTunes.*Macintosh', ['audio/mp3']],
         ['VLC', ['audio/ogg', 'audio/mp3']],
     ]
 
