@@ -150,8 +150,9 @@ class HsaudiotagParser(TagParser):
     def parse(self, filename):
         tag = self.get_tag(filename)
 
-        if tag is None:
-            return FileMetadata((None, ) * 8)
+        if tag is None or not tag.valid:
+            cherrypy.log('Ignoring broken file "%s".' % filename.decode('utf8', 'replace'))
+            return FileMetadata(*(None, ) * 8)
 
         artist = tag.artist
         album = tag.album
@@ -224,6 +225,7 @@ class Id3Tag:
         self.track = mpeg.tag.track
         self.year = mpeg.tag.year
         self.bitrate = mpeg.bitrate
+        self.valid = mpeg.valid
 
 class Id3Parser(HsaudiotagParser):
 
@@ -252,7 +254,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata((None, ) * 8)
+                return FileMetadata(*(None, ) * 8)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track = track_name.split("-")[-1]
