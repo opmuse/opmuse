@@ -1,5 +1,10 @@
-import cherrypy
+import sys
 import os
+
+VENDOR = os.path.join(os.path.dirname(__file__), '..', 'vendor')
+sys.path.append(os.path.join(VENDOR, 'WhooshAlchemy'))
+
+import cherrypy
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin
