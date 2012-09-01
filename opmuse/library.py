@@ -69,6 +69,9 @@ class Track(Base):
     def __init__(self, hash):
         self.hash = hash
 
+    def __str__(self):
+        return "%s - %s - %s" % (self.artist.name, self.album.name, self.name)
+
 class FileMetadata:
 
     def __init__(self, *args):

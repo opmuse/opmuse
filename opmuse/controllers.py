@@ -272,43 +272,44 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='play.m3u')
-    def play_m3u(self, url_pattern = None):
+    def play_m3u(self):
         cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
 
         cookies = get_cookies(cherrypy.request.wsgi_environ)
         # TODO use "cookie_name" prop from authtkt plugin...
         auth_tkt = cookies.get('auth_tkt').value
 
-        if url_pattern is None:
-            url_pattern = "%s/stream?auth_tkt=%s"
+        url = "%s/stream?auth_tkt=%s" % (cherrypy.request.base, auth_tkt)
 
-        url = url_pattern % (cherrypy.request.base, auth_tkt)
+        cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=play.m3u'
 
         return {'url': url }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='play.m3u')
-    def play_one_m3u(self):
-        return self.play_m3u("%s/stream/one?auth_tkt=%s")
 
     @cherrypy.expose
     @cherrypy.tools.transcodingsubprocess()
     @cherrypy.tools.authenticated()
     @cherrypy.config(**{'response.stream': True})
-    # TODO reimplement Accept header support
-    def stream(self, slug = None, **kwargs):
+    def stream(self, **kwargs):
 
         user_id = cherrypy.request.user.id
 
-        cherrypy.response.headers['Content-Type'] = 'audio/ogg'
+        track = queue_model.getNextTrack(user_id)
+
+        transcoder, format = transcoding.determine_transcoder(
+            track,
+            cherrypy.request.headers['User-Agent'],
+            [accept.value for accept in cherrypy.request.headers.elements('Accept')]
+        )
+
+        cherrypy.log(
+            '%s is streaming "%s" in %s (original was %s)' %
+            (cherrypy.request.user.login, track, format, track.format)
+        )
+
+        cherrypy.response.headers['Content-Type'] = format
 
         def track_generator():
-            while True:
-                yield queue_model.getNextTrack(user_id)
+            yield track
 
-                if slug == "one":
-                    break
-
-        return transcoding.transcode(track_generator())
+        return transcoding.transcode(track_generator(), transcoder)
 

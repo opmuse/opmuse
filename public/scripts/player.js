@@ -43,7 +43,7 @@ define(['jquery', 'inheritance', 'queue', 'domReady!'], function($, inheritance,
         load: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {
                 // stupid cache bustin because firefox seems to refuse to not cache
-                this.player.src = '/stream/one?b=' + Math.random();
+                this.player.src = '/stream?b=' + Math.random();
                 this.player.load();
             }
         }

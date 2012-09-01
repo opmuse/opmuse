@@ -2,10 +2,11 @@ import io
 import os
 import time
 import subprocess
+import re
 import cherrypy
 from pydispatch import dispatcher
 
-class TranscodingSubprocessTool(cherrypy.Tool):
+class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
     """
     This tool makes sure the ffmpeg subprocess is ended
     properly when a request is cancelled
@@ -15,18 +16,144 @@ class TranscodingSubprocessTool(cherrypy.Tool):
                                self.end, priority=20)
 
     def end(self):
-        if hasattr(cherrypy.request, 'transcoder_subprocess'):
-            p = cherrypy.request.transcoder_subprocess
+        if hasattr(cherrypy.request, 'ffmpegtranscoder_subprocess'):
+            p = cherrypy.request.ffmpegtranscoder_subprocess
             p.stdout.read()
             p.wait()
 
 
+class Transcoder:
+    def transcode(self, track):
+        raise NotImplementedError()
+
+    @staticmethod
+    def outputs():
+        raise NotImplementedError()
+
+class FFMPEGTranscoder(Transcoder):
+
+    FNULL = open('/dev/null', 'w')
+
+    def __init__(self, track):
+        self.track = track
+
+    def __enter__(self):
+        filename = self.track.paths[0].path
+
+        ext = os.path.splitext(os.path.basename(filename))[1].lower()[1:]
+
+        artist = self.track.artist.name
+        album = self.track.album.name
+        title = self.track.name
+        track_number = self.track.number if self.track.number is not None else 0
+
+        ffmpeg = ('ffmpeg %s -i "FILENAME" %s ' % (self.ffmpeg_input_args, self.ffmpeg_output_args) +
+            '-metadata artist="%s" -metadata album="%s" -metadata title="%s" -metadata tracknumber="%d" ' %
+                (artist, album, title, track_number) +
+            '-')
+
+        cmd = (ffmpeg.encode('utf8')
+            .replace(b"FILENAME", filename)
+            .replace(b"EXT", ext))
+
+        self.process = subprocess.Popen([cmd], shell = True, stdout = subprocess.PIPE,
+                                        stderr = self.FNULL,
+                                        stdin = None)
+
+        cherrypy.request.ffmpegtranscoder_subprocess = self.process
+
+        return self.transcode
+
+    def __exit__(self, type, value, traceback):
+        self.process.wait()
+
+    def transcode(self):
+        while True:
+            data = self.process.stdout.read(8192)
+
+            if len(data) == 0:
+                break
+
+            yield data
+
+class CopyFFMPEGTranscoder(FFMPEGTranscoder):
+    ffmpeg_output_args = "-acodec copy -f EXT"
+    ffmpeg_input_args = ""
+
+    def outputs():
+        return None
+
+class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
+    # -aq 0 should be v0
+    ffmpeg_output_args = "-acodec libmp3lame -f mp3 -aq 0"
+    ffmpeg_input_args = ""
+
+    def outputs():
+        return 'audio/mp3'
+
+class OggFFMPEGTranscoder(FFMPEGTranscoder):
+    # -aq 6 is about 192kbit/s
+    ffmpeg_output_args = "-acodec libvorbis -f ogg -aq 6"
+    ffmpeg_input_args = ""
+
+    def outputs():
+        return 'audio/ogg'
+
 class Transcoding:
+    # list of players that don't supply proper Accept headers, basically...
+    # don't have audio/flac here, always transcode it seeing as it's lossless...
+    players = [
+        ['Music Player Daemon', ['audio/ogg', 'audio/mp3']],
+        ['foobar2000', ['audio/ogg', 'audio/mp3']],
+        ['Windows.*Chrome', ['audio/ogg', 'audio/mp3']],
+        ['Linux.*Chrome', ['audio/ogg']],
+        ['Windows-Media-Player', ['audio/mp3']],
+        ['NSPlayer', ['audio/mp3']],
+        ['WinampMPEG', ['audio/mp3']],
+        ['iTunes.*Windows', ['audio/mp3']],
+        ['VLC', ['audio/ogg', 'audio/mp3']],
+    ]
+
+    transcoders = [Mp3FFMPEGTranscoder, OggFFMPEGTranscoder]
+
     def __init__(self):
         self.silence_seconds = 2
         self.silence = self.generate_silence(self.silence_seconds)
 
-    def transcode(self, tracks):
+    def determine_transcoder(self, track, user_agent, accepts):
+        if not (len(accepts) == 0 or len(accepts) == 1 and accepts[0] == '*/*'):
+            transcoder, format = self._determine_transcoder(track, accepts)
+            if transcoder is not None:
+                return transcoder, format
+
+        for player, formats in self.players:
+            if re.search(player, user_agent):
+                transcoder, format = self._determine_transcoder(track, formats)
+                if transcoder is not None:
+                    return transcoder, format
+                break
+
+        if track.format == 'audio/ogg':
+            return CopyFFMPEGTranscoder, 'audio/ogg'
+        else:
+            return OggFFMPEGTranscoder, 'audio/ogg'
+
+
+    def _determine_transcoder(self, track, formats):
+        if track.format in formats:
+            return CopyFFMPEGTranscoder, track.format
+
+        for format in formats:
+            for transcoder in self.transcoders:
+                if transcoder.outputs() == format:
+                    return transcoder, format
+
+        return None, None
+
+    def transcode(self, tracks, transcoder = None):
+        if transcoder is None:
+            transcoder = CopyFFMPEGTranscoder
+
         for track in tracks:
 
             start_time = time.time()
@@ -36,49 +163,14 @@ class Transcoding:
                 time.sleep(self.silence_seconds)
                 continue
 
-            filename = track.paths[0].path
-
-            ext = os.path.splitext(os.path.basename(filename))[1].lower()[1:]
-
-            # TODO only works on unix...
-            FNULL = open('/dev/null', 'w')
-
-            artist = track.artist.name
-            album = track.album.name
-            title = track.name
-            track_number = track.number if track.number is not None else 0
-
-            # -aq 6 is about 192kbit/s
-            ffmpeg = ('ffmpeg -i "%s" -acodec libvorbis -f ogg -aq 6 ' +
-                '-metadata artist="%s" -metadata album="%s" -metadata title="%s" -metadata tracknumber="%d" ' %
-                    (artist, album, title, track_number) +
-                '-')
-
-            # TODO "hack" for mp4 until we can get mp4's to stream properly
-            #       maybe use https://github.com/danielgtaylor/qtfaststart ?
-            if ext == "mp4":
-                stdin = None
-                cmd = ffmpeg % filename
-            else:
-                stdin = io.open(filename, buffering = 8192)
-                cmd = ffmpeg % "-"
-
-            p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
-                                 stderr = FNULL, stdin = stdin)
-
-            cherrypy.request.transcoder_subprocess = p
+            if isinstance(transcoder, Transcoder):
+                raise Exception("transcoder must be an instance of Transcoder")
 
             dispatcher.send(signal='start_transcoding', sender=track)
 
-            while True:
-                data = p.stdout.read(8192)
-
-                if len(data) == 0:
-                    break
-
-                yield data
-
-            p.wait()
+            with transcoder(track) as transcode:
+                for data in transcode():
+                    yield data
 
             total_time = int(time.time() - start_time)
 
@@ -90,6 +182,7 @@ class Transcoding:
 
             dispatcher.send(signal='end_transcoding', sender=track)
 
+    # TODO rewrite to FFMPEGTranscoder or at least a Transcoder?
     def generate_silence(self, seconds = 1):
 
         FNULL = open('/dev/null', 'w')
