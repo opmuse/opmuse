@@ -68,7 +68,7 @@ class Track(Base):
     slug = Column(String(255), index=True, unique=True)
     name = Column(String(255))
     duration = Column(Integer)
-    number = Column(String(16))
+    number = Column(String(8))
     format = Column(String(128))
     album_id = Column(Integer, ForeignKey('albums.id'))
     artist_id = Column(Integer, ForeignKey('artists.id'))
@@ -179,6 +179,9 @@ class MutagenParser(TagParser):
         # won't fit in SQL INT, and i'm guessing something's up :|
         if bitrate is not None and bitrate > 2147483647:
             bitrate = None
+
+        if number is not None and len(number) > 8:
+            number = None
 
         return FileMetadata(artist, album, track, duration, number, None, year,
                             bitrate, True)
