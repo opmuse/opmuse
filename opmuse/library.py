@@ -338,7 +338,7 @@ class Library:
 
     # TODO figure out from TagParsers?
     SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a",
-                 b"ape", b"mpc"]
+                 b"ape", b"mpc", b"wav"]
 
     def __init__(self, path):
         self._database = get_session()
@@ -512,6 +512,8 @@ class LibraryProcess:
             format = 'audio/x-ape'
         elif ext == b".mpc":
             format = 'audio/x-musepack'
+        elif ext == b".wav":
+            format = 'audio/wav'
         else:
             format = 'audio/unknown'
 
