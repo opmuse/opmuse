@@ -113,11 +113,6 @@ class FileMetadata:
             self.pos += 1
             return self.metadatas[self.pos - 1]
 
-    def has_required(self):
-        return (self.artist_name is not None and
-                self.album_name is not None and
-                self.track_name is not None)
-
     def merge(self, metadata):
 
         metadatas = []
@@ -183,8 +178,10 @@ class MutagenParser(TagParser):
         if number is not None and len(number) > 8:
             number = None
 
+        valid = artist is not None and album is not None and track is not None
+
         return FileMetadata(artist, album, track, duration, number, None, year,
-                            bitrate, True)
+                            bitrate, valid)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -441,10 +438,6 @@ class LibraryProcess:
             self._database.commit()
 
         metadata = self._reader.parse(filename)
-
-        if not metadata.has_required():
-            cherrypy.log('Ignoring incomplete file "%s".' % filename.decode('utf8', 'replace'))
-            return
 
         artist_slug = self._produce_artist_slug(
             metadata.artist_name
