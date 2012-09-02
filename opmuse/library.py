@@ -61,7 +61,7 @@ class Track(Base):
     slug = Column(String(255), index=True, unique=True)
     name = Column(String(255))
     duration = Column(Integer)
-    number = Column(Integer)
+    number = Column(String(16))
     format = Column(String(128))
     album_id = Column(Integer, ForeignKey('albums.id'))
     artist_id = Column(Integer, ForeignKey('artists.id'))
@@ -69,7 +69,7 @@ class Track(Base):
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
 
-    album = relationship("Album", backref=backref('tracks', order_by=number))
+    album = relationship("Album", backref=backref('tracks', order_by=(number, name)))
     artist = relationship("Artist", backref=backref('tracks', order_by=name))
 
     def __init__(self, hash):
@@ -170,9 +170,6 @@ class MutagenParser(TagParser):
         if bitrate > 2147483647:
             bitrate = None
 
-        if number is not None and '/' in number:
-            number = number.split('/')[0]
-
         return FileMetadata(artist, album, track, duration, number, None, year,
                             bitrate)
 
@@ -236,7 +233,7 @@ class PathParser(TagParser):
                 return FileMetadata(*(None, ) * 8)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
-        track = track_name.split("-")[-1]
+        track_name = track_name.replace("_", " ")
         path_comp = os.path.split(os.path.dirname(filename))
         album = path_comp[1]
         path_comp = os.path.split(path_comp[0])
@@ -249,14 +246,21 @@ class PathParser(TagParser):
 
         match = re.search('([0-9]+)', track_name)
         if match is not None:
-            number = int(match.group(0))
+            number = match.group(0)
+            start = match.start(0)
+            end = match.end(0)
+
+            track_name = "%s%s" % (track_name[0:start], track_name[end:])
+
             # i don't know of any albums with more than 100 tracks, so we're
             # going to assume it's not a track number if the number is greater
             # than that
-            if number > 100:
+            if int(number) > 100:
                 number = None
 
-        return FileMetadata(artist, album, track, None, number, added, None, None)
+        track_name = track_name.strip('\n -').split("-")[-1]
+
+        return FileMetadata(artist, album, track_name, None, number, added, None, None)
 
     def supported_extensions(self):
         return None
@@ -484,7 +488,7 @@ class LibraryProcess:
         track.slug = track_slug
         track.name = metadata.track_name
         track.duration = metadata.track_duration
-        track.number = metadata.track_number
+        track.number = self.fix_track_number(metadata.track_number)
         track.format = format
         track.added = added
         track.bitrate = metadata.bitrate
@@ -495,6 +499,30 @@ class LibraryProcess:
         artist.tracks.append(track)
 
         self._database.commit()
+
+    def fix_track_number(self, number):
+        """
+        pads track number with zero so we can sort it nicely with a regular
+        alphanumeric sort
+        """
+
+        if number is None:
+            return None
+
+        if len(number) == 1:
+            number = "0%s" % number
+
+        for separator in ['/', '-']:
+            if separator in number:
+                split = number.split(separator)
+
+                if len(split[0]) == 1:
+                    split[0] = "0%s" % split[0]
+
+                number = separator.join(split)
+                break
+
+        return number
 
     def _produce_artist_slug(self, artist):
         index = 0
