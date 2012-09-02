@@ -13,6 +13,23 @@
         .zebra-striping;
     }
 
+    .track,
+    .album {
+        &.invalid {
+            &:nth-child(2n+1) {
+                background-color: #d4c4c4;
+            }
+            background-color: #ddcccc;
+            &:hover {
+                background-color: #cababa;
+            }
+            span,
+            a {
+                color: #664444;
+            }
+        }
+    }
+
     .album {
         .album-year,
         .album-tracks-count {

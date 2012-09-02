@@ -17,12 +17,11 @@
     <ul class="tracks album">
 
         {% for track in album.tracks %}
-
-            {% if album.artists|length > 1%}
-            <li class="track {{ "current_artist" if track.artist.id == artist.id else "other_artist" }}">
-            {% else %}
-            <li class="track">
+            <li class="track {{ "invalid" if not track.valid else "" }}
+            {% if album.artists|length > 1 %}
+                {{ "current_artist" if track.artist.id == artist.id else "other_artist" }}
             {% endif %}
+                ">
                 <span class="text">
 
                     {% if track.number %}

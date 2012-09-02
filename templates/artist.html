@@ -16,7 +16,7 @@
     <h2>Albums</h2>
     <ul>
         {% for album in artist.albums %}
-            <li class="album">
+            <li class="album {{ "invalid" if not album.valid else "" }}">
                 <a
                     href="/album/{{ artist.slug }}/{{ album.slug }}">
                     <span class="album-name">{{ album.name }}</span>

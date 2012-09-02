@@ -1,7 +1,9 @@
 import cherrypy, re, os, base64, mmh3, io, datetime, math
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB, DateTime
+from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
+                       DateTime, Boolean)
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import Process, cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session
@@ -41,6 +43,10 @@ class Album(Base):
         self.year = year
         self.slug = slug
 
+    @hybrid_property
+    def valid(self):
+        return len(self.tracks) == sum(track.valid for track in self.tracks)
+
 class TrackPath(Base):
     __tablename__ = 'track_paths'
 
@@ -68,6 +74,7 @@ class Track(Base):
     hash = Column(BINARY(24), index=True, unique=True)
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
+    valid = Column(Boolean)
 
     album = relationship("Album", backref=backref('tracks', order_by=(number, name)))
     artist = relationship("Artist", backref=backref('tracks', order_by=name))
@@ -89,6 +96,7 @@ class FileMetadata:
         self.added = args[5]
         self.year = args[6]
         self.bitrate = args[7]
+        self.valid = args[8]
 
         self.metadatas = args
 
@@ -156,7 +164,7 @@ class MutagenParser(TagParser):
         try:
             tag = self.get_tag(filename)
         except:
-            return FileMetadata(*(None, ) * 8)
+            return FileMetadata(*(None, ) * 9)
 
         artist = tag['artist'][0] if 'artist' in tag else None
         album = tag['album'][0] if 'album' in tag else None
@@ -171,7 +179,7 @@ class MutagenParser(TagParser):
             bitrate = None
 
         return FileMetadata(artist, album, track, duration, number, None, year,
-                            bitrate)
+                            bitrate, True)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -230,7 +238,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 8)
+                return FileMetadata(*(None, ) * 9)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
@@ -260,7 +268,8 @@ class PathParser(TagParser):
 
         track_name = track_name.strip('\n -').split("-")[-1]
 
-        return FileMetadata(artist, album, track_name, None, number, added, None, None)
+        return FileMetadata(artist, album, track_name, None, number, added,
+                            None, None, False)
 
     def supported_extensions(self):
         return None
@@ -492,6 +501,7 @@ class LibraryProcess:
         track.format = format
         track.added = added
         track.bitrate = metadata.bitrate
+        track.valid = False if metadata.valid is None else metadata.valid
 
         track.paths.append(TrackPath(filename))
 
