@@ -1,10 +1,15 @@
-import cherrypy, re, os, hsaudiotag.auto, base64, mmh3, io, datetime, math
+import cherrypy, re, os, base64, mmh3, io, datetime, math
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, ForeignKey, BINARY, BLOB, DateTime
 from sqlalchemy.orm import relationship, backref
 from multiprocessing import Process, cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session
+import mutagen.mp3
+import mutagen.oggvorbis
+import mutagen.m4a
+import mutagen.asf
+import mutagen.easyid3
 
 class Artist(Base):
     __tablename__ = 'artists'
@@ -146,32 +151,27 @@ class TagParser:
     def parse(self, filename):
         raise NotImplementedError()
 
-class HsaudiotagParser(TagParser):
+class MutagenParser(TagParser):
     def parse(self, filename):
-        tag = self.get_tag(filename)
-
-        if tag is None or not tag.valid:
-            cherrypy.log('Ignoring broken file "%s".' % filename.decode('utf8', 'replace'))
+        try:
+            tag = self.get_tag(filename)
+        except:
             return FileMetadata(*(None, ) * 8)
 
-        artist = tag.artist
-        album = tag.album
-        track = tag.title
-        duration = tag.duration if hasattr(tag, 'duration') else None
-        number = tag.track if tag.track > 0 else None
-        year = tag.year if tag.year != '' and tag.year != '0' and len(tag.year) >= 4 else None
-        bitrate = tag.bitrate if tag.bitrate != 0 else None
+        artist = tag['artist'][0] if 'artist' in tag else None
+        album = tag['album'][0] if 'album' in tag else None
+        track = tag['title'][0] if 'title' in tag else None
+        duration = tag.info.length
+        number = tag['tracknumber'][0] if 'tracknumber' in tag else None
+        year = tag['date'][0] if 'date' in tag else None
+        bitrate = tag.info.bitrate
 
-        if len(artist) == 0:
-            artist = None
+        # won't fit in SQL INT, and i'm guessing something's up :|
+        if bitrate > 2147483647:
+            bitrate = None
 
-        if len(album) == 0:
-            album = None
-
-        if len(track) == 0:
-            track = None
-
-        tag = None
+        if number is not None and '/' in number:
+            number = number.split('/')[0]
 
         return FileMetadata(artist, album, track, duration, number, None, year,
                             bitrate)
@@ -179,63 +179,42 @@ class HsaudiotagParser(TagParser):
     def get_tag(self, filename):
         raise NotImplementedError()
 
-class WmaParser(HsaudiotagParser):
+class WmaParser(MutagenParser):
 
     def get_tag(self, filename):
-        return hsaudiotag.wma.WMADecoder(open(filename, 'rb'))
+        return mutagen.asf.ASF(filename)
 
     def supported_extensions(self):
         return [b'wma']
 
-class FlacParser(HsaudiotagParser):
+class FlacParser(MutagenParser):
 
     def get_tag(self, filename):
-        return hsaudiotag.flac.FLAC(open(filename, 'rb'))
+        return mutagen.flac.FLAC(filename)
 
     def supported_extensions(self):
         return [b'flac']
 
-class Mp4Parser(HsaudiotagParser):
+class Mp4Parser(MutagenParser):
 
     def get_tag(self, filename):
-        return hsaudiotag.mp4.File(open(filename, 'rb'))
+        return mutagen.m4a.M4A(filename)
 
     def supported_extensions(self):
         return [b'm4p', b'mp4', b'm4a']
 
-class OggParser(HsaudiotagParser):
+class OggParser(MutagenParser):
 
     def get_tag(self, filename):
-        return hsaudiotag.ogg.Vorbis(open(filename, 'rb'))
+        return mutagen.oggvorbis.OggVorbis(filename)
 
     def supported_extensions(self):
         return [b'ogg']
 
-class Id3Tag:
-    """
-    Wrapper for Mpeg object, because hsaudiotag api is inconsistent it seems
-    and some stuff is on the Mpeg object and some on the tag object...
-    """
-
-    def __init__(self, mpeg):
-        self.artist = mpeg.tag.artist
-        self.album = mpeg.tag.album
-        self.title = mpeg.tag.title
-        self.duration = mpeg.duration
-        self.track = mpeg.tag.track
-        self.year = mpeg.tag.year
-        self.bitrate = mpeg.bitrate
-        self.valid = mpeg.valid
-
-class Id3Parser(HsaudiotagParser):
+class Id3Parser(MutagenParser):
 
     def get_tag(self, filename):
-        mpeg = hsaudiotag.mpeg.Mpeg(open(filename, 'rb'))
-
-        if mpeg.tag is None:
-            return None
-        else:
-            return Id3Tag(mpeg)
+        return mutagen.mp3.MP3(filename, ID3=mutagen.easyid3.EasyID3)
 
     def supported_extensions(self):
         return [b'mp3']
@@ -446,6 +425,7 @@ class LibraryProcess:
         metadata = self._reader.parse(filename)
 
         if not metadata.has_required():
+            cherrypy.log('Ignoring incomplete file "%s".' % filename.decode('utf8', 'replace'))
             return
 
         artist_slug = self._produce_artist_slug(
