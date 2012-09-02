@@ -257,6 +257,17 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='invalid_tracks.html')
+    def invalid_tracks(self):
+
+        tracks = (cherrypy.request.database.query(Track)
+            .filter(Track.valid == False).all())
+
+        return {'tracks': tracks}
+
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
         tracks = library.get_new_tracks(datetime.datetime.now() - datetime.timedelta(days=30))

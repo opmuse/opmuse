@@ -75,7 +75,7 @@ class Track(Base):
     hash = Column(BINARY(24), index=True, unique=True)
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
-    valid = Column(Boolean)
+    valid = Column(Boolean, index=True)
 
     album = relationship("Album", backref=backref('tracks', order_by=(number, name)))
     artist = relationship("Artist", backref=backref('tracks', order_by=name))
