@@ -11,6 +11,7 @@ import mutagen.mp3
 import mutagen.oggvorbis
 import mutagen.m4a
 import mutagen.asf
+import mutagen.flac
 import mutagen.easyid3
 
 class Artist(Base):
@@ -163,7 +164,8 @@ class MutagenParser(TagParser):
     def parse(self, filename):
         try:
             tag = self.get_tag(filename)
-        except:
+        except IOError as error:
+            cherrypy.log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
             return FileMetadata(*(None, ) * 9)
 
         artist = tag['artist'][0] if 'artist' in tag else None
@@ -172,10 +174,10 @@ class MutagenParser(TagParser):
         duration = tag.info.length
         number = tag['tracknumber'][0] if 'tracknumber' in tag else None
         year = tag['date'][0] if 'date' in tag else None
-        bitrate = tag.info.bitrate
+        bitrate = tag.info.bitrate if hasattr(tag.info, 'bitrate') else None
 
         # won't fit in SQL INT, and i'm guessing something's up :|
-        if bitrate > 2147483647:
+        if bitrate is not None and bitrate > 2147483647:
             bitrate = None
 
         return FileMetadata(artist, album, track, duration, number, None, year,
