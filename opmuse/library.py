@@ -14,6 +14,7 @@ import mutagen.asf
 import mutagen.flac
 import mutagen.easyid3
 import mutagen.apev2
+import mutagen.musepack
 
 class Artist(Base):
     __tablename__ = 'artists'
@@ -187,6 +188,14 @@ class MutagenParser(TagParser):
     def get_tag(self, filename):
         raise NotImplementedError()
 
+class MpcParser(MutagenParser):
+
+    def get_tag(self, filename):
+        return mutagen.musepack.Musepack(filename)
+
+    def supported_extensions(self):
+        return [b'mpc']
+
 class ApeParser(MutagenParser):
 
     def get_tag(self, filename):
@@ -299,6 +308,7 @@ class TagReader:
             FlacParser(self),
             WmaParser(self),
             ApeParser(self),
+            MpcParser(self),
             PathParser(self)
         ])
 
@@ -327,7 +337,8 @@ class TagReader:
 class Library:
 
     # TODO figure out from TagParsers?
-    SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a", b"ape"]
+    SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a",
+                 b"ape", b"mpc"]
 
     def __init__(self, path):
         self._database = get_session()
@@ -499,6 +510,8 @@ class LibraryProcess:
             format = 'audio/ogg'
         elif ext == b".ape":
             format = 'audio/x-ape'
+        elif ext == b".mpc":
+            format = 'audio/x-musepack'
         else:
             format = 'audio/unknown'
 
