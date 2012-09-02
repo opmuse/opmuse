@@ -10,6 +10,7 @@ from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library
 from opmuse.who import User
+from sqlalchemy.orm.exc import NoResultFound
 
 class Lastfm:
     @cherrypy.expose
@@ -58,9 +59,12 @@ class Users:
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='user.html')
     def user(self, login):
-        user = (cherrypy.request.database.query(User)
-            .filter_by(login=login)
-            .order_by(User.login).one())
+        try:
+            user = (cherrypy.request.database.query(User)
+                .filter_by(login=login)
+                .order_by(User.login).one())
+        except NoResultFound:
+            raise cherrypy.NotFound()
 
         queues = queue_model.getQueues(user.id)
 
@@ -221,7 +225,12 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='track.html')
     def track(self, slug):
-        return {'track': library.get_track_by_slug(slug)}
+        track = library.get_track_by_slug(slug)
+
+        if track is None:
+            raise cherrypy.NotFound()
+
+        return {'track': track}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -229,13 +238,22 @@ class Root(object):
     def album(self, artist_slug, album_slug):
         artist = library.get_artist_by_slug(artist_slug)
         album = library.get_album_by_slug(album_slug)
+
+        if artist is None or album is None:
+            raise cherrypy.NotFound()
+
         return {'artist': artist, 'album': album}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='artist.html')
     def artist(self, slug):
-        return {'artist': library.get_artist_by_slug(slug)}
+        artist = library.get_artist_by_slug(slug)
+
+        if artist is None:
+            raise cherrypy.NotFound()
+
+        return {'artist': artist}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
