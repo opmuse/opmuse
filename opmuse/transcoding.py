@@ -47,16 +47,24 @@ class FFMPEGTranscoder(Transcoder):
         title = self.track.name
         track_number = self.track.number if self.track.number is not None else 0
 
-        ffmpeg = ('ffmpeg %s -i "FILENAME" %s ' % (self.ffmpeg_input_args, self.ffmpeg_output_args) +
-            '-metadata artist="%s" -metadata album="%s" -metadata title="%s" -metadata tracknumber="%d" ' %
-                (artist, album, title, track_number) +
-            '-')
+        args = (['ffmpeg'] +
+            self.ffmpeg_input_args +
+            ['-i', filename] +
+            self.ffmpeg_output_args + [
+                '-metadata', 'artist="%s"' % artist,
+                '-metadata', 'album="%s"' % album,
+                '-metadata', 'title="%s"' % title,
+                '-metadata', 'tracknumber="%s"' % track_number,
+                '-'
+            ])
 
-        cmd = (ffmpeg.encode('utf8')
-            .replace(b"FILENAME", filename)
-            .replace(b"EXT", ext))
+        for index, arg in enumerate(args):
+            if not isinstance(arg, bytes):
+                arg = arg.encode('utf8')
 
-        self.process = subprocess.Popen([cmd], shell = True, stdout = subprocess.PIPE,
+            args[index] = arg.replace(b'EXT', ext)
+
+        self.process = subprocess.Popen(args, shell = False, stdout = subprocess.PIPE,
                                         stderr = self.FNULL,
                                         stdin = None)
 
@@ -77,24 +85,24 @@ class FFMPEGTranscoder(Transcoder):
             yield data
 
 class CopyFFMPEGTranscoder(FFMPEGTranscoder):
-    ffmpeg_output_args = "-acodec copy -f EXT"
-    ffmpeg_input_args = ""
+    ffmpeg_output_args = ["-acodec", "copy", "-f", "EXT"]
+    ffmpeg_input_args = []
 
     def outputs():
         return None
 
 class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
     # -aq 0 should be v0
-    ffmpeg_output_args = "-acodec libmp3lame -f mp3 -aq 0"
-    ffmpeg_input_args = ""
+    ffmpeg_output_args = ["-acodec", "libmp3lame", "-f", "mp3", "-aq", "0"]
+    ffmpeg_input_args = []
 
     def outputs():
         return 'audio/mp3'
 
 class OggFFMPEGTranscoder(FFMPEGTranscoder):
     # -aq 6 is about 192kbit/s
-    ffmpeg_output_args = "-acodec libvorbis -f ogg -aq 6"
-    ffmpeg_input_args = ""
+    ffmpeg_output_args = ["-acodec", "libvorbis", "-f", "ogg", "-aq", "6"]
+    ffmpeg_input_args = []
 
     def outputs():
         return 'audio/ogg'
