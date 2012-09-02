@@ -242,7 +242,7 @@ class Id3Parser(MutagenParser):
         return mutagen.mp3.MP3(filename, ID3=mutagen.easyid3.EasyID3)
 
     def supported_extensions(self):
-        return [b'mp3']
+        return [b'mp3', b'mp2']
 
 class PathParser(TagParser):
     """
@@ -338,7 +338,7 @@ class Library:
 
     # TODO figure out from TagParsers?
     SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a",
-                 b"ape", b"mpc", b"wav"]
+                 b"ape", b"mpc", b"wav", b"mp2"]
 
     def __init__(self, path):
         self._database = get_session()
@@ -498,7 +498,7 @@ class LibraryProcess:
 
         ext = os.path.splitext(filename)[1].lower()
 
-        if ext == b".mp3":
+        if ext == b".mp3" or ext == b".mp2":
             format = 'audio/mp3'
         elif ext == b".wma":
             format = 'audio/x-ms-wma'
