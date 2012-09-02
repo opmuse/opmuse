@@ -164,7 +164,7 @@ class MutagenParser(TagParser):
     def parse(self, filename):
         try:
             tag = self.get_tag(filename)
-        except IOError as error:
+        except (IOError, ValueError) as error:
             cherrypy.log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
             return FileMetadata(*(None, ) * 9)
 
