@@ -68,14 +68,24 @@ class Lastfm:
 
         network = self.get_network(session_key)
 
-        network.update_now_playing(
-            artist = track.artist.name,
-            title = track.name,
-            album = track.album.name,
-            album_artist = None,
-            duration = track.duration,
+        network.update_now_playing(**self._get_args(track))
+
+    def _get_args(self, track):
+
+        # lastfm can't handle track number that ain't numbers
+        if re.match('^[0-9]+$', track.number):
             track_number = track.number
-        )
+        else:
+            track_number = None
+
+        return {
+            'artist': track.artist.name,
+            'title': track.name,
+            'album': track.album.name,
+            'album_artist': None,
+            'duration': track.duration,
+            'track_number': track_number
+        }
 
     def scrobble(self, track):
         session_key = cherrypy.request.user.lastfm_session_key
@@ -85,18 +95,14 @@ class Lastfm:
 
         network = self.get_network(session_key)
 
-        # assume track started playing track length seconds ago
-        timestamp = self.get_utc_timestamp() - track.duration
+        args = {
+            # assume track started playing track length seconds ago
+            'timestamp': self.get_utc_timestamp() - track.duration
+        }
 
-        network.scrobble(
-            timestamp = timestamp,
-            artist = track.artist.name,
-            title = track.name,
-            album = track.album.name,
-            album_artist = None,
-            duration = track.duration,
-            track_number = track.number
-        )
+        args.update(self._get_args(track))
+
+        network.scrobble(**args)
 
     def get_utc_timestamp(self):
         return calendar.timegm(
