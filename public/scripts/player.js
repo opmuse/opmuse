@@ -13,6 +13,7 @@ define(['jquery', 'inheritance', 'queue', 'domReady!'], function($, inheritance,
             this.player_controls = $('#player-controls');
             this.play_button = $('#play-button');
             this.pause_button = $('#pause-button');
+            this.next_button = $('#next-button');
 
             $(that.player).bind('playing', function (event) {
                 queue.reload();
@@ -33,6 +34,14 @@ define(['jquery', 'inheritance', 'queue', 'domReady!'], function($, inheritance,
                 that.player.pause();
                 that.pause_button.hide();
                 that.play_button.show();
+            });
+
+            that.next_button.click(function() {
+                var paused = that.player.paused;
+                that.load();
+                if (paused === false) {
+                    that.player.play();
+                }
             });
 
             that.pause_button.hide();
