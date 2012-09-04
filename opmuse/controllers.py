@@ -175,6 +175,14 @@ class Root(object):
         albums = Album.search_query(query).all()
         tracks = Track.search_query(query).all()
 
+        if len(artists) + len(albums) + len(tracks) == 1:
+            for artist in artists:
+                raise cherrypy.HTTPRedirect('/artist/%s' % artist.slug)
+            for album in albums:
+                raise cherrypy.HTTPRedirect('/album/%s/%s' % (album.artists[0].slug, album.slug))
+            for track in tracks:
+                raise cherrypy.HTTPRedirect('/track/%s' % track.slug)
+
         results = {}
 
         for artist in artists:
