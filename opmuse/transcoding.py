@@ -51,10 +51,10 @@ class FFMPEGTranscoder(Transcoder):
             self.ffmpeg_input_args +
             ['-i', filename] +
             self.ffmpeg_output_args + [
-                '-metadata', 'artist="%s"' % artist,
-                '-metadata', 'album="%s"' % album,
-                '-metadata', 'title="%s"' % title,
-                '-metadata', 'tracknumber="%s"' % track_number,
+                '-metadata', 'artist=%s' % artist,
+                '-metadata', 'album=%s' % album,
+                '-metadata', 'title=%s' % title,
+                '-metadata', 'tracknumber=%s' % track_number,
                 '-'
             ])
 
