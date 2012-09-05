@@ -261,9 +261,10 @@ class Root(object):
         namesakes = set()
 
         for query in artist.name.split(' '):
-            for artist_result in Artist.search_query(query).all():
-                if artist != artist_result:
-                    namesakes.add(artist_result)
+            if len(query) > 5:
+                for artist_result in Artist.search_query(query).all():
+                    if artist != artist_result:
+                        namesakes.add(artist_result)
 
         if artist is None:
             raise cherrypy.NotFound()
