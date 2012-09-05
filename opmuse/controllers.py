@@ -261,7 +261,7 @@ class Root(object):
         namesakes = set()
 
         for query in artist.name.split(' '):
-            if len(query) > 5:
+            if len(re.sub("[^a-zA-Z0-9]+", '', query)) > 4:
                 for artist_result in Artist.search_query(query).all():
                     if artist != artist_result:
                         namesakes.add(artist_result)
