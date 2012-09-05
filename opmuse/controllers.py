@@ -258,10 +258,17 @@ class Root(object):
     def artist(self, slug):
         artist = library.get_artist_by_slug(slug)
 
+        namesakes = set()
+
+        for query in artist.name.split(' '):
+            for artist_result in Artist.search_query(query).all():
+                if artist != artist_result:
+                    namesakes.add(artist_result)
+
         if artist is None:
             raise cherrypy.NotFound()
 
-        return {'artist': artist}
+        return {'artist': artist, 'namesakes': namesakes}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

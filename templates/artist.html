@@ -11,7 +11,14 @@
         {{ artist.name }}
     </h1>
 
+    {% if namesakes %}
+    <h2>Namesakes</h2>
     <p>
+        {% for artist in namesakes %}
+        <a href="/artist/{{ artist.slug }}">{{ artist.name }}</a>,
+        {% endfor %}
+    </p>
+    {% endif %}
 
     <h2>Albums</h2>
     <ul>
