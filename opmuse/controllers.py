@@ -332,15 +332,17 @@ class Root(object):
 
         track = queue_model.getNextTrack(user_id)
 
+        user_agent = cherrypy.request.headers['User-Agent']
+
         transcoder, format = transcoding.determine_transcoder(
             track,
-            cherrypy.request.headers['User-Agent'],
+            user_agent,
             [accept.value for accept in cherrypy.request.headers.elements('Accept')]
         )
 
         cherrypy.log(
-            '%s is streaming "%s" in %s (original was %s)' %
-            (cherrypy.request.user.login, track, format, track.format)
+            '%s is streaming "%s" in %s (original was %s) with "%s"' %
+            (cherrypy.request.user.login, track, format, track.format, user_agent)
         )
 
         cherrypy.response.headers['Content-Type'] = format
