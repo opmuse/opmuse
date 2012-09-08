@@ -2,6 +2,7 @@ import os
 import re
 import datetime
 import cherrypy
+import tempfile
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
@@ -11,6 +12,36 @@ from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library
 from opmuse.who import User
 from sqlalchemy.orm.exc import NoResultFound
+
+class Upload:
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='upload.html')
+    @cherrypy.tools.authenticated()
+    def default(self):
+        return {}
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='upload.html')
+    @cherrypy.tools.authenticated()
+    def add(self, files):
+        if not isinstance(files, list):
+            files = [files]
+
+        tempdir = tempfile.mkdtemp()
+
+        filenames = []
+
+        for file in files:
+            filename = os.path.join(tempdir, file.filename)
+
+            with open(filename, 'wb') as fileobj:
+                fileobj.write(file.file.read())
+
+            filenames.append(filename.encode('utf8'))
+
+        tracks = library.add_and_move_files(filenames)
+
+        return {'tracks': tracks}
 
 class Lastfm:
     @cherrypy.expose
@@ -129,6 +160,7 @@ class Root(object):
     styles = Styles()
     queue = Queue()
     lastfm = Lastfm()
+    upload = Upload()
     users = Users()
 
     @cherrypy.expose

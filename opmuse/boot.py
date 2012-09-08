@@ -81,6 +81,10 @@ def configure():
     cherrypy.engine.whoosh.subscribe()
 
     config = cherrypy._cpconfig.Config(file=config_file)
+
+    # 5 gigabyte file upload limit
+    config['server.max_request_body_size'] = 1024 ** 3 * 5
+
     cherrypy.config.update(config)
 
     env.globals['server_name'] = app.config['opmuse']['server_name']

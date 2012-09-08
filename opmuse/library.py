@@ -1,4 +1,4 @@
-import cherrypy, re, os, base64, mmh3, io, datetime, math
+import cherrypy, re, os, base64, mmh3, io, datetime, math, shutil
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
                        DateTime, Boolean)
@@ -133,10 +133,14 @@ class FileMetadata:
 
         return FileMetadata(*metadatas)
 
-class TagParser:
-    def __init__(self, reader):
-        self._reader = reader
+    def has_required(self):
+        return (self.artist_name is not None and self.album_name is not None and
+                self.track_name is not None)
 
+    def __str__(self):
+        return str(self.metadatas)
+
+class TagParser:
     def is_supported(self, filename):
         extensions = self.supported_extensions()
 
@@ -302,14 +306,14 @@ class TagReader:
         self._by_filename = {}
 
         self._parsers.extend([
-            Id3Parser(self),
-            OggParser(self),
-            Mp4Parser(self),
-            FlacParser(self),
-            WmaParser(self),
-            ApeParser(self),
-            MpcParser(self),
-            PathParser(self)
+            Id3Parser(),
+            OggParser(),
+            Mp4Parser(),
+            FlacParser(),
+            WmaParser(),
+            ApeParser(),
+            MpcParser(),
+            PathParser()
         ])
 
     def parse(self, filename):
@@ -333,6 +337,8 @@ class TagReader:
                 metadata = new_metadata
 
         return metadata
+
+reader = TagReader()
 
 class Library:
 
@@ -431,15 +437,21 @@ class Library:
 
 class LibraryProcess:
 
-    def __init__(self, queue):
+    def __init__(self, queue, database = None):
 
-        self._database = get_session()
-        self._reader = TagReader()
+        if database is None:
+            self._database = get_session()
+        else:
+            self._database = database
+
+        self.tracks = []
 
         for filename in queue:
-            self.process(filename)
+            track = self.process(filename)
+            self.tracks.append(track)
 
-        self._database.remove()
+        if database is None:
+            self._database.remove()
 
     def process(self, filename):
 
@@ -451,14 +463,14 @@ class LibraryProcess:
             if filename not in [path.path for path in track.paths]:
                 track.paths.append(TrackPath(filename))
                 self._database.commit()
-            return
+            return track
         # file doesn't exist
         except NoResultFound:
             track = Track(hash)
             self._database.add(track)
             self._database.commit()
 
-        metadata = self._reader.parse(filename)
+        metadata = reader.parse(filename)
 
         artist_slug = self._produce_artist_slug(
             metadata.artist_name
@@ -534,6 +546,8 @@ class LibraryProcess:
         artist.tracks.append(track)
 
         self._database.commit()
+
+        return track
 
     def fix_track_number(self, number):
         """
@@ -618,6 +632,47 @@ class LibraryProcess:
             return base64.b64encode(mmh3.hash_bytes(bytes))
 
 class LibraryDao:
+
+    def _get_library_path(self):
+        return os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
+
+    def add_and_move_files(self, filenames):
+
+        paths = []
+
+        for filename in filenames:
+            if os.path.splitext(filename)[1].lower()[1:] not in Library.SUPPORTED:
+                continue
+
+            metadata = reader.parse(filename)
+
+            if not metadata.has_required():
+                raise Exception('File has missing or incomplete tags.')
+
+            library_path = self._get_library_path()
+
+            dirname = os.path.join(library_path, metadata.artist_name, metadata.album_name)
+
+            dirname = dirname.encode('utf8')
+
+            if os.path.exists(dirname):
+                if not os.path.isdir(dirname):
+                    raise Exception('%s path exists and is not a directory.' % dirname)
+            else:
+                os.makedirs(dirname)
+
+            path = os.path.join(dirname, os.path.basename(filename))
+
+            if os.path.exists(path):
+                raise Exception('%s already exists.' % path)
+
+            shutil.move(filename, path)
+
+            paths.append(path)
+
+        process = LibraryProcess(paths, cherrypy.request.database)
+
+        return process.tracks
 
     def get_album_by_slug(self, slug):
         try:
