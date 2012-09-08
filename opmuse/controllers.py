@@ -318,6 +318,11 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
+        if cherrypy.request.library is not None:
+            scanning = cherrypy.request.library.scanning
+        else:
+            scanning = False
+
         tracks = library.get_new_tracks(datetime.datetime.now() - datetime.timedelta(days=30))
 
         added = OrderedDict({})
@@ -344,7 +349,7 @@ class Root(object):
                 key = lambda track : (track.artist.name, track.album.name, track.number, track.name)
             )
 
-        return {'added': added}
+        return {'added': added, 'scanning': scanning}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

@@ -1,4 +1,5 @@
 import cherrypy, re, os, base64, mmh3, io, datetime, math, shutil
+from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
                        DateTime, Boolean)
@@ -347,11 +348,18 @@ class Library:
                  b"ape", b"mpc", b"wav", b"mp2"]
 
     def __init__(self, path):
+        self.scanning = False
+        self._path = path
+
+    def start(self):
+
+        self.scanning = True
+
         self._database = get_session()
 
         # always treat paths as bytes to avoid encoding issues we don't
         # care about
-        path = path.encode() if isinstance(path, str) else path
+        path = self._path.encode() if isinstance(self._path, str) else self._path
 
         path = os.path.abspath(path)
 
@@ -432,6 +440,8 @@ class Library:
                 self._database.commit()
 
         self._database.remove()
+
+        self.scanning = False
 
         cherrypy.log("Done updating library.")
 
@@ -701,11 +711,32 @@ class LibraryDao:
 
 library = LibraryDao()
 
-class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
+class LibraryPlugin(SimplePlugin):
+
+    def __init__(self, bus):
+        SimplePlugin.__init__(self, bus)
+        self.library = None
+        self.bus.subscribe("bind_library", self.bind_library)
 
     def start(self):
         config = cherrypy.tree.apps[''].config['opmuse']
-        Library(config['library.path'])
+        self.library = Library(config['library.path'])
+        self.library.start()
 
     start.priority = 110
+
+    def bind_library(self):
+        return self.library
+
+    def stop(self):
+        self.library = None
+
+class LibraryTool(cherrypy.Tool):
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'on_start_resource',
+                               self.bind_library, priority=10)
+
+    def bind_library(self):
+        binds = cherrypy.engine.publish('bind_library')
+        cherrypy.request.library = binds[0]
 

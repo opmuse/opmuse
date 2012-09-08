@@ -7,7 +7,7 @@ sys.path.append(os.path.join(VENDOR, 'WhooshAlchemy'))
 import cherrypy
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
-from opmuse.library import LibraryPlugin
+from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
@@ -33,6 +33,7 @@ def configure():
     cherrypy.tools.authenticated = AuthenticatedTool()
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
     cherrypy.tools.jinjaglobals = JinjaGlobalsTool()
+    cherrypy.tools.library = LibraryTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     import opmuse.controllers
@@ -47,6 +48,7 @@ def configure():
             'tools.sessions.on': True,
             'tools.jinjaauthenticated.on': True,
             'tools.jinjaglobals.on': True,
+            'tools.library.on': True,
             'tools.sessions.storage_type': "file",
             'tools.sessions.storage_path': join(abspath(dirname(__file__)),
                                             '..', 'cache', 'session'),
