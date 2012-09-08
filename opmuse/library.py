@@ -4,7 +4,7 @@ from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
                        DateTime, Boolean)
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
-from multiprocessing import Process, cpu_count
+from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session
 import mutagen.mp3
@@ -704,13 +704,8 @@ library = LibraryDao()
 class LibraryPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
-        def process():
-            config = cherrypy.tree.apps[''].config['opmuse']
-            Library(config['library.path'])
-
-        cherrypy.log("Spawning library process.")
-        p = Process(target=process)
-        p.start()
+        config = cherrypy.tree.apps[''].config['opmuse']
+        Library(config['library.path'])
 
     start.priority = 110
 
