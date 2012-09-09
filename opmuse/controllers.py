@@ -4,7 +4,9 @@ import datetime
 import cherrypy
 import tempfile
 import shutil
+import rarfile
 from zipfile import ZipFile
+from rarfile import RarFile
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
@@ -33,6 +35,8 @@ class Upload:
 
         filenames = []
 
+        rarfile.PATH_SEP = '/'
+
         for file in files:
             ext = os.path.splitext(file.filename)[1].lower()[1:]
 
@@ -46,6 +50,14 @@ class Upload:
                 zip.extractall(tempdir)
 
                 for name in zip.namelist():
+                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
+
+                continue
+            elif ext == "rar":
+                rar = RarFile(filename)
+                rar.extractall(tempdir)
+
+                for name in rar.namelist():
                     filenames.append(os.path.join(tempdir, name).encode('utf8'))
 
                 continue

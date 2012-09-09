@@ -8,3 +8,4 @@ pylast
 pydispatcher
 Whoosh
 vendor/mutagen-py3.tar.bz2
+rarfile
