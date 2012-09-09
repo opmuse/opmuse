@@ -5,6 +5,7 @@ VENDOR = os.path.join(os.path.dirname(__file__), '..', 'vendor')
 sys.path.append(os.path.join(VENDOR, 'WhooshAlchemy'))
 
 import cherrypy
+from cherrypy.process.plugins import SimplePlugin
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin, LibraryTool
@@ -14,6 +15,58 @@ from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import JinjaGlobalsTool
 from opmuse.search import WhooshPlugin
 import opmuse.lastfm
+import queue
+import threading
+
+# http://tools.cherrypy.org/wiki/BackgroundTaskQueue
+class BackgroundTaskQueue(SimplePlugin):
+
+    thread = None
+
+    def __init__(self, bus, qsize=100, qwait=2, safe_stop=True):
+        SimplePlugin.__init__(self, bus)
+        self.q = queue.Queue(qsize)
+        self.qwait = qwait
+        self.safe_stop = safe_stop
+
+    def start(self):
+        self.running = True
+        if not self.thread:
+            self.thread = threading.Thread(target=self.run)
+            self.thread.start()
+
+    def stop(self):
+        if self.safe_stop:
+            self.running = "draining"
+        else:
+            self.running = False
+
+        if self.thread:
+            self.thread.join()
+            self.thread = None
+        self.running = False
+
+    def run(self):
+        while self.running:
+            try:
+                try:
+                    func, args, kwargs = self.q.get(block=True, timeout=self.qwait)
+                except queue.Empty:
+                    if self.running == "draining":
+                        return
+                    continue
+                else:
+                    func(*args, **kwargs)
+                    if hasattr(self.q, 'task_done'):
+                        self.q.task_done()
+            except:
+                self.bus.log("Error in BackgroundTaskQueue %r." % self,
+                             level=40, traceback=True)
+
+    def put(self, func, *args, **kwargs):
+        """Schedule the given func to be run."""
+        self.q.put((func, args, kwargs))
+
 
 def multi_headers():
     if hasattr(cherrypy.response, 'multiheaders'):
@@ -81,6 +134,9 @@ def configure():
 
     cherrypy.engine.whoosh = WhooshPlugin(cherrypy.engine)
     cherrypy.engine.whoosh.subscribe()
+
+    cherrypy.engine.bgtask = BackgroundTaskQueue(cherrypy.engine)
+    cherrypy.engine.bgtask.subscribe()
 
     config = cherrypy._cpconfig.Config(file=config_file)
 
