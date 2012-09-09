@@ -290,7 +290,7 @@ class PathParser(TagParser):
             if int(number) > 100:
                 number = None
 
-        track_name = track_name.strip('\n -').split("-")[-1]
+        track_name = track_name.strip('\n -').split("-")[-1].strip()
 
         return FileMetadata(artist, album, track_name, None, number, added,
                             None, None, False)
