@@ -13,7 +13,7 @@ from collections import OrderedDict
 from opmuse.queues import queue_model
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import Artist, Album, Track, library
+from opmuse.library import Artist, Album, Track, library_dao
 from opmuse.who import User
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -24,7 +24,7 @@ class Tag:
     def default(self, ids):
         ids = ids.split(',')
 
-        tracks = library.get_tracks_by_ids(ids)
+        tracks = library_dao.get_tracks_by_ids(ids)
 
         return {'tracks': tracks}
 
@@ -35,7 +35,7 @@ class Tag:
 
         update_tracks = self.get_tracks(ids, artists, albums, tracks, dates, numbers)
 
-        library_path = library.get_library_path().encode('utf8')
+        library_path = library_dao.get_library_path().encode('utf8')
 
         return {"update_tracks": update_tracks}
 
@@ -51,7 +51,7 @@ class Tag:
 
         update_tracks = self.get_tracks(ids, artists, albums, tracks, dates, numbers)
 
-        tracks = library.update_tracks_tags(update_tracks, move)
+        tracks = library_dao.update_tracks_tags(update_tracks, move)
 
         return {'tracks': tracks}
 
@@ -136,7 +136,7 @@ class Upload:
 
             filenames.append(filename.encode('utf8'))
 
-        tracks = library.add_files(filenames, move = True)
+        tracks = library_dao.add_files(filenames, move = True)
 
         shutil.rmtree(tempdir)
 
@@ -365,7 +365,7 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='track.html')
     def track(self, slug):
-        track = library.get_track_by_slug(slug)
+        track = library_dao.get_track_by_slug(slug)
 
         if track is None:
             raise cherrypy.NotFound()
@@ -376,8 +376,8 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='album.html')
     def album(self, artist_slug, album_slug):
-        artist = library.get_artist_by_slug(artist_slug)
-        album = library.get_album_by_slug(album_slug)
+        artist = library_dao.get_artist_by_slug(artist_slug)
+        album = library_dao.get_album_by_slug(album_slug)
 
         if artist is None or album is None:
             raise cherrypy.NotFound()
@@ -388,7 +388,7 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='artist.html')
     def artist(self, slug):
-        artist = library.get_artist_by_slug(slug)
+        artist = library_dao.get_artist_by_slug(slug)
 
         namesakes = set()
 
@@ -418,12 +418,7 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
     def library(self):
-        if cherrypy.request.library is not None:
-            scanning = cherrypy.request.library.scanning
-        else:
-            scanning = False
-
-        tracks = library.get_new_tracks(datetime.datetime.now() - datetime.timedelta(days=30))
+        tracks = library_dao.get_new_tracks(datetime.datetime.now() - datetime.timedelta(days=30))
 
         added = OrderedDict({})
 
@@ -454,7 +449,7 @@ class Root(object):
                 )
             )
 
-        return {'added': added, 'scanning': scanning}
+        return {'added': added}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

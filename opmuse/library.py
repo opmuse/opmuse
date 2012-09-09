@@ -694,6 +694,19 @@ class LibraryDao:
 
         return self.add_files(filenames, move)
 
+    def get_invalid_track_count(self):
+        return (cherrypy.request.database.query(Track)
+            .filter(Track.valid == False).count())
+
+    def get_album_count(self):
+        return cherrypy.request.database.query(Album).count()
+
+    def get_artist_count(self):
+        return cherrypy.request.database.query(Artist).count()
+
+    def get_track_count(self):
+        return cherrypy.request.database.query(Track).count()
+
     def get_tracks_by_ids(self, ids):
         return (cherrypy.request.database.query(Track)
             .filter(Track.id.in_(ids)).all())
@@ -762,7 +775,7 @@ class LibraryDao:
         return (cherrypy.request.database.query(Track).filter(Track.added > age)
             .order_by(Track.added.desc()).all())
 
-library = LibraryDao()
+library_dao = LibraryDao()
 
 class LibraryPlugin(SimplePlugin):
 
@@ -792,4 +805,5 @@ class LibraryTool(cherrypy.Tool):
     def bind_library(self):
         binds = cherrypy.engine.publish('bind_library')
         cherrypy.request.library = binds[0]
+        cherrypy.request.library_dao = library_dao
 

@@ -35,9 +35,29 @@ header {
     padding: 2%;
 }
 
+#header-content,
 #primary-content,
 #secondary-content {
     margin-bottom: @gutter / @em;
+}
+
+#header-content {
+    .boxybox;
+
+    overflow: hidden;
+    clear: both;
+
+    .search {
+        float: left;
+    }
+    .library {
+        font-size: .8em;
+        float: right;
+        dl {
+            float: right;
+            margin: 0 8px 0 0;
+        }
+    }
 }
 
 #content {

@@ -11,10 +11,6 @@
         New tracks
     </h1>
 
-    {% if scanning %}
-    <p>Library scanning is in progress...</p>
-    {% endif %}
-
     {% for title, tracks in added.items() %}
     <h2>{{ title }}</h2>
     <ul class="tracks new_tracks">
