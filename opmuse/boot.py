@@ -9,7 +9,7 @@ from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
-from opmuse.who import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
+from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import JinjaGlobalsTool
 from opmuse.search import WhooshPlugin

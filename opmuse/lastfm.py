@@ -5,7 +5,7 @@ import datetime
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError
 from pydispatch import dispatcher
-from opmuse.who import User
+from opmuse.security import User
 
 User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))

@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
 from opmuse.database import Base
-from opmuse.who import User
+from opmuse.security import User
 from opmuse.library import Track, library_dao
 
 class Queue(Base):

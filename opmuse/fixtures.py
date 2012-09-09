@@ -2,7 +2,7 @@ import string
 import random
 from opmuse.boot import configure
 from opmuse.database import get_raw_session
-from opmuse.who import User, hash_password
+from opmuse.security import User, hash_password
 
 configure()
 

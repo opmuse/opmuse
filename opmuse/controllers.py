@@ -14,7 +14,7 @@ from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library_dao
-from opmuse.who import User
+from opmuse.security import User
 from sqlalchemy.orm.exc import NoResultFound
 
 class Tag:
