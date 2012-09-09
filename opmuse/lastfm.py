@@ -10,9 +10,6 @@ from opmuse.security import User
 User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
 
-class NoSessionError(Exception):
-    pass
-
 class Lastfm:
     def __init__(self):
         dispatcher.connect(
@@ -27,21 +24,14 @@ class Lastfm:
         )
 
     def end_transcoding(self, sender):
-        try:
-            self.scrobble(sender)
-        except NetworkError:
-            # TODO put in queue and scrobble later
-            cherrypy.log('Network error, failed to scrobble.')
-        except NoSessionError: # user hasn't authenticated his lastfm account, ignore
-            pass
+        session_key = cherrypy.request.user.lastfm_session_key
+        cherrypy.engine.bgtask.put(self.scrobble, session_key,
+            **self.track_to_args(sender))
 
     def start_transcoding(self, sender):
-        try:
-            self.update_now_playing(sender)
-        except NetworkError:
-            cherrypy.log('Network error, failed to update now playing.')
-        except NoSessionError: # user hasn't authenticated his lastfm account, ignore
-            pass
+        session_key = cherrypy.request.user.lastfm_session_key
+        cherrypy.engine.bgtask.put(self.update_now_playing, session_key,
+            **self.track_to_args(sender))
 
     def get_network(self, session_key = ''):
         key = cherrypy.request.app.config['opmuse']['lastfm.key']
@@ -51,9 +41,6 @@ class Lastfm:
     def get_authenticated_user_name(self):
         session_key = cherrypy.request.user.lastfm_session_key
 
-        if session_key is None:
-            raise NoSessionError
-
         network = self.get_network(session_key)
 
         user = network.get_authenticated_user()
@@ -61,17 +48,47 @@ class Lastfm:
         if user is not None:
             return user.get_name()
 
-    def update_now_playing(self, track):
-        session_key = cherrypy.request.user.lastfm_session_key
-
+    def update_now_playing(self, session_key, **args):
         if session_key is None:
-            raise NoSessionError
+            return
 
-        network = self.get_network(session_key)
+        try:
+            network = self.get_network(session_key)
+            network.update_now_playing(**args)
+        except NetworkError:
+            cherrypy.log('Network error, failed to update now playing for "%s - %s - %s".' % (
+                args['artist'],
+                args['album'],
+                args['title'],
+            ))
 
-        network.update_now_playing(**self._get_args(track))
+    def scrobble(self, session_key, **args):
+        if session_key is None:
+            return
 
-    def _get_args(self, track):
+        try:
+            network = self.get_network(session_key)
+
+            # assume track started playing track length seconds ago
+            args['timestamp'] = self.get_utc_timestamp() - args['duration']
+
+            network.scrobble(**args)
+
+            cherrypy.log('Scrobbled "%s - %s - %s".' % (
+                args['artist'],
+                args['album'],
+                args['title'],
+            ))
+
+        except NetworkError:
+            # TODO put in queue and scrobble later
+            cherrypy.log('Network error, failed to scrobble "%s - %s - %s".' % (
+                args['artist'],
+                args['album'],
+                args['title'],
+            ))
+
+    def track_to_args(self, track):
 
         # lastfm can't handle track number that ain't numbers
         if re.match('^[0-9]+$', track.number):
@@ -87,23 +104,6 @@ class Lastfm:
             'duration': track.duration,
             'track_number': track_number
         }
-
-    def scrobble(self, track):
-        session_key = cherrypy.request.user.lastfm_session_key
-
-        if session_key is None:
-            raise NoSessionError
-
-        network = self.get_network(session_key)
-
-        args = {
-            # assume track started playing track length seconds ago
-            'timestamp': self.get_utc_timestamp() - track.duration
-        }
-
-        args.update(self._get_args(track))
-
-        network.scrobble(**args)
 
     def get_utc_timestamp(self):
         return calendar.timegm(

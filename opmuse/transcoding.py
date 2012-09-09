@@ -149,7 +149,6 @@ class Transcoding:
         else:
             return OggFFMPEGTranscoder, 'audio/ogg'
 
-
     def _determine_transcoder(self, track, formats):
         if track.format in formats:
             return CopyFFMPEGTranscoder, track.format
