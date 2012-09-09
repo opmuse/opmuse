@@ -3,6 +3,8 @@ import re
 import datetime
 import cherrypy
 import tempfile
+import shutil
+from zipfile import ZipFile
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
@@ -32,14 +34,27 @@ class Upload:
         filenames = []
 
         for file in files:
+            ext = os.path.splitext(file.filename)[1].lower()[1:]
+
             filename = os.path.join(tempdir, file.filename)
 
             with open(filename, 'wb') as fileobj:
                 fileobj.write(file.file.read())
 
+            if ext == "zip":
+                zip = ZipFile(filename)
+                zip.extractall(tempdir)
+
+                for name in zip.namelist():
+                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
+
+                continue
+
             filenames.append(filename.encode('utf8'))
 
         tracks = library.add_and_move_files(filenames)
+
+        shutil.rmtree(tempdir)
 
         return {'tracks': tracks}
 
