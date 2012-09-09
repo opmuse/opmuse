@@ -83,8 +83,11 @@ class Track(Base):
     bitrate = Column(Integer)
     valid = Column(Boolean, index=True)
 
-    album = relationship("Album", backref=backref('tracks', order_by=(number, name)))
-    artist = relationship("Artist", backref=backref('tracks', order_by=name))
+    album = relationship("Album", lazy='joined', innerjoin=True,
+        backref=backref('tracks', order_by=(number, name)))
+
+    artist = relationship("Artist", lazy='joined', innerjoin=True,
+        backref=backref('tracks', order_by=name))
 
     def __init__(self, hash):
         self.hash = hash
