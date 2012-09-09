@@ -16,6 +16,8 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
                     type = 'album';
                 } else if ($(this).is(".artist")) {
                     type = 'artist';
+                } else if ($(this).is(".date")) {
+                    type = 'date';
                 }
 
                 var selector = "#tag ." + type + ":not(.lock)";
@@ -27,7 +29,6 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
 
                 return false;
             });
-
         },
     });
 

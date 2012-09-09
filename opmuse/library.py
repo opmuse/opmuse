@@ -17,6 +17,27 @@ import mutagen.easyid3
 import mutagen.apev2
 import mutagen.musepack
 
+class Album(Base):
+    __tablename__ = 'albums'
+    __searchable__ = ['name']
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+    slug = Column(String(255), index=True, unique=True)
+    date = Column(String(32))
+
+    artists = relationship("Artist", secondary='tracks')
+
+    def __init__(self, name, date, slug):
+        self.name = name
+        self.date = date
+        self.slug = slug
+
+    @hybrid_property
+    def valid(self):
+        return len(self.tracks) == sum(track.valid for track in self.tracks)
+
+
 class Artist(Base):
     __tablename__ = 'artists'
     __searchable__ = ['name']
@@ -25,31 +46,13 @@ class Artist(Base):
     name = Column(String(255))
     slug = Column(String(255), index=True, unique=True)
 
-    albums = relationship("Album", secondary='tracks')
+    albums = relationship("Album", secondary='tracks',
+        order_by=(Album.date.desc(), Album.name))
 
     def __init__(self, name, slug):
         self.name = name
         self.slug = slug
 
-class Album(Base):
-    __tablename__ = 'albums'
-    __searchable__ = ['name']
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255))
-    slug = Column(String(255), index=True, unique=True)
-    year = Column(String(32))
-
-    artists = relationship("Artist", secondary='tracks')
-
-    def __init__(self, name, year, slug):
-        self.name = name
-        self.year = year
-        self.slug = slug
-
-    @hybrid_property
-    def valid(self):
-        return len(self.tracks) == sum(track.valid for track in self.tracks)
 
 class TrackPath(Base):
     __tablename__ = 'track_paths'
@@ -98,7 +101,7 @@ class FileMetadata:
         self.track_duration = args[3]
         self.track_number = args[4]
         self.added = args[5]
-        self.year = args[6]
+        self.date = args[6]
         self.bitrate = args[7]
         self.valid = args[8]
 
@@ -171,7 +174,7 @@ class MutagenParser(TagParser):
         track = tag['title'][0] if 'title' in tag else None
         duration = tag.info.length
         number = tag['tracknumber'][0] if 'tracknumber' in tag else None
-        year = tag['date'][0] if 'date' in tag else None
+        date = tag['date'][0] if 'date' in tag else None
         bitrate = tag.info.bitrate if hasattr(tag.info, 'bitrate') else None
 
         # won't fit in SQL INT, and i'm guessing something's up :|
@@ -183,7 +186,7 @@ class MutagenParser(TagParser):
 
         valid = artist is not None and album is not None and track is not None
 
-        return FileMetadata(artist, album, track, duration, number, None, year,
+        return FileMetadata(artist, album, track, duration, number, None, date,
                             bitrate, valid)
 
     def get_tag(self, filename):
@@ -515,14 +518,14 @@ class LibraryProcess:
                 name=metadata.album_name
             ).one()
         except NoResultFound:
-            album = Album(metadata.album_name, metadata.year, album_slug)
+            album = Album(metadata.album_name, metadata.date, album_slug)
             self._database.add(album)
             self._database.commit()
 
-        # if the first track on the album didn't have year data maybe another
+        # if the first track on the album didn't have date data maybe another
         # one does...
-        if album.year is None:
-            album.year = metadata.year
+        if album.date is None:
+            album.date = metadata.date
 
         ext = os.path.splitext(filename)[1].lower()
 
@@ -664,6 +667,8 @@ class LibraryDao:
             artist_name = track['artist']
             album_name = track['album']
             track_name = track['track']
+            date = track['date']
+            number = track['number']
 
             track = (cherrypy.request.database.query(Track)
                 .filter_by(id=id).one())
@@ -675,6 +680,13 @@ class LibraryDao:
                 tag['artist'] = artist_name
                 tag['album'] = album_name
                 tag['title'] = track_name
+
+                if number is not None and number != '':
+                    tag['tracknumber'] = number
+
+                if date is not None and date != '':
+                    tag['date'] = date
+
                 tag.save()
 
             cherrypy.request.database.delete(track)

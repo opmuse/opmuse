@@ -31,15 +31,31 @@ class Tag:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='tag_edit.html')
     @cherrypy.tools.authenticated()
-    def edit(self, ids, artists, albums, tracks):
+    def edit(self, ids, artists, albums, tracks, dates, numbers):
 
-        update_tracks = self.get_tracks(ids, artists, albums, tracks)
+        update_tracks = self.get_tracks(ids, artists, albums, tracks, dates, numbers)
 
         library_path = library.get_library_path().encode('utf8')
 
         return {"update_tracks": update_tracks}
 
-    def get_tracks(self, ids, artists, albums, tracks):
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='tag_move.html')
+    @cherrypy.tools.authenticated()
+    def move(self, ids, artists, albums, tracks, dates, numbers, yes = False, no = False):
+
+        move = False
+
+        if yes:
+            move = True
+
+        update_tracks = self.get_tracks(ids, artists, albums, tracks, dates, numbers)
+
+        tracks = library.update_tracks_tags(update_tracks, move)
+
+        return {'tracks': tracks}
+
+    def get_tracks(self, ids, artists, albums, tracks, dates, numbers):
         if not isinstance(ids, list):
             ids = [ids]
 
@@ -52,6 +68,12 @@ class Tag:
         if not isinstance(tracks, list):
             tracks = [tracks]
 
+        if not isinstance(dates, list):
+            dates = [dates]
+
+        if not isinstance(numbers, list):
+            numbers = [numbers]
+
         update_tracks = []
 
         for index, id in enumerate(ids):
@@ -59,26 +81,13 @@ class Tag:
                 "id": id,
                 "artist": artists[index],
                 "album": albums[index],
-                "track": tracks[index]
+                "track": tracks[index],
+                "date": dates[index],
+                "number": numbers[index]
             })
 
         return update_tracks
 
-    @cherrypy.expose
-    @cherrypy.tools.jinja(filename='tag_move.html')
-    @cherrypy.tools.authenticated()
-    def move(self, ids, artists, albums, tracks, yes = False, no = False):
-
-        move = False
-
-        if yes:
-            move = True
-
-        update_tracks = self.get_tracks(ids, artists, albums, tracks)
-
-        tracks = library.update_tracks_tags(update_tracks, move)
-
-        return {'tracks': tracks}
 
 class Upload:
     @cherrypy.expose

@@ -13,6 +13,7 @@
 
     <a href="#" class="lock album">Lock album</a>
     <a href="#" class="lock artist">Lock artist</a>
+    <a href="#" class="lock date">Lock date</a>
 
     <form method="post" action="/tag/edit">
     <ul>
@@ -31,6 +32,14 @@
                 <dt>Name</dt>
                 <dd>
                     <input type="text" class="track" name="tracks" value="{{ track.name }}" />
+                </dd>
+                <dt>Date (year)</dt>
+                <dd>
+                    <input type="text" class="date" name="dates" value="{{ track.album.date if track.album.date else '' }}" />
+                </dd>
+                <dt>Number</dt>
+                <dd>
+                    <input type="text" class="number" name="numbers" value="{{ track.album.number if track.album.number else '' }}" />
                 </dd>
             </dl>
         </li>
