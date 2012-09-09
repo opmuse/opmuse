@@ -24,9 +24,8 @@ class Queue(Base):
         self.weight = weight
 
 
-# TODO use underscore for method names?
-class Model:
-    def getNextTrack(self, user_id):
+class QueueDao:
+    def get_next_track(self, user_id):
         database = cherrypy.request.database
         queue = next_queue = None
         try:
@@ -59,18 +58,11 @@ class Model:
 
         return next_queue.track
 
-    def getQueues(self, user_id):
+    def get_queues(self, user_id):
         queues = (cherrypy.request.database.query(Queue)
             .filter_by(user_id=user_id).order_by(Queue.weight).all())
 
         return queues
-
-    def getTracks(self, user_id):
-        queues = self.getQueues(user_id)
-
-        tracks = [queue.track for queue in queues]
-
-        return tracks
 
     def clear(self):
         user_id = cherrypy.request.user.id
@@ -80,13 +72,13 @@ class Model:
         user_id = cherrypy.request.user.id
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id, played=True).delete()
 
-    def addTrack(self, slug):
+    def add_track(self, slug):
         track = library_dao.get_track_by_slug(slug)
 
         user_id = cherrypy.request.user.id
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
 
-        weight = self.getNewPos(user_id)
+        weight = self.get_new_pos(user_id)
 
         queue = Queue(weight)
         queue.track = track
@@ -94,18 +86,18 @@ class Model:
 
         cherrypy.request.database.add(queue)
 
-    def removeTrack(self, slug):
+    def remove_track(self, slug):
         user_id = cherrypy.request.user.id
         track = cherrypy.request.database.query(Track).filter_by(slug=slug).one()
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = track.id).delete()
 
-    def addAlbum(self, slug):
+    def add_album(self, slug):
         album = library_dao.get_album_by_slug(slug)
 
         user_id = cherrypy.request.user.id
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
 
-        weight = self.getNewPos(user_id)
+        weight = self.get_new_pos(user_id)
 
         for track in album.tracks:
             queue = Queue(weight)
@@ -116,7 +108,7 @@ class Model:
 
             weight += 1
 
-    def getNewPos(self, user_id):
+    def get_new_pos(self, user_id):
         weight = (cherrypy.request.database.query(func.max(Queue.weight))
             .filter_by(user_id=user_id).scalar())
 
@@ -127,5 +119,5 @@ class Model:
 
         return weight
 
-queue_model = Model()
+queue_dao = QueueDao()
 

@@ -10,7 +10,7 @@ from rarfile import RarFile
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
-from opmuse.queues import queue_model
+from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library_dao
@@ -196,7 +196,7 @@ class Users:
         except NoResultFound:
             raise cherrypy.NotFound()
 
-        queues = queue_model.getQueues(user.id)
+        queues = queue_dao.get_queues(user.id)
 
         return {'user': user, 'queues': queues}
 
@@ -207,30 +207,30 @@ class Queue:
     @cherrypy.tools.jinja(filename='queue.html')
     def list(self):
         user_id = cherrypy.request.user.id
-        return {'queues': queue_model.getQueues(user_id)}
+        return {'queues': queue_dao.get_queues(user_id)}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def add(self, slug):
-        queue_model.addTrack(slug)
+        queue_dao.add_track(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def add_album(self, slug):
-        queue_model.addAlbum(slug)
+        queue_dao.add_album(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def remove(self, slug):
-        queue_model.removeTrack(slug)
+        queue_dao.remove_track(slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def clear(self, what = None):
         if what is not None and what == 'played':
-            queue_model.clear_played()
+            queue_dao.clear_played()
         else:
-            queue_model.clear()
+            queue_dao.clear()
 
 
 class Styles(object):
@@ -475,7 +475,7 @@ class Root(object):
 
         user_id = cherrypy.request.user.id
 
-        track = queue_model.getNextTrack(user_id)
+        track = queue_dao.get_next_track(user_id)
 
         user_agent = cherrypy.request.headers['User-Agent']
 
