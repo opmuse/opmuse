@@ -25,7 +25,7 @@ class Queue(Base):
 
 
 class QueueDao:
-    def get_next_track(self, user_id):
+    def get_next_track(self, user_id, repeat = False):
         database = cherrypy.request.database
         queue = next_queue = None
         try:
@@ -46,6 +46,9 @@ class QueueDao:
                 .order_by(Queue.weight).first())
 
         if next_queue is None:
+            return None
+
+        if not repeat and next_queue.played:
             return None
 
         next_queue.playing = True

@@ -475,7 +475,7 @@ class Root(object):
 
         user_id = cherrypy.request.user.id
 
-        track = queue_dao.get_next_track(user_id)
+        track = queue_dao.get_next_track(user_id, repeat = False)
 
         user_agent = cherrypy.request.headers['User-Agent']
 
