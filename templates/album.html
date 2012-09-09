@@ -14,6 +14,10 @@
         {{ album.name }}
     </h1>
 
+    <a href="/tag/{% for track in album.tracks -%}
+        {{ track.id }},
+    {%- endfor %}">Edit tags and/or move files</a>
+
     <ul class="tracks album">
 
         {% for track in album.tracks %}

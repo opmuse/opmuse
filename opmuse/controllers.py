@@ -17,6 +17,69 @@ from opmuse.library import Artist, Album, Track, library
 from opmuse.who import User
 from sqlalchemy.orm.exc import NoResultFound
 
+class Tag:
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='tag.html')
+    @cherrypy.tools.authenticated()
+    def default(self, ids):
+        ids = ids.split(',')
+
+        tracks = library.get_tracks_by_ids(ids)
+
+        return {'tracks': tracks}
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='tag_edit.html')
+    @cherrypy.tools.authenticated()
+    def edit(self, ids, artists, albums, tracks):
+
+        update_tracks = self.get_tracks(ids, artists, albums, tracks)
+
+        library_path = library.get_library_path().encode('utf8')
+
+        return {"update_tracks": update_tracks}
+
+    def get_tracks(self, ids, artists, albums, tracks):
+        if not isinstance(ids, list):
+            ids = [ids]
+
+        if not isinstance(artists, list):
+            artists = [artists]
+
+        if not isinstance(albums, list):
+            albums = [albums]
+
+        if not isinstance(tracks, list):
+            tracks = [tracks]
+
+        update_tracks = []
+
+        for index, id in enumerate(ids):
+            update_tracks.append({
+                "id": id,
+                "artist": artists[index],
+                "album": albums[index],
+                "track": tracks[index]
+            })
+
+        return update_tracks
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='tag_move.html')
+    @cherrypy.tools.authenticated()
+    def move(self, ids, artists, albums, tracks, yes = False, no = False):
+
+        move = False
+
+        if yes:
+            move = True
+
+        update_tracks = self.get_tracks(ids, artists, albums, tracks)
+
+        tracks = library.update_tracks_tags(update_tracks, move)
+
+        return {'tracks': tracks}
+
 class Upload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='upload.html')
@@ -64,7 +127,7 @@ class Upload:
 
             filenames.append(filename.encode('utf8'))
 
-        tracks = library.add_and_move_files(filenames)
+        tracks = library.add_files(filenames, move = True)
 
         shutil.rmtree(tempdir)
 
@@ -188,6 +251,7 @@ class Root(object):
     queue = Queue()
     lastfm = Lastfm()
     upload = Upload()
+    tag = Tag()
     users = Users()
 
     @cherrypy.expose
@@ -373,7 +437,12 @@ class Root(object):
 
         for title, tracks in added.items():
             added[title] = sorted(tracks,
-                key = lambda track : (track.artist.name, track.album.name, track.number, track.name)
+                key = lambda track : (
+                    track.artist.name,
+                    track.album.name,
+                    track.number if track.number is not None else '',
+                    track.name
+                )
             )
 
         return {'added': added, 'scanning': scanning}

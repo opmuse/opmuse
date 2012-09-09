@@ -18,7 +18,7 @@ class Queue(Base):
     played = Column(Boolean)
 
     user = relationship("User", backref=backref('users', order_by=id))
-    track = relationship("Track", backref=backref('tracks', order_by=id))
+    track = relationship("Track", backref=backref('tracks', cascade="all,delete", order_by=id))
 
     def __init__(self, weight):
         self.weight = weight

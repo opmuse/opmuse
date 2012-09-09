@@ -58,7 +58,7 @@ class TrackPath(Base):
     path = Column(BLOB)
     track_id = Column(Integer, ForeignKey('tracks.id'))
 
-    tracks = relationship("Track", backref=backref('paths', order_by=id))
+    tracks = relationship("Track", backref=backref('paths', cascade="all,delete", order_by=id))
 
     def __init__(self, path):
         self.path = path
@@ -133,10 +133,6 @@ class FileMetadata:
                 metadatas.append(this)
 
         return FileMetadata(*metadatas)
-
-    def has_required(self):
-        return (self.artist_name is not None and self.album_name is not None and
-                self.track_name is not None)
 
     def __str__(self):
         return str(self.metadatas)
@@ -303,10 +299,9 @@ class TagReader:
 
     def __init__(self):
 
-        self._parsers = []
         self._by_filename = {}
 
-        self._parsers.extend([
+        self._mutagen_parsers = [
             Id3Parser(),
             OggParser(),
             Mp4Parser(),
@@ -314,8 +309,11 @@ class TagReader:
             WmaParser(),
             ApeParser(),
             MpcParser(),
-            PathParser()
-        ])
+        ]
+        self._parsers = []
+
+        self._parsers.extend(self._mutagen_parsers)
+        self._parsers.append(PathParser())
 
     def parse(self, filename):
         metadata = None
@@ -338,6 +336,14 @@ class TagReader:
                 metadata = new_metadata
 
         return metadata
+
+    def get_mutagen_tag(self, filename):
+        for parser in self._mutagen_parsers:
+            if not parser.is_supported(filename):
+                continue
+
+            return parser.get_tag(filename)
+
 
 reader = TagReader()
 
@@ -643,10 +649,44 @@ class LibraryProcess:
 
 class LibraryDao:
 
-    def _get_library_path(self):
-        return os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
+    def get_library_path(self):
+        library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
 
-    def add_and_move_files(self, filenames):
+        if library_path[-1] != "/":
+            library_path += "/"
+        return library_path
+
+    def update_tracks_tags(self, tracks, move = False):
+        filenames = []
+
+        for track in tracks:
+            id = track['id']
+            artist_name = track['artist']
+            album_name = track['album']
+            track_name = track['track']
+
+            track = (cherrypy.request.database.query(Track)
+                .filter_by(id=id).one())
+
+            for path in track.paths:
+                filenames.append(path.path)
+
+                tag = reader.get_mutagen_tag(path.path)
+                tag['artist'] = artist_name
+                tag['album'] = album_name
+                tag['title'] = track_name
+                tag.save()
+
+            cherrypy.request.database.delete(track)
+            cherrypy.request.database.commit()
+
+        return self.add_files(filenames, move)
+
+    def get_tracks_by_ids(self, ids):
+        return (cherrypy.request.database.query(Track)
+            .filter(Track.id.in_(ids)).all())
+
+    def add_files(self, filenames, move = False):
 
         paths = []
 
@@ -656,10 +696,7 @@ class LibraryDao:
 
             metadata = reader.parse(filename)
 
-            if not metadata.has_required():
-                raise Exception('File has missing or incomplete tags.')
-
-            library_path = self._get_library_path()
+            library_path = self.get_library_path()
 
             dirname = os.path.join(library_path, metadata.artist_name, metadata.album_name)
 
@@ -671,12 +708,16 @@ class LibraryDao:
             else:
                 os.makedirs(dirname)
 
-            path = os.path.join(dirname, os.path.basename(filename))
+            if move:
+                path = os.path.join(dirname, os.path.basename(filename))
 
-            if os.path.exists(path):
-                raise Exception('%s already exists.' % path)
+                if path != filename:
+                    if os.path.exists(path):
+                        raise Exception('%s already exists.' % path)
 
-            shutil.move(filename, path)
+                    shutil.move(filename, path)
+            else:
+                path = filename
 
             paths.append(path)
 
