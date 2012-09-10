@@ -477,6 +477,9 @@ class Root(object):
 
         track = queue_dao.get_next_track(user_id, repeat = False)
 
+        if track is None:
+            return
+
         user_agent = cherrypy.request.headers['User-Agent']
 
         transcoder, format = transcoding.determine_transcoder(
