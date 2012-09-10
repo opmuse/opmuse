@@ -35,6 +35,8 @@ class BackgroundTaskQueue(SimplePlugin):
             self.thread = threading.Thread(target=self.run)
             self.thread.start()
 
+    start.priority = 90
+
     def stop(self):
         if self.safe_stop:
             self.running = "draining"
