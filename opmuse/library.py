@@ -789,8 +789,17 @@ class LibraryPlugin(SimplePlugin):
 
     def start(self):
         config = cherrypy.tree.apps[''].config['opmuse']
-        self.library = Library(config['library.path'])
-        self.library.start()
+
+        def run(self, library_path):
+            self.library = Library(library_path)
+            self.library.start()
+
+        self.thread = Thread(
+            target=run,
+            args=(self, os.path.abspath(config['library.path']))
+        )
+
+        self.thread.start()
 
     start.priority = 110
 
@@ -799,6 +808,7 @@ class LibraryPlugin(SimplePlugin):
 
     def stop(self):
         self.library = None
+        self.thread = None
 
 class LibraryTool(cherrypy.Tool):
     def __init__(self):
