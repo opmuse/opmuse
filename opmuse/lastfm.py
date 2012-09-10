@@ -34,8 +34,9 @@ class Lastfm:
             **self.track_to_args(sender))
 
     def get_network(self, session_key = ''):
-        key = cherrypy.request.app.config['opmuse']['lastfm.key']
-        secret = cherrypy.request.app.config['opmuse']['lastfm.secret']
+        config = cherrypy.tree.apps[''].config['opmuse']
+        key = config['lastfm.key']
+        secret = config['lastfm.secret']
         return get_lastfm_network(key, secret, session_key)
 
     def get_authenticated_user_name(self):
@@ -91,7 +92,7 @@ class Lastfm:
     def track_to_args(self, track):
 
         # lastfm can't handle track number that ain't numbers
-        if re.match('^[0-9]+$', track.number):
+        if track.number is not None and re.match('^[0-9]+$', track.number):
             track_number = track.number
         else:
             track_number = None
