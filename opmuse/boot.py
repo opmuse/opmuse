@@ -120,6 +120,9 @@ def configure():
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
                                         '..', 'public', 'images'),
         },
+        '/upload/add': {
+            'response.timeout': 3600
+        },
     }
 
     app = cherrypy.tree.mount(opmuse.controllers.Root(), '/', app_config)
