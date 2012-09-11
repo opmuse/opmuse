@@ -17,6 +17,11 @@ from opmuse.search import WhooshPlugin
 import opmuse.lastfm
 import queue
 import threading
+import tempfile
+
+tempfile.tempdir = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', 'cache', 'upload'
+))
 
 # http://tools.cherrypy.org/wiki/BackgroundTaskQueue
 class BackgroundTaskQueue(SimplePlugin):
