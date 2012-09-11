@@ -1,4 +1,4 @@
-import cherrypy, re, os, base64, mmh3, io, datetime, math, shutil
+import cherrypy, re, os, base64, mmh3, io, datetime, math, shutil, time
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
@@ -412,17 +412,20 @@ class Library:
 
         to_process = []
 
+        no = 0
+
         for index, filename in enumerate(queue):
 
             to_process.append(filename)
 
             if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                p = Thread(target=LibraryProcess, args = (to_process, ))
+                p = Thread(target=LibraryProcess, args = (to_process, None, no))
                 p.start()
 
                 threads.append(p)
 
                 to_process = []
+                no += 1
 
         cherrypy.log("Spawned %d library thread(s)." % thread_num)
 
@@ -459,25 +462,36 @@ class Library:
 
 class LibraryProcess:
 
-    def __init__(self, queue, database = None):
+    def __init__(self, queue, database = None, no = None):
+
+        self.no = no
 
         if database is None:
             self._database = get_session()
         else:
             self._database = database
 
-        self.tracks = []
-
+        count = 1
+        start = time.time()
         for filename in queue:
-            track = self.process(filename)
-            self.tracks.append(track)
+            self.process(filename)
+
+            if count == 1000:
+                cherrypy.log('Process %d processed %d files in %d seconds.' %
+                    (self.no, count, time.time() - start))
+                start = time.time()
+                count = 0
+
+            count += 1
 
         if database is None:
             self._database.remove()
 
+        cherrypy.log('Process %d is done.' % (self.no, ))
+
     def process(self, filename):
 
-        hash = self.get_hash(filename)
+        hash = LibraryProcess.get_hash(filename)
 
         try:
             track = self._database.query(Track).filter_by(hash=hash).one()
@@ -556,7 +570,7 @@ class LibraryProcess:
         track.slug = track_slug
         track.name = metadata.track_name
         track.duration = metadata.track_duration
-        track.number = self.fix_track_number(metadata.track_number)
+        track.number = LibraryProcess.fix_track_number(metadata.track_number)
         track.format = format
         track.added = added
         track.bitrate = metadata.bitrate
@@ -569,9 +583,8 @@ class LibraryProcess:
 
         self._database.commit()
 
-        return track
-
-    def fix_track_number(self, number):
+    @staticmethod
+    def fix_track_number(number):
         """
         pads track number with zero so we can sort it nicely with a regular
         alphanumeric sort
@@ -598,7 +611,7 @@ class LibraryProcess:
     def _produce_artist_slug(self, artist):
         index = 0
         while True:
-            slug = self.slugify(artist, index)
+            slug = LibraryProcess.slugify(artist, index)
             try:
                 self._database.query(Artist).filter_by(slug=slug).one()
             except NoResultFound:
@@ -608,7 +621,7 @@ class LibraryProcess:
     def _produce_album_slug(self, album):
         index = 0
         while True:
-            slug = self.slugify(album, index)
+            slug = LibraryProcess.slugify(album, index)
             try:
                 self._database.query(Album).filter_by(slug=slug).one()
             except NoResultFound:
@@ -618,14 +631,15 @@ class LibraryProcess:
     def _produce_track_slug(self, artist, album, track):
         index = 0
         while True:
-            slug = self.slugify("%s_%s_%s" % (artist, album, track), index)
+            slug = LibraryProcess.slugify("%s_%s_%s" % (artist, album, track), index)
             try:
                 self._database.query(Track).filter_by(slug=slug).one()
             except NoResultFound:
                 return slug
             index += 1
 
-    def slugify(self, string, index):
+    @staticmethod
+    def slugify(string, index):
         if index > 0:
             index = str(index)
             string = "%s_%s" % (string[:(255 - len(index))], index)
@@ -633,7 +647,8 @@ class LibraryProcess:
             string = string[:255]
         return re.sub(r'[^A-Za-z0-9_]', '_', string.lower())
 
-    def get_hash(self, filename):
+    @staticmethod
+    def get_hash(filename):
 
         byte_size = 1024 * 128
 
