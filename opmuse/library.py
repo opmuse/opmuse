@@ -462,7 +462,7 @@ class Library:
 
 class LibraryProcess:
 
-    def __init__(self, queue, database = None, no = None):
+    def __init__(self, queue, database = None, no = -1):
 
         self.no = no
 
