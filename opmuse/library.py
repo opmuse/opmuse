@@ -462,7 +462,7 @@ class Library:
 
 class LibraryProcess:
 
-    def __init__(self, queue, database = None, no = -1):
+    def __init__(self, queue, database = None, no = -1, tracks = None):
 
         self.no = no
 
@@ -474,7 +474,10 @@ class LibraryProcess:
         count = 1
         start = time.time()
         for filename in queue:
-            self.process(filename)
+            track = self.process(filename)
+
+            if tracks is not None:
+                tracks.append(track)
 
             if count == 1000:
                 cherrypy.log('Process %d processed %d files in %d seconds.' %
@@ -582,6 +585,8 @@ class LibraryProcess:
         artist.tracks.append(track)
 
         self._database.commit()
+
+        return track
 
     @staticmethod
     def fix_track_number(number):
@@ -764,9 +769,11 @@ class LibraryDao:
 
             paths.append(path)
 
-        process = LibraryProcess(paths, cherrypy.request.database)
+        tracks = []
 
-        return process.tracks
+        LibraryProcess(paths, cherrypy.request.database, 0, tracks)
+
+        return tracks
 
     def get_album_by_slug(self, slug):
         try:
