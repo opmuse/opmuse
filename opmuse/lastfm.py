@@ -23,15 +23,19 @@ class Lastfm:
             sender=dispatcher.Any
         )
 
-    def end_transcoding(self, sender):
-        session_key = cherrypy.request.user.lastfm_session_key
-        cherrypy.engine.bgtask.put(self.scrobble, session_key,
-            **self.track_to_args(sender))
-
     def start_transcoding(self, sender):
+        cherrypy.request.lastfm_start_transcoding_time = self.get_utc_timestamp()
         session_key = cherrypy.request.user.lastfm_session_key
         cherrypy.engine.bgtask.put(self.update_now_playing, session_key,
             **self.track_to_args(sender))
+
+    def end_transcoding(self, sender):
+        session_key = cherrypy.request.user.lastfm_session_key
+        user = cherrypy.request.user.login
+        start_time = cherrypy.request.lastfm_start_transcoding_time
+        cherrypy.request.lastfm_start_transcoding_time = None
+        cherrypy.engine.bgtask.put(self.scrobble, user, session_key,
+            start_time, **self.track_to_args(sender))
 
     def get_network(self, session_key = ''):
         config = cherrypy.tree.apps[''].config['opmuse']
@@ -63,22 +67,38 @@ class Lastfm:
                 args['title'],
             ))
 
-    def scrobble(self, session_key, **args):
+    def scrobble(self, user, session_key, start_time, **args):
         if session_key is None:
             return
 
         try:
+            time_since_start = self.get_utc_timestamp() - start_time
+
+            if not (args['duration'] > 30 and (time_since_start > 4 * 60 or
+                time_since_start > args['duration'] / 2)):
+                cherrypy.log('%s skipped scrobbling "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
+                    user,
+                    args['artist'],
+                    args['album'],
+                    args['title'],
+                    args['duration'],
+                    time_since_start
+                ))
+                return
+
             network = self.get_network(session_key)
 
-            # assume track started playing track length seconds ago
-            args['timestamp'] = self.get_utc_timestamp() - args['duration']
+            args['timestamp'] = start_time
 
             network.scrobble(**args)
 
-            cherrypy.log('Scrobbled "%s - %s - %s".' % (
+            cherrypy.log('%s scrobbled "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
+                user,
                 args['artist'],
                 args['album'],
                 args['title'],
+                args['duration'],
+                time_since_start
             ))
 
         except NetworkError:
