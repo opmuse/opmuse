@@ -4,6 +4,8 @@ import time
 import subprocess
 import re
 import cherrypy
+import calendar
+import datetime
 from pydispatch import dispatcher
 
 class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
@@ -16,14 +18,19 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
                                self.end, priority=20)
 
     def end(self):
-        if hasattr(cherrypy.request, 'ffmpegtranscoder_subprocess'):
+        if (hasattr(cherrypy.request, 'ffmpegtranscoder_subprocess') and
+            cherrypy.request.ffmpegtranscoder_subprocess is not None):
+
             p = cherrypy.request.ffmpegtranscoder_subprocess
             p.stdout.read()
             p.wait()
 
+        track = cherrypy.request.transcoding_track
+        dispatcher.send(signal='end_transcoding', sender=track)
+
 
 class Transcoder:
-    def transcode(self, track):
+    def transcode(self):
         raise NotImplementedError()
 
     @staticmethod
@@ -69,20 +76,49 @@ class FFMPEGTranscoder(Transcoder):
                                         stdin = None)
 
         cherrypy.request.ffmpegtranscoder_subprocess = self.process
+        cherrypy.request.transcoding_track = self.track
 
         return self.transcode
 
     def __exit__(self, type, value, traceback):
         self.process.wait()
+        cherrypy.request.ffmpegtranscoder_subprocess = None
 
     def transcode(self):
+        index = 0
+
+        bitrate = self.bitrate()
+
         while True:
-            data = self.process.stdout.read(8192)
+            data = self.process.stdout.read(bitrate)
 
             if len(data) == 0:
                 break
 
             yield data
+
+            # don't pace in the beginning or we might get lag...
+            if index > 3:
+                # here we pace the streaming so we don't have to send more than
+                # the client can chew. this is also good for start/end_transcoding
+                # events that lastfm uses so it can more accurately know how much
+                # the client has actually played
+
+                # we have a .1s margin because the bitrate might not be accurate
+                # if it's VBR and assuming transcoding 1s of audio doesn't take
+                # 0s to do... amongst other unforseen things. point being, we don't
+                # care that this might not be 100% accurate...
+                time.sleep(.9)
+
+            index += 1
+
+    def bitrate(self):
+        """
+        Should return the approximate bitrate this transcoder produces, so we
+        can approximately pace the streaming properly
+        """
+        raise NotImplementedError()
+
 
 class CopyFFMPEGTranscoder(FFMPEGTranscoder):
     ffmpeg_output_args = ["-acodec", "copy", "-f", "EXT"]
@@ -90,6 +126,13 @@ class CopyFFMPEGTranscoder(FFMPEGTranscoder):
 
     def outputs():
         return None
+
+    def bitrate(self):
+        if self.track.bitrate is not None and self.track.bitrate != 0:
+            return int(self.track.bitrate / 8)
+        else:
+            # default to a bitrate of 128kbit/s
+            return int(128000 / 8)
 
 class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
     # -aq 0 should be v0
@@ -99,13 +142,20 @@ class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
     def outputs():
         return 'audio/mp3'
 
+    def bitrate(self):
+        # lame v0's target bitrate is 245kbit/s (but is of course VBR)
+        return int(245000 / 8)
+
 class OggFFMPEGTranscoder(FFMPEGTranscoder):
-    # -aq 6 is about 192kbit/s
     ffmpeg_output_args = ["-acodec", "libvorbis", "-f", "ogg", "-aq", "6"]
     ffmpeg_input_args = []
 
     def outputs():
         return 'audio/ogg'
+
+    def bitrate(self):
+        # -aq 6 is about 192kbit/s
+        return int(192000 / 8)
 
 class Transcoding:
     # list of players that don't supply proper Accept headers, basically...
@@ -170,7 +220,6 @@ class Transcoding:
 
             if track is None:
                 yield self.silence
-                time.sleep(self.silence_seconds)
                 continue
 
             if isinstance(transcoder, Transcoder):
@@ -183,14 +232,6 @@ class Transcoding:
                     yield data
 
             total_time = int(time.time() - start_time)
-
-            # wait to send next track until this track has played (this assumes
-            # the player doesn't pause or anything)
-            # we do this to get more correct "now playing" status in the queue
-            if track.duration is not None and track.duration != 0:
-                time.sleep(track.duration - total_time)
-
-            dispatcher.send(signal='end_transcoding', sender=track)
 
     # TODO rewrite to FFMPEGTranscoder or at least a Transcoder?
     def generate_silence(self, seconds = 1):
