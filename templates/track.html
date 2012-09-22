@@ -29,8 +29,12 @@
         <dd>{{ track.number }}</dd>
         <dt>Duration</dt>
         <dd>{{ track.duration|format_seconds }}</dd>
+        <dt>Date (Year)</dt>
+        <dd>{{ track.date if track.date else "Unknown" }}</dd>
         <dt>Format</dt>
         <dd>{{ track.format }}</dd>
+        <dt>Bitrate</dt>
+        <dd>{{ track.bitrate }}</dd>
         <dt>Files</dt>
         <dd>
         <ul>
