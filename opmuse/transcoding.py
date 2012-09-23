@@ -60,6 +60,10 @@ class FFMPEGTranscoder(Transcoder):
         args = (['ffmpeg'] +
             self.ffmpeg_input_args +
             ['-i', filename] +
+            # always produce stereo output
+            ['-ac', '2'] +
+            # strip any video streams
+            ['-vn'] +
             self.ffmpeg_output_args + [
                 '-metadata', 'artist=%s' % artist,
                 '-metadata', 'album=%s' % album,
