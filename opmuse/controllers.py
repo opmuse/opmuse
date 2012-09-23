@@ -308,10 +308,22 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='search.html')
-    def search(self, query):
+    def search(self, query, type = None):
+
         artists = Artist.search_query(query).all()
-        albums = Album.search_query(query).all()
-        tracks = Track.search_query(query).all()
+        albums = None
+        tracks = None
+
+        # only search for artists
+        if type == 'artist':
+            albums = []
+            tracks = []
+
+        if albums is None:
+            albums = Album.search_query(query).all()
+
+        if tracks is None:
+            tracks = Track.search_query(query).all()
 
         if len(artists) + len(albums) + len(tracks) == 1:
             for artist in artists:
