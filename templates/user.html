@@ -11,6 +11,14 @@
         {{ user.login }}
     </h1>
 
+    {% if lastfm_user %}
+    <ul>
+        {% for artist in lastfm_user.top_artists_overall %}
+            <li><a href="/search/{{ artist.name }}">{{ artist.name }}</a> {{ artist.weight }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
     <p>In users queue...</p>
 
     <ul class="tracks">

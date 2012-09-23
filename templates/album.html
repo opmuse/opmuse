@@ -14,6 +14,15 @@
         {{ album.name }}
     </h1>
 
+    {% if lastfm_album %}
+    <h2><a href="{{ lastfm_album.url }}">Lastfm</a></h2>
+    {% if lastfm_album.wiki %}
+    <p>
+        {{ lastfm_album.wiki }}
+    </p>
+    {% endif %}
+    {% endif %}
+
     <a href="/tag/{% for track in album.tracks -%}
         {{ track.id }},
     {%- endfor %}">Edit tags and/or move files</a>

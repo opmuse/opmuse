@@ -2,6 +2,7 @@ import re
 import cherrypy
 import calendar
 import datetime
+from functools import lru_cache
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError
 from pydispatch import dispatcher
@@ -133,6 +134,73 @@ class Lastfm:
                 .utctimetuple()
         )
 
+    @lru_cache(maxsize=None)
+    def get_user(self, user_name):
+        session_key = cherrypy.request.user.lastfm_session_key
+
+        try:
+            network = self.get_network(session_key)
+            user = network.get_user(user_name)
+
+            top_artists_overall = []
+
+            for artist in user.get_top_artists():
+                top_artists_overall.append({
+                    'name': artist.item.get_name(),
+                    'weight': artist.weight
+                })
+
+            return {
+                'top_artists_overall': top_artists_overall
+            }
+        except NetworkError:
+            cherrypy.log('Network error, failed to get album "%s - %s".' % (
+                artist_name,
+                album_name
+            ))
+
+    @lru_cache(maxsize=None)
+    def get_album(self, artist_name, album_name):
+        session_key = cherrypy.request.user.lastfm_session_key
+
+        try:
+            network = self.get_network(session_key)
+            album = network.get_album(artist_name, album_name)
+
+            return {
+                'url': album.get_url(),
+                'wiki': album.get_wiki_summary()
+            }
+        except NetworkError:
+            cherrypy.log('Network error, failed to get album "%s - %s".' % (
+                artist_name,
+                album_name
+            ))
+
+    @lru_cache(maxsize=None)
+    def get_artist(self, artist_name):
+        session_key = cherrypy.request.user.lastfm_session_key
+
+        try:
+            network = self.get_network(session_key)
+            artist = network.get_artist(artist_name)
+
+            similars = []
+
+            for similar in artist.get_similar(5):
+                similars.append({
+                    'name': similar.item.get_name()
+                })
+
+            return {
+                'url': artist.get_url(),
+                'bio': artist.get_bio_summary(),
+                'similar': similars
+            }
+        except NetworkError:
+            cherrypy.log('Network error, failed to get artist "%s".' % (
+                artist_name
+            ))
 
 class SessionKey:
 

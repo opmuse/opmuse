@@ -11,6 +11,19 @@
         {{ artist.name }}
     </h1>
 
+    {% if lastfm_artist %}
+    <h2><a href="{{ lastfm_artist.url }}">Lastfm</a></h2>
+    <p>
+        {{ lastfm_artist.bio }}
+    </p>
+    <h2>Similar</h2>
+    <p>
+        {% for similar in lastfm_artist.similar %}
+            <a href="/search/{{ similar.name }}">{{ similar.name }}</a>,
+        {% endfor %}
+    </p>
+    {% endif %}
+
     {% if namesakes %}
     <h2>Namesakes</h2>
     <p>

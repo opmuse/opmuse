@@ -198,7 +198,13 @@ class Users:
 
         queues = queue_dao.get_queues(user.id)
 
-        return {'user': user, 'queues': queues}
+        lastfm_user = lastfm.get_user(user.lastfm_user)
+
+        return {
+            'user': user,
+            'queues': queues,
+            'lastfm_user': lastfm_user
+        }
 
 class Queue:
 
@@ -382,13 +388,21 @@ class Root(object):
         if artist is None or album is None:
             raise cherrypy.NotFound()
 
-        return {'artist': artist, 'album': album}
+        lastfm_album = lastfm.get_album(album.artists[0].name, album.name)
+
+        return {
+            'artist': artist,
+            'album': album,
+            'lastfm_album': lastfm_album
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='artist.html')
     def artist(self, slug):
         artist = library_dao.get_artist_by_slug(slug)
+
+        lastfm_artist = lastfm.get_artist(artist.name)
 
         namesakes = set()
 
@@ -401,7 +415,11 @@ class Root(object):
         if artist is None:
             raise cherrypy.NotFound()
 
-        return {'artist': artist, 'namesakes': namesakes}
+        return {
+            'lastfm_artist': lastfm_artist,
+            'artist': artist,
+            'namesakes': namesakes
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
