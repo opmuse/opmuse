@@ -25,8 +25,11 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
             p.stdout.read()
             p.wait()
 
-        track = cherrypy.request.transcoding_track
-        dispatcher.send(signal='end_transcoding', sender=track)
+        if (hasattr(cherrypy.request, 'transcoding_track') and
+            cherrypy.request.transcoding_track is not None):
+
+            track = cherrypy.request.transcoding_track
+            dispatcher.send(signal='end_transcoding', sender=track)
 
 
 class Transcoder:
