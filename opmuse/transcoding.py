@@ -85,7 +85,15 @@ class FFMPEGTranscoder(Transcoder):
         cherrypy.request.ffmpegtranscoder_subprocess = None
 
     def transcode(self):
-        index = 0
+
+        # total seconds transcoded
+        seconds = 0
+
+        # how many seconds to stay ahead of the client
+        seconds_keep_ahead = 4
+
+        start_time = time.time()
+        one_second = 1
 
         bitrate = self.bitrate()
 
@@ -97,20 +105,25 @@ class FFMPEGTranscoder(Transcoder):
 
             yield data
 
-            # don't pace in the beginning or we might get lag...
-            if index > 3:
-                # here we pace the streaming so we don't have to send more than
-                # the client can chew. this is also good for start/end_transcoding
-                # events that lastfm uses so it can more accurately know how much
-                # the client has actually played
+            seconds += 1
 
-                # we have a .1s margin because the bitrate might not be accurate
-                # if it's VBR and assuming transcoding 1s of audio doesn't take
-                # 0s to do... amongst other unforseen things. point being, we don't
-                # care that this might not be 100% accurate...
-                time.sleep(.9)
+            # we pace the streaming so we don't have to send more than
+            # the client can chew. this is also good for start/end_transcoding
+            # events that lastfm uses so it can more accurately know how much
+            # the client has actually played.
+            #
+            # what we do is try to stay seconds_keep_ahead seconds ahead of the
+            # client, no more, no less...
 
-            index += 1
+            seconds_ahead = seconds * one_second - (time.time() - start_time)
+
+            if seconds_ahead < seconds_keep_ahead:
+                wait = one_second - (seconds_keep_ahead - seconds_ahead)
+            else:
+                wait = one_second
+
+            if wait > 0:
+                time.sleep(wait)
 
     def bitrate(self):
         """
