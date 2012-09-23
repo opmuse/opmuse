@@ -19,7 +19,7 @@
     <h2>Similar</h2>
     <p>
         {% for similar in lastfm_artist.similar %}
-            <a href="/search/{{ similar.name }}">{{ similar.name }}</a>,
+            <a href="/search/{{ similar.name }}/artist">{{ similar.name }}</a>,
         {% endfor %}
     </p>
     {% endif %}
