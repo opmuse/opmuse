@@ -171,10 +171,11 @@ class Lastfm:
                 'url': album.get_url(),
                 'wiki': album.get_wiki_summary()
             }
-        except NetworkError:
-            cherrypy.log('Network error, failed to get album "%s - %s".' % (
+        except (WSError, NetworkError) as error:
+            cherrypy.log('Failed to get album "%s - %s": %s' % (
                 artist_name,
-                album_name
+                album_name,
+                error
             ))
 
     @lru_cache(maxsize=None)
@@ -197,9 +198,10 @@ class Lastfm:
                 'bio': artist.get_bio_summary(),
                 'similar': similars
             }
-        except NetworkError:
-            cherrypy.log('Network error, failed to get artist "%s".' % (
-                artist_name
+        except (WSError, NetworkError) as error:
+            cherrypy.log('Failed to get artist "%s": %s' % (
+                artist_name,
+                error
             ))
 
 class SessionKey:
