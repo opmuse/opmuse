@@ -20,9 +20,13 @@ def get_engine():
     return create_engine(url, echo=echo, poolclass=NullPool,
                                 isolation_level="READ UNCOMMITTED")
 
-def get_raw_session():
-    session = sessionmaker(bind=get_engine())()
-    return session
+def get_raw_session(create_all = False):
+    engine = get_engine()
+
+    if create_all:
+        Base.metadata.create_all(engine)
+
+    return sessionmaker(bind=engine)()
 
 def get_session():
     session = scoped_session(sessionmaker(autoflush=True,
@@ -45,7 +49,14 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
     start.priority = 100
 
     def bind(self, session):
-        session.configure(bind=self.engine)
+        # this occurs in unit tests when the cherrypy plugin start event thingie
+        # hasn't been triggered...
+        if self.engine is None:
+            engine = get_engine()
+        else:
+            engine = self.engine
+
+        session.configure(bind=engine)
 
     def stop(self):
         self.engine.dispose()

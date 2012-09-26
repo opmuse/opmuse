@@ -1,6 +1,8 @@
 import os, unittest
+import cherrypy
+from opmuse.boot import configure
 from opmuse.library import Library, Artist
-from opmuse.database import Base
+from opmuse.database import Base, get_raw_session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -12,11 +14,14 @@ class LibraryTest(unittest.TestCase):
         if os.path.exists(db_path):
             os.remove(db_path)
 
-        engine = create_engine('sqlite:///./%s' % db_path)
-        Base.metadata.create_all(engine)
-        session = sessionmaker(bind=engine)()
+        configure()
 
-        Library(os.path.join(os.path.dirname(__file__), "../sample_library"), session)
+        cherrypy.tree.apps[''].config['opmuse']['database.url'] = 'sqlite:///./%s' % db_path
+
+        session = get_raw_session(create_all = True)
+
+        library = Library(os.path.join(os.path.dirname(__file__), "../sample_library"))
+        library.start()
 
         artist = session.query(Artist).one()
 
