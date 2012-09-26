@@ -738,6 +738,8 @@ class LibraryDao:
 
         paths = []
 
+        messages = []
+
         for filename in filenames:
             if os.path.splitext(filename)[1].lower()[1:] not in Library.SUPPORTED:
                 continue
@@ -752,7 +754,9 @@ class LibraryDao:
 
             if os.path.exists(dirname):
                 if not os.path.isdir(dirname):
-                    raise Exception('%s path exists and is not a directory.' % dirname)
+                    dirname = dirname[len(library_path) - 1:]
+                    messages.append('The path "%s" exists and is not a directory.' % dirname.decode('utf8', 'replace'))
+                    continue
             else:
                 os.makedirs(dirname)
 
@@ -761,7 +765,9 @@ class LibraryDao:
 
                 if path != filename:
                     if os.path.exists(path):
-                        raise Exception('%s already exists.' % path)
+                        path = path[len(library_path) - 1:]
+                        messages.append('The file "%s" already exists.' % path.decode('utf8', 'replace'))
+                        continue
 
                     shutil.move(filename, path)
             else:
@@ -773,7 +779,7 @@ class LibraryDao:
 
         LibraryProcess(paths, cherrypy.request.database, 0, tracks)
 
-        return tracks
+        return tracks, messages
 
     def get_album_by_slug(self, slug):
         try:

@@ -36,6 +36,15 @@
         {% endfor %}
     </ul>
     {% endif %}
+
+    {% if messages %}
+    <h2>Messages</h2>
+    <ul class="messages">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 </div>
 {% endblock %}
 

@@ -136,11 +136,11 @@ class Upload:
 
             filenames.append(filename.encode('utf8'))
 
-        tracks = library_dao.add_files(filenames, move = True)
+        tracks, messages = library_dao.add_files(filenames, move = True)
 
         shutil.rmtree(tempdir)
 
-        return {'tracks': tracks}
+        return {'tracks': tracks, 'messages': messages}
 
 class Lastfm:
     @cherrypy.expose
