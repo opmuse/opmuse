@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
         from cherrypy.process.plugins import Daemonizer, DropPrivileges
         Daemonizer(cherrypy.engine).subscribe()
-        DropPrivileges(cherrypy.engine, uid=args.user).subscribe()
+        DropPrivileges(cherrypy.engine, uid=args.user, umask=0o022).subscribe()
 
     boot()
 
