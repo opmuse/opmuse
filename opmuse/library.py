@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import cpu_count
 from threading import Thread
-from opmuse.database import Base, get_session
+from opmuse.database import Base, get_session, get_type
 import mutagen.mp3
 import mutagen.oggvorbis
 import mutagen.m4a
@@ -367,6 +367,7 @@ class Library:
 
         self.scanning = True
 
+        self._database_type = get_type()
         self._database = get_session()
 
         # always treat paths as bytes to avoid encoding issues we don't
@@ -404,8 +405,13 @@ class Library:
 
         threads = []
 
-        thread_num = math.ceil(cpu_count() / 2)
-        thread_num = thread_num if thread_num > 2 else 2
+        # sqlite doesn't support threaded writes so just run one thread if
+        # that's what we have
+        if self._database_type == 'sqlite':
+            thread_num = 1
+        else:
+            thread_num = math.ceil(cpu_count() / 2)
+            thread_num = thread_num if thread_num > 2 else 2
 
         queue_len = len(queue)
         chunk_size = math.ceil(queue_len / thread_num)

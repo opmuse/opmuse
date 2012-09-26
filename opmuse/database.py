@@ -1,4 +1,5 @@
 import cherrypy
+from urllib.parse import urlparse
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -6,6 +7,11 @@ from sqlalchemy.pool import NullPool
 
 Base = declarative_base()
 Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
+
+def get_type():
+    config = cherrypy.tree.apps[''].config['opmuse']
+    url = config['database.url']
+    return urlparse(url).scheme
 
 def get_engine():
     config = cherrypy.tree.apps[''].config['opmuse']
