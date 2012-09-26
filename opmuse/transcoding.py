@@ -97,7 +97,7 @@ class FFMPEGTranscoder(Transcoder):
         seconds = 0
 
         # how many seconds to stay ahead of the client
-        seconds_keep_ahead = 5
+        seconds_keep_ahead = 10
 
         start_time = time.time()
         one_second = 1
