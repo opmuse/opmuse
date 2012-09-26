@@ -100,7 +100,7 @@ class FFMPEGTranscoder(Transcoder):
         seconds_keep_ahead = 10
 
         start_time = time.time()
-        one_second = 1
+        one_second = .95
 
         bitrate = self.bitrate()
 
