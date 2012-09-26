@@ -8,11 +8,11 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
                 throw Error('Only one instance of Search allowed!');
             }
 
-            if ($('#search').length == 0) {
+            if ($('.search-query').length == 0) {
                 return;
             }
 
-            $('#search').bind('keyup', function (event) {
+            $('.search-query').bind('keyup', function (event) {
                 if (event.keyCode == 13) {
                     location.href = '/search/' + $(this).val();
                 }

@@ -7,10 +7,8 @@
 {% block content %}
 <div id="tag">
     <h1>
-        <span class="silent">tag</span>
         Confirm edit / move.
     </h1>
-    <h2>Moves</h2>
     <p>Do you want us to move the tracks into their respective artist and album folders too?</p>
     <form method="post" action="/tag/move">
         {% for track in update_tracks %}
@@ -18,8 +16,8 @@
             <input type="hidden" name="{{ key }}s" value="{{ value }}" />
             {% endfor %}
         {% endfor %}
-        <button name="yes" type="submit" value="yes">Yes, move them.</button>
-        <button name="no" type="submit" value="no">No, just fix the tags.</button>
+        <button class="btn" name="yes" type="submit" value="yes">Yes, move them.</button>
+        <button class="btn" name="no" type="submit" value="no">No, just fix the tags.</button>
     </form>
 </div>
 {% endblock %}

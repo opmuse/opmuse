@@ -10,3 +10,6 @@
 [submodule "vendor/WhooshAlchemy"]
 	path = vendor/WhooshAlchemy
 	url = git://github.com/opmuse/WhooshAlchemy.git
+[submodule "vendor/twitter-bootstrap"]
+	path = vendor/twitter-bootstrap
+	url = https://github.com/twitter/bootstrap

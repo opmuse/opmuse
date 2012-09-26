@@ -1,3 +1,33 @@
-<h1><span class="silent">queue</span> Current</h1>
+<ol class="tracks">
+    {% for queue in queues %}
+        {% if album_id != queue.track.album.id %}
+        <li class="album-header">
+            {{ queue.track.artist.name }} - {{ queue.track.album.name }}
+        </li>
+        {% endif %}
+        {% set album_id = queue.track.album.id %}
+        <li class="{{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
+            {% set track = queue.track %}
+            {% include 'partials/track.html' %}
+            <a
+                class="remove"
+                href="/queue/remove/{{ track.slug }}">
+                X
+            </a>
+            <div class="clear"></div>
+        </li>
+    {% endfor %}
+</ol>
 
-{% include "partials/queue-tracks.html" %}
+<div class="btn-group">
+    <a
+        id="clear-played-queue"
+        class="btn"
+        href="/queue/clear/played">
+        Clear played</a>
+    <a
+        id="clear-queue"
+        class="btn"
+        href="/queue/clear">
+        Clear queue</a>
+</div>

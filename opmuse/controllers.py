@@ -51,9 +51,9 @@ class Tag:
 
         update_tracks = self.get_tracks(ids, artists, albums, tracks, dates, numbers)
 
-        tracks = library_dao.update_tracks_tags(update_tracks, move)
+        tracks, messages = library_dao.update_tracks_tags(update_tracks, move)
 
-        return {'tracks': tracks}
+        return {'tracks': tracks, 'messages': messages}
 
     def get_tracks(self, ids, artists, albums, tracks, dates, numbers):
         if not isinstance(ids, list):
@@ -400,12 +400,14 @@ class Root(object):
         if artist is None or album is None:
             raise cherrypy.NotFound()
 
-        lastfm_album = lastfm.get_album(album.artists[0].name, album.name)
+        lastfm_artist = lastfm.get_artist(artist.name)
+        lastfm_album = lastfm.get_album(artist.name, album.name)
 
         return {
             'artist': artist,
             'album': album,
-            'lastfm_album': lastfm_album
+            'lastfm_album': lastfm_album,
+            'lastfm_artist': lastfm_artist
         }
 
     @cherrypy.expose
@@ -423,6 +425,8 @@ class Root(object):
                 for artist_result in Artist.search_query(query).all():
                     if artist != artist_result:
                         namesakes.add(artist_result)
+                        if len(namesakes) >= 5:
+                            break
 
         if artist is None:
             raise cherrypy.NotFound()

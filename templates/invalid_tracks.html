@@ -6,23 +6,14 @@
 
 {% block content %}
 <div id="invalid_tracks">
-    <h1>
-        <span class="silent">tracks</span>
-        invalid
-    </h1>
+    <h1>Invalid Tracks</h1>
 
     <ul class="tracks">
-
         {% for track in tracks %}
             <li class="track">
-                <span class="text">
-                    <span class="artist-name"><a href="/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a></span>
-                    <span class="track-name"><a href="/track/{{ track.slug }}">{{ track.name }}</a></span>
-                </span>
+                {% include "partials/track.html" %}
             </li>
-
         {% endfor %}
-
     </ul>
 
 </div>

@@ -6,15 +6,21 @@
 
 {% block content %}
 <div id="library">
-    <h1>
-        <a
-            class="silent"
-            href="/album/{{ track.artist.slug }}/{{ track.album.slug }}">
-            {{ track.artist.name }} - {{ track.album.name }}</a>
-        {{ track.name }}
-    </h1>
-
-    <a href="/tag/{{ track.id }}">Edit tags and/or move files</a>
+    <ul class="breadcrumb">
+        <li>
+            <a href="/library">Library</a>
+            <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a>
+            <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="/album/{{ track.artist.slug }}/{{ track.album.slug }}">{{ track.album.name }}</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">{{ track.name }}</li>
+    </ul>
 
     <dl>
         <dt>Valid</dt>
@@ -48,11 +54,14 @@
         </dd>
     </dl>
 
-    <a
-        class="queue add"
-        href="/queue/add/{{ track.slug|urlencode }}">
-        Add track
-    </a>
+    <div class="btn-group">
+        <a
+            class="queue add btn"
+            href="/queue/add/{{ track.slug|urlencode }}">
+            Add track
+        </a>
+        <a class="btn" href="/tag/{{ track.id }}">Edit tags and/or move files</a>
+    </div>
 
 </div>
 {% endblock %}

@@ -1,12 +1,28 @@
 #queue {
-    .boxybox;
-    overflow: hidden;
+    ol {
+        list-style: none;
+        margin: 0;
+    }
 
-    #clear-played-queue,
-    #clear-queue {
-        display: block;
-        float: right;
-        margin-left: .5em;
+    .artist-name,
+    .album-name {
+        display: none;
+    }
+
+    .album-header {
+        font-weight: bold;
+    }
+
+    .text {
+        width: 85%;
+        float: left;
+    }
+
+    .text,
+    .album-header {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .remove {
@@ -17,29 +33,4 @@
         width: 32px;
         text-align: center;
     }
-
-    .tracks li {
-        height: 1em;
-        line-height: 1em;
-        display: block;
-        .text {
-            font-size: .8em;
-        }
-        .album-name {
-            display: inline;
-            &:after {
-                content: ' -';
-            }
-        }
-        .track-duration {
-            display: inline;
-        }
-    }
-
-}
-
-.remove {
-    display: block;
-    text-transform: uppercase;
-    float: right;
 }

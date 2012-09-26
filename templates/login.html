@@ -4,15 +4,15 @@
     Login
 {% endblock %}
 
-{% block content %}
-<dl>
+{% block container %}
 <form method="post" action="#">
-    <dt>Username</dt>
-    <dd><input type="text" name="login" /></dt>
-    <dt>Password</dt>
-    <dd><input type="password" name="password" /></dt>
-    <dt></dt>
-    <dd><button type="submit">Login</button></dt>
+    <dl>
+        <dt>Username</dt>
+        <dd><input type="text" name="login" /></dt>
+        <dt>Password</dt>
+        <dd><input type="password" name="password" /></dt>
+        <dt></dt>
+        <dd><button class="btn" type="submit">Login</button></dt>
+    </dl>
 </form>
-</dl>
 {% endblock %}

@@ -5,70 +5,62 @@
 {% endblock %}
 
 {% block content %}
-<div id="library">
-    <h1>
-        <a
-            class="silent"
-            href="/artist/{{ artist.slug }}">
-            {{ artist.name }}</a>
-        {{ album.name }}
-    </h1>
+<div id="album">
+    <ul class="breadcrumb">
+        <li>
+            <a href="/library">Library</a>
+            <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="/artist/{{ artist.slug }}">{{ artist.name }}</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">{{ album.name }}</li>
+    </ul>
 
-    {% if lastfm_album %}
-    <h2><a href="{{ lastfm_album.url }}">Lastfm</a></h2>
-    {% if lastfm_album.wiki %}
-    <p>
-        {{ lastfm_album.wiki }}
-    </p>
-    {% endif %}
-    {% endif %}
+    <ul class="row-fluid">
+        <li class="span6">
+            {% include 'partials/artist-bio.html' %}
+            {% if lastfm_album and lastfm_album.wiki %}
+                <p>
+                    {{ lastfm_album.wiki }}
+                </p>
+            {% endif %}
+        </li>
+        <li class="span6">
+            {% include 'partials/artist-nav.html' %}
+        </li>
+    </ul>
 
-    <a href="/tag/{% for track in album.tracks -%}
-        {{ track.id }},
-    {%- endfor %}">Edit tags and/or move files</a>
+    <hr>
 
-    <ul class="tracks album">
-
+    <ul class="tracks">
         {% for track in album.tracks %}
             <li class="track {{ "invalid" if not track.valid else "" }}
             {% if album.artists|length > 1 %}
                 {{ "current_artist" if track.artist.id == artist.id else "other_artist" }}
             {% endif %}
                 ">
-                <span class="text">
-
-                    {% if track.number %}
-                        <span class="track-number">{{ track.number }}</span>
-                    {% endif %}
-
-                    {% if album.artists|length > 1%}
-                        <span class="artist-name"><a href="/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a></span>
-                    {% endif %}
-
-                    <span class="album-name">{{ track.album.name }}</span>
-                    <span class="track-name"><a href="/track/{{ track.slug }}">{{ track.name }}</a></span>
-                    <span class="track-duration">
-                        ( {{ track.duration|format_seconds }} )
-                    </span>
-                </span>
-
+                {% include 'partials/track.html' %}
                 <a
                     class="queue add"
                     href="/queue/add/{{ track.slug|urlencode }}">
                     +
                 </a>
-
             </li>
-
         {% endfor %}
-
     </ul>
 
-    <a
-        class="queue add-album"
-        href="/queue/add_album/{{ album.slug|urlencode }}">
-        Add all to queue
-    </a>
+    <div class="btn-group">
+        <a
+            class="queue add-album btn"
+            href="/queue/add_album/{{ album.slug|urlencode }}">
+            Add all to queue
+        </a>
+        <a class="btn" href="/tag/{% for track in album.tracks -%}
+            {{ track.id }},
+        {%- endfor %}">Edit tags and/or move files</a>
+    </div>
 
 </div>
 {% endblock %}

@@ -6,10 +6,15 @@
 
 {% block content %}
 <div id="users">
-    <h1>
-        <span class="silent">users</span>
-        {{ user.login }}
-    </h1>
+    <ul class="breadcrumb">
+        <li>
+            <a href="/users">Users</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">
+            {{ user.login }}
+        </li>
+    </ul>
 
     {% if lastfm_user %}
     <ul>

@@ -1,91 +1,14 @@
 body {
-    background-image: url("/images/noise.png");
-    overflow-y: scroll;
+    padding-top: 60px;
+    padding-bottom: 40px;
 }
 
-header {
-    padding: 10px;
-    display: block;
-    border-bottom: 4px solid @accent_color;
-    background-color: darken(@header_background_color, 10%);
-    background-image: url("/images/noise.png");
-    overflow: hidden;
-
-    h1 {
-        color: #cfb9b0;
-
-        img, small {
-            display: block;
-            float: left;
-        }
-
-        img {
-            margin-right: 15px;
-        }
-    }
+.sidebar-nav {
+    padding: 9px 0;
 }
 
-#wrapper {
-    margin: 0 auto;
-}
-
-.boxybox {
-    border: 1px solid @box_border_color;
-    background: @box_background_color;
-    padding: 2%;
-}
-
-#header-content,
-#primary-content,
-#secondary-content {
-    margin-bottom: @gutter / @em;
-}
-
-#header-content {
-    .boxybox;
-
-    overflow: hidden;
+.clear {
     clear: both;
-
-    .search {
-        float: left;
-    }
-    .library {
-        font-size: .8em;
-        float: right;
-        dl {
-            float: right;
-            margin: 0 8px 0 0;
-        }
-    }
-}
-
-#content {
-    .boxybox;
-    min-height: 200px;
     overflow: hidden;
-}
-
-#menu {
-    padding: 6px;
-    overflow: hidden;
-
-    ul {
-        overflow: hidden;
-        padding: 6px;
-        float: left;
-
-        li {
-            float: left;
-            overflow: hidden;
-            margin: 0 5px 0 0;
-
-            a {
-                height: 32px;
-                width: 64px;
-                display: block;
-            }
-
-        }
-    }
+    display: block;
 }
