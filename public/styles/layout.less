@@ -1,6 +1,16 @@
+.noise-background {
+    background-image: url("/images/noise.png");
+}
+
+html, body {
+    background-color: #fafafa;
+    .noise-background;
+}
+
 body {
     padding-top: 60px;
-    padding-bottom: 40px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .sidebar-nav {
@@ -15,8 +25,13 @@ body {
 
 @footer-height: 110px;
 
+#content {
+    padding-bottom: @footer-height;
+}
+
 footer {
-    background: #fff;
+    .noise-background;
+    background-color: #fafafa;
     height: @footer-height;
     position: fixed;
     bottom: 0;
@@ -29,7 +44,13 @@ footer {
 
         /* i'm immitating .well from bootstrap, ya'll */
         border-top: 1px solid #e3e3e3;
-        background: #f5f5f5;
+        background-color: #f5f5f5;
         box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
     }
+}
+
+.breadcrumb,
+.well,
+.container-fluid {
+    .noise-background;
 }
