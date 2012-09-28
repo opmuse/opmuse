@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritance, ajaxify) {
     var instance = null;
 
     var Tag = Class.extend({
@@ -9,7 +9,16 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
 
             var that = this;
 
-            $("#tag .lock").click(function (event) {
+            $(ajaxify.content).bind('ajaxifyInit', function (event) {
+                that.internalInit();
+            });
+
+            that.internalInit();
+        },
+        internalInit: function () {
+            var that = this;
+
+            $("#tag .lock").unbind('click.ajaxify').unbind('click.tag').bind('click.tag', function (event) {
                 var type = null;
 
                 if ($(this).is(".album")) {
@@ -29,7 +38,7 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
 
                 return false;
             });
-        },
+        }
     });
 
     return (function() {

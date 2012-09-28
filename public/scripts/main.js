@@ -5,10 +5,12 @@ require(['jquery'], function($) {
     });
 
     require([
+        'ajaxify',
         'queue',
         'player',
         'search',
         'tag',
+        'logout',
         'bootstrap/bootstrap-transition',
         'bootstrap/bootstrap-alert',
         'bootstrap/bootstrap-modal',

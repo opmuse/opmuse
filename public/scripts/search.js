@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritance, ajaxify) {
 
     var instance = null;
 
@@ -14,7 +14,7 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
 
             $('.search-query').bind('keyup', function (event) {
                 if (event.keyCode == 13) {
-                    location.href = '/search/' + $(this).val();
+                    ajaxify.loadPage('/search/' + $(this).val());
                 }
             });
         }

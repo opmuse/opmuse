@@ -30,6 +30,7 @@
                         <span class="icon-bar"></span>
                     </a>
                     <a class="brand" href="#">opmuse</a>
+                    <div id="top">
                     {% if authenticated %}
                         <div class="nav-collapse collapse">
                             <p class="navbar-text pull-right">
@@ -44,10 +45,11 @@
                                 <li><a href="/lastfm">Lastfm</a></li>
                                 <li><a href="/users">Users</a></li>
                                 <li><a href="/upload">Upload</a></li>
-                                <li><a href="/logout">Logout</a></li>
+                                <li><a class="logout" href="/logout">Logout</a></li>
                             </ul>
                         </div>
                     {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -56,11 +58,13 @@
             {% block container %}
                 <div class="row-fluid">
                     <div class="span4">
-                    {% if authenticated %}
-                        <div class="well">
-                            <div id="queue"></div>
+                        <div id="left">
+                        {% if authenticated %}
+                            <div class="well">
+                                <div id="queue"></div>
+                            </div>
+                        {% endif %}
                         </div>
-                    {% endif %}
                     </div>
                     <div class="span8">
                         <div id="content">
@@ -71,7 +75,7 @@
             {% endblock %}
         </div>
 
-        <footer>
+        <footer id="footer">
             <div class="footer-content">
                 <div class="container-fluid">
                     <div class="row-fluid">

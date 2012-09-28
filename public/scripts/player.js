@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'queue', 'domReady!'], function($, inheritance, queue) {
+define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, inheritance, queue, ajaxify) {
     var instance = null;
 
     var Player = Class.extend({
@@ -55,6 +55,12 @@ define(['jquery', 'inheritance', 'queue', 'domReady!'], function($, inheritance,
             that.player_controls.show();
 
             that.load();
+
+            $(ajaxify.content).bind('ajaxifyInit', function (event) {
+                $('.open-stream').unbind('click.ajaxify');
+            });
+
+            $('.open-stream').unbind('click.ajaxify');
         },
         load: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {

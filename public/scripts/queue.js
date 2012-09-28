@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, inheritance, ajaxify) {
 
     var instance = null;
 
@@ -16,44 +16,61 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             this.listUrl = '/queue/list';
 
-            $('.queue.add, .queue.add-album').click(function (event) {
-                var url = $(this).attr('href');
-                $.ajax(url, {
-                    success: function (data) {
-                        that.reload();
-                    }
-                });
-                return false;
+            $(ajaxify.content).bind('ajaxifyInit', function (event) {
+                that.internalInit();
             });
 
-            $('#queue .remove').live("click", function (event) {
-                var url = $(this).attr('href');
-                $.ajax(url, {
-                    success: function (data) {
-                        that.reload();
-                    }
-                });
-                return false;
-            });
-
-            $('#clear-queue, #clear-played-queue').live('click', function (event) {
-                var url = $(this).attr('href');
-                $.ajax(url, {
-                    success: function (data) {
-                        that.reload();
-                    }
-                });
-                return false;
-            });
+            that.internalInit();
 
             that.reload();
 
             setInterval(this.reload.bind(this), 3 * 60 * 1000);
         },
+        internalInit: function () {
+            var that = this;
+            $('.queue.add, .queue.add-album')
+                .unbind('click.queue')
+                .bind('click.queue', function (event) {
+                var url = $(this).attr('href');
+                $.ajax(url, {
+                    success: function (data) {
+                        that.reload();
+                    }
+                });
+                return false;
+            }).unbind('click.ajaxify');
+
+            $('#queue .remove')
+                .unbind('click.queue')
+                .bind("click.queue", function (event) {
+                var url = $(this).attr('href');
+                $.ajax(url, {
+                    success: function (data) {
+                        that.reload();
+                    }
+                });
+                return false;
+            }).unbind('click.ajaxify');
+
+            $('#clear-queue, #clear-played-queue')
+                .unbind('click.queue')
+                .bind('click.queue', function (event) {
+                var url = $(this).attr('href');
+                $.ajax(url, {
+                    success: function (data) {
+                        that.reload();
+                    }
+                });
+                return false;
+            }).unbind('click.ajaxify');
+        },
         reload: function () {
+            var that = this;
             $.ajax(this.listUrl, {
                 success: function (data) {
                     $("#queue").html(data);
+                    ajaxify.internalInit();
+                    that.internalInit();
                 }
             });
         },
