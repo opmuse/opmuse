@@ -28,20 +28,27 @@ define(['jquery', 'inheritance', 'queue', 'domReady!'], function($, inheritance,
                 that.player.play();
                 that.play_button.hide();
                 that.pause_button.show();
+
+                return false;
             });
 
             that.pause_button.click(function() {
                 that.player.pause();
                 that.pause_button.hide();
                 that.play_button.show();
+
+                return false;
             });
 
             that.next_button.click(function() {
                 var paused = that.player.paused;
                 that.load();
+
                 if (paused === false) {
                     that.player.play();
                 }
+
+                return false;
             });
 
             that.pause_button.hide();
