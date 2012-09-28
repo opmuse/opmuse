@@ -6,6 +6,7 @@ sys.path.append(os.path.join(VENDOR, 'WhooshAlchemy'))
 
 import cherrypy
 from cherrypy.process.plugins import SimplePlugin
+import subprocess
 from os.path import join, abspath, dirname
 from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin, LibraryTool
@@ -161,8 +162,14 @@ def boot():
     cherrypy.engine.start()
     cherrypy.engine.block()
 
+def boot_lesswatch():
+    lesswatch = join(abspath(dirname(__file__)), '..', 'lesswatch.sh')
+    subprocess.Popen(lesswatch)
+
 if __name__ == '__main__':
     import argparse
+
+    boot_lesswatch()
 
     parser = argparse.ArgumentParser(description='opmuse')
     parser.add_argument('-d', '--daemon', action='store_true', help='Run as daemon')

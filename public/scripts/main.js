@@ -1,4 +1,4 @@
-require(['jquery', 'less'], function($) {
+require(['jquery'], function($) {
     $.ajaxSetup({
         // repoze.who middleware expects content-type to be set :/
         headers: { 'Content-type': 'text/plain' }

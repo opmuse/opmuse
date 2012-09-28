@@ -13,3 +13,6 @@
 [submodule "vendor/twitter-bootstrap"]
 	path = vendor/twitter-bootstrap
 	url = https://github.com/twitter/bootstrap
+[submodule "vendor/watchr"]
+	path = vendor/watchr
+	url = https://github.com/mynyml/watchr.git
