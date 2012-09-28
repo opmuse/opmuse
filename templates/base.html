@@ -58,24 +58,7 @@
                     <div class="span4">
                     {% if authenticated %}
                         <div class="well">
-                            {% include "player.html" %}
-                        </div>
-                        <div class="well">
                             <div id="queue"></div>
-                        </div>
-                        <div class="well">
-                            <dl>
-                                <dt>Scanning</dt>
-                                <dd>{{ 'Yes' if request.library.scanning else 'No' }}</dd>
-                                <dt>Invalid</dt>
-                                <dd><a href="/invalid_tracks">{{ request.library_dao.get_invalid_track_count() }}</a></dd>
-                                <dt>Tracks</dt>
-                                <dd>{{ request.library_dao.get_track_count() }}</dd>
-                                <dt>Albums</dt>
-                                <dd>{{ request.library_dao.get_album_count() }}</dd>
-                                <dt>Artists</dt>
-                                <dd>{{ request.library_dao.get_artist_count() }}</dd>
-                            </dl>
                         </div>
                     {% endif %}
                     </div>
@@ -86,12 +69,25 @@
                     </div>
                 </div>
             {% endblock %}
-
-            <hr>
-
-            <footer>
-                <p>&copy; opmuse 2012</p>
-            </footer>
         </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="container-fluid">
+                    <div class="row-fluid">
+                        {% if authenticated %}
+                        <div class="span2">
+                            {% include "player.html" %}
+                        </div>
+                        <div class="span6">
+                        </div>
+                        <div class="span4">
+                            {% include "library_stats.html" %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </footer>
     </body>
 </html>

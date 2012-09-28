@@ -12,3 +12,24 @@ body {
     overflow: hidden;
     display: block;
 }
+
+@footer-height: 110px;
+
+footer {
+    background: #fff;
+    height: @footer-height;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+
+    .footer-content {
+        height: @footer-height - 20;
+        margin-top: 10px;
+        padding: 10px 0 5px;
+
+        /* i'm immitating .well from bootstrap, ya'll */
+        border-top: 1px solid #e3e3e3;
+        background: #f5f5f5;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+    }
+}
