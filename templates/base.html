@@ -80,7 +80,9 @@
                     {% endif %}
                     </div>
                     <div class="span8">
-                        {% block content %}{% endblock %}
+                        <div id="content">
+                            {% block content %}{% endblock %}
+                        </div>
                     </div>
                 </div>
             {% endblock %}
