@@ -16,33 +16,30 @@
         </li>
     </ul>
 
-    {% if lastfm_user %}
-    <ul>
-        {% for artist in lastfm_user.top_artists_overall %}
-            <li><a href="/search/{{ artist.name }}/artist">{{ artist.name }}</a> {{ artist.weight }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+    <ul class="row-fluid">
+        <li class="span5">
+            <h3>Lastfm Top Artists</h3>
 
-    <p>In users queue...</p>
-
-    <ul class="tracks">
-    {% for queue in queues %}
-        <li class="{{ "playing" if queue.playing }} {{ "played" if queue.played }}">
-            <span class="text">
-                <span class="artist-name">
-                    <a href="/artist/{{ queue.track.artist.slug }}">
-                        {{ queue.track.artist.name }}
-                    </a>
-                </span>
-                <span class="track-name">
-                    <a href="/track/{{ queue.track.slug }}">
-                        {{ queue.track.name }}
-                    </a>
-                </span>
-            </span>
+            {% if lastfm_user %}
+            <ul>
+                {% for artist in lastfm_user.top_artists_overall %}
+                    <li><a href="/search/{{ artist.name }}/artist">{{ artist.name }}</a> {{ artist.weight }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
         </li>
-    {% endfor %}
+        <li class="span7">
+            <h3>Queue</h3>
+
+            <ul class="tracks">
+            {% for queue in queues %}
+                <li class="{{ "playing" if queue.playing }} {{ "played" if queue.played }}">
+                    {% set track = queue.track %}
+                    {% include "partials/track.html" %}
+                </li>
+            {% endfor %}
+            </ul>
+        </li>
     </ul>
 </div>
 {% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+    User - {{ user.login }}
+{% endblock %}
+
+{% block content %}
+<div id="you">
+    <ul class="breadcrumb">
+        <li>
+            <a href="/users">Users</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">You</li>
+    </ul>
+
+    <ul class="row-fluid">
+        <li class="span6">
+            <h3>{{ request.user.login }}</h3>
+        </li>
+        <li class="span6">
+            {% include "partials/you-nav.html" %}
+        </li>
+    </ul>
+
+</div>
+{% endblock %}
+

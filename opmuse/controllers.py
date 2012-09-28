@@ -172,7 +172,18 @@ class Lastfm:
             'new_auth': new_auth
         }
 
+class You:
+    lastfm = Lastfm()
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='you.html')
+    def default(self):
+        return {}
+
 class Users:
+    you = You()
+
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='users.html')
@@ -264,7 +275,6 @@ class Styles(object):
 class Root(object):
     styles = Styles()
     queue = Queue()
-    lastfm = Lastfm()
     upload = Upload()
     tag = Tag()
     users = Users()

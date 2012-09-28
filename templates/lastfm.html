@@ -6,24 +6,43 @@
 
 {% block content %}
 <div id="lastfm">
-    <h1>Lastfm</h1>
+    <ul class="breadcrumb">
+        <li>
+            <a href="/users">Users</a>
+            <span class="divider">/</span>
+        </li>
+        <li>
+            <a href="/users/you">You</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">Lastfm</li>
+    </ul>
 
-    {% if auth_url %}
-    <p>You need to supply a Lastfm account to enable scrobbling of what you play.</p>
-    <p>
-        <a href="{{ auth_url }}" target="_blank">Click here</a>
-        to authorize opmuse to use your Lastfm account. After you've authorized opmuse you need reload this page.
-    </p>
-    {% elif new_auth %}
-    <p>
-        Congratulations! You've authenticated as <strong>{{ user_href() }}</strong>.
-        We will now start scrobbling the tracks you play to said account.
-    </p>
-    {% else %}
-    <p>
-        No worries, you are already authenticated as <strong>{{ user_href() }}</strong>.
-    </p>
-    {% endif %}
+    <ul class="row-fluid">
+        <li class="span6">
+            <h3>Lastfm</h3>
+
+            {% if auth_url %}
+            <p>You need to supply a Lastfm account to enable scrobbling of what you play.</p>
+            <p>
+                <a href="{{ auth_url }}" target="_blank">Click here</a>
+                to authorize opmuse to use your Lastfm account. After you've authorized opmuse you need reload this page.
+            </p>
+            {% elif new_auth %}
+            <p>
+                Congratulations! You've authenticated as <strong>{{ user_href() }}</strong>.
+                We will now start scrobbling the tracks you play to said account.
+            </p>
+            {% else %}
+            <p>
+                No worries, you are already authenticated as <strong>{{ user_href() }}</strong>.
+            </p>
+            {% endif %}
+        </li>
+        <li class="span6">
+            {% include "partials/you-nav.html" %}
+        </li>
+    </ul>
 </div>
 {% endblock %}
 

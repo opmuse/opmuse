@@ -34,7 +34,7 @@
                     {% if authenticated %}
                         <div class="nav-collapse collapse">
                             <p class="navbar-text pull-right">
-                                Logged in as <a href="#" class="navbar-link">{{ request.user.login }}</a>
+                                Logged in as <a href="/users/you" class="navbar-link">{{ request.user.login }}</a>
                             </p>
                             <div class="navbar-search pull-left">
                                 <input class="search-query" type="text" placeholder="Search" />
@@ -42,7 +42,6 @@
                             <ul class="nav">
                                 <li><a href="/">Home</a></li>
                                 <li><a href="/library">Library</a></li>
-                                <li><a href="/lastfm">Lastfm</a></li>
                                 <li><a href="/users">Users</a></li>
                                 <li><a href="/upload">Upload</a></li>
                                 <li><a class="logout" href="/logout">Logout</a></li>
