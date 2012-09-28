@@ -66,7 +66,6 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             if (typeof this.player != 'undefined' && this.player !== null) {
                 // stupid cache bustin because firefox seems to refuse to not cache
                 this.player.src = '/stream?b=' + Math.random();
-                this.player.load();
             }
         }
     });
