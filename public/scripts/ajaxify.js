@@ -102,6 +102,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
         },
         loadPage: function (href) {
             var that = this;
+            $(that.content).find('> *').remove();
             $.ajax(href, {
                 success: function (data, textStatus, xhr) {
                     $(that.content).html($(data).find(that.content + ' > *'));
