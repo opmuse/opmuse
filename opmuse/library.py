@@ -25,13 +25,15 @@ class Album(Base):
     name = Column(String(255))
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
+    cover_path = Column(BLOB)
 
     artists = relationship("Artist", secondary='tracks')
 
-    def __init__(self, name, date, slug):
+    def __init__(self, name, date, slug, cover_path):
         self.name = name
         self.date = date
         self.slug = slug
+        self.cover_path = cover_path
 
     @hybrid_property
     def valid(self):
@@ -107,6 +109,7 @@ class FileMetadata:
         self.date = args[6]
         self.bitrate = args[7]
         self.valid = args[8]
+        self.cover_path = args[9]
 
         self.metadatas = args
 
@@ -170,7 +173,7 @@ class MutagenParser(TagParser):
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
             cherrypy.log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
-            return FileMetadata(*(None, ) * 9)
+            return FileMetadata(*(None, ) * 10)
 
         artist = tag['artist'][0] if 'artist' in tag else None
         album = tag['album'][0] if 'album' in tag else None
@@ -190,7 +193,7 @@ class MutagenParser(TagParser):
         valid = artist is not None and album is not None and track is not None
 
         return FileMetadata(artist, album, track, duration, number, None, date,
-                            bitrate, valid)
+                            bitrate, valid, None)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -265,7 +268,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 9)
+                return FileMetadata(*(None, ) * 10)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
@@ -278,6 +281,25 @@ class PathParser(TagParser):
         added = datetime.datetime.fromtimestamp(stat.st_mtime)
 
         number = None
+
+        match_files = [
+            b'^cover\.jpg$',
+            b'.*cover.*\.jpg$',
+            b'.*front.*\.jpg$',
+            b'.*folder.*\.jpg$',
+            b'.*\.jpg$'
+        ]
+
+        cover_path = None
+        dirname = os.path.dirname(bfilename)
+
+        for match_file in match_files:
+            for file in os.listdir(dirname):
+                if re.match(match_file, file, flags = re.IGNORECASE):
+                    cover_path = os.path.abspath(os.path.join(dirname, file))
+                    break
+            if cover_path is not None:
+                break
 
         match = re.search('([0-9]+)', track_name)
         if match is not None:
@@ -296,7 +318,7 @@ class PathParser(TagParser):
         track_name = track_name.strip('\n -').split("-")[-1].strip()
 
         return FileMetadata(artist, album, track_name, None, number, added,
-                            None, None, False)
+                            None, None, False, cover_path)
 
     def supported_extensions(self):
         return None
@@ -544,7 +566,8 @@ class LibraryProcess:
                 name=metadata.album_name
             ).one()
         except NoResultFound:
-            album = Album(metadata.album_name, metadata.date, album_slug)
+            album = Album(metadata.album_name, metadata.date, album_slug,
+                metadata.cover_path)
             self._database.add(album)
             self._database.commit()
 
