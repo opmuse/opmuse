@@ -169,6 +169,7 @@ class Lastfm:
 
             return {
                 'url': album.get_url(),
+                'name': album.get_name(),
                 'wiki': album.get_wiki_summary()
             }
         except (WSError, NetworkError) as error:

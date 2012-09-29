@@ -22,6 +22,19 @@
         <li class="active">{{ track.name }}</li>
     </ul>
 
+    {% include "partials/artist-head.html" %}
+
+    <hr>
+
+    <div class="btn-group">
+        <a
+            class="queue add btn"
+            href="/queue/add/{{ track.slug|urlencode }}">
+            Queue
+        </a>
+        <a class="btn" href="/tag/{{ track.id }}">Edit tags and/or move files</a>
+    </div>
+
     <dl class="dl-horizontal">
         <dt>Valid</dt>
         <dd>{{ track.valid }}</dd>
@@ -53,15 +66,6 @@
         </ul>
         </dd>
     </dl>
-
-    <div class="btn-group">
-        <a
-            class="queue add btn"
-            href="/queue/add/{{ track.slug|urlencode }}">
-            Add track
-        </a>
-        <a class="btn" href="/tag/{{ track.id }}">Edit tags and/or move files</a>
-    </div>
 
 </div>
 {% endblock %}

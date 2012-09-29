@@ -18,19 +18,7 @@
         <li class="active">{{ album.name }}</li>
     </ul>
 
-    <ul class="row-fluid">
-        <li class="span6">
-            {% include 'partials/artist-bio.html' %}
-            {% if lastfm_album and lastfm_album.wiki %}
-                <p>
-                    {{ lastfm_album.wiki }}
-                </p>
-            {% endif %}
-        </li>
-        <li class="span6">
-            {% include 'partials/artist-nav.html' %}
-        </li>
-    </ul>
+    {% include "partials/artist-head.html" %}
 
     <hr>
 

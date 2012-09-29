@@ -398,7 +398,15 @@ class Root(object):
         if track is None:
             raise cherrypy.NotFound()
 
-        return {'track': track}
+        lastfm_artist = lastfm.get_artist(track.artist.name)
+        lastfm_album = lastfm.get_album(track.artist.name, track.album.name)
+
+        return {
+            'track': track,
+            'artist': track.artist,
+            'lastfm_album': lastfm_album,
+            'lastfm_artist': lastfm_artist
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
