@@ -66,7 +66,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
 
             this.throb = new Throb('.throbber', '.brand');
 
-            this.content = '#content';
+            this.contents = ['#content', '#right'];
             this.selector = '#top, #right, #content, #footer';
 
             this.internalInit();
@@ -89,7 +89,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                 var href = $(this).attr('href');
 
                 if (that.isRelative(href)) {
-                    document.location.hash = href;
+                    that.setPage(href);
                 } else {
                     // open external links in new window/tab
                     window.open(href, "_blank");
@@ -98,20 +98,27 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
 
             });
 
-            $(this.content).trigger('ajaxifyInit');
+            $('body').trigger('ajaxifyInit');
         },
         loadPage: function (href) {
             var that = this;
-            $(that.content).find('> *').remove();
+            $(that.contents.join(',')).find('> *').remove();
             $.ajax(href, {
                 success: function (data, textStatus, xhr) {
-                    $(that.content).html($(data).find(that.content + ' > *'));
+                    var html = $(data);
+                    for (var index in that.contents) {
+                        var content = that.contents[index];
+                        $(content).html(html.find(content + ' > *'));
+                    }
                     that.internalInit();
                 },
                 error: function (xhr) {
-                    $(that.content).html(xhr.responseText);
+                    $(that.contents[0]).html(xhr.responseText);
                 }
             });
+        },
+        setPage: function (href) {
+            document.location.hash = href;
         },
         isRelative: function (href) {
             return !/^http(s)?:\/\//.test(href);

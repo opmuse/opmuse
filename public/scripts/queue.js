@@ -16,7 +16,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
 
             this.listUrl = '/queue/list';
 
-            $(ajaxify.content).bind('ajaxifyInit', function (event) {
+            $('body').bind('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

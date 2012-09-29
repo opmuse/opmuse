@@ -14,7 +14,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
 
             $('.search-query').bind('keyup', function (event) {
                 if (event.keyCode == 13) {
-                    ajaxify.loadPage('/search/' + $(this).val());
+                    ajaxify.setPage('/search/' + $(this).val());
                 }
             });
         }

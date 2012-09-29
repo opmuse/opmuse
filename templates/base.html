@@ -63,13 +63,14 @@
                         </div>
                     </div>
                     <div class="span4">
-                        <div id="right">
                         {% if authenticated %}
-                            <div class="well">
-                                <div id="queue"></div>
-                            </div>
-                        {% endif %}
+                        <div class="well">
+                            <div id="queue"></div>
                         </div>
+                        <div id="right">
+                            {% block right %}{% endblock %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             {% endblock %}
