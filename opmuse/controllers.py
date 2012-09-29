@@ -410,6 +410,16 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    def cover(self, slug):
+        album = library_dao.get_album_by_slug(slug)
+
+        if album is None or album.cover_path is None:
+            raise cherrypy.NotFound()
+
+        return cherrypy.lib.static.serve_file(album.cover_path.decode('utf8', 'replace'))
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='album.html')
     def album(self, artist_slug, album_slug):
         artist = library_dao.get_artist_by_slug(artist_slug)

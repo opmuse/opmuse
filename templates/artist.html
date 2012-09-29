@@ -29,7 +29,11 @@
             <li>
                 <div class="thumbnail album {{ "invalid" if not album.valid else "" }}">
                     <a href="/album/{{ artist.slug }}/{{ album.slug }}">
+                        {% if album.cover_path %}
+                        <img width="220" height="220" src="/cover/{{ album.slug }}" alt="Album Placeholder" />
+                        {% else %}
                         <img src="/images/album_placeholder.png" alt="Album Placeholder" />
+                        {% endif %}
                     </a>
                     <h3 class="album-name">
                         {{ album.name }}

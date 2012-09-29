@@ -6,6 +6,12 @@
 
 {% block right %}
     {% include 'partials/artist-nav.html' %}
+
+    {% if album.cover_path %}
+        <img width="220" height="220" src="/cover/{{ album.slug }}" alt="Album Placeholder" />
+    {% else %}
+        <img src="/images/album_placeholder.png" alt="Album Placeholder" />
+    {% endif %}
 {% endblock %}
 
 {% block content %}
