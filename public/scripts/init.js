@@ -3,6 +3,7 @@ require.config({
     paths: {
         'jquery': 'lib/jquery',
         'bootstrap': 'lib/bootstrap',
-        'domReady': 'lib/domReady'
+        'domReady': 'lib/domReady',
+        'throbber': 'lib/throbber'
     }
 });

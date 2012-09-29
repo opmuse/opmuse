@@ -1,4 +1,54 @@
-define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, inheritance, throbber) {
+
+    var Throb = Class.extend({
+        init: function (throbber, brand) {
+            var that = this;
+
+            this.throbber = $(throbber);
+            this.brand = $(brand);
+
+            this.throb = new Throbber({
+                color: '#B16848',
+                size: 28,
+                fade: 1500,
+                rotationspeed: 10,
+                lines: 10,
+                strokewidth: 2.4,
+            }).appendTo(this.throbber.get(0));
+
+            this.active = 0;
+
+            $('body').ajaxSend(function () {
+                if (that.active == 0) {
+                    that.start();
+                }
+
+                that.active++;
+            });
+
+            $('body').ajaxComplete(function () {
+                that.active--;
+
+                setTimeout(function () {
+                    if (that.active == 0) {
+                        that.stop();
+                    }
+                }, 500);
+            });
+        },
+        stop: function () {
+            this.throbber.hide();
+            this.brand.show();
+
+            this.throb.start();
+        },
+        start: function () {
+            this.throbber.show();
+            this.brand.hide();
+
+            this.throb.start();
+        }
+    });
 
     var instance = null;
 
@@ -14,8 +64,11 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             var that = this;
 
+            this.throb = new Throb('.throbber', '.brand');
+
             this.content = '#content';
             this.selector = '#top, #left, #content, #footer';
+
             this.internalInit();
 
             $(window).bind('hashchange', function (event) {
@@ -53,12 +106,14 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 success: function (data, textStatus, xhr) {
                     $(that.content).html($(data).find(that.content + ' > *'));
                     that.internalInit();
+                },
+                error: function () {
                 }
             });
         },
         isRelative: function (href) {
             return !/^http(s)?:\/\//.test(href);
-        }
+        },
     });
 
     return (function() {

@@ -16,3 +16,6 @@
 [submodule "vendor/watchr"]
 	path = vendor/watchr
 	url = https://github.com/mynyml/watchr.git
+[submodule "vendor/throbber.js"]
+	path = vendor/throbber.js
+	url = https://github.com/aino/throbber.js.git
