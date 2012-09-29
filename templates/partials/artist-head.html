@@ -1,15 +1,19 @@
 <ul class="row-fluid">
     <li class="span6">
-        {% include 'partials/artist-bio.html' %}
+        <h3>{{ artist.name }}</h3>
+        {% if lastfm_artist and lastfm_artist.bio %}
+        <p>
+            {{ lastfm_artist.bio }}
+        </p>
+        {% endif %}
+    </li>
+    <li class="span6">
         {% if lastfm_album and lastfm_album.wiki %}
-            <h4>{{ lastfm_album.name }}</h4>
+            <h3>{{ lastfm_album.name }}</h3>
             <p>
                 {{ lastfm_album.wiki }}
             </p>
         {% endif %}
-    </li>
-    <li class="span6">
-        {% include 'partials/artist-nav.html' %}
     </li>
 </ul>
 

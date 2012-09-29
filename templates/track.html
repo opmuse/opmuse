@@ -4,6 +4,10 @@
     {{ track.artist.name }} - {{ track.album.name }} - {{ track.name }}
 {% endblock %}
 
+{% block right %}
+    {% include 'partials/artist-nav.html' %}
+{% endblock %}
+
 {% block content %}
 <div id="library">
     <ul class="breadcrumb">

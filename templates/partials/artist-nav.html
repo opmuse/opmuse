@@ -1,23 +1,25 @@
-<ul class="nav nav-list">
-    <li class="nav-header">External pages</li>
-    <li>
-        <a href="{{ lastfm_artist.url }}">Go to Lastfm artist page</a>
-    </li>
-    {% if lastfm_album %}
-    <li>
-        <a href="{{ lastfm_album.url }}">Go to Lastfm album page</a>
-    </li>
-    {% endif %}
-    <li class="nav-header">Similar Artists</li>
-    {% for similar in lastfm_artist.similar %}
-    <li>
-        <a href="/search/{{ similar.name }}/artist">{{ similar.name }}</a>
-    </li>
-    {% endfor %}
-    <li class="nav-header">Namesakes</li>
-    {% for artist in namesakes %}
-    <li>
-        <a href="/artist/{{ artist.slug }}">{{ artist.name }}</a>
-    </li>
-    {% endfor %}
-</ul>
+<div class="well sidebar-nav">
+    <ul class="nav nav-list">
+        <li class="nav-header">External pages</li>
+        <li>
+            <a href="{{ lastfm_artist.url }}">Go to Lastfm artist page</a>
+        </li>
+        {% if lastfm_album %}
+        <li>
+            <a href="{{ lastfm_album.url }}">Go to Lastfm album page</a>
+        </li>
+        {% endif %}
+        <li class="nav-header">Similar Artists</li>
+        {% for similar in lastfm_artist.similar %}
+        <li>
+            <a href="/search/{{ similar.name }}/artist">{{ similar.name }}</a>
+        </li>
+        {% endfor %}
+        <li class="nav-header">Namesakes</li>
+        {% for artist in namesakes %}
+        <li>
+            <a href="/artist/{{ artist.slug }}">{{ artist.name }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
