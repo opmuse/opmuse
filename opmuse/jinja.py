@@ -5,7 +5,8 @@ from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
 
 env = Environment(
-    loader=FileSystemLoader(os.path.join(os.path.abspath("."), "templates"))
+    loader=FileSystemLoader(os.path.join(os.path.abspath("."), "templates")),
+    extensions=['jinja2.ext.loopcontrols']
 )
 
 def format_seconds(seconds):
