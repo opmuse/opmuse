@@ -67,7 +67,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             this.throb = new Throb('.throbber', '.brand');
 
             this.content = '#content';
-            this.selector = '#top, #left, #content, #footer';
+            this.selector = '#top, #right, #content, #footer';
 
             this.internalInit();
 
