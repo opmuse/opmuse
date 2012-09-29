@@ -108,7 +108,8 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                     $(that.content).html($(data).find(that.content + ' > *'));
                     that.internalInit();
                 },
-                error: function () {
+                error: function (xhr) {
+                    $(that.content).html(xhr.responseText);
                 }
             });
         },
