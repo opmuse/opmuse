@@ -50,6 +50,8 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
 
         identity = cherrypy.request.wsgi_environ.get('repoze.who.identity')
 
+        env.globals['user'] = cherrypy.request.user = None
+
         if identity is not None:
 
             login = identity['repoze.who.plugins.auth_tkt.userid']
