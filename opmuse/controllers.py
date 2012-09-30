@@ -482,36 +482,23 @@ class Root(object):
     def library(self):
         tracks = library_dao.get_new_tracks(datetime.datetime.now() - datetime.timedelta(days=30))
 
-        added = OrderedDict({})
+        showcase_albums = set([])
 
-        for title in ('Today', 'Yesterday', '7 Days', '14 Days', '30 Days'):
-            added[title] = []
-
-        today = datetime.date.today()
+        users = cherrypy.request.database.query(User).all()
 
         for track in tracks:
-            if track.added.date() == today:
-                added['Today'].append(track)
-            elif track.added.date() == today - datetime.timedelta(days=1):
-                added['Yesterday'].append(track)
-            elif track.added.date() >= today - datetime.timedelta(days=7):
-                added['7 Days'].append(track)
-            elif track.added.date() >= today - datetime.timedelta(days=14):
-                added['14 Days'].append(track)
-            else:
-                added['30 Days'].append(track)
+            showcase_albums.add(track.album)
+            if len(showcase_albums) >= 6:
+                break
 
-        for title, tracks in added.items():
-            added[title] = sorted(tracks,
-                key = lambda track : (
-                    track.artist.name,
-                    track.album.name,
-                    track.number if track.number is not None else '',
-                    track.name
-                )
-            )
+        for user in users:
+            for queue in queue_dao.get_queues(user.id):
+                showcase_albums.add(queue.track.album)
+                if len(showcase_albums) >= 9:
+                    break
 
-        return {'added': added}
+
+        return {'showcase_albums': showcase_albums}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
