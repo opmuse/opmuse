@@ -12,6 +12,7 @@ require(['jquery'], function($) {
         'tag',
         'logout',
         'library',
+        'login',
         'bootstrap/bootstrap-transition',
         'bootstrap/bootstrap-alert',
         'bootstrap/bootstrap-modal',

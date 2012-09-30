@@ -32,23 +32,27 @@
                     <span class="throbber"></span>
                     <a class="brand" href="#">opmuse</a>
                     <div id="top">
-                    {% if authenticated %}
                         <div class="nav-collapse collapse">
+                        {% if authenticated %}
                             <p class="navbar-text pull-right">
                                 Logged in as <a href="/users/you" class="navbar-link">{{ request.user.login }}</a>
                             </p>
                             <div class="navbar-search pull-left">
                                 <input class="search-query" type="text" placeholder="Search" />
                             </div>
+                        {% endif %}
                             <ul class="nav">
-                                <li><a href="/">Home</a></li>
+                            {% if authenticated %}
                                 <li><a href="/library">Library</a></li>
                                 <li><a href="/users">Users</a></li>
                                 <li><a href="/upload">Upload</a></li>
                                 <li><a class="logout" href="/logout">Logout</a></li>
+                            {% else %}
+                                <li><a class="home" href="/">Home</a></li>
+                                <li><a class="login" href="/login">Login</a></li>
+                            {% endif %}
                             </ul>
                         </div>
-                    {% endif %}
                     </div>
                 </div>
             </div>
@@ -76,11 +80,11 @@
             {% endblock %}
         </div>
 
+        {% if authenticated %}
         <footer id="footer">
             <div class="footer-content">
                 <div class="container-fluid">
                     <div class="row-fluid">
-                        {% if authenticated %}
                         <div class="span2">
                             {% include "player.html" %}
                         </div>
@@ -89,10 +93,10 @@
                         <div class="span4">
                             {% include "library_stats.html" %}
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
         </footer>
+        {% endif %}
     </body>
 </html>

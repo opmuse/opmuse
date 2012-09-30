@@ -311,7 +311,10 @@ class Root(object):
 
                 cherrypy.response.multiheaders = headers
 
-                raise cherrypy.HTTPRedirect(came_from)
+                if came_from is not None:
+                    raise cherrypy.HTTPRedirect(came_from)
+                else:
+                    raise cherrypy.HTTPRedirect('/#/library')
 
         return {}
 
@@ -384,9 +387,20 @@ class Root(object):
         return {'results': results}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='index.html')
     def index(self):
+        if cherrypy.request.user is None:
+            raise cherrypy.InternalRedirect('/index_unauth')
+        else:
+            raise cherrypy.InternalRedirect('/index_auth')
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='index_unauth.html')
+    def index_unauth(self):
+        return {}
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='index_auth.html')
+    def index_auth(self):
         return {}
 
     @cherrypy.expose
