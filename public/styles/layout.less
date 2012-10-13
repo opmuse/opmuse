@@ -3,8 +3,7 @@
 }
 
 body {
-    overflow-y: scroll;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .clear {
@@ -16,7 +15,8 @@ body {
 @footer-height: 110px;
 
 #content {
-    padding-bottom: @footer-height;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 footer {

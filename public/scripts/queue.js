@@ -25,6 +25,14 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
             that.reload();
 
             setInterval(this.reload.bind(this), 3 * 60 * 1000);
+
+            $("#top-right").bind("layoutResize", function (event) {
+                $("#queue > .tracks").hide();
+                var margin = $("#queue").outerHeight() + 10;
+                $("#queue > .tracks").height(
+                    $("#top-right").height() - margin
+                ).show();
+            });
         },
         internalInit: function () {
             var that = this;

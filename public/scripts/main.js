@@ -5,6 +5,7 @@ require(['jquery'], function($) {
     });
 
     require([
+        'layout',
         'ajaxify',
         'queue',
         'player',
@@ -12,17 +13,6 @@ require(['jquery'], function($) {
         'tag',
         'logout',
         'library',
-        'login',
-        'bootstrap/bootstrap-transition',
-        'bootstrap/bootstrap-alert',
-        'bootstrap/bootstrap-modal',
-        'bootstrap/bootstrap-dropdown',
-        'bootstrap/bootstrap-scrollspy',
-        'bootstrap/bootstrap-tab',
-        'bootstrap/bootstrap-tooltip',
-        'bootstrap/bootstrap-popover',
-        'bootstrap/bootstrap-button',
-        'bootstrap/bootstrap-collapse',
-        'bootstrap/bootstrap-typeahead'
+        'login'
     ]);
 });
