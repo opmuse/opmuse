@@ -12,21 +12,15 @@
         </li>
     </ul>
 
-    <div class="albums carousel slide">
-        <div class="carousel-inner">
-            <ul class="active item thumbnails">
-            {% for album in showcase_albums %}
-                <li class="thumbnail">
-                    {% set artist = album.artists[0] %}
-                    {% include "partials/album.html" %}
-                </li>
-                {% if not loop.last and loop.index is divisibleby 3 %}
-                    </ul>
-                    <ul class="{{ "active" if loop.index == 1 else "" }} item thumbnails">
-                {% endif %}
-            {% endfor %}
-            </ul>
-        </div>
+    <div class="albums">
+        <ul class="active item thumbnails">
+        {% for album in showcase_albums %}
+            <li class="thumbnail">
+                {% set artist = album.artists[0] %}
+                {% include "partials/album.html" %}
+            </li>
+        {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}

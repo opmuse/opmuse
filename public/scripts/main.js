@@ -23,7 +23,6 @@ require(['jquery'], function($) {
         'bootstrap/bootstrap-popover',
         'bootstrap/bootstrap-button',
         'bootstrap/bootstrap-collapse',
-        'bootstrap/bootstrap-carousel',
         'bootstrap/bootstrap-typeahead'
     ]);
 });

@@ -7,10 +7,6 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
             if (instance !== null) {
                 throw Error('Only one instance of Library allowed!');
             }
-
-            $('body').bind('ajaxifyInit', function (event) {
-                $(".carousel").carousel();
-            });
         }
     });
 
