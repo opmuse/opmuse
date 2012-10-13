@@ -10,6 +10,6 @@ cd $BASE/public/styles
 lessc main.less > main.css
 
 $BASE/vendor/watchr/bin/watchr \
-    -e 'watch(".*\.less$") { |f| system("lessc main.less > main.css") }'
+    -e 'watch(".*\.less$") { |f| system("lessc main.less > main.css && echo \"lesswatch: Generated main.css\"") }'
 
 
