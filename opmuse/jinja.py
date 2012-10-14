@@ -28,7 +28,12 @@ class JinjaPlugin(SimplePlugin):
             auto_reload = True
 
         self.env = Environment(
-            loader=FileSystemLoader(os.path.join(os.path.abspath("."), "templates")),
+            loader=FileSystemLoader(
+                os.path.join(
+                    os.path.abspath(os.path.dirname(__file__)),
+                    '..', 'templates'
+                )
+            ),
             extensions=['jinja2.ext.loopcontrols'],
             auto_reload=auto_reload,
             cache_size=-1
