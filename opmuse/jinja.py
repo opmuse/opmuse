@@ -70,6 +70,9 @@ class Jinja(HandlerWrapperTool):
         html = template.render(response_dict)
         html = html.encode('utf8', 'replace')
 
+        if 'text/html' == cherrypy.response.headers['Content-Type']:
+            cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf8'
+
         return html
 
 class JinjaEnvTool(cherrypy.Tool):

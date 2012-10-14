@@ -103,8 +103,7 @@ def configure():
 
     app_config = {
         '/': {
-            'tools.encode.on': True,
-            'tools.encode.encoding': 'utf-8',
+            'tools.encode.on': False,
             'tools.database.on': True,
             'tools.sessions.on': True,
             'tools.jinjaauthenticated.on': True,
