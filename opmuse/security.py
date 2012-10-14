@@ -11,7 +11,6 @@ from repoze.who.plugins.redirector import RedirectorPlugin
 from repoze.who.classifiers import default_request_classifier
 from repoze.who.classifiers import default_challenge_decider
 from repoze.who._compat import get_cookies
-from opmuse.jinja import env
 from opmuse.database import Base, get_session
 
 class User(Base):
@@ -45,12 +44,12 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
 
     def start(self):
 
-        env.globals['authenticated'] = ('repoze.who.identity' in cherrypy.request.wsgi_environ and
+        cherrypy.request.jinja.globals['authenticated'] = ('repoze.who.identity' in cherrypy.request.wsgi_environ and
             cherrypy.request.wsgi_environ.get('repoze.who.identity'))
 
         identity = cherrypy.request.wsgi_environ.get('repoze.who.identity')
 
-        env.globals['user'] = cherrypy.request.user = None
+        cherrypy.request.jinja.globals['user'] = cherrypy.request.user = None
 
         if identity is not None:
 
@@ -59,7 +58,7 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
             user = (cherrypy.request.database.query(User)
                 .filter_by(login=login).one())
 
-            env.globals['user'] = cherrypy.request.user = user
+            cherrypy.request.jinja.globals['user'] = cherrypy.request.user = user
 
 class DatabaseAuthenticator(object):
 

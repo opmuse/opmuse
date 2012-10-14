@@ -8,12 +8,11 @@ import cherrypy
 from cherrypy.process.plugins import SimplePlugin
 import subprocess
 from os.path import join, abspath, dirname
-from opmuse.jinja import Jinja, env
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
-from opmuse.jinja import JinjaGlobalsTool
+from opmuse.jinja import Jinja, JinjaGlobalsTool, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
 import opmuse.lastfm
 import queue
@@ -95,6 +94,7 @@ def configure():
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
     cherrypy.tools.jinjaglobals = JinjaGlobalsTool()
     cherrypy.tools.library = LibraryTool()
+    cherrypy.tools.jinjaenv = JinjaEnvTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     import opmuse.controllers
@@ -110,6 +110,7 @@ def configure():
             'tools.jinjaauthenticated.on': True,
             'tools.jinjaglobals.on': True,
             'tools.library.on': True,
+            'tools.jinjaenv.on': True,
             'tools.sessions.storage_type': "file",
             'tools.sessions.storage_path': join(abspath(dirname(__file__)),
                                             '..', 'cache', 'session'),
@@ -140,6 +141,9 @@ def configure():
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
     cherrypy.engine.database.subscribe()
 
+    cherrypy.engine.jinja = JinjaPlugin(cherrypy.engine)
+    cherrypy.engine.jinja.subscribe()
+
     cherrypy.engine.library = LibraryPlugin(cherrypy.engine)
     cherrypy.engine.library.subscribe()
 
@@ -156,7 +160,8 @@ def configure():
 
     cherrypy.config.update(config)
 
-    env.globals['server_name'] = app.config['opmuse']['server_name']
+    cherrypy._cpconfig.environments['production']['jinja.auto_reload'] = False
+
 
 def boot():
     cherrypy.engine.start()
