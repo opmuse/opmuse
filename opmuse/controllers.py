@@ -541,7 +541,7 @@ class Root(object):
         track = queue_dao.get_next_track(user_id, repeat = False)
 
         if track is None:
-            return
+            raise cherrypy.NotFound()
 
         user_agent = cherrypy.request.headers['User-Agent']
 
