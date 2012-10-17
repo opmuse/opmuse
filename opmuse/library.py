@@ -679,7 +679,20 @@ class LibraryProcess:
             string = "%s_%s" % (string[:(255 - len(index))], index)
         else:
             string = string[:255]
-        return re.sub(r'[^A-Za-z0-9_]', '_', string.lower())
+
+        string = string.lower()
+
+        string = (string
+            .replace('&', 'and')
+            .replace('å', 'a')
+            .replace('ä', 'a')
+            .replace('ö', 'o'))
+
+        string = re.sub(r'[^A-Za-z0-9_]+', '_', string)
+
+        string = string.strip('_')
+
+        return string
 
     @staticmethod
     def get_hash(filename):
