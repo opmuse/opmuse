@@ -692,6 +692,9 @@ class LibraryProcess:
 
         string = string.strip('_')
 
+        if len(string) == 0:
+            string = "_"
+
         return string
 
     @staticmethod
