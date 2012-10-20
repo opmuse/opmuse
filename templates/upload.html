@@ -6,32 +6,53 @@
 
 {% block content %}
 <div id="upload">
-    <h1>Upload</h1>
-
-    <form method="post" action="/upload/add" enctype="multipart/form-data">
-        <input type="file" name="files" multiple="multiple" />
-        <button type="submit">Upload</button>
+    <form id="fileupload" action="/upload/add" method="POST" enctype="multipart/form-data">
+        <div class="btn-group">
+            <span class="btn add">
+                <span>Add files</span>
+                <input type="file" name="files" multiple>
+            </span>
+            <button type="submit" class="btn start">
+                <span>Upload</span>
+            </button>
+        </div>
+        <hr />
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        File
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="files">
+                <tr class="tmpl">
+                    <td class="filename"></td>
+                </tr>
+            </tbody>
+        </table>
     </form>
 
-    {% if tracks %}
-    <h2>Uploaded</h2>
-    <ul class="tracks album">
-        {% for track in tracks %}
-            <li class="track">
-                {% include "partials/track.html" %}
-            </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+    <hr />
 
-    {% if messages %}
-    <h2>Messages</h2>
-    <ul class="messages">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+    <div class="uploaded">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Track</th>
+                </tr>
+            </thead>
+            <tbody class="tracks">
+            </tbody>
+            <thead>
+                <tr>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody class="messages">
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
 

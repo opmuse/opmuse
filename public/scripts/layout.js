@@ -15,7 +15,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             $(window).resize(this.resizeContent.bind(this));
             $(window).resize(this.resizeQueue.bind(this));
 
-            $('body').bind('ajaxifyInit', function (event) {
+            $('#content').bind('ajaxifyInit', function (event) {
                 that.resizeQueue();
             });
         },

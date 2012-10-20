@@ -81,9 +81,12 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             $(window).trigger('hashchange');
         },
         internalInit: function () {
+            this.load(this.selector);
+        },
+        load: function (element) {
             var that = this;
 
-            $(this.selector).find('a')
+            $(element).find('a')
                 .unbind('click.ajaxify')
                 .bind('click.ajaxify', function (event) {
                 var href = $(this).attr('href');
@@ -94,11 +97,12 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                     // open external links in new window/tab
                     window.open(href, "_blank");
                 }
+
                 return false;
 
             });
 
-            $('body').trigger('ajaxifyInit');
+            $(element).trigger('ajaxifyInit');
         },
         loadPage: function (href) {
             var that = this;

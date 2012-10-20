@@ -1,0 +1,13 @@
+<table class="upload_add">
+    {% for track in tracks %}
+    <tr class="track">
+        <td>{% include "partials/track.html" %}</td>
+    </tr>
+    {% endfor %}
+
+    {% for message in messages %}
+    <tr class="message">
+        <td>{{ message }}</td>
+    </tr>
+    {% endfor %}
+</table>

@@ -5,6 +5,7 @@ import cherrypy
 import tempfile
 import shutil
 import rarfile
+from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
 from repoze.who.api import get_api
@@ -97,43 +98,44 @@ class Upload:
         return {}
 
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='upload.html')
+    @cherrypy.tools.jinja(filename='upload_add.html')
     @cherrypy.tools.authenticated()
-    def add(self, files):
-        if not isinstance(files, list):
-            files = [files]
+    #@cherrypy.tools.noBodyProcess()
+    def add(self):
+
+        filename = cherrypy.request.headers.elements('content-disposition')[0].params['filename']
+
+        if filename.startswith('"') and filename.endswith('"'):
+            filename = filename[1:-1]
+
+        filename = unquote(filename)
+
+        ext = os.path.splitext(filename)[1].lower()[1:]
 
         tempdir = tempfile.mkdtemp()
+
+        filename = os.path.join(tempdir, filename)
 
         filenames = []
 
         rarfile.PATH_SEP = '/'
 
-        for file in files:
-            ext = os.path.splitext(file.filename)[1].lower()[1:]
+        with open(filename, 'wb') as fileobj:
+            fileobj.write(cherrypy.request.rfile.read())
 
-            filename = os.path.join(tempdir, file.filename)
+        if ext == "zip":
+            zip = ZipFile(filename)
+            zip.extractall(tempdir)
 
-            with open(filename, 'wb') as fileobj:
-                fileobj.write(file.file.read())
+            for name in zip.namelist():
+                filenames.append(os.path.join(tempdir, name).encode('utf8'))
+        elif ext == "rar":
+            rar = RarFile(filename)
+            rar.extractall(tempdir)
 
-            if ext == "zip":
-                zip = ZipFile(filename)
-                zip.extractall(tempdir)
-
-                for name in zip.namelist():
-                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
-
-                continue
-            elif ext == "rar":
-                rar = RarFile(filename)
-                rar.extractall(tempdir)
-
-                for name in rar.namelist():
-                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
-
-                continue
-
+            for name in rar.namelist():
+                filenames.append(os.path.join(tempdir, name).encode('utf8'))
+        else:
             filenames.append(filename.encode('utf8'))
 
         tracks, messages = library_dao.add_files(filenames, move = True)

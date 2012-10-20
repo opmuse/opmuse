@@ -19,3 +19,6 @@
 [submodule "vendor/throbber.js"]
 	path = vendor/throbber.js
 	url = https://github.com/aino/throbber.js.git
+[submodule "vendor/jQuery-File-Upload"]
+	path = vendor/jQuery-File-Upload
+	url = git://github.com/blueimp/jQuery-File-Upload.git

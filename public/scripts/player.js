@@ -56,10 +56,13 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
 
             that.load();
 
-            $('body').bind('ajaxifyInit', function (event) {
-                $('.open-stream').unbind('click.ajaxify');
+            $('#footer').bind('ajaxifyInit', function (event) {
+                that.internalInit();
             });
 
+            that.internalInit();
+        },
+        internalInit: function () {
             $('.open-stream').unbind('click.ajaxify');
         },
         load: function () {

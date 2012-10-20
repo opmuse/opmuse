@@ -13,6 +13,7 @@ require(['jquery'], function($) {
         'tag',
         'logout',
         'library',
-        'login'
+        'login',
+        'upload'
     ]);
 });
