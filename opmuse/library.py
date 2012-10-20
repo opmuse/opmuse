@@ -539,16 +539,6 @@ class LibraryProcess:
 
         metadata = reader.parse(filename)
 
-        artist_slug = self._produce_artist_slug(
-            metadata.artist_name
-        )
-        album_slug = self._produce_album_slug(
-            metadata.album_name
-        )
-        track_slug = self._produce_track_slug(
-            metadata.artist_name, metadata.album_name, metadata.track_name
-        )
-
         artist = None
         album = None
 
@@ -557,6 +547,9 @@ class LibraryProcess:
                 name=metadata.artist_name
             ).one()
         except NoResultFound:
+            artist_slug = self._produce_artist_slug(
+                metadata.artist_name
+            )
             artist = Artist(metadata.artist_name, artist_slug)
             self._database.add(artist)
             self._database.commit()
@@ -566,6 +559,9 @@ class LibraryProcess:
                 name=metadata.album_name
             ).one()
         except NoResultFound:
+            album_slug = self._produce_album_slug(
+                metadata.album_name
+            )
             album = Album(metadata.album_name, metadata.date, album_slug,
                 metadata.cover_path)
             self._database.add(album)
@@ -598,6 +594,10 @@ class LibraryProcess:
             format = 'audio/unknown'
 
         added = metadata.added
+
+        track_slug = self._produce_track_slug(
+            metadata.artist_name, metadata.album_name, metadata.track_name
+        )
 
         track.slug = track_slug
         track.name = metadata.track_name
