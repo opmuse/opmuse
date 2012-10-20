@@ -10,7 +10,7 @@ from threading import Thread
 from opmuse.database import Base, get_session, get_type
 import mutagen.mp3
 import mutagen.oggvorbis
-import mutagen.m4a
+import mutagen.easymp4
 import mutagen.asf
 import mutagen.flac
 import mutagen.easyid3
@@ -233,7 +233,7 @@ class FlacParser(MutagenParser):
 class Mp4Parser(MutagenParser):
 
     def get_tag(self, filename):
-        return mutagen.m4a.M4A(filename)
+        return mutagen.easymp4.EasyMP4(filename)
 
     def supported_extensions(self):
         return [b'm4p', b'mp4', b'm4a']
