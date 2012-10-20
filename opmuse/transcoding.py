@@ -8,6 +8,9 @@ import calendar
 import datetime
 from pydispatch import dispatcher
 
+class FFMPEGError(Exception):
+    pass
+
 class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
     """
     This tool makes sure the ffmpeg subprocess is ended
@@ -89,6 +92,10 @@ class FFMPEGTranscoder(Transcoder):
 
     def __exit__(self, type, value, traceback):
         self.process.wait()
+
+        if self.process.returncode != 0:
+            raise FFMPEGError('ffmpeg returned non-zero status "%d".' % self.process.returncode)
+
         cherrypy.request.ffmpegtranscoder_subprocess = None
 
     def transcode(self):
