@@ -197,10 +197,6 @@ class Transcoding:
 
     transcoders = [Mp3FFMPEGTranscoder, OggFFMPEGTranscoder]
 
-    def __init__(self):
-        self.silence_seconds = 2
-        self.silence = self.generate_silence(self.silence_seconds)
-
     def determine_transcoder(self, track, user_agent, accepts):
         if not (len(accepts) == 0 or len(accepts) == 1 and accepts[0] == '*/*'):
             transcoder, format = self._determine_transcoder(track, accepts)
@@ -238,10 +234,6 @@ class Transcoding:
 
             start_time = time.time()
 
-            if track is None:
-                yield self.silence
-                continue
-
             if isinstance(transcoder, Transcoder):
                 raise Exception("transcoder must be an instance of Transcoder")
 
@@ -252,35 +244,6 @@ class Transcoding:
                     yield data
 
             total_time = int(time.time() - start_time)
-
-    # TODO rewrite to FFMPEGTranscoder or at least a Transcoder?
-    def generate_silence(self, seconds = 1):
-
-        FNULL = open('/dev/null', 'w')
-
-        zero_cmd = 'dd if=/dev/zero bs=%d count=%d' % (44100 * 2 * 2, seconds)
-
-        zero_proc = subprocess.Popen(zero_cmd, shell = True, stdout = subprocess.PIPE,
-                             stderr = FNULL, stdin = None)
-
-        artist = album = 'opmuse'
-        title = 'Your queue is empty, enjoy the silence...'
-
-        cmd = ('ffmpeg -ac 2 -ar 44100 -acodec pcm_s16le -f s16le ' +
-            '-i - -acodec libvorbis -f ogg -aq 0 ' +
-            '-metadata artist="%s" -metadata album="%s" -metadata title="%s" ' % (artist, album, title) +
-            '-')
-
-        proc = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
-                             stderr = FNULL, stdin = zero_proc.stdout)
-
-        data = proc.stdout.read()
-
-        proc.wait()
-        zero_proc.wait()
-
-        return data
-
 
 transcoding = Transcoding()
 
