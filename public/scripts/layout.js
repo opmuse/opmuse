@@ -20,6 +20,10 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             });
         },
         resizeContent: function () {
+            if ($("#content").length == 0) {
+                return;
+            }
+
             this.windowHeight = $(document).height();
             var footerOffset = $("#footer").offset();
             this.footerHeight = this.windowHeight - footerOffset.top;
@@ -31,6 +35,10 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 .trigger("layoutResize");
         },
         resizeQueue: function () {
+            if ($("#top-right").length == 0) {
+                return;
+            }
+
             $("#top-right")
                 .height(this.contentHeight - $("#right").height())
                 .trigger("layoutResize");
