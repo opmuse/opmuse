@@ -4,6 +4,7 @@ python:
     - "3.2"
 
 script:
+    - cp config/opmuse.dist.ini config/opmuse.ini
     - python tests/main.py
 
 env: PYTHONPATH=.
