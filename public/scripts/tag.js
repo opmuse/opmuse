@@ -18,26 +18,32 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         internalInit: function () {
             var that = this;
 
-            $("#tag .lock").unbind('click.ajaxify').unbind('click.tag').bind('click.tag', function (event) {
-                var type = null;
+            $("#tag .lock").unbind('click.ajaxify')
+                .unbind('click.tag')
+                .bind('click.tag',
+                    function (event) {
+                        var type = null;
 
-                if ($(this).is(".album")) {
-                    type = 'album';
-                } else if ($(this).is(".artist")) {
-                    type = 'artist';
-                } else if ($(this).is(".date")) {
-                    type = 'date';
-                }
+                        if ($(this).is(".album")) {
+                            type = 'album';
+                        } else if ($(this).is(".artist")) {
+                            type = 'artist';
+                        } else if ($(this).is(".date")) {
+                            type = 'date';
+                        }
 
-                var selector = "#tag ." + type + ":not(.lock)";
+                        var selector = "#tag ." + type + ":not(.lock)";
 
-                $($(selector).attr("readonly", "readonly").get(0))
-                    .removeAttr("readonly").bind('keyup', function (event) {
-                    $(selector).val($(this).val());
-                });
+                        $($(selector).attr("readonly", "readonly").get(0)).removeAttr("readonly")
+                            .bind('keyup, blur',
+                                function (event) {
+                                    $(selector).val($(this).val());
+                                }
+                            ).blur();
 
-                return false;
-            });
+                        return false;
+                    }
+                );
         }
     });
 
