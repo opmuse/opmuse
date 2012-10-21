@@ -91,10 +91,10 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                 .bind('click.ajaxify', function (event) {
                 var href = $(this).attr('href');
 
-                if (that.isRelative(href)) {
+                if (!event.ctrlKey && that.isRelative(href)) {
                     that.setPage(href);
                 } else {
-                    // open external links in new window/tab
+                    // open external links and ctrl-click in new window/tab
                     window.open(href, "_blank");
                 }
 
