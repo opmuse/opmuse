@@ -16,6 +16,7 @@ require(['jquery'], function($) {
         'login',
         'upload',
         'messages',
+        'modal',
         'locations'
     ], function () {
         $('body').trigger('loadFinish');
