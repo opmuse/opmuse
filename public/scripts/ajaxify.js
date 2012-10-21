@@ -119,8 +119,8 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                     window.open(href, "_blank");
                 }
 
-                return false;
-
+                // continue propagation if the link has said attribute
+                return $(this).is("[data-ajaxify=continue]");
             });
 
             $(element).trigger('ajaxifyInit');
