@@ -105,17 +105,10 @@ def configure():
         '/': {
             'tools.encode.on': False,
             'tools.database.on': True,
-            'tools.sessions.on': True,
             'tools.jinjaauthenticated.on': True,
             'tools.jinjaglobals.on': True,
             'tools.library.on': True,
             'tools.jinjaenv.on': True,
-            'tools.sessions.storage_type': "file",
-            'tools.sessions.storage_path': join(abspath(dirname(__file__)),
-                                            '..', 'cache', 'session'),
-            'tools.sessions.locking': "explicit",
-            'tools.sessions.persistent': False,
-            'tools.sessions.httponly': True,
         }, '/scripts': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
