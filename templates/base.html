@@ -23,6 +23,7 @@
         </script>
     </head>
     <body lang="en">
+        {% include "message.html" %}
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container-fluid">
@@ -64,6 +65,8 @@
             {% block container %}
                 <div class="row-fluid">
                     <div class="span8">
+                        <div id="messages">
+                        </div>
                         <div id="content">
                             {% block content %}{% endblock %}
                         </div>

@@ -16,6 +16,7 @@ from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library_dao
 from opmuse.security import User
+from opmuse.messages import messages
 from sqlalchemy.orm.exc import NoResultFound
 
 class Tag:
@@ -512,7 +513,6 @@ class Root(object):
                 showcase_albums.add(queue.track.album)
                 if len(showcase_albums) >= 9:
                     break
-
 
         return {'showcase_albums': showcase_albums}
 

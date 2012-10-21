@@ -14,7 +14,8 @@ require(['jquery'], function($) {
         'logout',
         'library',
         'login',
-        'upload'
+        'upload',
+        'messages'
     ], function () {
         $('body').trigger('loadFinish');
     });
