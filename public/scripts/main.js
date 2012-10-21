@@ -15,7 +15,8 @@ require(['jquery'], function($) {
         'library',
         'login',
         'upload',
-        'messages'
+        'messages',
+        'locations'
     ], function () {
         $('body').trigger('loadFinish');
     });

@@ -11,13 +11,14 @@ from rarfile import RarFile
 from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
+from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library_dao
 from opmuse.security import User
 from opmuse.messages import messages
-from sqlalchemy.orm.exc import NoResultFound
+from opmuse.utils import HTTPRedirect
 
 class Tag:
     @cherrypy.expose
@@ -101,7 +102,6 @@ class Upload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='upload_add.html')
     @cherrypy.tools.authenticated()
-    #@cherrypy.tools.noBodyProcess()
     def add(self):
 
         filename = cherrypy.request.headers.elements('content-disposition')[0].params['filename']
@@ -291,7 +291,7 @@ class Root(object):
 
         cherrypy.response.multiheaders = headers
 
-        raise cherrypy.HTTPRedirect('/')
+        raise HTTPRedirect('/')
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='login.html')
@@ -315,9 +315,9 @@ class Root(object):
                 cherrypy.response.multiheaders = headers
 
                 if came_from is not None:
-                    raise cherrypy.HTTPRedirect(came_from)
+                    raise HTTPRedirect(came_from)
                 else:
-                    raise cherrypy.HTTPRedirect('/#/library')
+                    raise HTTPRedirect('/')
 
         return {}
 
@@ -343,11 +343,11 @@ class Root(object):
 
         if len(artists) + len(albums) + len(tracks) == 1:
             for artist in artists:
-                raise cherrypy.HTTPRedirect('/artist/%s' % artist.slug)
+                raise HTTPRedirect('/artist/%s' % artist.slug)
             for album in albums:
-                raise cherrypy.HTTPRedirect('/album/%s/%s' % (album.artists[0].slug, album.slug))
+                raise HTTPRedirect('/album/%s/%s' % (album.artists[0].slug, album.slug))
             for track in tracks:
-                raise cherrypy.HTTPRedirect('/track/%s' % track.slug)
+                raise HTTPRedirect('/track/%s' % track.slug)
 
         results = {}
 
@@ -461,6 +461,9 @@ class Root(object):
     def artist(self, slug):
         artist = library_dao.get_artist_by_slug(slug)
 
+        if artist is None:
+            raise cherrypy.NotFound()
+
         lastfm_artist = lastfm.get_artist(artist.name)
 
         namesakes = set()
@@ -472,9 +475,6 @@ class Root(object):
                         namesakes.add(artist_result)
                         if len(namesakes) >= 5:
                             break
-
-        if artist is None:
-            raise cherrypy.NotFound()
 
         return {
             'lastfm_artist': lastfm_artist,

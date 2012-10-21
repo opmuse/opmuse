@@ -143,11 +143,18 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             });
         },
         setPage: function (href) {
+            if (!this.isRelative(href)) {
+                href = this.getPathComponent(href);
+            }
+
             if (document.location.hash.substring(1) == href) {
                 $(window).trigger('hashchange');
             } else {
                 document.location.hash = href;
             }
+        },
+        getPathComponent: function (href) {
+            return href.match(/^http(s)?:\/\/[^\/]+(.*)/)[2];
         },
         isRelative: function (href) {
             return !/^http(s)?:\/\//.test(href);
