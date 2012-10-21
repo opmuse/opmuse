@@ -526,7 +526,14 @@ class Root(object):
         # TODO use "cookie_name" prop from authtkt plugin...
         auth_tkt = cookies.get('auth_tkt').value
 
-        url = "%s/stream?auth_tkt=%s" % (cherrypy.request.base, auth_tkt)
+        if cherrypy.request.app.config.get('opmuse').get('stream.ssl') == False:
+            scheme = 'http'
+        else:
+            scheme = cherrypy.request.scheme
+
+        host = cherrypy.request.headers.get('host')
+
+        url = "%s://%s/stream?auth_tkt=%s" % (scheme, host, auth_tkt)
 
         cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=play.m3u'
 
