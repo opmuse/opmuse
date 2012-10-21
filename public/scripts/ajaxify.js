@@ -67,18 +67,39 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             this.throb = new Throb('.throbber', '.brand');
 
             this.contents = ['#content', '#right'];
+
+            if ($(this.contents[0]).length == 0) {
+                return;
+            }
+
             this.selector = '#top, #queue, #right, #content, #footer';
 
             $(window).bind('hashchange', function (event) {
-                var href = document.location.hash.substring(1);
-                if (typeof href != 'undefined' && href != '') {
+                var href = that.getHref();
+
+                if (href !== null) {
                     that.loadPage(href);
                 }
             });
 
             $('body').bind('loadFinish', function () {
-                $(window).trigger('hashchange');
+                var href = that.getHref();
+
+                if (href === null) {
+                    that.setPage('/library');
+                } else {
+                    $(window).trigger('hashchange');
+                }
             });
+        },
+        getHref: function () {
+            var href = document.location.hash.substring(1);
+
+            if (typeof href == 'undefined' || href === '') {
+                href = null;
+            }
+
+            return href;
         },
         internalInit: function () {
             this.load(this.selector);
