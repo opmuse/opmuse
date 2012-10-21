@@ -77,7 +77,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
             $.ajax(this.listUrl, {
                 success: function (data) {
                     $("#queue").html(data);
-                    ajaxify.internalInit();
+                    ajaxify.load('#queue');
                     that.internalInit();
                 }
             });

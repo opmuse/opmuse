@@ -15,5 +15,7 @@ require(['jquery'], function($) {
         'library',
         'login',
         'upload'
-    ]);
+    ], function () {
+        $('body').trigger('loadFinish');
+    });
 });

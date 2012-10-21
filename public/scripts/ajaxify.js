@@ -69,8 +69,6 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             this.contents = ['#content', '#right'];
             this.selector = '#top, #queue, #right, #content, #footer';
 
-            this.internalInit();
-
             $(window).bind('hashchange', function (event) {
                 var href = document.location.hash.substring(1);
                 if (typeof href != 'undefined' && href != '') {
@@ -78,7 +76,9 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                 }
             });
 
-            $(window).trigger('hashchange');
+            $('body').bind('loadFinish', function () {
+                $(window).trigger('hashchange');
+            });
         },
         internalInit: function () {
             this.load(this.selector);
