@@ -10,18 +10,24 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
 
             var that = this;
 
-            $('#content').bind('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
             this.files = [];
+
+            this.initialized = false;
+
+            $('#content').bind('ajaxifyInit', function (event) {
+                if (!that.initialized) {
+                    that.internalInit();
+                }
+            });
         },
         internalInit: function () {
             var that = this;
 
+            this.initialized = true;
+
             $('#fileupload').fileupload({
                 multipart: false,
-                add: function (e, data) {
+                add: function (event, data) {
                     $.each(data.files, function () {
 
                         var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl");
@@ -34,10 +40,20 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                             dom: fileDom
                         });
                     });
+                },
+                progressall: function (event, data) {
+                    var progress = parseInt((data.loaded / data.total) * 100, 10);
+
+                    $('#fileupload .files tr:visible .progress').addClass('active').find('.bar').eq(0).css(
+                        'width',
+                        progress + '%'
+                    );
                 }
             });
 
             $('#fileupload .start').click(function (event) {
+                $("#upload .uploaded .tracks .track").remove();
+                $("#upload .uploaded .messages .message").remove();
                 that.send();
                 return false;
             });
@@ -51,9 +67,10 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                 $('#fileupload').fileupload('send', { files: file.file })
                     .success(function (result, textStatus, jqXHR) {
                         $(file.dom).remove();
-                        that.files.splice(0, 1);
 
                         var resultDom = $(result);
+
+                        that.files.splice(0, 1);
 
                         ajaxify.load(resultDom);
 
