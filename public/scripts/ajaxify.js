@@ -122,7 +122,11 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             });
         },
         setPage: function (href) {
-            document.location.hash = href;
+            if (document.location.hash.substring(1) == href) {
+                $(window).trigger('hashchange');
+            } else {
+                document.location.hash = href;
+            }
         },
         isRelative: function (href) {
             return !/^http(s)?:\/\//.test(href);
