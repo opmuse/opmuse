@@ -92,6 +92,23 @@ class Tag:
         return update_tracks
 
 
+class Remove:
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    def album(self, id):
+        album = (cherrypy.request.database.query(Album)
+            .filter_by(id=id).one())
+
+        artists = library_dao.remove_album(album)
+
+        messages.success('Removed album "%s"' % album.name)
+
+        if len(artists) == 1:
+            raise HTTPRedirect('/artist/%s' % artists[0].slug)
+        else:
+            raise HTTPRedirect('/library')
+
+
 class Upload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='upload.html')
@@ -279,6 +296,7 @@ class Root(object):
     styles = Styles()
     queue = Queue()
     upload = Upload()
+    remove = Remove()
     tag = Tag()
     users = Users()
 

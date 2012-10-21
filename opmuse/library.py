@@ -847,6 +847,39 @@ class LibraryDao:
     def get_artists(self):
         return cherrypy.request.database.query(Artist).order_by(Artist.name).all()
 
+    def remove_album(self, album):
+        dirs = set()
+
+        artists = album.artists
+
+        for track in album.tracks:
+            for path in track.paths:
+                dirs.add(os.path.dirname(path.path))
+                os.remove(path.path)
+
+            cherrypy.request.database.delete(track)
+
+        for dir in dirs:
+            if len(os.listdir(dir)) == 0:
+                os.rmdir(dir)
+
+        cherrypy.request.database.commit()
+
+        if len(album.tracks) == 0:
+            cherrypy.request.database.delete(album)
+
+        cherrypy.request.database.commit()
+
+        artists_left = []
+
+        for artist in artists:
+            if len(artist.albums) == 0:
+                cherrypy.request.database.delete(artist)
+            else:
+                artists_left.append(artist)
+
+        return artists_left
+
     def get_new_tracks(self, age):
         return (cherrypy.request.database.query(Track).filter(Track.added > age)
             .order_by(Track.added.desc()).all())

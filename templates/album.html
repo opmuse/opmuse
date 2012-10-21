@@ -36,6 +36,13 @@
         <caption>
             <div class="btn-group">
                 <a
+                    class="btn"
+                    role="button"
+                    data-toggle="modal"
+                    href="#removeModal">
+                    Remove
+                </a>
+                <a
                     class="queue add-album btn"
                     href="/queue/add_album/{{ album.slug|urlencode }}">
                     Queue all
@@ -93,6 +100,19 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="modal hide" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="removeModalLabel">Remove Album</h3>
+        </div>
+        <div class="modal-body">
+            <p>This will remove the whole album from opmuse and all tracks from <strong>the filesystem</strong>.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+            <a class="btn" data-ajaxify="continue" data-dismiss="modal" href="/remove/album/{{ album.id }}">Yes</a>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
