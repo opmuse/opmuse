@@ -2,7 +2,7 @@ import cherrypy, re, os, base64, mmh3, io, datetime, math, shutil, time
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
-                       DateTime, Boolean)
+                       DateTime, Boolean, func)
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import cpu_count
@@ -880,9 +880,14 @@ class LibraryDao:
 
         return artists_left
 
-    def get_new_tracks(self, age):
-        return (cherrypy.request.database.query(Track).filter(Track.added > age)
-            .order_by(Track.added.desc()).all())
+    def get_new_albums(self, limit):
+        return (cherrypy.request.database
+                .query(Album)
+                .join(Track, Album.id == Track.album_id)
+                .group_by(Album.id)
+                .order_by(func.max(Track.added))
+                .limit(limit)
+                .all())
 
 library_dao = LibraryDao()
 
