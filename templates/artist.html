@@ -24,11 +24,9 @@
 
     <hr>
 
-    <ul class="thumbnails albums">
+    <ul class="albums">
         {% for album in artist.albums %}
-            <li class="thumbnail">
-                {% include "partials/album.html" %}
-            </li>
+            {% include "partials/album.html" %}
         {% endfor %}
     </ul>
 </div>

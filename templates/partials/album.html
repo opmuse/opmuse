@@ -1,31 +1,22 @@
 <div class="album {{ "invalid" if not album.valid else "" }}">
+    <a
+        class="queue add-album btn btn-success btn-small"
+        href="/queue/add_album/{{ album.slug|urlencode }}">
+        Queue
+    </a>
     <a href="/album/{{ artist.slug }}/{{ album.slug }}">
         {% if album.cover_path %}
         <img width="220" height="220" src="/cover/{{ album.slug }}" alt="Album Placeholder"
-            class="img-rounded album-art" />
+            class="album-art" />
         {% else %}
         <img with="220" height="220" src="/images/album_placeholder.png" alt="Album Placeholder"
-            class="img-rounded album-art" />
+            class="album-art" />
         {% endif %}
     </a>
-    <h3 class="album-name">
-        {{ album.name }}
-    </h3>
-    <p>
-        {% if album.date %}
-            <span class="album-date">{{ album.date }}</span>
-        {% endif %}
-        <span class="album-tracks-count">
-            {{ album.tracks|count }}
-            tracks
-        </span>
-    </p>
-    <p>
-        <a
-            class="queue add-album btn"
-            href="/queue/add_album/{{ album.slug|urlencode }}">
-            Add to queue
-        </a>
-    </p>
+    <div class="album-desc">
+        <h3 class="album-name">
+            {{ album.name }}
+        </h3>
+    </div>
 </div>
 

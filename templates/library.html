@@ -12,15 +12,33 @@
         </li>
     </ul>
 
-    <div class="albums">
-        <ul class="active item thumbnails">
-        {% for album in showcase_albums %}
-            <li class="thumbnail">
-                {% set artist = album.artists[0] %}
-                {% include "partials/album.html" %}
-            </li>
-        {% endfor %}
-        </ul>
-    </div>
+    <ul class="albums">
+    {% for album in showcase_albums %}
+        <li class="album">
+            <a
+                class="queue add-album btn btn-small btn-success"
+                href="/queue/add_album/{{ album.slug|urlencode }}">
+                Queue
+            </a>
+            <a href="/album/{{ album.artists[0].slug }}/{{ album.slug }}">
+                {% if album.cover_path %}
+                <img width="220" height="220" src="/cover/{{ album.slug }}" alt="Album Placeholder"
+                    class="album-art" />
+                {% else %}
+                <img with="220" height="220" src="/images/album_placeholder.png" alt="Album Placeholder"
+                    class="album-art" />
+                {% endif %}
+            </a>
+            <div class="album-desc">
+                <h3 class="album-name">
+                    {{ album.name }}
+                </h3>
+                <p>
+                    by {{ album.artists[0].name }}
+                </p>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
 </div>
 {% endblock %}

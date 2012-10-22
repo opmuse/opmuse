@@ -1,16 +1,41 @@
 /* album used on artist and library main page */
+@album-width: 220px;
+
 .albums {
     .album {
-        width: 220px;
-        img {
-            width: 220px;
+        position: relative;
+
+        float: left;
+        display: block;
+        margin-left: 20px;
+        width: @album-width;
+
+        .album-art {
+            .img-polaroid;
+            width: @album-width;
             height: 220px;
         }
-        .album-name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 1.2em;
+
+        .album-desc {
+            width: @album-width;
+
+            h3 {
+                line-height: 20px;
+            }
+
+            h3, p {
+                margin: 4px 0 4px 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 1.2em;
+            }
+        }
+
+        .add-album {
+            position: absolute;
+            top: -6px;
+            right: -14px;
         }
     }
 }
