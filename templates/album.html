@@ -36,18 +36,18 @@
         <caption>
             <div class="btn-group">
                 <a
-                    class="btn"
+                    class="btn btn-danger"
                     role="button"
                     data-toggle="modal"
                     href="#removeModal">
                     Remove
                 </a>
                 <a
-                    class="queue add-album btn"
+                    class="queue add-album btn btn-success"
                     href="/queue/add_album/{{ album.slug|urlencode }}">
                     Queue all
                 </a>
-                <a class="btn" href="/tag/{% for track in album.tracks -%}
+                <a class="btn btn-warning" href="/tag/{% for track in album.tracks -%}
                     {{ track.id }},
                 {%- endfor %}">Edit tags and/or move files</a>
             </div>
@@ -91,7 +91,7 @@
                 {% endif %}
                 <td>
                     <a
-                        class="btn btn-small queue add"
+                        class="btn btn-small btn-success queue add"
                         href="/queue/add/{{ track.slug|urlencode }}">
                         Queue
                     </a>

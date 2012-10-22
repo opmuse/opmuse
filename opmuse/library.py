@@ -880,13 +880,14 @@ class LibraryDao:
 
         return artists_left
 
-    def get_new_albums(self, limit):
+    def get_new_albums(self, limit, offset):
         return (cherrypy.request.database
                 .query(Album)
                 .join(Track, Album.id == Track.album_id)
                 .group_by(Album.id)
                 .order_by(func.max(Track.added))
                 .limit(limit)
+                .offset(offset)
                 .all())
 
 library_dao = LibraryDao()

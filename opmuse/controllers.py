@@ -514,23 +514,26 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
-    def library(self):
+    def library(self, page = None):
         showcase_albums = set([])
 
         users = cherrypy.request.database.query(User).all()
 
-        for user in users:
-            for queue in queue_dao.get_queues(user.id):
-                showcase_albums.add(queue.track.album)
-                if len(showcase_albums) >= 6:
-                    break
+        if page is None:
+            page = 1
 
-        albums = library_dao.get_new_albums(18 - len(showcase_albums))
+        page = int(page)
+
+        page_size = 18
+
+        offset = page_size * (page - 1)
+
+        albums = library_dao.get_new_albums(page_size, offset)
 
         for album in albums:
             showcase_albums.add(album)
 
-        return {'showcase_albums': showcase_albums}
+        return {'showcase_albums': showcase_albums, 'page': page}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

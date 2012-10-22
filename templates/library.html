@@ -40,5 +40,14 @@
         </li>
     {% endfor %}
     </ul>
+
+    <div class="pagination pagination-centered">
+        <ul>
+            {% if page > 1 %}
+            <li><a href="/library?page={{ page - 1 }}">Newer</a></li>
+            {% endif %}
+            <li><a href="/library?page={{ page + 1 }}">Older</a></li>
+        </ul>
+    </div>
 </div>
 {% endblock %}
