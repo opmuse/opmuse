@@ -885,7 +885,7 @@ class LibraryDao:
                 .query(Album)
                 .join(Track, Album.id == Track.album_id)
                 .group_by(Album.id)
-                .order_by(func.max(Track.added))
+                .order_by(func.max(Track.added).desc())
                 .limit(limit)
                 .offset(offset)
                 .all())
