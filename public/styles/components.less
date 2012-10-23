@@ -4,41 +4,61 @@
 .albums {
     clear: both;
     overflow: hidden;
+    padding-top: 10px;
 
-    .album {
-        position: relative;
+    li {
+        list-style: none;
+    }
 
+    .album-container {
         float: left;
-        display: block;
-        margin-left: 20px;
-        width: @album-width;
 
-        .album-art {
-            .img-polaroid;
-            width: @album-width;
-            height: 220px;
+        width: 50%;
+
+        @media only screen and (min-width : 1280px) {
+            width: 33.3%;
         }
 
-        .album-desc {
-            width: @album-width;
-
-            h3 {
-                line-height: 20px;
-            }
-
-            h3, p {
-                margin: 4px 0 4px 8px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                font-size: 1.2em;
-            }
+        @media only screen and (min-width : 1665px) {
+            width: 25%;
         }
 
-        .add-album {
-            position: absolute;
-            top: -6px;
-            right: -14px;
+        @media only screen and (min-width : 1920px) {
+            width: 20%;
+        }
+
+        .album {
+            margin: 0 auto;
+            position: relative;
+            width: @album-width;
+
+            .album-art {
+                .img-polaroid;
+                width: @album-width;
+                height: 220px;
+            }
+
+            .album-desc {
+                width: @album-width;
+
+                h3 {
+                    line-height: 20px;
+                }
+
+                h3, p {
+                    margin: 4px 0 4px 8px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    font-size: 1.2em;
+                }
+            }
+
+            .add-album {
+                position: absolute;
+                top: -6px;
+                right: -14px;
+            }
         }
     }
 }
