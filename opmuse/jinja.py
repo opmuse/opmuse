@@ -7,7 +7,10 @@ from urllib.parse import quote
 
 def format_seconds(seconds):
     if seconds is not None:
-        return "%02d:%02d" % divmod(seconds, 60)
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+
+        return "%02d:%02d:%02d" % (hours, minutes, seconds)
 
 # TODO this has been added in master
 #       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
