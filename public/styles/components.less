@@ -1,6 +1,12 @@
 /* album used on artist and library main page */
 @album-width: 220px;
 
+.album-art {
+    .img-polaroid;
+    width: @album-width;
+    height: 220px;
+}
+
 .albums {
     clear: both;
     overflow: hidden;
@@ -32,12 +38,6 @@
             margin: 0 auto;
             position: relative;
             width: @album-width;
-
-            .album-art {
-                .img-polaroid;
-                width: @album-width;
-                height: 220px;
-            }
 
             .album-desc {
                 width: @album-width;
