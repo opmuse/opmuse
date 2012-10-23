@@ -26,26 +26,30 @@
 
     <hr>
 
+    <div class="btn-container">
+        <div class="btn-group queue-btn">
+            <a
+                class="queue add-album btn btn-success"
+                href="/queue/add_album/{{ album.slug|urlencode }}">
+                Queue all
+            </a>
+        </div>
+
+        <div class="btn-group edit-btn">
+            <a class="btn btn-warning" href="/tag/{% for track in album.tracks -%}
+                {{ track.id }},
+            {%- endfor %}">Edit</a>
+            <a
+                class="btn btn-danger"
+                role="button"
+                data-toggle="modal"
+                href="#removeModal">
+                Remove
+            </a>
+        </div>
+    </div>
+
     <table class="table table-striped table-bordered">
-        <caption>
-            <div class="btn-group">
-                <a
-                    class="btn btn-danger"
-                    role="button"
-                    data-toggle="modal"
-                    href="#removeModal">
-                    Remove
-                </a>
-                <a
-                    class="queue add-album btn btn-success"
-                    href="/queue/add_album/{{ album.slug|urlencode }}">
-                    Queue all
-                </a>
-                <a class="btn btn-warning" href="/tag/{% for track in album.tracks -%}
-                    {{ track.id }},
-                {%- endfor %}">Edit tags and/or move files</a>
-            </div>
-        </caption>
         <thead>
             <tr>
                 <th>Number</th>
@@ -60,7 +64,6 @@
                         {% break %}
                     {% endif %}
                 {% endfor %}
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -78,18 +81,18 @@
                     {% endif %}
                 </td>
                 {% endif %}
-                <td><a href="/track/{{ track.slug }}">{{ track.name }}</a></td>
-                <td>{{ track.duration|format_seconds }}</td>
-                {% if not track.valid %}
-                    <td>Invalid</td>
-                {% endif %}
                 <td>
+                    <a href="/track/{{ track.slug }}">{{ track.name }}</a>
                     <a
-                        class="btn btn-small btn-success queue add"
+                        class="btn btn-mini btn-success queue add"
                         href="/queue/add/{{ track.slug|urlencode }}">
                         Queue
                     </a>
                 </td>
+                <td>{{ track.duration|format_seconds }}</td>
+                {% if not track.valid %}
+                    <td>Invalid</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
