@@ -22,11 +22,13 @@
 
     {% include "partials/artist-head.html" %}
 
-    <hr>
+    <hr />
 
     <ul class="albums">
         {% for album in artist.albums %}
+        <li>
             {% include "partials/album.html" %}
+        </li>
         {% endfor %}
     </ul>
 </div>

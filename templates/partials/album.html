@@ -1,11 +1,18 @@
 <div class="album-container">
-    <div class="album {{ "invalid" if not album.valid else "" }}">
+    <div class="album">
+        <div class="album-badges">
+            {% if album.date %}
+            <p class="album-date badge badge-inverse">{{ album.date }}</p>
+            {% endif %}
+            <p class="album-track-count badge badge-inverse">{{ album.tracks|count }}</p>
+            <p class="album-track-count badge badge-inverse">{{ album.duration|format_seconds }}</p>
+        </div>
         <a
-            class="queue add-album btn btn-success btn-small"
+            class="queue add-album btn btn-small btn-success"
             href="/queue/add_album/{{ album.slug|urlencode }}">
             Queue
         </a>
-        <a href="/album/{{ artist.slug }}/{{ album.slug }}">
+        <a href="/album/{{ album.artists[0].slug }}/{{ album.slug }}">
             {% if album.cover_path %}
             <img width="220" height="220" src="/cover/{{ album.slug }}" alt="Album Placeholder"
                 class="album-art" />
@@ -18,6 +25,11 @@
             <h3 class="album-name">
                 {{ album.name }}
             </h3>
+            {% if artist %}
+            <p>
+                by {{ artist.name }}
+            </p>
+            {% endif %}
         </div>
     </div>
-</div>
+</li>
