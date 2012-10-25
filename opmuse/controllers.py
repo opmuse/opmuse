@@ -520,8 +520,6 @@ class Root(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
     def library(self, page = None):
-        showcase_albums = set([])
-
         users = cherrypy.request.database.query(User).all()
 
         if page is None:
@@ -533,10 +531,7 @@ class Root(object):
 
         offset = page_size * (page - 1)
 
-        albums = library_dao.get_new_albums(page_size, offset)
-
-        for album in albums:
-            showcase_albums.add(album)
+        showcase_albums = library_dao.get_new_albums(page_size, offset)
 
         return {'showcase_albums': showcase_albums, 'page': page}
 
