@@ -6,11 +6,18 @@ from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
 
 def format_seconds(seconds):
-    if seconds is not None:
-        minutes, seconds = divmod(seconds, 60)
-        hours, minutes = divmod(minutes, 60)
+    if seconds is None:
+        seconds = 0
 
-        return "%02d:%02d:%02d" % (hours, minutes, seconds)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    if hours > 0:
+        string = "%02d:" % (hours, )
+    else:
+        string = ""
+
+    return "%s%02d:%02d" % (string, minutes, seconds)
 
 # TODO this has been added in master
 #       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
