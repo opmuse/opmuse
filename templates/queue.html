@@ -13,12 +13,24 @@
         {% set album_id = queue.track.album.id %}
         <li class="{{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
             {% set track = queue.track %}
-            {% include 'partials/track.html' %}
-            <a
-                class="remove"
-                href="/queue/remove/{{ track.slug }}">
-                X
-            </a>
+            <span class="text">
+                <span class="track-number">{{ track.number }}</span>
+                <span class="track-name">
+                    <a href="/track/{{ track.slug }}">
+                        {{ track.name }}
+                    </a>
+                </span>
+            </span>
+            <span class="track-info">
+                <span class="track-duration">
+                    {{ track.duration|format_seconds }}
+                </span>
+                <a
+                    class="remove label label-important"
+                    href="/queue/remove/{{ track.slug }}">
+                    X
+                </a>
+            </span>
             <div class="clear"></div>
         </li>
     {% endfor %}

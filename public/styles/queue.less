@@ -6,6 +6,13 @@
         margin: 0;
     }
 
+    li,
+    .text,
+    .track-info {
+        height: 22px;
+        line-height: 22px;
+    }
+
     .artist-name,
     .album-name {
         display: none;
@@ -16,7 +23,7 @@
     }
 
     .text {
-        width: 85%;
+        width: 80%;
         float: left;
     }
 
@@ -28,12 +35,15 @@
     }
 
     .remove {
-        display: block;
         text-transform: uppercase;
-        float: right;
         font-weight: bold;
         width: 32px;
         text-align: center;
+    }
+
+    .track-info {
+        display: block;
+        float: right;
     }
 
     .played {
