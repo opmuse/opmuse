@@ -54,3 +54,9 @@ footer {
     display: none;
 }
 
+.breadcrumb {
+    background-color: @wellBackground;
+    .active {
+        color: lighten(desaturate(@linkColor, 40%), 10%)
+    }
+}
