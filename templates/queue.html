@@ -2,7 +2,12 @@
     {% for queue in queues %}
         {% if album_id != queue.track.album.id %}
         <li class="album-header">
-            {{ queue.track.artist.name }} - {{ queue.track.album.name }}
+            <a href="/artist/{{ queue.track.artist.slug }}">
+                {{ queue.track.artist.name }}
+            </a> -
+            <a href="/album/{{ queue.track.artist.slug }}/{{ queue.track.album.slug }}">
+                {{ queue.track.album.name }}
+            </a>
         </li>
         {% endif %}
         {% set album_id = queue.track.album.id %}
