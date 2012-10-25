@@ -43,6 +43,10 @@ class Album(Base):
     def duration(self):
         return sum(track.duration if track.duration is not None else 0 for track in self.tracks)
 
+    @hybrid_property
+    def added(self):
+        return max(track.added for track in self.tracks)
+
 
 class Artist(Base):
     __tablename__ = 'artists'

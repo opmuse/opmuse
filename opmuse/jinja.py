@@ -4,6 +4,10 @@ from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
+import opmuse.pretty
+
+def pretty_date(date):
+    return opmuse.pretty.pretty_date(date)
 
 def format_seconds(seconds):
     if seconds is None:
@@ -50,6 +54,7 @@ class JinjaPlugin(SimplePlugin):
         )
 
         self.env.filters['format_seconds'] = format_seconds
+        self.env.filters['pretty_date'] = pretty_date
         self.env.filters['urlencode'] = urlencode
 
     start.priority = 130

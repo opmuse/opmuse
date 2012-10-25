@@ -2,10 +2,11 @@
     <div class="album">
         <div class="album-badges">
             {% if album.date %}
-            <p class="album-date badge badge-inverse">{{ album.date }}</p>
+            <p class="album-date badge badge-inverse">released {{ album.date }}</p>
             {% endif %}
-            <p class="album-track-count badge badge-inverse">{{ album.tracks|count }}</p>
-            <p class="album-track-count badge badge-inverse">{{ album.duration|format_seconds }}</p>
+            <p class="album-track-count badge badge-inverse">has {{ album.tracks|count }}</p>
+            <p class="album-track-count badge badge-inverse">plays {{ album.duration|format_seconds }}</p>
+            <p class="album-track-count badge badge-inverse">added {{ album.added|pretty_date }}</p>
         </div>
         <a
             class="queue add-album btn btn-small btn-success"
