@@ -156,6 +156,11 @@ class Upload:
         else:
             filenames.append(filename.encode('utf8'))
 
+        for filename in filenames:
+            # update modified time to now, we don't want the time from the zip
+            # archive or whatever
+            os.utime(filename, None)
+
         tracks, messages = library_dao.add_files(filenames, move = True)
 
         shutil.rmtree(tempdir)
