@@ -18,6 +18,20 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         internalInit: function () {
             var that = this;
 
+            $("#tag form").submit(function () {
+                $.ajax($(this).attr('action'), {
+                    type: 'post',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        ajaxify.setPageInDom(data);
+                    }
+                });
+                return false;
+            });
+
             $("#tag .lock").unbind('click.ajaxify')
                 .unbind('click.tag')
                 .bind('click.tag',
