@@ -33,6 +33,13 @@
                 href="/queue/add_album/{{ album.slug|urlencode }}">
                 Queue all
             </a>
+            {% if album.artists|count > 1 %}
+            <a
+                class="queue add-album btn btn-success"
+                href="/queue/add_album/{{ album.slug|urlencode }}/{{ artist.slug }}">
+                current artist
+            </a>
+            {% endif %}
         </div>
 
         <div class="btn-group edit-btn">

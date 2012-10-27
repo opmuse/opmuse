@@ -256,8 +256,8 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def add_album(self, slug):
-        queue_dao.add_album(slug)
+    def add_album(self, album_slug, artist_slug = None):
+        queue_dao.add_album(album_slug, artist_slug)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

@@ -94,8 +94,13 @@ class QueueDao:
         track = cherrypy.request.database.query(Track).filter_by(slug=slug).one()
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = track.id).delete()
 
-    def add_album(self, slug):
-        album = library_dao.get_album_by_slug(slug)
+    def add_album(self, album_slug, artist_slug = None):
+        album = library_dao.get_album_by_slug(album_slug)
+
+        if artist_slug is None:
+            artist = None
+        else:
+            artist = library_dao.get_artist_by_slug(artist_slug)
 
         user_id = cherrypy.request.user.id
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
@@ -103,6 +108,9 @@ class QueueDao:
         weight = self.get_new_pos(user_id)
 
         for track in album.tracks:
+            if artist is not None and track.artist.id != artist.id:
+                continue
+
             queue = Queue(weight)
             queue.track = track
             queue.user = user
