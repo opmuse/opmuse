@@ -1,11 +1,12 @@
-<ul class="nav nav-list">
-    <li class="nav-header">Settings</li>
-    <li>
-        <a href="/users/you/lastfm">Lastfm</a>
-    </li>
-    <li class="nav-header">Other</li>
-    <li>
-        <a href="/users/{{ request.user.login }}">Public page</a>
-    </li>
-</ul>
-
+<div class="well sidebar-nav">
+    <ul class="nav nav-list">
+        <li class="nav-header">Settings</li>
+        <li>
+            <a href="/users/you/lastfm">Lastfm</a>
+        </li>
+        <li class="nav-header">Other</li>
+        <li>
+            <a href="/users/{{ request.user.login }}">Public page</a>
+        </li>
+    </ul>
+</div>

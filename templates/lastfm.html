@@ -4,6 +4,10 @@
     Lastfm
 {% endblock %}
 
+{% block right %}
+    {% include "partials/you-nav.html" %}
+{% endblock %}
+
 {% block content %}
 <div id="lastfm">
     <ul class="breadcrumb">
@@ -38,9 +42,6 @@
                 No worries, you are already authenticated as <strong>{{ user_href() }}</strong>.
             </p>
             {% endif %}
-        </li>
-        <li class="span6">
-            {% include "partials/you-nav.html" %}
         </li>
     </ul>
 </div>

@@ -4,6 +4,10 @@
     User - {{ user.login }}
 {% endblock %}
 
+{% block right %}
+    {% include "partials/you-nav.html" %}
+{% endblock %}
+
 {% block content %}
 <div id="you">
     <ul class="breadcrumb">
@@ -17,9 +21,6 @@
     <ul class="row-fluid">
         <li class="span6">
             <h3>{{ request.user.login }}</h3>
-        </li>
-        <li class="span6">
-            {% include "partials/you-nav.html" %}
         </li>
     </ul>
 
