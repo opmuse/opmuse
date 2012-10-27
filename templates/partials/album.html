@@ -13,7 +13,7 @@
             href="/queue/add_album/{{ album.slug|urlencode }}">
             Queue
         </a>
-        <a href="/album/{{ album.artists[0].slug }}/{{ album.slug }}">
+        <a href="/album/{{ album.artists[0].slug if not artist else artist.slug }}/{{ album.slug }}">
             {% if album.cover_path %}
             <img width="220" height="220" src="/cover/{{ album.slug }}" alt="Album Placeholder"
                 class="album-art" />
@@ -26,9 +26,9 @@
             <h3 class="album-name">
                 {{ album.name }}
             </h3>
-            {% if artist %}
+            {% if not artist %}
             <p>
-                by {{ artist.name }}
+                by {{ album.artists[0].name }}
             </p>
             {% endif %}
         </div>

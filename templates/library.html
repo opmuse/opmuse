@@ -14,7 +14,6 @@
 
     <ul class="albums">
     {% for album in showcase_albums %}
-        {% set artist = album.artists[0] %}
         <li>
             {% include "partials/album.html" %}
         </li>
