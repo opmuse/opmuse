@@ -30,13 +30,18 @@
 
     <hr>
 
-    <div class="btn-group">
-        <a
-            class="queue add btn btn-success"
-            href="/queue/add/{{ track.slug|urlencode }}">
-            Queue
-        </a>
-        <a class="btn btn-warning" href="/tag/{{ track.id }}">Edit tags and/or move files</a>
+    <div class="btn-container">
+        <div class="btn-group queue-btn">
+            <a
+                class="queue add btn btn-success"
+                href="/queue/add/{{ track.slug|urlencode }}">
+                Queue
+            </a>
+        </div>
+
+        <div class="btn-group edit-btn">
+            <a class="btn btn-danger" href="/tag/{{ track.id }}">Edit</a>
+        </div>
     </div>
 
     <dl class="dl-horizontal">
