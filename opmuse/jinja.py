@@ -83,6 +83,7 @@ class Jinja(HandlerWrapperTool):
         template = cherrypy.request.jinja.get_template(conf['filename'])
 
         template.globals['request'] = cherrypy.request
+        template.globals['xhr'] = cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         html = template.render(response_dict)
         html = html.encode('utf8', 'replace')
@@ -91,6 +92,7 @@ class Jinja(HandlerWrapperTool):
             cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf8'
 
         return html
+
 
 class JinjaEnvTool(cherrypy.Tool):
     def __init__(self):
