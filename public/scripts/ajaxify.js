@@ -127,7 +127,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
         },
         loadPage: function (href) {
             var that = this;
-            $(that.contents.join(',')).find('> *').remove();
+            that.disableElements(that.contents.join(','));
             $.ajax(href, {
                 success: function (data, textStatus, xhr) {
                     var html = $(data);
@@ -135,13 +135,39 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                     for (var index in that.contents) {
                         var content = that.contents[index];
                         $(content).html(html.find(content + ' > *'));
+                        that.enableElements(content);
                     }
                     that.internalInit();
                 },
                 error: function (xhr) {
                     $(that.contents[0]).html(xhr.responseText);
-                }
+                },
             });
+        },
+        disableElements: function (element) {
+            $(element).addClass('ajaxify-disabled');
+
+            $(element).find("input, textarea, select").attr("disabled", "disabled");
+
+            $(element).find("*").bind(
+                'click.ajaxify_disabled ' +
+                'dblclick.ajaxify_disabled ' +
+                'dragstart.ajaxify_disabled',
+                function(event) {
+                    return false;
+                }
+            );
+        },
+        enableElements: function (element) {
+            $(element).removeClass('ajaxify-disabled');
+
+            $(element).find("input, textarea, select").removeAttr("disabled");
+
+            $(element).find("*").unbind(
+                'click.ajaxify_disabled ' +
+                'dblclick.ajaxify_disabled ' +
+                'dragstart.ajaxify_disabled'
+            );
         },
         setPage: function (href) {
             if (!this.isRelative(href)) {
