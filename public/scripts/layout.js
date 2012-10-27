@@ -35,11 +35,11 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 .trigger("layoutResize");
         },
         resizeQueue: function () {
-            if ($("#top-right").length == 0) {
+            if ($("#bottom-right").length == 0) {
                 return;
             }
 
-            $("#top-right")
+            $("#bottom-right")
                 .height(this.contentHeight - $("#right").height())
                 .trigger("layoutResize");
         }

@@ -26,7 +26,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
 
             setInterval(this.reload.bind(this), 3 * 60 * 1000);
 
-            $("#top-right").bind("layoutResize", function (event) {
+            $("#bottom-right").bind("layoutResize", function (event) {
                 that.resize();
             });
         },
@@ -83,7 +83,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
             $("#queue > .tracks").hide();
             var margin = $("#queue").outerHeight() + 10;
             $("#queue > .tracks").height(
-                $("#top-right").height() - margin
+                $("#bottom-right").height() - margin
             ).show();
         },
     });
