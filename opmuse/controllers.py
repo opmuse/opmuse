@@ -187,6 +187,7 @@ class Lastfm:
                     cherrypy.request.user.lastfm_user = lastfm.get_authenticated_user_name()
                     auth_url = None
                     new_auth = True
+                    raise HTTPRedirect('/users/you/lastfm')
             else:
                 session_key = SessionKey()
                 auth_url = session_key.get_auth_url()

@@ -109,12 +109,19 @@ def configure():
             'tools.jinjaglobals.on': True,
             'tools.library.on': True,
             'tools.jinjaenv.on': True,
+            'tools.sessions.storage_type': "file",
+            'tools.sessions.storage_path': join(abspath(dirname(__file__)),
+                                            '..', 'cache', 'session'),
+            'tools.sessions.locking': "explicit",
+            'tools.sessions.persistent': False,
+            'tools.sessions.httponly': True,
         }, '/scripts': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
                                         '..', 'public', 'scripts'),
-        },
-        '/images': {
+        }, '/users/you/lastfm': {
+            'tools.sessions.on': True,
+        }, '/images': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
                                         '..', 'public', 'images'),
