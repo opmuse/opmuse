@@ -131,6 +131,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             $.ajax(href, {
                 success: function (data, textStatus, xhr) {
                     var html = $(data);
+                    document.title = $.trim(html.find("#title").text());
                     for (var index in that.contents) {
                         var content = that.contents[index];
                         $(content).html(html.find(content + ' > *'));
