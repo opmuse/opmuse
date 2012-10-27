@@ -172,7 +172,7 @@ def boot_lesswatch():
     subprocess.Popen(lesswatch)
 
 if __name__ == '__main__':
-    locale.setlocale(locale.LC_ALL, 'en_US')
+    locale.setlocale(locale.LC_ALL, 'en_US.utf8')
 
     import argparse
 
