@@ -5,6 +5,10 @@ from cherrypy._cptools import HandlerWrapperTool
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
 import opmuse.pretty
+import locale
+
+def format_number(number):
+    return locale.format('%d', number, grouping=True)
 
 def pretty_date(date):
     return opmuse.pretty.pretty_date(date)
@@ -56,6 +60,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['format_seconds'] = format_seconds
         self.env.filters['pretty_date'] = pretty_date
         self.env.filters['urlencode'] = urlencode
+        self.env.filters['format_number'] = format_number
 
     start.priority = 130
 

@@ -18,6 +18,7 @@ import opmuse.lastfm
 import queue
 import threading
 import tempfile
+import locale
 
 tempfile.tempdir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'cache', 'upload'
@@ -171,6 +172,8 @@ def boot_lesswatch():
     subprocess.Popen(lesswatch)
 
 if __name__ == '__main__':
+    locale.setlocale(locale.LC_ALL, 'en_US')
+
     import argparse
 
     boot_lesswatch()
