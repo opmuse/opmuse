@@ -550,7 +550,10 @@ class Root(object):
         else:
             scheme = cherrypy.request.scheme
 
-        host = cherrypy.request.headers.get('host')
+        host = cherrypy.request.headers.get('X-Forwarded-Host')
+
+        if host is None:
+            host = cherrypy.request.headers.get('host')
 
         url = "%s://%s/stream?auth_tkt=%s" % (scheme, host, auth_tkt)
 
