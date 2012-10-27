@@ -127,14 +127,16 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
         },
         loadPage: function (href) {
             var that = this;
-            that.disableElements(that.contents.join(','));
+            var contents = that.contents.join(',');
+            that.disableElements(contents);
             $.ajax(href, {
                 success: function (data, textStatus, xhr) {
                     that.setPageInDom(data);
+                    that.enableElements(contents);
                 },
                 error: function (xhr) {
                     $(that.contents[0]).html(xhr.responseText);
-                    that.enableElements(that.contents.join(','));
+                    that.enableElements(contents);
                 },
             });
         },
@@ -144,7 +146,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             for (var index in this.contents) {
                 var content = this.contents[index];
                 $(content).html(html.find(content + ' > *'));
-                this.enableElements(content);
+                $(content).scrollTop(0);
             }
             this.internalInit();
         },
