@@ -82,6 +82,8 @@ class Jinja(HandlerWrapperTool):
 
         template = cherrypy.request.jinja.get_template(conf['filename'])
 
+        template.globals['request'] = cherrypy.request
+
         html = template.render(response_dict)
         html = html.encode('utf8', 'replace')
 
@@ -107,5 +109,4 @@ class JinjaGlobalsTool(cherrypy.Tool):
 
     def start(self):
         cherrypy.request.jinja.globals['server_name'] = cherrypy.request.app.config['opmuse']['server_name']
-        cherrypy.request.jinja.globals['request'] = cherrypy.request
 
