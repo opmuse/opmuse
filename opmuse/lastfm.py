@@ -5,6 +5,7 @@ import datetime
 from functools import lru_cache
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError
+from pylast import PERIOD_OVERALL
 from pydispatch import dispatcher
 from opmuse.security import User
 
@@ -144,11 +145,25 @@ class Lastfm:
 
             top_artists_overall = []
 
-            for artist in user.get_top_artists():
+            index = 0
+            sub_index = 0
+            last_weight = None
+
+            for artist in self._param_call(user, 'get_top_artists', {'limit': 500}, [PERIOD_OVERALL]):
+                sub_index += 1
+
+                if last_weight is None or artist.weight != last_weight:
+                    index += sub_index
+                    sub_index = 0
+
                 top_artists_overall.append({
                     'name': artist.item.get_name(),
-                    'weight': artist.weight
+                    'playcount': artist.item.get_playcount(),
+                    'weight': int(artist.weight),
+                    'index': index
                 })
+
+                last_weight = artist.weight
 
             return {
                 'top_artists_overall': top_artists_overall
@@ -158,6 +173,26 @@ class Lastfm:
                 artist_name,
                 album_name
             ))
+
+    def _param_call(self, object, method, params, args):
+        """
+        hacky hack to send extra params to lastfm api
+        """
+
+        prev_get_params = object._get_params
+
+        def _get_params():
+            _params = prev_get_params()
+            params.update(_params)
+            return params
+
+        object._get_params = _get_params
+
+        ret = getattr(object, method)(*args)
+
+        object._get_params = prev_get_params
+
+        return ret
 
     @lru_cache(maxsize=None)
     def get_album(self, artist_name, album_name):

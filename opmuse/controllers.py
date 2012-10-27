@@ -233,13 +233,10 @@ class Users:
         except NoResultFound:
             raise cherrypy.NotFound()
 
-        queues = queue_dao.get_queues(user.id)
-
         lastfm_user = lastfm.get_user(user.lastfm_user)
 
         return {
             'user': user,
-            'queues': queues,
             'lastfm_user': lastfm_user
         }
 

@@ -17,28 +17,18 @@
     </ul>
 
     <ul class="row-fluid">
-        <li class="span5">
-            <h3>Lastfm Top Artists</h3>
-
+        <li class="span11">
             {% if lastfm_user %}
-            <ul>
+            <table class="table table-striped table-bordered">
                 {% for artist in lastfm_user.top_artists_overall %}
-                    <li><a href="/search/{{ artist.name }}/artist">{{ artist.name }}</a> {{ artist.weight }}</li>
+                <tr>
+                    <td>{{ artist.index }}</td>
+                    <td><a href="/search/{{ artist.name }}/artist">{{ artist.name }}</a></td>
+                    <td>{{ artist.weight|format_number }}</td>
+                </tr>
                 {% endfor %}
-            </ul>
+            </table>
             {% endif %}
-        </li>
-        <li class="span7">
-            <h3>Queue</h3>
-
-            <ul class="tracks">
-            {% for queue in queues %}
-                <li class="{{ "playing" if queue.playing }} {{ "played" if queue.played }}">
-                    {% set track = queue.track %}
-                    {% include "partials/track.html" %}
-                </li>
-            {% endfor %}
-            </ul>
         </li>
     </ul>
 </div>
