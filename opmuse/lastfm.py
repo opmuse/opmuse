@@ -136,7 +136,7 @@ class Lastfm:
         )
 
     @lru_cache(maxsize=None)
-    def get_user(self, user_name):
+    def get_top_artists_overall(self, user_name, page = 1, limit = 50):
         session_key = cherrypy.request.user.lastfm_session_key
 
         try:
@@ -145,11 +145,11 @@ class Lastfm:
 
             top_artists_overall = []
 
-            index = 0
+            index = (page - 1) * limit
             sub_index = 0
             last_weight = None
 
-            for artist in self._param_call(user, 'get_top_artists', {'limit': 500}, [PERIOD_OVERALL]):
+            for artist in self._param_call(user, 'get_top_artists', {'limit': limit, 'page': page}, [PERIOD_OVERALL]):
                 sub_index += 1
 
                 if last_weight is None or artist.weight != last_weight:
@@ -165,9 +165,7 @@ class Lastfm:
 
                 last_weight = artist.weight
 
-            return {
-                'top_artists_overall': top_artists_overall
-            }
+            return top_artists_overall
         except NetworkError:
             cherrypy.log('Network error, failed to get album "%s - %s".' % (
                 artist_name,

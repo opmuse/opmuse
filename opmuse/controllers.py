@@ -213,9 +213,9 @@ class Users:
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='users.html')
-    def default(self, login = None):
+    def default(self, login = None, page = 1):
         if login is not None:
-            raise cherrypy.InternalRedirect('/users/user/%s' % login)
+            raise cherrypy.InternalRedirect('/users/user/%s?page=%s' % (login, page))
 
         users = (cherrypy.request.database.query(User)
             .order_by(User.login).all())
@@ -225,7 +225,7 @@ class Users:
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='user.html')
-    def user(self, login):
+    def user(self, login, page = 1):
         try:
             user = (cherrypy.request.database.query(User)
                 .filter_by(login=login)
@@ -233,11 +233,14 @@ class Users:
         except NoResultFound:
             raise cherrypy.NotFound()
 
-        lastfm_user = lastfm.get_user(user.lastfm_user)
+        page = int(page)
+
+        top_artists_overall = lastfm.get_top_artists_overall(user.lastfm_user, page)
 
         return {
             'user': user,
-            'lastfm_user': lastfm_user
+            'page': page,
+            'top_artists_overall': top_artists_overall
         }
 
 class Queue:
