@@ -141,6 +141,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                 },
                 error: function (xhr) {
                     $(that.contents[0]).html(xhr.responseText);
+                    that.enableElements(that.contents.join(','));
                 },
             });
         },
