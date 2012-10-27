@@ -156,7 +156,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                 function(event) {
                     return false;
                 }
-            );
+            ).unbind('click.ajaxify');
         },
         enableElements: function (element) {
             $(element).removeClass('ajaxify-disabled');
