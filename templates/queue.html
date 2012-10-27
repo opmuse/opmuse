@@ -1,6 +1,6 @@
 <ol class="tracks">
     {% for queue in queues %}
-        {% if album_id != queue.track.album.id %}
+        {% if album_id != queue.track.album.id or artist_id != queue.track.artist.id %}
         <li class="album-header">
             <a href="/artist/{{ queue.track.artist.slug }}">
                 {{ queue.track.artist.name }}
@@ -11,6 +11,7 @@
         </li>
         {% endif %}
         {% set album_id = queue.track.album.id %}
+        {% set artist_id = queue.track.artist.id %}
         <li class="{{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
             {% set track = queue.track %}
             <span class="text">
