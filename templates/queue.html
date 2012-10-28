@@ -12,7 +12,7 @@
         {% endif %}
         {% set album_id = queue.track.album.id %}
         {% set artist_id = queue.track.artist.id %}
-        <li class="{{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
+        <li data-track-duration="{{ queue.track.duration }}" class="track {{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
             {% set track = queue.track %}
             <span class="text">
                 <span class="track-number">{{ track.number }}</span>

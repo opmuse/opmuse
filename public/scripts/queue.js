@@ -68,14 +68,19 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
                 return false;
             }).unbind('click.ajaxify');
         },
-        reload: function () {
+        reload: function (successCallback) {
             var that = this;
+
             $.ajax(this.listUrl, {
                 success: function (data) {
                     $("#queue").html(data);
                     ajaxify.load('#queue');
                     that.internalInit();
                     that.resize();
+
+                    if (typeof successCallback != 'undefined' && successCallback !== null) {
+                        successCallback(data);
+                    }
                 }
             });
         },
@@ -86,6 +91,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
                 $("#bottom-right").height() - margin
             ).show();
         },
+        getCurrentTrackDuration: function () {
+            return $("#queue .track.playing").data('track-duration');
+        }
     });
 
     return (function() {

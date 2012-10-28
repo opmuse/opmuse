@@ -10,37 +10,53 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             var that = this;
 
             this.player = $('#player').get(0);
-            this.player_controls = $('#player-controls');
-            this.play_button = $('#play-button');
-            this.pause_button = $('#pause-button');
-            this.next_button = $('#next-button');
+            this.playerControls = $('#player-controls');
+            this.playerProgress = $('#player-progress');
+            this.playButton = $('#play-button');
+            this.pauseButton = $('#pause-button');
+            this.nextButton = $('#next-button');
+
+            that.currentTrackDuration = 0;
 
             $(that.player).bind('playing', function (event) {
-                queue.reload();
+                queue.reload(function (data) {
+                    that.currentTrackDuration = queue.getCurrentTrackDuration();
+                });
+                that.setProgressActive(true);
+            });
+
+            $(that.player).bind('pause', function (event) {
+                that.setProgressActive(false);
             });
 
             $(that.player).bind('ended', function (event) {
+                that.setProgress(0);
                 that.load();
                 that.player.play();
             });
 
-            that.play_button.click(function() {
+            $(that.player).bind('timeupdate', function (event) {
+                var prog = (this.currentTime / (that.currentTrackDuration)) * 100;
+                that.setProgress(prog);
+            });
+
+            that.playButton.click(function() {
                 that.player.play();
-                that.play_button.hide();
-                that.pause_button.show();
+                that.playButton.hide();
+                that.pauseButton.show();
 
                 return false;
             });
 
-            that.pause_button.click(function() {
+            that.pauseButton.click(function() {
                 that.player.pause();
-                that.pause_button.hide();
-                that.play_button.show();
+                that.pauseButton.hide();
+                that.playButton.show();
 
                 return false;
             });
 
-            that.next_button.click(function() {
+            that.nextButton.click(function() {
                 var paused = that.player.paused;
                 that.load();
 
@@ -51,8 +67,8 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
                 return false;
             });
 
-            that.pause_button.hide();
-            that.player_controls.show();
+            that.pauseButton.hide();
+            that.playerControls.show();
 
             that.load();
 
@@ -61,6 +77,18 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             });
 
             that.internalInit();
+        },
+        setProgressActive: function (active) {
+            var progress = this.playerProgress.find('.progress');
+
+            if (active) {
+                progress.addClass('active');
+            } else {
+                progress.removeClass('active');
+            }
+        },
+        setProgress: function (prog) {
+            this.playerProgress.find('.bar').width(prog + '%');
         },
         internalInit: function () {
             $('.open-stream').unbind('click.ajaxify');
