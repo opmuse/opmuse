@@ -114,8 +114,11 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
 
                 if (!event.ctrlKey && that.isRelative(href)) {
                     that.setPage(href);
+                } else if (event.ctrlKey && that.isRelative(href)) {
+                    // open ctrl-click in new window/tab
+                    window.open(document.location.pathname + "#" + that.getPage(href), "_blank");
                 } else {
-                    // open external links and ctrl-click in new window/tab
+                    // open external links new window/tab
                     window.open(href, "_blank");
                 }
 
@@ -175,10 +178,15 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                 'dragstart.ajaxify_disabled'
             );
         },
-        setPage: function (href) {
+        getPage: function (href) {
             if (!this.isRelative(href)) {
                 href = this.getPathComponent(href);
             }
+
+            return href;
+        },
+        setPage: function (href) {
+            href = this.getPage(href);
 
             if (document.location.hash.substring(1) == href) {
                 $(window).trigger('hashchange');
