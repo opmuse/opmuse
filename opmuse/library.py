@@ -36,7 +36,7 @@ class Album(Base):
         self.cover_path = cover_path
 
     @hybrid_property
-    def length(self):
+    def valid(self):
         return len(self.tracks) == sum(track.valid for track in self.tracks)
 
     @hybrid_property

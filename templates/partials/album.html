@@ -1,6 +1,9 @@
 <div class="album-container">
-    <div class="album">
+    <div class="album {{ 'invalid' if not album.valid else '' }}">
         <div class="album-badges">
+            {% if not album.valid %}
+            <p class="album-invalid badge badge-important">invalid</p>
+            {% endif %}
             {% if album.date %}
             <p class="album-date badge badge-inverse">released {{ album.date }}</p>
             {% endif %}
