@@ -138,10 +138,13 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                     that.enableElements(contents);
                 },
                 error: function (xhr) {
-                    $(that.contents[0]).html(xhr.responseText);
+                    that.setErrorPageInDom(xhr.responseText);
                     that.enableElements(contents);
                 },
             });
+        },
+        setErrorPageInDom: function (data) {
+            $(this.contents[0]).html(data);
         },
         setPageInDom: function (data) {
             var html = $(data);

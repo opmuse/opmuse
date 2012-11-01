@@ -27,6 +27,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                     data: $(this).serialize(),
                     success: function (data) {
                         ajaxify.setPageInDom(data);
+                    },
+                    error: function (xhr) {
+                        ajaxify.setErrorPageInDom(xhr.responseText);
                     }
                 });
                 return false;
