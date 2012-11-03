@@ -580,6 +580,9 @@ class LibraryProcess:
         if album.date is None:
             album.date = metadata.date
 
+        if metadata.cover_path is not None:
+            album.cover_path = metadata.cover_path
+
         ext = os.path.splitext(filename)[1].lower()
 
         if ext == b".mp3" or ext == b".mp2":
