@@ -264,6 +264,11 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    def remove_album(self, artist_slug, album_slug):
+        queue_dao.remove_album(artist_slug, album_slug)
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
     def remove(self, slug):
         queue_dao.remove_track(slug)
 

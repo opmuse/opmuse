@@ -1,19 +1,28 @@
 <ol class="tracks">
     {% for queue in queues %}
+        {% set track = queue.track %}
         {% if album_id != queue.track.album.id or artist_id != queue.track.artist.id %}
-        <li class="album-header">
-            <a href="/artist/{{ queue.track.artist.slug }}">
-                {{ queue.track.artist.name }}
-            </a> -
-            <a href="/album/{{ queue.track.artist.slug }}/{{ queue.track.album.slug }}">
-                {{ queue.track.album.name }}
-            </a>
+        <li>
+            <span class="album-header">
+                <a href="/artist/{{ queue.track.artist.slug }}">
+                    {{ queue.track.artist.name }}
+                </a> -
+                <a href="/album/{{ queue.track.artist.slug }}/{{ queue.track.album.slug }}">
+                    {{ queue.track.album.name }}
+                </a>
+            </span>
+            <span class="album-info">
+                <a
+                    class="remove label label-important"
+                    href="/queue/remove_album/{{ track.artist.slug }}/{{ track.album.slug }}">
+                    X
+                </a>
+            </span>
         </li>
         {% endif %}
         {% set album_id = queue.track.album.id %}
         {% set artist_id = queue.track.artist.id %}
         <li data-track-duration="{{ queue.track.duration }}" class="track {{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
-            {% set track = queue.track %}
             <span class="text">
                 <span class="track-number">{{ track.number }}</span>
                 <span class="track-name">

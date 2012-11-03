@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
 from opmuse.database import Base
 from opmuse.security import User
-from opmuse.library import Track, library_dao
+from opmuse.library import Track, Artist, Album, library_dao
 
 class Queue(Base):
     __tablename__ = 'queues'
@@ -93,6 +93,17 @@ class QueueDao:
         user_id = cherrypy.request.user.id
         track = cherrypy.request.database.query(Track).filter_by(slug=slug).one()
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = track.id).delete()
+
+    def remove_album(self, artist_slug, album_slug):
+        cherrypy.request.database.query(Queue).filter(Queue.id.in_(
+            [queue.id for queue in cherrypy.request.database
+            .query(Queue)
+            .join(Track, Track.id == Queue.track_id)
+            .join(Album, Album.id == Track.album_id)
+            .join(Artist, Artist.id == Track.artist_id)
+            .filter(Artist.slug == artist_slug, Album.slug == album_slug)
+            .all()]
+        )).delete(synchronize_session='fetch')
 
     def add_album(self, album_slug, artist_slug = None):
         album = library_dao.get_album_by_slug(album_slug)
