@@ -18,13 +18,23 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         internalInit: function () {
             var that = this;
 
-            $("#tag form").submit(function () {
-                $.ajax($(this).attr('action'), {
+            $("#tag form button").click(function (event) {
+                var form = $(this).closest('form');
+                var data = $(form).serialize();
+
+                // serialize the button too..
+                var name = $(this).attr('name');
+
+                if (typeof name != 'undefined' && name !== null) {
+                    data += "&" + name + "=" + name;
+                }
+
+                $.ajax($(form).attr('action'), {
                     type: 'post',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
-                    data: $(this).serialize(),
+                    data: data,
                     success: function (data) {
                         ajaxify.setPageInDom(data);
                     },
@@ -32,6 +42,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                         ajaxify.setErrorPageInDom(xhr.responseText);
                     }
                 });
+
                 return false;
             });
 
