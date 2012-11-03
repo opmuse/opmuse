@@ -793,27 +793,31 @@ class LibraryDao:
 
         messages = []
 
+        old_dirs = set()
+
         for filename in filenames:
             if os.path.splitext(filename)[1].lower()[1:] not in Library.SUPPORTED:
                 continue
 
-            metadata = reader.parse(filename)
-
-            library_path = self.get_library_path()
-
-            dirname = os.path.join(library_path, metadata.artist_name, metadata.album_name)
-
-            dirname = dirname.encode('utf8')
-
-            if os.path.exists(dirname):
-                if not os.path.isdir(dirname):
-                    dirname = dirname[len(library_path) - 1:]
-                    messages.append('The path "%s" exists and is not a directory.' % dirname.decode('utf8', 'replace'))
-                    continue
-            else:
-                os.makedirs(dirname)
-
             if move:
+                library_path = self.get_library_path()
+
+                metadata = reader.parse(filename)
+
+                old_dirs.add(os.path.dirname(filename))
+
+                dirname = os.path.join(library_path, metadata.artist_name, metadata.album_name)
+
+                dirname = dirname.encode('utf8')
+
+                if os.path.exists(dirname):
+                    if not os.path.isdir(dirname):
+                        dirname = dirname[len(library_path) - 1:]
+                        messages.append('The path "%s" exists and is not a directory.' % dirname.decode('utf8', 'replace'))
+                        continue
+                else:
+                    os.makedirs(dirname)
+
                 path = os.path.join(dirname, os.path.basename(filename))
 
                 if path != filename:
@@ -832,7 +836,20 @@ class LibraryDao:
 
         LibraryProcess(paths, cherrypy.request.database, 0, tracks)
 
+        self.remove_empty_dirs(old_dirs)
+
         return tracks, messages
+
+    def remove_empty_dirs(self, dirs):
+        new_dirs = set()
+
+        for dir in dirs:
+            if len(os.listdir(dir)) == 0:
+                os.rmdir(dir)
+                new_dirs.add(os.path.dirname(dir))
+
+        if len(new_dirs) > 0:
+            self.remove_empty_dirs(new_dirs)
 
     def get_album_by_slug(self, slug):
         try:
@@ -867,9 +884,7 @@ class LibraryDao:
 
             cherrypy.request.database.delete(track)
 
-        for dir in dirs:
-            if len(os.listdir(dir)) == 0:
-                os.rmdir(dir)
+        self.remove_empty_dirs(dirs)
 
         cherrypy.request.database.commit()
 
