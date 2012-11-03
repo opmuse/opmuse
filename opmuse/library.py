@@ -798,6 +798,8 @@ class LibraryDao:
 
         old_dirs = set()
 
+        moved_dirs = set()
+
         for filename in filenames:
             if os.path.splitext(filename)[1].lower()[1:] not in Library.SUPPORTED:
                 continue
@@ -807,7 +809,7 @@ class LibraryDao:
 
                 metadata = reader.parse(filename)
 
-                old_dirs.add(os.path.dirname(filename))
+                old_dirname = os.path.dirname(filename)
 
                 dirname = os.path.join(library_path, metadata.artist_name, metadata.album_name)
 
@@ -830,12 +832,36 @@ class LibraryDao:
                         continue
 
                     shutil.move(filename, path)
-            else:
-                path = filename
 
-            paths.append(path)
+                    old_dirs.add(old_dirname)
+                    moved_dirs.add((old_dirname, dirname))
+
+                    paths.append(path)
+                else:
+                    paths.append(filename)
+            else:
+                paths.append(filename)
 
         tracks = []
+
+        # move non-track files with folder if there's no tracks left in folder
+        # i.e. album covers and such
+        for from_dir, to_dir in moved_dirs:
+            found = False
+
+            for path in paths:
+                if path.startswith(from_dir):
+                    found = True
+                    break
+
+            if found:
+                continue
+
+            tracks_left = cherrypy.request.database.query(TrackPath).filter(TrackPath.path.like(from_dir + b'%')).count()
+
+            if tracks_left == 0:
+                for from_path in os.listdir(from_dir):
+                    shutil.move(os.path.join(from_dir, from_path), os.path.join(to_dir, from_path))
 
         LibraryProcess(paths, cherrypy.request.database, 0, tracks)
 
