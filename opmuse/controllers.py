@@ -5,6 +5,7 @@ import cherrypy
 import tempfile
 import shutil
 import rarfile
+from urllib.request import urlretrieve
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
@@ -19,6 +20,7 @@ from opmuse.library import Artist, Album, Track, library_dao
 from opmuse.security import User
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
+from opmuse.database import get_session
 
 class Tag:
     @cherrypy.expose
@@ -477,12 +479,45 @@ class Root(object):
         lastfm_artist = lastfm.get_artist(artist.name)
         lastfm_album = lastfm.get_album(artist.name, album.name)
 
+        if album.cover_path is None and lastfm_album is not None:
+            cherrypy.engine.bgtask.put(self.fetch_album_cover, album.id, lastfm_album['cover'])
+
         return {
             'artist': artist,
             'album': album,
             'lastfm_album': lastfm_album,
             'lastfm_artist': lastfm_artist
         }
+
+    def fetch_album_cover(self, album_id, lastfm_album_cover):
+        database = get_session()
+
+        album = (database.query(Album).filter_by(id=album_id).one())
+
+        cover_ext = os.path.splitext(lastfm_album_cover)[1].encode('utf8')
+
+        album_dirs = set()
+
+        temp_cover = tempfile.mktemp().encode('utf8')
+        urlretrieve(lastfm_album_cover, temp_cover)
+
+        paths = []
+
+        for track in album.tracks:
+            for path in track.paths:
+                album_dirs.add(os.path.dirname(path.path))
+                paths.append(path.path)
+
+        for album_dir in album_dirs:
+            # put the cover in the right place for the library process to
+            # find it next time and just add it willy nilly to the album object
+            cover_dest = os.path.join(album_dir, b'cover' + cover_ext)
+            shutil.copy(temp_cover, cover_dest)
+            album.cover_path = cover_dest
+
+        os.remove(temp_cover)
+
+        database.commit()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

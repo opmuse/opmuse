@@ -203,7 +203,8 @@ class Lastfm:
             return {
                 'url': album.get_url(),
                 'name': album.get_name(),
-                'wiki': album.get_wiki_summary()
+                'wiki': album.get_wiki_summary(),
+                'cover': album.get_cover_image()
             }
         except (WSError, NetworkError) as error:
             cherrypy.log('Failed to get album "%s - %s": %s' % (
