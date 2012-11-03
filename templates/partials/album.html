@@ -17,7 +17,7 @@
             Queue
         </a>
         <a href="/album/{{ album.artists[0].slug if not artist else artist.slug }}/{{ album.slug }}">
-            {% if album.cover_path %}
+            {% if album.cover %}
             <img width="220" height="220" src="/cover/{{ album.slug }}" alt="Album Placeholder"
                 class="album-art" />
             {% else %}

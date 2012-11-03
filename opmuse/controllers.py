@@ -5,6 +5,7 @@ import cherrypy
 import tempfile
 import shutil
 import rarfile
+import mimetypes
 from urllib.request import urlretrieve
 from urllib.parse import unquote
 from zipfile import ZipFile
@@ -16,7 +17,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import Artist, Album, Track, library_dao
+from opmuse.library import Artist, Album, Track, library_dao, LibraryProcess
 from opmuse.security import User
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
@@ -461,10 +462,14 @@ class Root(object):
     def cover(self, slug):
         album = library_dao.get_album_by_slug(slug)
 
-        if album is None or album.cover_path is None:
+        if album is None or album.cover is None:
             raise cherrypy.NotFound()
 
-        return cherrypy.lib.static.serve_file(album.cover_path.decode('utf8', 'replace'))
+        mimetype = mimetypes.guess_type(album.cover_path.decode('utf8', 'replace'))[0]
+
+        cherrypy.response.headers['Content-Type'] = mimetype
+
+        return album.cover
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -479,7 +484,7 @@ class Root(object):
         lastfm_artist = lastfm.get_artist(artist.name)
         lastfm_album = lastfm.get_album(artist.name, album.name)
 
-        if album.cover_path is None and lastfm_album is not None:
+        if album.cover is None and lastfm_album is not None:
             cherrypy.engine.bgtask.put(self.fetch_album_cover, album.id, lastfm_album['cover'])
 
         return {
@@ -513,7 +518,7 @@ class Root(object):
             # find it next time and just add it willy nilly to the album object
             cover_dest = os.path.join(album_dir, b'cover' + cover_ext)
             shutil.copy(temp_cover, cover_dest)
-            album.cover_path = cover_dest
+            album.cover = LibraryProcess.get_cover(cover_dest)
 
         os.remove(temp_cover)
 

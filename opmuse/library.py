@@ -25,14 +25,16 @@ class Album(Base):
     name = Column(String(255))
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
+    cover = Column(BLOB)
     cover_path = Column(BLOB)
 
     artists = relationship("Artist", secondary='tracks')
 
-    def __init__(self, name, date, slug, cover_path):
+    def __init__(self, name, date, slug, cover, cover_path):
         self.name = name
         self.date = date
         self.slug = slug
+        self.cover = cover
         self.cover_path = cover_path
 
     @hybrid_property
@@ -570,8 +572,9 @@ class LibraryProcess:
             album_slug = self._produce_album_slug(
                 metadata.album_name
             )
+
             album = Album(metadata.album_name, metadata.date, album_slug,
-                metadata.cover_path)
+                LibraryProcess.get_cover(metadata.cover_path), metadata.cover_path)
             self._database.add(album)
             self._database.commit()
 
@@ -582,6 +585,7 @@ class LibraryProcess:
 
         if metadata.cover_path is not None:
             album.cover_path = metadata.cover_path
+            album.cover = LibraryProcess.get_cover(metadata.cover_path)
 
         ext = os.path.splitext(filename)[1].lower()
 
@@ -627,6 +631,16 @@ class LibraryProcess:
         self._database.commit()
 
         return track
+
+    @staticmethod
+    def get_cover(cover_path):
+        cover = None
+
+        if cover_path is not None:
+            with open(cover_path, 'rb') as file:
+                cover = file.read()
+
+        return cover
 
     @staticmethod
     def fix_track_number(number):
