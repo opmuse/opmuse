@@ -19,6 +19,7 @@ require(['jquery'], function($) {
         'modal',
         'locations'
     ], function () {
+        $("#overlay").remove();
         $('body').trigger('loadFinish');
     });
 });

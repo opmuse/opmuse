@@ -213,5 +213,3 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
         return instance;
     })();
 });
-
-
