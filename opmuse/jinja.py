@@ -1,11 +1,15 @@
 import os
 import cherrypy
+from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
 import opmuse.pretty
 import locale
+
+def json(value):
+    return json_dumps(value)
 
 def format_number(number):
     return locale.format('%d', number, grouping=True)
@@ -61,6 +65,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['pretty_date'] = pretty_date
         self.env.filters['urlencode'] = urlencode
         self.env.filters['format_number'] = format_number
+        self.env.filters['json'] = json
 
     start.priority = 130
 
