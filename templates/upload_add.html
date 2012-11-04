@@ -1,6 +1,8 @@
 <table class="upload_add">
     {% for track in tracks %}
-    <tr class="track">
+    <tr data-track-id="{{ track.id }}"
+        data-track-valid="{{ track.valid|json }}"
+        class="track {{ 'invalid' if not track.valid else '' }}">
         <td>{% include "partials/track.html" %}</td>
     </tr>
     {% endfor %}

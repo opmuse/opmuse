@@ -55,6 +55,25 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                 that.send();
                 return false;
             });
+
+            $("#fileupload .edit-invalid").click(function (event) {
+                var ids = [];
+
+                $(".uploaded .tracks .track").each(function () {
+                    var valid = $(this).data('track-valid');
+                    var id = $(this).data('track-id');
+
+                    if (!valid) {
+                        ids.push(id);
+                    }
+                });
+
+                if (ids.length > 0) {
+                    ajaxify.loadPage('/tag/' + ids.join(','));
+                }
+
+                return false;
+            });
         },
         send: function () {
             var that = this;
