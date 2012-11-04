@@ -150,12 +150,19 @@ class Upload:
             zip.extractall(tempdir)
 
             for name in zip.namelist():
+                # ignore hidden files, e.g. OSX archive weird and such
+                if name.startswith("."):
+                    continue
+
                 filenames.append(os.path.join(tempdir, name).encode('utf8'))
         elif ext == "rar":
             rar = RarFile(filename)
             rar.extractall(tempdir)
 
             for name in rar.namelist():
+                if name.startswith("."):
+                    continue
+
                 filenames.append(os.path.join(tempdir, name).encode('utf8'))
         else:
             filenames.append(filename.encode('utf8'))
