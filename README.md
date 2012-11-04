@@ -12,7 +12,8 @@ Requirements
 ------------
 
   - Python 3.2
-  - ffmpeg on PATH
+  - ffmpeg
+  - ImageMagick
 
 Get up and running...
 ---------------------

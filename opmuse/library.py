@@ -1,13 +1,25 @@
-import cherrypy, re, os, base64, mmh3, io, datetime, math, shutil, time
+import cherrypy
+import re
+import os
+import base64
+import mmh3
+import io
+import datetime
+import math
+import shutil
+import time
+import tempfile
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
                        DateTime, Boolean, func)
+from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_type
+from opmuse.image import image
 import mutagen.mp3
 import mutagen.oggvorbis
 import mutagen.easymp4
@@ -25,7 +37,8 @@ class Album(Base):
     name = Column(String(255))
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
-    cover = Column(BLOB)
+    # TODO fix this for sqlite
+    cover = Column(mysql.LONGBLOB)
     cover_path = Column(BLOB)
 
     artists = relationship("Artist", secondary='tracks')
@@ -573,8 +586,8 @@ class LibraryProcess:
                 metadata.album_name
             )
 
-            album = Album(metadata.album_name, metadata.date, album_slug,
-                LibraryProcess.get_cover(metadata.cover_path), metadata.cover_path)
+            album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path)
+
             self._database.add(album)
             self._database.commit()
 
@@ -583,9 +596,14 @@ class LibraryProcess:
         if album.date is None:
             album.date = metadata.date
 
-        if metadata.cover_path is not None:
-            album.cover_path = metadata.cover_path
-            album.cover = LibraryProcess.get_cover(metadata.cover_path)
+        if metadata.cover_path is not None and album.cover is None:
+            cover_ext = os.path.splitext(metadata.cover_path)[1].decode('utf8')
+            temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
+
+            if image.resize(metadata.cover_path, temp_cover, 220):
+                album.cover_path = metadata.cover_path
+                album.cover = LibraryProcess.get_cover(temp_cover)
+                os.remove(temp_cover)
 
         ext = os.path.splitext(filename)[1].lower()
 

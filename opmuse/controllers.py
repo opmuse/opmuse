@@ -22,6 +22,7 @@ from opmuse.security import User
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
 from opmuse.database import get_session
+from opmuse.image import image
 
 class Tag:
     @cherrypy.expose
@@ -462,12 +463,12 @@ class Root(object):
     def cover(self, slug):
         album = library_dao.get_album_by_slug(slug)
 
-        if album is None or album.cover is None:
+        if album is None or album.cover is None or album.cover_path is None:
             raise cherrypy.NotFound()
 
-        mimetype = mimetypes.guess_type(album.cover_path.decode('utf8', 'replace'))[0]
+        mimetype = mimetypes.guess_type(album.cover_path.decode('utf8', 'replace'))
 
-        cherrypy.response.headers['Content-Type'] = mimetype
+        cherrypy.response.headers['Content-Type'] = mimetype[0] if mimetype is not None else 'image/jpeg'
 
         return album.cover
 
@@ -484,7 +485,7 @@ class Root(object):
         lastfm_artist = lastfm.get_artist(artist.name)
         lastfm_album = lastfm.get_album(artist.name, album.name)
 
-        if album.cover is None and lastfm_album is not None:
+        if album.cover is None and lastfm_album is not None and lastfm_album['cover'] is not None:
             cherrypy.engine.bgtask.put(self.fetch_album_cover, album.id, lastfm_album['cover'])
 
         return {
@@ -499,12 +500,17 @@ class Root(object):
 
         album = (database.query(Album).filter_by(id=album_id).one())
 
-        cover_ext = os.path.splitext(lastfm_album_cover)[1].encode('utf8')
+        cover_ext = os.path.splitext(lastfm_album_cover)[1]
 
         album_dirs = set()
 
-        temp_cover = tempfile.mktemp().encode('utf8')
+        temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
+        resize_temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
         urlretrieve(lastfm_album_cover, temp_cover)
+
+        if not image.resize(temp_cover, resize_temp_cover, 220):
+            os.remove(temp_cover)
+            return
 
         paths = []
 
@@ -516,11 +522,13 @@ class Root(object):
         for album_dir in album_dirs:
             # put the cover in the right place for the library process to
             # find it next time and just add it willy nilly to the album object
-            cover_dest = os.path.join(album_dir, b'cover' + cover_ext)
+            cover_dest = os.path.join(album_dir, b'cover' + cover_ext.encode('utf8'))
             shutil.copy(temp_cover, cover_dest)
-            album.cover = LibraryProcess.get_cover(cover_dest)
+            album.cover = LibraryProcess.get_cover(resize_temp_cover)
+            album.cover_path = cover_dest
 
         os.remove(temp_cover)
+        os.remove(resize_temp_cover)
 
         database.commit()
 
