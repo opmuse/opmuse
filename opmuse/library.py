@@ -843,7 +843,9 @@ class LibraryDao:
 
                 old_dirname = os.path.dirname(filename)
 
-                dirname = os.path.join(library_path, metadata.artist_name, metadata.album_name)
+                dirname = os.path.join(library_path,
+                                       metadata.artist_name.replace("/", "_"),
+                                       metadata.album_name.replace("/", "_"))
 
                 dirname = dirname.encode('utf8')
 
