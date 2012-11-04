@@ -806,17 +806,17 @@ class LibraryDao:
         return self.add_files(filenames, move)
 
     def get_invalid_track_count(self):
-        return (cherrypy.request.database.query(Track)
-            .filter(Track.valid == False).count())
+        return (cherrypy.request.database.query(func.count(Track.id))
+            .filter(Track.valid == False).scalar())
 
     def get_album_count(self):
-        return cherrypy.request.database.query(Album).count()
+        return cherrypy.request.database.query(func.count(Album.id)).scalar()
 
     def get_artist_count(self):
-        return cherrypy.request.database.query(Artist).count()
+        return cherrypy.request.database.query(func.count(Artist.id)).scalar()
 
     def get_track_count(self):
-        return cherrypy.request.database.query(Track).count()
+        return cherrypy.request.database.query(func.count(Track.id)).scalar()
 
     def get_tracks_by_ids(self, ids):
         return (cherrypy.request.database.query(Track)
