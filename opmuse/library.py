@@ -14,7 +14,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
                        DateTime, Boolean, func)
 from sqlalchemy.dialects import mysql
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, deferred
 from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import cpu_count
 from threading import Thread
@@ -38,7 +38,7 @@ class Album(Base):
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
     # TODO fix this for sqlite
-    cover = Column(mysql.LONGBLOB)
+    cover = deferred(Column(mysql.LONGBLOB))
     cover_path = Column(BLOB)
 
     artists = relationship("Artist", secondary='tracks')
