@@ -7,19 +7,27 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+        {% set version = request.app.config.opmuse.version %}
+
+        <script type="text/javascript">
+            window.opmuseGlobals = {
+                version: {{ version }}
+            };
+        </script>
+
         <link
             rel="stylesheet"
-            href="/styles/main.css"
+            href="/styles/main.css?version={{ version }}"
             type="text/css" />
 
         <link href="/images/favicon.png" rel="shortcut icon" />
 
         <script
             data-main="/scripts/main"
-            src="/scripts/lib/require.js">
+            src="/scripts/lib/require.js?version={{ version }}">
         </script>
         <script
-            src="/scripts/init.js">
+            src="/scripts/init.js?version={{ version }}">
         </script>
     </head>
     <body lang="en">

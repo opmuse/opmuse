@@ -287,7 +287,7 @@ class Queue:
 
 class Styles(object):
     @cherrypy.expose
-    def default(self, *args):
+    def default(self, *args, **kwargs):
         file = os.path.join(*args)
         cherrypy.response.headers['Content-Type'] = 'text/css'
 

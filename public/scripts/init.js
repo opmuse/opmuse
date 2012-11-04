@@ -1,5 +1,6 @@
 require.config({
     baseUrl: "/scripts/",
+    urlArgs: "version=" + window.opmuseGlobals.version,
     paths: {
         'jquery.fileupload': 'lib/jquery.fileupload',
         'jquery.ui.widget': 'lib/jquery.ui.widget',
