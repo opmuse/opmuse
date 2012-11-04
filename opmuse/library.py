@@ -822,7 +822,7 @@ class LibraryDao:
         return (cherrypy.request.database.query(Track)
             .filter(Track.id.in_(ids)).all())
 
-    def add_files(self, filenames, move = False):
+    def add_files(self, filenames, move = False, remove_dirs = True):
 
         paths = []
 
@@ -897,7 +897,8 @@ class LibraryDao:
 
         LibraryProcess(paths, cherrypy.request.database, 0, tracks)
 
-        self.remove_empty_dirs(old_dirs)
+        if remove_dirs:
+            self.remove_empty_dirs(old_dirs)
 
         return tracks, messages
 

@@ -165,7 +165,7 @@ class Upload:
             # archive or whatever
             os.utime(filename, None)
 
-        tracks, messages = library_dao.add_files(filenames, move = True)
+        tracks, messages = library_dao.add_files(filenames, move = True, remove_dirs = False)
 
         shutil.rmtree(tempdir)
 
