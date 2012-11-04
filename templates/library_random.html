@@ -11,26 +11,19 @@
 {% block content %}
 <div id="library">
     <ul class="breadcrumb">
-        <li class="active">
-            Library
+        <li>
+            <a href="/library">Library</a>
+            <span class="divider">/</span>
         </li>
+        <li class="active">Random</li>
     </ul>
 
     <ul class="albums">
-    {% for album in showcase_albums %}
+    {% for album in albums %}
         <li>
             {% include "partials/album.html" %}
         </li>
     {% endfor %}
     </ul>
-
-    <div class="pagination pagination-centered">
-        <ul>
-            {% if page > 1 %}
-            <li><a href="/library?page={{ page - 1 }}">Newer</a></li>
-            {% endif %}
-            <li><a href="/library?page={{ page + 1 }}">Older</a></li>
-        </ul>
-    </div>
 </div>
 {% endblock %}

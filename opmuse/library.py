@@ -967,6 +967,13 @@ class LibraryDao:
 
         return artists_left
 
+    def get_random_albums(self, limit):
+        return (cherrypy.request.database
+                .query(Album)
+                .order_by(func.rand())
+                .limit(limit)
+                .all())
+
     def get_new_albums(self, limit, offset):
         return (cherrypy.request.database
                 .query(Album)

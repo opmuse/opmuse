@@ -579,9 +579,17 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_random.html')
+    def library_random(self):
+        albums = library_dao.get_random_albums(18)
+        return {'albums': albums}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
     def library(self, page = None):
-        users = cherrypy.request.database.query(User).all()
+        if page == 'random':
+            raise cherrypy.InternalRedirect('/library_random')
 
         if page is None:
             page = 1
