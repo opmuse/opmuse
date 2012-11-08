@@ -34,6 +34,14 @@
             </thead>
             <tbody>
             {% for track in tracks %}
+                <tr class="track-info">
+                    <td colspan="5">
+                        <span class="title">Affected Files:</span>
+                        {% for path in track.paths %}
+                        {{ path.pretty_path }}
+                        {% endfor %}
+                    </td>
+                </tr>
                 <tr>
                     <td>
                         <input type="hidden" name="ids" value="{{ track.id }}" />
