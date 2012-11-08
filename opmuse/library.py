@@ -198,9 +198,9 @@ class MutagenParser(TagParser):
             cherrypy.log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
             return FileMetadata(*(None, ) * 10)
 
-        artist = tag['artist'][0] if 'artist' in tag else None
-        album = tag['album'][0] if 'album' in tag else None
-        track = tag['title'][0] if 'title' in tag else None
+        artist = str(tag['artist'][0]) if 'artist' in tag else None
+        album = str(tag['album'][0]) if 'album' in tag else None
+        track = str(tag['title'][0]) if 'title' in tag else None
         duration = tag.info.length
         number = tag['tracknumber'][0] if 'tracknumber' in tag else None
         date = tag['date'][0] if 'date' in tag else None
