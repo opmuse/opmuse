@@ -194,10 +194,8 @@ class Lastfm:
 
     @lru_cache(maxsize=None)
     def get_album(self, artist_name, album_name):
-        session_key = cherrypy.request.user.lastfm_session_key
-
         try:
-            network = self.get_network(session_key)
+            network = self.get_network()
             album = network.get_album(artist_name, album_name)
 
             return {
@@ -215,10 +213,8 @@ class Lastfm:
 
     @lru_cache(maxsize=None)
     def get_artist(self, artist_name):
-        session_key = cherrypy.request.user.lastfm_session_key
-
         try:
-            network = self.get_network(session_key)
+            network = self.get_network()
             artist = network.get_artist(artist_name)
 
             similars = []

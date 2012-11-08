@@ -1,0 +1,4 @@
+<img width="220" height="220"
+    src="/cover/{{ album.slug }}{{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode if album.cover_hash else "" }}"
+    alt="Album art" class="album-art" />
+

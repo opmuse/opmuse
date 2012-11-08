@@ -25,11 +25,7 @@
             </li>
         {% endif %}
         <li class="span4">
-            {% if album.cover %}
-                <img width="220" height="220" class="album-art" src="/cover/{{ album.slug }}" alt="Album Placeholder" />
-            {% else %}
-                <img width="220" height="220" class="album-art" src="/images/album_placeholder.png" alt="Album Placeholder" />
-            {% endif %}
+            {% include "partials/album-cover.html" %}
         </li>
     {% endif %}
 </ul>

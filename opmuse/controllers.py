@@ -6,6 +6,8 @@ import tempfile
 import shutil
 import rarfile
 import mimetypes
+import base64
+import mmh3
 from urllib.request import urlretrieve
 from urllib.parse import unquote
 from zipfile import ZipFile
@@ -467,17 +469,28 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def cover(self, slug):
+    def cover(self, slug, hash = None):
         album = library_dao.get_album_by_slug(slug)
 
-        if album is None or album.cover is None or album.cover_path is None:
+        if album is None:
             raise cherrypy.NotFound()
 
-        mimetype = mimetypes.guess_type(album.cover_path.decode('utf8', 'replace'))
+        artist = album.artists[0]
 
-        cherrypy.response.headers['Content-Type'] = mimetype[0] if mimetype is not None else 'image/jpeg'
+        if album.cover is None:
+            cherrypy.engine.bgtask.put(self.fetch_album_cover, album.id)
 
-        return album.cover
+            cherrypy.response.headers['Content-Type'] = 'image/png'
+
+            return cherrypy.lib.static.serve_file(os.path.join(
+                os.path.abspath(os.path.dirname(__file__)),
+                '..', 'public', 'images', 'album_placeholder.png'
+            ))
+        else:
+            mimetype = mimetypes.guess_type(album.cover_path.decode('utf8', 'replace'))
+            cherrypy.response.headers['Content-Type'] = mimetype[0] if mimetype is not None else 'image/jpeg'
+
+            return album.cover
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -492,9 +505,6 @@ class Root(object):
         lastfm_artist = lastfm.get_artist(artist.name)
         lastfm_album = lastfm.get_album(artist.name, album.name)
 
-        if album.cover is None and lastfm_album is not None and lastfm_album['cover'] is not None:
-            cherrypy.engine.bgtask.put(self.fetch_album_cover, album.id, lastfm_album['cover'])
-
         return {
             'artist': artist,
             'album': album,
@@ -502,18 +512,27 @@ class Root(object):
             'lastfm_artist': lastfm_artist
         }
 
-    def fetch_album_cover(self, album_id, lastfm_album_cover):
+    def fetch_album_cover(self, album_id):
+
         database = get_session()
 
         album = (database.query(Album).filter_by(id=album_id).one())
 
-        cover_ext = os.path.splitext(lastfm_album_cover)[1]
+        artist = album.artists[0]
+
+        lastfm_artist = lastfm.get_artist(artist.name)
+        lastfm_album = lastfm.get_album(artist.name, album.name)
+
+        if lastfm_album is None or lastfm_album['cover'] is None:
+            return
+
+        cover_ext = os.path.splitext(lastfm_album['cover'])[1]
 
         album_dirs = set()
 
         temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
         resize_temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
-        urlretrieve(lastfm_album_cover, temp_cover)
+        urlretrieve(lastfm_album['cover'], temp_cover)
 
         if not image.resize(temp_cover, resize_temp_cover, 220):
             os.remove(temp_cover)
@@ -531,8 +550,10 @@ class Root(object):
             # find it next time and just add it willy nilly to the album object
             cover_dest = os.path.join(album_dir, b'cover' + cover_ext.encode('utf8'))
             shutil.copy(temp_cover, cover_dest)
-            album.cover = LibraryProcess.get_cover(resize_temp_cover)
             album.cover_path = cover_dest
+
+        album.cover = LibraryProcess.get_cover(resize_temp_cover)
+        album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
 
         os.remove(temp_cover)
         os.remove(resize_temp_cover)

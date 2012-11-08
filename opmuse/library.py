@@ -40,15 +40,17 @@ class Album(Base):
     # TODO fix this for sqlite
     cover = deferred(Column(mysql.LONGBLOB))
     cover_path = Column(BLOB)
+    cover_hash = Column(BINARY(24))
 
     artists = relationship("Artist", secondary='tracks')
 
-    def __init__(self, name, date, slug, cover, cover_path):
+    def __init__(self, name, date, slug, cover, cover_path, cover_hash):
         self.name = name
         self.date = date
         self.slug = slug
         self.cover = cover
         self.cover_path = cover_path
+        self.cover_hash = cover_hash
 
     @hybrid_property
     def valid(self):
@@ -591,7 +593,7 @@ class LibraryProcess:
                 metadata.album_name
             )
 
-            album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path)
+            album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
 
             self._database.add(album)
             self._database.commit()
@@ -608,6 +610,7 @@ class LibraryProcess:
             if image.resize(metadata.cover_path, temp_cover, 220):
                 album.cover_path = metadata.cover_path
                 album.cover = LibraryProcess.get_cover(temp_cover)
+                album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
                 os.remove(temp_cover)
 
         ext = os.path.splitext(filename)[1].lower()
