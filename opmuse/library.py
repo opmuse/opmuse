@@ -209,8 +209,8 @@ class MutagenParser(TagParser):
         album = str(tag['album'][0]) if 'album' in tag else None
         track = str(tag['title'][0]) if 'title' in tag else None
         duration = tag.info.length
-        number = tag['tracknumber'][0] if 'tracknumber' in tag else None
-        date = tag['date'][0] if 'date' in tag else None
+        number = str(tag['tracknumber'][0]) if 'tracknumber' in tag else None
+        date = str(tag['date'][0]) if 'date' in tag else None
         bitrate = tag.info.bitrate if hasattr(tag.info, 'bitrate') else None
 
         # won't fit in SQL INT, and i'm guessing something's up :|
