@@ -598,14 +598,20 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='invalid_tracks.html')
-    def invalid_tracks(self):
+    @cherrypy.tools.jinja(filename='library_invalid.html')
+    def library_invalid(self, page = None):
+        if page is None:
+            page = 1
 
-        tracks = (cherrypy.request.database.query(Track)
-            .filter(Track.invalid != None).all())
+        page = int(page)
 
-        return {'tracks': tracks}
+        page_size = 18
 
+        offset = page_size * (page - 1)
+
+        albums = library_dao.get_invalid_albums(page_size, offset)
+
+        return {'albums': albums, 'page': page}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -617,12 +623,16 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library.html')
-    def library(self, page = None):
-        if page == 'random':
-            raise cherrypy.InternalRedirect('/library_random')
-
-        if page is None:
+    def library(self, *args, **kwargs):
+        if 'page' in kwargs:
+            page = kwargs['page']
+        else:
             page = 1
+
+        if len(args) > 0 and args[0] == 'random':
+            raise cherrypy.InternalRedirect('/library_random')
+        elif len(args) > 0 and args[0] == 'invalid':
+            raise cherrypy.InternalRedirect('/library_invalid', 'page=%s' % page)
 
         page = int(page)
 

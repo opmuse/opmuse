@@ -982,6 +982,17 @@ class LibraryDao:
                 .limit(limit)
                 .all())
 
+    def get_invalid_albums(self, limit, offset):
+        return (cherrypy.request.database
+                .query(Album)
+                .join(Track, Album.id == Track.album_id)
+                .group_by(Album.id)
+                .filter(Track.invalid != None)
+                .order_by(func.max(Track.added).desc())
+                .limit(limit)
+                .offset(offset)
+                .all())
+
     def get_new_albums(self, limit, offset):
         return (cherrypy.request.database
                 .query(Album)
