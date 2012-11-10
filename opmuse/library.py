@@ -97,6 +97,11 @@ class TrackPath(Base):
         library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
         return self.path.decode('utf8', 'replace')[len(library_path) + 1:]
 
+    @hybrid_property
+    def pretty_dir(self):
+        pretty_path = self.pretty_path
+        return "%s/" % os.path.dirname(pretty_path)
+
 class Track(Base):
     __tablename__ = 'tracks'
     __searchable__ = ['name']

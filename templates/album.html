@@ -57,27 +57,39 @@
     </div>
 
     <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Number</th>
-                {% if album.artists|length > 1%}
-                    <th>Artist</th>
-                {% endif %}
-                <th>Name</th>
-                <th>Duration</th>
-                {% for track in album.tracks %}
-                    {% if not track.valid %}
-                        <th>Status</th>
-                        {% break %}
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
+        {% set colspan = 4 %}
+        {% if album.artists|length > 1%}
+            {% set colspan = colspan + 1 %}
+        {% endif %}
+        {% for track in album.tracks %}
+            {% if not track.valid %}
+                {% set colspan = colspan + 1 %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
             {% for track in album.tracks %}
+            {% if not dir %}
+        <tbody>
+            {# TODO only supports one path... #}
+            {% elif dir != track.paths[0].pretty_dir %}
+        </tbody>
+        <tbody>
+            {% endif %}
+            {% if not dir or dir != track.paths[0].pretty_dir %}
+            <tr class="dir-info">
+                <th colspan="2">
+                    Folder
+                </th>
+                <td colspan="{{ colspan - 2 }}">
+                    {{ track.paths[0].pretty_dir }}
+                    {% set dir = track.paths[0].pretty_dir %}
+                </td>
+            </tr>
+            {% endif %}
             {% if not track.valid %}
             <tr class="error">
             {% endif %}
+                <td class="indent">&nbsp;</td>
                 <td>{{ track.number }}</td>
                 {% if album.artists|length > 1%}
                 <td>
@@ -103,6 +115,11 @@
             </tr>
             {% endfor %}
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="{{ colspan }}">&nbsp;</td>
+            </tr>
+        </tfoot>
     </table>
     <div class="modal hide" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
         <div class="modal-header">

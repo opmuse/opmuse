@@ -17,6 +17,24 @@
         .queue {
             float: right;
         }
+
+        tfoot td,
+        .dir-info td,
+        .dir-info th {
+            font-size: 0.8em;
+            line-height: 0.8em;
+        }
+
+        .indent {
+            width: 12px;
+            padding: 0;
+            background-color: @bodyBackground;
+            border-color: @bodyBackground;
+        }
+
+        tbody tr:nth-child(2) .indent {
+            border-top-color: @tableBorder;
+        }
     }
 }
 
