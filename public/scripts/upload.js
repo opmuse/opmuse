@@ -69,7 +69,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                 });
 
                 if (ids.length > 0) {
-                    ajaxify.loadPage('/tag/' + ids.join(','));
+                    ajaxify.setPage('/tag/' + ids.join(','));
                 }
 
                 return false;
