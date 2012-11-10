@@ -170,6 +170,12 @@ class FileMetadata:
             except StopIteration:
                 break
 
+            # merge strategy for lists are different from scalars
+            # e.g. lists are extended and scalars set if previous value was None
+            if isinstance(this, list) and isinstance(that, list):
+                metadatas.append(this + that)
+                continue
+
             if this is None:
                 metadatas.append(that)
             else:
@@ -198,16 +204,16 @@ class TagParser:
         """
         raise NotImplementedError()
 
-    def parse(self, filename):
+    def parse(self, filename, metadata):
         raise NotImplementedError()
 
 class MutagenParser(TagParser):
-    def parse(self, filename):
+    def parse(self, filename, metadata):
         try:
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
             cherrypy.log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
-            return FileMetadata(*(None, ) * 10)
+            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], None)))
 
         artist = str(tag['artist'][0]) if 'artist' in tag else None
         album = str(tag['album'][0]) if 'album' in tag else None
@@ -225,9 +231,9 @@ class MutagenParser(TagParser):
             number = None
 
         if artist is None or album is None or track is None:
-            invalid = 'tags'
+            invalid = ['incomplete_tags']
         else:
-            invalid = 'valid'
+            invalid = ['valid']
 
         return FileMetadata(artist, album, track, duration, number, None, date,
                             bitrate, invalid, None)
@@ -297,7 +303,7 @@ class PathParser(TagParser):
     might be album name, parent folder might be artist name ...)
     """
 
-    def parse(self, filename):
+    def parse(self, filename, metadata):
         bfilename = filename
         try:
             filename = filename.decode('utf8')
@@ -354,8 +360,17 @@ class PathParser(TagParser):
 
         track_name = track_name.strip('\n -').split("-")[-1].strip()
 
+        if metadata.artist_name is None or metadata.album_name is None or metadata.track_name is None:
+            invalid = ['missing_tags']
+        else:
+            invalid = []
+
+        if metadata is not None:
+            if metadata.album_name is not None and album != metadata.album_name:
+                invalid = ['dir']
+
         return FileMetadata(artist, album, track_name, None, number, added,
-                            None, None, 'tags', cover_path)
+                            None, None, invalid, cover_path)
 
     def supported_extensions(self):
         return None
@@ -390,7 +405,7 @@ class TagReader:
             if not parser.is_supported(filename):
                 continue
 
-            new_metadata = parser.parse(filename)
+            new_metadata = parser.parse(filename, metadata)
 
             if not isinstance(new_metadata, FileMetadata):
                 raise Exception("TagParser.parse must return a FileMetadata instance.")
@@ -648,7 +663,18 @@ class LibraryProcess:
         track.format = format
         track.added = added
         track.bitrate = metadata.bitrate
-        track.invalid = None if metadata.invalid == 'valid' else metadata.invalid
+
+        if metadata.invalid == ['valid']:
+            track.invalid = None
+        else:
+            invalid = metadata.invalid
+
+            try:
+                invalid.remove('valid')
+            except ValueError:
+                pass
+
+            track.invalid = ','.join(invalid)
 
         track.paths.append(TrackPath(filename))
 
