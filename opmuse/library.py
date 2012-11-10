@@ -8,7 +8,6 @@ import datetime
 import math
 import shutil
 import time
-import tempfile
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
@@ -603,15 +602,8 @@ class LibraryProcess:
         if album.date is None:
             album.date = metadata.date
 
-        if metadata.cover_path is not None and album.cover is None:
-            cover_ext = os.path.splitext(metadata.cover_path)[1].decode('utf8')
-            temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
-
-            if image.resize(metadata.cover_path, temp_cover, 220):
-                album.cover_path = metadata.cover_path
-                album.cover = LibraryProcess.get_cover(temp_cover)
-                album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
-                os.remove(temp_cover)
+        if album.cover_path is None:
+            album.cover_path = metadata.cover_path
 
         ext = os.path.splitext(filename)[1].lower()
 

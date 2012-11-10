@@ -477,7 +477,7 @@ class Root(object):
 
         artist = album.artists[0]
 
-        if album.cover is None:
+        if album.cover_path is None:
             cherrypy.engine.bgtask.put(self.fetch_album_cover, album.id)
 
             cherrypy.response.headers['Content-Type'] = 'image/png'
@@ -487,6 +487,15 @@ class Root(object):
                 '..', 'public', 'images', 'album_placeholder.png'
             ))
         else:
+            if album.cover is None:
+                cover_ext = os.path.splitext(album.cover_path)[1].decode('utf8')
+                temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
+
+                if image.resize(album.cover_path, temp_cover, 220):
+                    album.cover = LibraryProcess.get_cover(temp_cover)
+                    album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
+                    os.remove(temp_cover)
+
             mimetype = mimetypes.guess_type(album.cover_path.decode('utf8', 'replace'))
             cherrypy.response.headers['Content-Type'] = mimetype[0] if mimetype is not None else 'image/jpeg'
 
