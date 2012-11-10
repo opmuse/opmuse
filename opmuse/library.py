@@ -605,8 +605,9 @@ class LibraryProcess:
             self._database.add(album)
             self._database.commit()
 
-        # if the first track on the album didn't have date data maybe another
-        # one does...
+        if metadata.album_name is not None:
+            album.name = metadata.album_name
+
         if album.date is None:
             album.date = metadata.date
 
