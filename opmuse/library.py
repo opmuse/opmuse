@@ -52,8 +52,8 @@ class Album(Base):
         self.cover_hash = cover_hash
 
     @hybrid_property
-    def valid(self):
-        return len(self.tracks) == sum(track.valid for track in self.tracks)
+    def invalid(self):
+        return len(self.tracks) != sum(not track.invalid for track in self.tracks)
 
     @hybrid_property
     def duration(self):
@@ -117,7 +117,7 @@ class Track(Base):
     hash = Column(BINARY(24), index=True, unique=True)
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
-    valid = Column(Boolean, index=True)
+    invalid = Column(String(32), index=True)
 
     album = relationship("Album", lazy='joined', innerjoin=True,
         backref=backref('tracks', order_by=(number, name)))
@@ -142,7 +142,7 @@ class FileMetadata:
         self.added = args[5]
         self.date = args[6]
         self.bitrate = args[7]
-        self.valid = args[8]
+        self.invalid = args[8]
         self.cover_path = args[9]
 
         self.metadatas = args
@@ -224,10 +224,13 @@ class MutagenParser(TagParser):
         if number is not None and len(number) > 8:
             number = None
 
-        valid = artist is not None and album is not None and track is not None
+        if artist is None or album is None or track is None:
+            invalid = 'tags'
+        else:
+            invalid = 'valid'
 
         return FileMetadata(artist, album, track, duration, number, None, date,
-                            bitrate, valid, None)
+                            bitrate, invalid, None)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -352,7 +355,7 @@ class PathParser(TagParser):
         track_name = track_name.strip('\n -').split("-")[-1].strip()
 
         return FileMetadata(artist, album, track_name, None, number, added,
-                            None, None, False, cover_path)
+                            None, None, 'tags', cover_path)
 
     def supported_extensions(self):
         return None
@@ -644,7 +647,7 @@ class LibraryProcess:
         track.format = format
         track.added = added
         track.bitrate = metadata.bitrate
-        track.valid = False if metadata.valid is None else metadata.valid
+        track.invalid = None if metadata.invalid == 'valid' else metadata.invalid
 
         track.paths.append(TrackPath(filename))
 
@@ -812,7 +815,7 @@ class LibraryDao:
 
     def get_invalid_track_count(self):
         return (cherrypy.request.database.query(func.count(Track.id))
-            .filter(Track.valid == False).scalar())
+            .filter(Track.invalid != None).scalar())
 
     def get_album_count(self):
         return cherrypy.request.database.query(func.count(Album.id)).scalar()

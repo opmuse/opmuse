@@ -602,7 +602,7 @@ class Root(object):
     def invalid_tracks(self):
 
         tracks = (cherrypy.request.database.query(Track)
-            .filter(Track.valid == False).all())
+            .filter(Track.invalid != None).all())
 
         return {'tracks': tracks}
 

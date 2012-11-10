@@ -1,7 +1,7 @@
 <div class="album-container">
-    <div class="album {{ 'invalid' if not album.valid else '' }}">
+    <div class="album {{ 'invalid' if album.invalid else '' }}">
         <div class="album-badges">
-            {% if not album.valid %}
+            {% if album.invalid %}
             <p class="album-invalid badge badge-important">invalid</p>
             {% endif %}
             {% if album.date %}

@@ -60,10 +60,10 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                 var ids = [];
 
                 $(".uploaded .tracks .track").each(function () {
-                    var valid = $(this).data('track-valid');
+                    var invalid = $(this).data('track-invalid');
                     var id = $(this).data('track-id');
 
-                    if (!valid) {
+                    if (invalid !== null) {
                         ids.push(id);
                     }
                 });

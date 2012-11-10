@@ -62,7 +62,7 @@
             {% set colspan = colspan + 1 %}
         {% endif %}
         {% for track in album.tracks %}
-            {% if not track.valid %}
+            {% if track.invalid %}
                 {% set colspan = colspan + 1 %}
                 {% break %}
             {% endif %}
@@ -86,7 +86,7 @@
                 </td>
             </tr>
             {% endif %}
-            {% if not track.valid %}
+            {% if track.invalid %}
             <tr class="error">
             {% endif %}
                 <td class="indent">&nbsp;</td>
@@ -109,8 +109,8 @@
                     </a>
                 </td>
                 <td>{{ track.duration|format_seconds }}</td>
-                {% if not track.valid %}
-                    <td>Invalid</td>
+                {% if track.invalid %}
+                    <td>{{ track.invalid }}</td>
                 {% endif %}
             </tr>
             {% endfor %}
