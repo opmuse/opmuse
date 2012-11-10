@@ -13,6 +13,9 @@
         <p>
             {{ lastfm_artist.bio }}
         </p>
+        {% for tag in lastfm_artist.tags %}
+        <span class="tag badge badge-success">{{ tag }}</span>
+        {% endfor %}
         {% endif %}
     </li>
     {% if album %}

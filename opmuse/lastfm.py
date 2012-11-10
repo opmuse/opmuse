@@ -63,7 +63,7 @@ class Lastfm:
             network = self.get_network(session_key)
             network.update_now_playing(**args)
         except NetworkError:
-            cherrypy.log('Network error, failed to update now playing for "%s - %s - %s".' % (
+            cherrypy.log('lastfm: Network error, failed to update now playing for "%s - %s - %s".' % (
                 args['artist'],
                 args['album'],
                 args['title'],
@@ -78,7 +78,7 @@ class Lastfm:
 
             if not (args['duration'] > 30 and (time_since_start > 4 * 60 or
                 time_since_start > args['duration'] / 2)):
-                cherrypy.log('%s skipped scrobbling "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
+                cherrypy.log('lastfm: %s skipped scrobbling "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
                     user,
                     args['artist'],
                     args['album'],
@@ -94,7 +94,7 @@ class Lastfm:
 
             network.scrobble(**args)
 
-            cherrypy.log('%s scrobbled "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
+            cherrypy.log('lastfm: %s scrobbled "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
                 user,
                 args['artist'],
                 args['album'],
@@ -105,7 +105,7 @@ class Lastfm:
 
         except NetworkError:
             # TODO put in queue and scrobble later
-            cherrypy.log('Network error, failed to scrobble "%s - %s - %s".' % (
+            cherrypy.log('lastfm: Network error, failed to scrobble "%s - %s - %s".' % (
                 args['artist'],
                 args['album'],
                 args['title'],
@@ -167,7 +167,7 @@ class Lastfm:
 
             return top_artists_overall
         except NetworkError:
-            cherrypy.log('Network error, failed to get album "%s - %s".' % (
+            cherrypy.log('lastfm: Network error, failed to get album "%s - %s".' % (
                 artist_name,
                 album_name
             ))
@@ -205,7 +205,7 @@ class Lastfm:
                 'cover': album.get_cover_image()
             }
         except (WSError, NetworkError) as error:
-            cherrypy.log('Failed to get album "%s - %s": %s' % (
+            cherrypy.log('lastfm: Failed to get album "%s - %s": %s' % (
                 artist_name,
                 album_name,
                 error
@@ -224,13 +224,16 @@ class Lastfm:
                     'name': similar.item.get_name()
                 })
 
+            tags = [str(topItem.item) for topItem in artist.get_top_tags(10)]
+
             return {
                 'url': artist.get_url(),
+                'tags': tags,
                 'bio': artist.get_bio_summary(),
                 'similar': similars
             }
         except (WSError, NetworkError) as error:
-            cherrypy.log('Failed to get artist "%s": %s' % (
+            cherrypy.log('lastfm: Failed to get artist "%s": %s' % (
                 artist_name,
                 error
             ))
@@ -251,7 +254,7 @@ class SessionKey:
         try:
             key = self.generator.get_web_auth_session_key(self.auth_url)
         except WSError as e:
-            cherrypy.log("lastfm session key failed: %s" % e)
+            cherrypy.log("lastfm: session key failed: %s" % e)
 
         return key
 
