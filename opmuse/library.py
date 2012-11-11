@@ -36,8 +36,7 @@ class Album(Base):
     name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
-    # TODO fix this for sqlite
-    cover = deferred(Column(mysql.LONGBLOB))
+    cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
