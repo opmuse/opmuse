@@ -1,24 +1,24 @@
-define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-modal', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-popover', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 
-    var Modal = Class.extend({
+    var Popover = Class.extend({
         init: function () {
             if (instance !== null) {
-                throw Error('Only one instance of Modal allowed!');
+                throw Error('Only one instance of Popover allowed!');
             }
 
             var that = this;
 
             $('#content').bind('ajaxifyInit', function (event) {
-                $("[data-toggle=modal]").unbind('click.ajaxify');
+                $("a[rel=popover]").popover();
             });
         }
     });
 
     return (function() {
         if (instance === null) {
-            instance = new Modal();
+            instance = new Popover();
         }
 
         return instance;

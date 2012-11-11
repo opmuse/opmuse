@@ -8,5 +8,8 @@ require.config({
         'bootstrap': 'lib/bootstrap',
         'domReady': 'lib/domReady',
         'throbber': 'lib/throbber'
+    },
+    shim: {
+        'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip']
     }
 });
