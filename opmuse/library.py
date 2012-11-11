@@ -33,7 +33,7 @@ class Album(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
     # TODO fix this for sqlite
@@ -69,7 +69,7 @@ class Artist(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
     slug = Column(String(255), index=True, unique=True)
 
     albums = relationship("Album", secondary='tracks',
