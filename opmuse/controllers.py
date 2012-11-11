@@ -500,13 +500,12 @@ class Root(object):
             if entity.invalid:
                 return cherrypy.lib.static.serve_file(invalid_placeholder)
 
-            cherrypy.engine.bgtask.put(self.fetch_album_cover, entity.id)
-
             for artist in entity.artists:
                 if artist.cover_path is None:
                     cherrypy.engine.bgtask.put(self.fetch_artist_cover, artist.id)
 
             if entity.cover_path is None:
+                cherrypy.engine.bgtask.put(self.fetch_album_cover, entity.id)
                 for artist in entity.artists:
                     if artist.cover is not None:
                         cherrypy.response.headers['Content-Type'] = self.guess_mime(artist)
