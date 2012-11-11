@@ -110,7 +110,7 @@
                 </td>
                 <td>{{ track.duration|format_seconds }}</td>
                 {% if track.invalid %}
-                    <td>{{ track.invalid }}</td>
+                    <td>{% include "partials/track-invalid.html" %}</td>
                 {% endif %}
             </tr>
             {% endfor %}

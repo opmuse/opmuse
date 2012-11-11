@@ -709,7 +709,7 @@ class LibraryProcess:
             except ValueError:
                 pass
 
-            track.invalid = ','.join(invalid)
+            track.invalid = invalid[0] if len(invalid) > 0 else ''
 
         track.paths.append(TrackPath(filename))
 
