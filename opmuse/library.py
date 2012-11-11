@@ -360,7 +360,7 @@ class PathParser(TagParser):
 
         track_name = track_name.strip('\n -').split("-")[-1].strip()
 
-        if metadata.artist_name is None or metadata.album_name is None or metadata.track_name is None:
+        if metadata is None or metadata.artist_name is None or metadata.album_name is None or metadata.track_name is None:
             invalid = ['missing_tags']
         else:
             invalid = []
