@@ -546,6 +546,9 @@ class LibraryProcess:
 
         self.no = no
 
+        cherrypy.log('Process %d about to process %d files.' %
+            (self.no, len(queue)))
+
         if database is None:
             self._database = get_session()
         else:
@@ -570,7 +573,7 @@ class LibraryProcess:
         if database is None:
             self._database.remove()
 
-        cherrypy.log('Process %d is done.' % (self.no, ))
+        cherrypy.log('Process %d is done processing %d files.' % (self.no, len(queue)))
 
     def process(self, filename):
 
