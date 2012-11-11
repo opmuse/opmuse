@@ -365,7 +365,8 @@ class PathParser(TagParser):
             invalid = []
 
         if metadata is not None:
-            if metadata.album_name is not None and album != metadata.album_name:
+            if (metadata.album_name is not None and album != metadata.album_name or
+                metadata.artist_name is not None and artist != metadata.artist_name):
                 invalid = ['dir']
 
         return FileMetadata(artist, album, track_name, None, number, added,
