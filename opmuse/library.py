@@ -609,6 +609,9 @@ class LibraryProcess:
             self._database.add(artist)
             self._database.commit()
 
+        if metadata.artist_name is not None:
+            artist.name = metadata.artist_name
+
         try:
             album = self._database.query(Album).filter_by(
                 name=metadata.album_name
