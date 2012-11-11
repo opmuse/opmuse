@@ -1,13 +1,9 @@
 <ul class="row-fluid artist-head">
-{% if not album %}
-    <li class="span11">
-{% else %}
     {% if lastfm_album and lastfm_album.wiki %}
     <li class="span4">
     {% else %}
     <li class="span8">
     {% endif %}
-{% endif %}
         <h3>{{ artist.name }}</h3>
         {% if lastfm_artist and lastfm_artist.bio %}
         <p>
@@ -18,17 +14,21 @@
         {% endfor %}
         {% endif %}
     </li>
+    {% if lastfm_album and lastfm_album.wiki %}
+        <li class="span4">
+            <h3>{{ lastfm_album.name }}</h3>
+            <p>
+                {{ lastfm_album.wiki }}
+            </p>
+        </li>
+    {% endif %}
     {% if album %}
-        {% if lastfm_album and lastfm_album.wiki %}
-            <li class="span4">
-                <h3>{{ lastfm_album.name }}</h3>
-                <p>
-                    {{ lastfm_album.wiki }}
-                </p>
-            </li>
-        {% endif %}
         <li class="span4">
             {% include "partials/album-cover.html" %}
+        </li>
+    {% else %}
+        <li class="span4">
+            {% include "partials/artist-cover.html" %}
         </li>
     {% endif %}
 </ul>

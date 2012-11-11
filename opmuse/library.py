@@ -70,6 +70,9 @@ class Artist(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
     slug = Column(String(255), index=True, unique=True)
+    cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
+    cover_path = Column(BLOB)
+    cover_hash = Column(BINARY(24))
 
     albums = relationship("Album", secondary='tracks',
         order_by=(Album.date.desc(), Album.name))
@@ -77,6 +80,16 @@ class Artist(Base):
     def __init__(self, name, slug):
         self.name = name
         self.slug = slug
+
+    @hybrid_property
+    def invalid(self):
+        tracks = []
+
+        for album in self.albums:
+            for track in album.tracks:
+                tracks.append(track)
+
+        return len(tracks) != sum(not track.invalid for track in tracks)
 
 
 class TrackPath(Base):
@@ -143,6 +156,7 @@ class FileMetadata:
         self.bitrate = args[7]
         self.invalid = args[8]
         self.cover_path = args[9]
+        self.artist_cover_path = args[10]
 
         self.metadatas = args
 
@@ -212,7 +226,7 @@ class MutagenParser(TagParser):
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
             cherrypy.log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
-            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], None)))
+            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], None, None)))
 
         artist = str(tag['artist'][0]) if 'artist' in tag else None
         album = str(tag['album'][0]) if 'album' in tag else None
@@ -235,7 +249,7 @@ class MutagenParser(TagParser):
             invalid = ['valid']
 
         return FileMetadata(artist, album, track, duration, number, None, date,
-                            bitrate, invalid, None)
+                            bitrate, invalid, None, None)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -310,7 +324,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 10)
+                return FileMetadata(*(None, ) * 11)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
@@ -326,22 +340,20 @@ class PathParser(TagParser):
 
         match_files = [
             b'^cover\.jpg$',
+            b'^cover\.png$',
+            b'^artist\.jpg$',
+            b'^artist\.png$',
             b'.*cover.*\.jpg$',
             b'.*front.*\.jpg$',
             b'.*folder.*\.jpg$',
             b'.*\.jpg$'
         ]
 
-        cover_path = None
-        dirname = os.path.dirname(bfilename)
+        album_dir = os.path.dirname(bfilename)
+        artist_dir = os.path.dirname(album_dir)
 
-        for match_file in match_files:
-            for file in os.listdir(dirname):
-                if re.match(match_file, file, flags = re.IGNORECASE):
-                    cover_path = os.path.abspath(os.path.join(dirname, file))
-                    break
-            if cover_path is not None:
-                break
+        album_cover_path = self.match_in_dir(match_files, album_dir)
+        artist_cover_path = self.match_in_dir(match_files, artist_dir)
 
         match = re.search('([0-9]+)', track_name)
         if match is not None:
@@ -370,7 +382,21 @@ class PathParser(TagParser):
                 invalid = ['dir']
 
         return FileMetadata(artist, album, track_name, None, number, added,
-                            None, None, invalid, cover_path)
+                            None, None, invalid, album_cover_path, artist_cover_path)
+
+
+    def match_in_dir(self, match_files, dir):
+        match = None
+
+        for match_file in match_files:
+            for file in os.listdir(dir):
+                if re.match(match_file, file, flags = re.IGNORECASE):
+                    match = os.path.abspath(os.path.join(dir, file))
+                    break
+            if match is not None:
+                break
+
+        return match
 
     def supported_extensions(self):
         return None
@@ -612,6 +638,9 @@ class LibraryProcess:
         if metadata.artist_name is not None:
             artist.name = metadata.artist_name
 
+        if artist.cover_path is None:
+            artist.cover_path = metadata.artist_cover_path
+
         try:
             album = self._database.query(Album).filter_by(
                 name=metadata.album_name
@@ -690,16 +719,6 @@ class LibraryProcess:
         self._database.commit()
 
         return track
-
-    @staticmethod
-    def get_cover(cover_path):
-        cover = None
-
-        if cover_path is not None:
-            with open(cover_path, 'rb') as file:
-                cover = file.read()
-
-        return cover
 
     @staticmethod
     def fix_track_number(number):

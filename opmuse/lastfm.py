@@ -228,6 +228,7 @@ class Lastfm:
 
             return {
                 'url': artist.get_url(),
+                'cover': artist.get_cover_image(),
                 'tags': tags,
                 'bio': artist.get_bio_summary(),
                 'similar': similars

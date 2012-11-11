@@ -1,0 +1,4 @@
+<img width="220" height="220"
+    src="/cover/artist/{{ artist.slug }}{{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode if artist.cover_hash else "" }}"
+    alt="Artist cover" class="artist-cover" />
+
