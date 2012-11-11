@@ -687,7 +687,7 @@ class Root(object):
             with open(cover_dest, 'wb') as file:
                 file.write(cover)
 
-            album.cover_path = cover_dest
+            artist.cover_path = cover_dest
 
         artist.cover = resize_cover
         artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
