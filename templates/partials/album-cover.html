@@ -1,4 +1,11 @@
 <img width="220" height="220"
-    src="/cover/album/{{ album.slug }}{{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode if album.cover_hash else "" }}"
+    src="/cover/album/{{ album.slug }}
+        {%- if album.cover_hash -%}
+            {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
+        {# here we kind of sloppily assume that if there was no cover_hash on album
+           it will be using the first artists cover... #}
+        {%- elif album.artists[0].cover_hash -%}
+            {{ "?hash=%s" % album.artists[0].cover_hash.decode('utf8')|urlencode }}
+        {%- endif -%}"
     alt="Album art" class="album-art" />
 

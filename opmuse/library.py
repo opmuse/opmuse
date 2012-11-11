@@ -996,8 +996,14 @@ class LibraryDao:
         except NoResultFound:
             pass
 
-    def get_artists(self):
-        return cherrypy.request.database.query(Artist).order_by(Artist.name).all()
+    def get_artists(self, limit, offset):
+        return (cherrypy.request.database.query(Artist)
+            .join(Track, Track.artist_id == Artist.id)
+            .group_by(Artist.id)
+            .order_by(func.max(Track.added).desc())
+            .limit(limit)
+            .offset(offset)
+            .all())
 
     def remove_album(self, album):
         dirs = set()

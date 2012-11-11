@@ -696,6 +696,23 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_artists.html')
+    def library_artists(self, page = None):
+        if page is None:
+            page = 1
+
+        page = int(page)
+
+        page_size = 18
+
+        offset = page_size * (page - 1)
+
+        artists = library_dao.get_artists(page_size, offset)
+
+        return {'artists': artists, 'page': page}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library_invalid.html')
     def library_invalid(self, page = None):
         if page is None:
@@ -731,6 +748,8 @@ class Root(object):
             raise cherrypy.InternalRedirect('/library_random')
         elif len(args) > 0 and args[0] == 'invalid':
             raise cherrypy.InternalRedirect('/library_invalid', 'page=%s' % page)
+        elif len(args) > 0 and args[0] == 'artists':
+            raise cherrypy.InternalRedirect('/library_artists', 'page=%s' % page)
 
         page = int(page)
 

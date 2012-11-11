@@ -8,6 +8,7 @@
     height: 220px;
 }
 
+.artists,
 .albums {
     clear: both;
     overflow: hidden;
@@ -17,6 +18,7 @@
         list-style: none;
     }
 
+    .artist-container,
     .album-container {
         margin-top: 14px;
         float: left;
@@ -35,11 +37,13 @@
             width: 20%;
         }
 
+        .artist,
         .album {
             margin: 0 auto;
             position: relative;
             width: @album-width;
 
+            .artist-desc,
             .album-desc {
                 width: @album-width;
 

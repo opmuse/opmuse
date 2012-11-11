@@ -1,0 +1,12 @@
+<div class="artist-container">
+    <div class="artist {{ 'invalid' if artist.invalid else '' }}">
+    <a href="/artist/{{ artist.slug }}">
+        {% include "partials/artist-cover.html" %}
+    </a>
+    <div class="artist-desc">
+        <h3 class="artist-name">
+            {{ artist.name }}
+        </h3>
+    </div>
+</div>
+

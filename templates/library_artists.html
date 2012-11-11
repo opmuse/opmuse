@@ -1,0 +1,38 @@
+{% extends "body.html" %}
+
+{% block title  %}
+    Library
+{% endblock %}
+
+{% block right %}
+    {% include "partials/library-nav.html" %}
+{% endblock %}
+
+{% block content %}
+<div id="library">
+    <ul class="breadcrumb">
+        <li>
+            <a href="/library">Library</a>
+            <span class="divider">/</span>
+        </li>
+        <li class="active">Artists</li>
+    </ul>
+
+    <ul class="artists">
+    {% for artist in artists %}
+        <li>
+            {% include "partials/artist.html" %}
+        </li>
+    {% endfor %}
+    </ul>
+
+    <div class="pagination pagination-centered">
+        <ul>
+            {% if page > 1 %}
+            <li><a href="/library/artists?page={{ page - 1 }}">Previous</a></li>
+            {% endif %}
+            <li><a href="/library/artists?page={{ page + 1 }}">Next</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
