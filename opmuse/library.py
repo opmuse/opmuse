@@ -28,6 +28,9 @@ import mutagen.easyid3
 import mutagen.apev2
 import mutagen.musepack
 
+def log(msg):
+    cherrypy.log(msg, context='library')
+
 class Album(Base):
     __tablename__ = 'albums'
     __searchable__ = ['name']
@@ -225,7 +228,7 @@ class MutagenParser(TagParser):
         try:
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
-            cherrypy.log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
+            log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
             return FileMetadata(*(((None, ) * 8) + (['broken_tags'], None, None)))
 
         artist = str(tag['artist'][0]) if 'artist' in tag else None
@@ -476,7 +479,7 @@ class Library:
 
         path = os.path.abspath(path)
 
-        cherrypy.log("Starting library update.")
+        log("Starting library update.")
 
         # remove paths that doesn't exist anymore
         for track in self._database.query(Track).all():
@@ -501,7 +504,7 @@ class Library:
 
                     queue.append(filename)
 
-        cherrypy.log("%d files found" % index)
+        log("%d files found" % index)
 
         threads = []
 
@@ -533,7 +536,7 @@ class Library:
                 to_process = []
                 no += 1
 
-        cherrypy.log("Spawned %d library thread(s)." % thread_num)
+        log("Spawned %d library thread(s)." % thread_num)
 
         for thread in threads:
             thread.join()
@@ -564,7 +567,7 @@ class Library:
 
         self.scanning = False
 
-        cherrypy.log("Done updating library.")
+        log("Done updating library.")
 
 class LibraryProcess:
 
@@ -572,7 +575,7 @@ class LibraryProcess:
 
         self.no = no
 
-        cherrypy.log('Process %d about to process %d files.' %
+        log('Process %d about to process %d files.' %
             (self.no, len(queue)))
 
         if database is None:
@@ -589,7 +592,7 @@ class LibraryProcess:
                 tracks.append(track)
 
             if count == 1000:
-                cherrypy.log('Process %d processed %d files in %d seconds.' %
+                log('Process %d processed %d files in %d seconds.' %
                     (self.no, count, time.time() - start))
                 start = time.time()
                 count = 0
@@ -599,7 +602,7 @@ class LibraryProcess:
         if database is None:
             self._database.remove()
 
-        cherrypy.log('Process %d is done processing %d files.' % (self.no, len(queue)))
+        log('Process %d is done processing %d files.' % (self.no, len(queue)))
 
     def process(self, filename):
 
