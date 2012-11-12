@@ -17,18 +17,22 @@ class Image:
 
         process.wait()
 
-        dimension = process.stdout.read()
+        dimension = process.stdout.read().strip()
 
-        # in case of i.e. gifs there might be multiple frames so split by ","
-        # first and then just use the first frame for our source width/height
-        source_width, source_height = dimension.strip().split(b',')[0].split(b' ')
+        resize = None
 
-        source_width, source_height = int(source_width), int(source_height)
+        if len(dimension) > 0:
+            # in case of i.e. gifs there might be multiple frames so split by ","
+            # first and then just use the first frame for our source width/height
+            source_width, source_height = dimension.split(b',')[0].split(b' ')
 
-        if source_width > source_height:
+            source_width, source_height = int(source_width), int(source_height)
+
+            if source_width < source_height:
+                resize = '%dx>' % width
+
+        if resize is None:
             resize = '>x%d' % height
-        else:
-            resize = '%dx>' % width
 
         process = subprocess.Popen([
             'convert',
