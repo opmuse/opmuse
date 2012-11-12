@@ -344,8 +344,10 @@ class PathParser(TagParser):
         match_files = [
             b'^cover\.jpg$',
             b'^cover\.png$',
+            b'^cover\.gif$',
             b'^artist\.jpg$',
             b'^artist\.png$',
+            b'^artist\.gif$',
             b'.*cover.*\.jpg$',
             b'.*front.*\.jpg$',
             b'.*folder.*\.jpg$',
