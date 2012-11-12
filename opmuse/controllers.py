@@ -504,7 +504,8 @@ class Root(object):
                 if artist.cover_path is None:
                     cherrypy.engine.bgtask.put(self.fetch_artist_cover, artist.id)
 
-            if entity.cover_path is None:
+            if entity.cover_path is None or not os.path.exists(entity.cover_path):
+                entity.cover_path = None
                 cherrypy.engine.bgtask.put(self.fetch_album_cover, entity.id)
                 for artist in entity.artists:
                     if artist.cover is not None:
@@ -520,13 +521,15 @@ class Root(object):
             if entity.invalid:
                 return cherrypy.lib.static.serve_file(invalid_placeholder)
 
-            if entity.cover_path is None:
+            if entity.cover_path is None or not os.path.exists(entity.cover_path):
+                entity.cover_path = None
                 cherrypy.engine.bgtask.put(self.fetch_artist_cover, entity.id)
 
         if entity is None:
             raise cherrypy.NotFound()
 
         if entity.cover_path is not None:
+
             if entity.cover is None:
                 cover_ext = os.path.splitext(entity.cover_path)[1].decode('utf8')
                 temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
