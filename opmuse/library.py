@@ -19,6 +19,7 @@ from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_type
 from opmuse.image import image
+from opmuse.search import search
 import mutagen.mp3
 import mutagen.oggvorbis
 import mutagen.easymp4
@@ -33,7 +34,6 @@ def log(msg):
 
 class Album(Base):
     __tablename__ = 'albums'
-    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
@@ -68,7 +68,6 @@ class Album(Base):
 
 class Artist(Base):
     __tablename__ = 'artists'
-    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
@@ -119,7 +118,6 @@ class TrackPath(Base):
 
 class Track(Base):
     __tablename__ = 'tracks'
-    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     slug = Column(String(255), index=True, unique=True)
@@ -723,6 +721,8 @@ class LibraryProcess:
 
         self._database.commit()
 
+        search.add_artist(artist)
+
         return track
 
     @staticmethod
@@ -794,7 +794,8 @@ class LibraryProcess:
             .replace('&', 'and')
             .replace('å', 'a')
             .replace('ä', 'a')
-            .replace('ö', 'o'))
+            .replace('ö', 'o')
+            .replace('ü', 'u'))
 
         string = re.sub(r'[^A-Za-z0-9_]+', '_', string)
 
