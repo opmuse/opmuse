@@ -1,1 +1,1 @@
-../../../vendor/jquery/jquery-1.8.2.js
+../../../vendor/jquery/jquery-1.8.3.js
