@@ -262,8 +262,8 @@ class Queue:
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='queue.html')
     def list(self):
-        user_id = cherrypy.request.user.id
-        return {'queues': queue_dao.get_queues(user_id)}
+        # XXX queues is set in QueueTool
+        return {}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -326,14 +326,14 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.multiheaders()
-    def logout(self):
+    def logout(self, came_from = None):
         who_api = get_api(cherrypy.request.wsgi_environ)
 
         headers = who_api.forget()
 
         cherrypy.response.multiheaders = headers
 
-        raise HTTPRedirect('/')
+        raise HTTPRedirect('/?came_from=%s' % came_from)
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='login.html')
@@ -432,15 +432,15 @@ class Root(object):
         return {'results': results}
 
     @cherrypy.expose
-    def index(self):
+    def index(self, came_from = None):
         if cherrypy.request.user is None:
-            raise cherrypy.InternalRedirect('/index_unauth')
+            raise cherrypy.InternalRedirect('/index_unauth?came_from=%s' % came_from)
         else:
             raise cherrypy.InternalRedirect('/index_auth')
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index_unauth.html')
-    def index_unauth(self):
+    def index_unauth(self, came_from = None):
         return {}
 
     @cherrypy.expose

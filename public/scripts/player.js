@@ -91,7 +91,7 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             this.playerProgress.find('.bar').width(prog + '%');
         },
         internalInit: function () {
-            $('.open-stream').unbind('click.ajaxify');
+            $('#next-button, #play-button, #pause-button, .open-stream').unbind('click.ajaxify');
         },
         load: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {

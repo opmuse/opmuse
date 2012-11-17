@@ -1,0 +1,48 @@
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <span class="throbber"></span>
+            <a class="brand" href="#">opmuse</a>
+            <div id="top">
+                <div class="nav-collapse collapse">
+                {% if authenticated %}
+                    <p class="navbar-text pull-right navbar-you">
+                        <a class="logout btn btn-small btn-danger"
+                            href="/logout?came_from={{ current_url|urlencode }}">
+                            Logout
+                        </a>
+                    </p>
+                {% endif %}
+                    <ul class="nav">
+                    {% if authenticated %}
+                        <li class="{{ "active" if request.path_info|startswith("/library") }}">
+                            <a href="/library">Library</a>
+                        </li>
+                        <li class="{{ "active" if request.path_info|startswith("/users") }}">
+                            <a href="/users">Users</a>
+                        </li>
+                        <li class="{{ "active" if request.path_info|startswith("/users") }}">
+                            <a href="/users/you" class="navbar-link" title="{{ request.user.login }}">You</a>
+                        </li>
+                        <li class="{{ "active" if request.path_info|startswith("/upload") }}">
+                            <a href="/upload">Upload</a>
+                        </li>
+                        <li class="navbar-search">
+                            <input class="search-query" type="text" placeholder="Search" />
+                        </li>
+                    {% else %}
+                        <li><a class="home" href="/">Home</a></li>
+                        <li><a class="login" href="/login">Login</a></li>
+                    {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

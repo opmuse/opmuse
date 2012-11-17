@@ -13,6 +13,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
             $('#top').bind('ajaxifyInit', function (event) {
                 that.internalInit();
             });
+
+            that.internalInit();
         },
         internalInit: function () {
             $(".logout").unbind('click.ajaxify');

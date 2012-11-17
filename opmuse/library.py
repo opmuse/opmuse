@@ -797,7 +797,7 @@ class LibraryProcess:
             .replace('ö', 'o')
             .replace('ü', 'u'))
 
-        string = re.sub(r'[^A-Za-z0-9_]+', '_', string)
+        string = re.sub(r'[^A-Za-z0-9_\'"()-]+', '_', string)
 
         string = string.strip('_')
 

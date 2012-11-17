@@ -7,6 +7,10 @@ from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
 import opmuse.pretty
 import locale
+from opmuse.queues import queue_dao
+
+def startswith(value, start):
+    return value.startswith(start)
 
 def json(value):
     return json_dumps(value)
@@ -66,6 +70,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['urlencode'] = urlencode
         self.env.filters['format_number'] = format_number
         self.env.filters['json'] = json
+        self.env.filters['startswith'] = startswith
 
     start.priority = 130
 
@@ -94,6 +99,11 @@ class Jinja(HandlerWrapperTool):
 
         template.globals['request'] = cherrypy.request
         template.globals['xhr'] = cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        template.globals['current_url'] = cherrypy.url()
+
+        # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
+        if cherrypy.request.user is not None:
+            template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
 
         html = template.render(response_dict)
         html = html.encode('utf8', 'replace')

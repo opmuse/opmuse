@@ -5,14 +5,18 @@
 {% endblock %}
 
 {% block container %}
-<form method="post" action="/login">
-    <dl>
-        <dt>Username</dt>
-        <dd><input type="text" name="login" /></dt>
-        <dt>Password</dt>
-        <dd><input type="password" name="password" /></dt>
-        <dt></dt>
-        <dd><button class="btn" type="submit">Login</button></dt>
-    </dl>
-</form>
+<div id="login">
+    <div class="row-fluid">
+        <div class="span4">
+        </div>
+        <div class="span4">
+            <div class="login well">
+                <p>Please sign in.</p>
+                {% include "partials/login.html" %}
+            </div>
+        </div>
+        <div class="span4">
+        </div>
+    </div>
+</div>
 {% endblock %}
