@@ -12,18 +12,18 @@
                 <div class="nav-collapse collapse">
                 {% if authenticated %}
                     <p class="navbar-text pull-right navbar-you">
-                        Logged in as <a href="/users/you" class="navbar-link">{{ request.user.login }}</a>
+                        <a class="logout btn btn-small btn-danger" href="/logout">Logout</a>
                     </p>
-                    <div class="navbar-search pull-left">
-                        <input class="search-query" type="text" placeholder="Search" />
-                    </div>
                 {% endif %}
                     <ul class="nav">
                     {% if authenticated %}
                         <li><a href="/library">Library</a></li>
                         <li><a href="/users">Users</a></li>
+                        <li><a href="/users/you" class="navbar-link" title="{{ request.user.login }}">You</a></li>
                         <li><a href="/upload">Upload</a></li>
-                        <li><a class="logout" href="/logout">Logout</a></li>
+                        <li class="navbar-search">
+                            <input class="search-query" type="text" placeholder="Search" />
+                        </li>
                     {% else %}
                         <li><a class="home" href="/">Home</a></li>
                         <li><a class="login" href="/login">Login</a></li>
