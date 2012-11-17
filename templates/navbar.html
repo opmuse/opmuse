@@ -12,7 +12,10 @@
                 <div class="nav-collapse collapse">
                 {% if authenticated %}
                     <p class="navbar-text pull-right navbar-you">
-                        <a class="logout btn btn-small btn-danger" href="/logout">Logout</a>
+                        <a class="logout btn btn-small btn-danger"
+                            href="/logout?came_from={{ current_url|urlencode }}">
+                            Logout
+                        </a>
                     </p>
                 {% endif %}
                     <ul class="nav">
