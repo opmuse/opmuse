@@ -106,11 +106,8 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
 
                 if (!event.ctrlKey && that.isRelative(href)) {
                     that.setPage(href);
-                } else if (event.ctrlKey && that.isRelative(href)) {
-                    // open ctrl-click in new window/tab
-                    window.open(document.location.href, "_blank");
                 } else {
-                    // open external links new window/tab
+                    // open external and ctrl-click in new window/tab
                     window.open(href, "_blank");
                 }
 
