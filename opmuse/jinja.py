@@ -9,6 +9,9 @@ import opmuse.pretty
 import locale
 from opmuse.queues import queue_dao
 
+def startswith(value, start):
+    return value.startswith(start)
+
 def json(value):
     return json_dumps(value)
 
@@ -67,6 +70,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['urlencode'] = urlencode
         self.env.filters['format_number'] = format_number
         self.env.filters['json'] = json
+        self.env.filters['startswith'] = startswith
 
     start.priority = 130
 
