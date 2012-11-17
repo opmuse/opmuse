@@ -99,6 +99,8 @@ class Jinja(HandlerWrapperTool):
 
         template.globals['request'] = cherrypy.request
         template.globals['xhr'] = cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        template.globals['current_url'] = cherrypy.url()
+
         # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
         template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
 
