@@ -262,8 +262,8 @@ class Queue:
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='queue.html')
     def list(self):
-        user_id = cherrypy.request.user.id
-        return {'queues': queue_dao.get_queues(user_id)}
+        # XXX queues is set in QueueTool
+        return {}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

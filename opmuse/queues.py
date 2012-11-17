@@ -142,4 +142,3 @@ class QueueDao:
         return weight
 
 queue_dao = QueueDao()
-

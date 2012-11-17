@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
 import opmuse.pretty
 import locale
+from opmuse.queues import queue_dao
 
 def json(value):
     return json_dumps(value)
@@ -94,6 +95,8 @@ class Jinja(HandlerWrapperTool):
 
         template.globals['request'] = cherrypy.request
         template.globals['xhr'] = cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
+        template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
 
         html = template.render(response_dict)
         html = html.encode('utf8', 'replace')

@@ -59,7 +59,9 @@
                         {% block right %}{% endblock %}
                     </div>
                     <div id="bottom-right">
-                        <div id="queue" class="well"></div>
+                        <div id="queue" class="well">
+                            {% include "queue.html" %}
+                        </div>
                     </div>
                     {% endif %}
                 </div>

@@ -22,9 +22,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
 
             that.internalInit();
 
-            that.reload();
-
-            setInterval(this.reload.bind(this), 3 * 60 * 1000);
+            setInterval(this.reload.bind(this), 2 * 60 * 1000);
 
             $("#bottom-right").bind("layoutResize", function (event) {
                 that.resize();
