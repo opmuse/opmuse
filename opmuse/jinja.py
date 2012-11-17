@@ -102,7 +102,8 @@ class Jinja(HandlerWrapperTool):
         template.globals['current_url'] = cherrypy.url()
 
         # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
-        template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
+        if cherrypy.request.user is not None:
+            template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
 
         html = template.render(response_dict)
         html = html.encode('utf8', 'replace')
