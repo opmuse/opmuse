@@ -85,7 +85,7 @@
                 {% if album.artists|length > 1%}
                 <td>
                     {% if track.artist.id != artist.id %}
-                        <a href="/library/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a>
+                        <a href="/{{ track.artist.slug }}">{{ track.artist.name }}</a>
                     {% else %}
                         {{ track.artist.name }}
                     {% endif %}

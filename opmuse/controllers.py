@@ -110,9 +110,9 @@ class Remove:
         messages.success('Removed album "%s"' % album.name)
 
         if len(artists) == 1:
-            raise HTTPRedirect('/library/artist/%s' % artists[0].slug)
+            raise HTTPRedirect('/%s' % artists[0].slug)
         else:
-            raise HTTPRedirect('/library/albums/new')
+            raise HTTPRedirect('/albums/new')
 
 
 class Upload:
@@ -452,6 +452,15 @@ class Root(object):
     library = Library()
 
     @cherrypy.expose
+    def default(self, *args, **kwargs):
+        if len(args) == 1:
+            raise cherrypy.InternalRedirect('/library/artist/%s' % args[0])
+        elif len(args) == 2:
+            raise cherrypy.InternalRedirect('/library/album/%s/%s' % (args[0], args[1]))
+
+        raise cherrypy.NotFound()
+
+    @cherrypy.expose
     @cherrypy.tools.multiheaders()
     def logout(self, came_from = None):
         who_api = get_api(cherrypy.request.wsgi_environ)
@@ -512,9 +521,9 @@ class Root(object):
 
         if len(artists) + len(albums) + len(tracks) == 1:
             for artist in artists:
-                raise HTTPRedirect('/library/artist/%s' % artist.slug)
+                raise HTTPRedirect('/%s' % artist.slug)
             for album in albums:
-                raise HTTPRedirect('/library/album/%s/%s' % (album.artists[0].slug, album.slug))
+                raise HTTPRedirect('/%s/%s' % (album.artists[0].slug, album.slug))
             for track in tracks:
                 raise HTTPRedirect('/library/track/%s' % track.slug)
 

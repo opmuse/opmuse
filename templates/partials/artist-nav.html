@@ -18,7 +18,7 @@
         <li class="nav-header">Namesakes</li>
         {% for artist in namesakes %}
         <li>
-            <a href="/library/artist/{{ artist.slug }}">{{ artist.name }}</a>
+            <a href="/{{ artist.slug }}">{{ artist.name }}</a>
         </li>
         {% endfor %}
     </ul>

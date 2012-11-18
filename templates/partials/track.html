@@ -1,12 +1,12 @@
 <span class="text">
     <span class="track-number">{{ track.number }}</span>
     <span class="artist-name">
-        <a href="/library/artist/{{ track.artist.slug }}">
+        <a href="/{{ track.artist.slug }}">
             {{ track.artist.name }}
         </a>
     </span>
     <span class="album-name">
-        <a href="/library/album/{{ track.artist.slug }}/{{ track.album.slug }}">
+        <a href="/{{ track.artist.slug }}/{{ track.album.slug }}">
             {{ track.album.name }}
         </a>
     </span>

@@ -753,7 +753,7 @@ class LibraryProcess:
     def _produce_artist_slug(self, artist):
         index = 0
         while True:
-            slug = LibraryProcess.slugify(artist, index)
+            index, slug = LibraryProcess.slugify(artist, index)
             try:
                 self._database.query(Artist).filter_by(slug=slug).one()
             except NoResultFound:
@@ -763,7 +763,7 @@ class LibraryProcess:
     def _produce_album_slug(self, album):
         index = 0
         while True:
-            slug = LibraryProcess.slugify(album, index)
+            index, slug = LibraryProcess.slugify(album, index)
             try:
                 self._database.query(Album).filter_by(slug=slug).one()
             except NoResultFound:
@@ -773,7 +773,7 @@ class LibraryProcess:
     def _produce_track_slug(self, artist, album, track):
         index = 0
         while True:
-            slug = LibraryProcess.slugify("%s_%s_%s" % (artist, album, track), index)
+            index, slug = LibraryProcess.slugify("%s_%s_%s" % (artist, album, track), index)
             try:
                 self._database.query(Track).filter_by(slug=slug).one()
             except NoResultFound:
@@ -783,12 +783,18 @@ class LibraryProcess:
     @staticmethod
     def slugify(string, index):
         if index > 0:
-            index = str(index)
-            string = "%s_%s" % (string[:(255 - len(index))], index)
+            index_str = str(index)
+            string = "%s_%s" % (string[:(255 - len(index_str))], index_str)
         else:
             string = string[:255]
 
         string = string.lower()
+
+        # Disallow certain slug values that will conflict with urls.
+        # Would be nice if this was automatic (search through controllers for all top-level url components).
+        if string in ('library', 'users', 'upload', 'logout', 'login', 'search', 'queue', 'cover'):
+            index += 1
+            return LibraryProcess.slugify(string, index)
 
         string = (string
             .replace('&', 'and')
@@ -804,7 +810,7 @@ class LibraryProcess:
         if len(string) == 0:
             string = "_"
 
-        return string
+        return index, string
 
     @staticmethod
     def get_hash(filename):

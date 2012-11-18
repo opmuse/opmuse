@@ -4,10 +4,10 @@
         {% if album_id != queue.track.album.id or artist_id != queue.track.artist.id %}
         <li>
             <span class="album-header">
-                <a href="/library/artist/{{ queue.track.artist.slug }}">
+                <a href="/{{ queue.track.artist.slug }}">
                     {{ queue.track.artist.name }}
                 </a> -
-                <a href="/library/album/{{ queue.track.artist.slug }}/{{ queue.track.album.slug }}">
+                <a href="/{{ queue.track.artist.slug }}/{{ queue.track.album.slug }}">
                     {{ queue.track.album.name }}
                 </a>
             </span>
