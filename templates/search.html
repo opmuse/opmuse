@@ -11,11 +11,11 @@
     <ul class="artists">
         {% for key, artist in results.items() %}
         <li>
-            <a href="/artist/{{ artist.entity.slug }}">{{ artist.entity.name }}</a>
+            <a href="/library/artist/{{ artist.entity.slug }}">{{ artist.entity.name }}</a>
             <ul class="albums">
                 {% for key, album in artist.albums.items() %}
                 <li>
-                    <a href="/album/{{ artist.entity.slug }}/{{ album.entity.slug }}">{{ album.entity.name }}</a>
+                    <a href="/library/album/{{ artist.entity.slug }}/{{ album.entity.slug }}">{{ album.entity.name }}</a>
                     <a
                         class="queue add-album"
                         href="/queue/add_album/{{ album.entity.slug }}">

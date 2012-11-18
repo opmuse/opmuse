@@ -1,10 +1,12 @@
-<div class="well sidebar-nav">
-    <ul class="nav nav-list">
-        <li class="nav-header">Library</li>
-        <li>
-            <a href="/library/artists">Artists</a>
-            <a href="/library/random">Random Albums</a>
-            <a href="/library/invalid">Invalid Albums</a>
-        </li>
-    </ul>
-</div>
+<ul class="nav nav-tabs">
+    <li class="{{ "active" if request.path_info|startswith("/library/album") }}">
+        <a href="/library/albums/new">Albums</a>
+    </li>
+    <li class="{{ "active" if request.path_info|startswith("/library/artist") }}">
+        <a href="/library/artists/new">Artists</a>
+    </li>
+    <li class="{{ "active" if request.path_info|startswith("/library/track") }}">
+        <a href="/library/tracks/new">Tracks</a>
+    </li>
+</ul>
+

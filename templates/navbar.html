@@ -21,7 +21,7 @@
                     <ul class="nav">
                     {% if authenticated %}
                         <li class="{{ "active" if request.path_info|startswith("/library") }}">
-                            <a href="/library">Library</a>
+                            <a href="/library/albums/new">Library</a>
                         </li>
                         <li class="{{ "active" if request.path_info|startswith("/users") }}">
                             <a href="/users">Users</a>

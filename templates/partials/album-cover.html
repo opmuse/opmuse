@@ -7,5 +7,5 @@
         {%- elif album.artists[0].cover_hash -%}
             {{ "?hash=%s" % album.artists[0].cover_hash.decode('utf8')|urlencode }}
         {%- endif -%}"
-    alt="Album art" class="album-art" />
+    alt="Album cover" class="album-cover" />
 

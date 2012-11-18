@@ -10,15 +10,8 @@
 
 {% block content %}
 <div id="artist">
-    <ul class="breadcrumb">
-        <li>
-            <a href="/library">Library</a>
-            <span class="divider">/</span>
-        </li>
-        <li class="active">
-            {{ artist.name }}
-        </li>
-    </ul>
+
+    {% include "partials/library-nav.html" %}
 
     {% include "partials/artist-head.html" %}
 

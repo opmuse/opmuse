@@ -10,17 +10,8 @@
 
 {% block content %}
 <div id="album">
-    <ul class="breadcrumb">
-        <li>
-            <a href="/library">Library</a>
-            <span class="divider">/</span>
-        </li>
-        <li>
-            <a href="/artist/{{ artist.slug }}">{{ artist.name }}</a>
-            <span class="divider">/</span>
-        </li>
-        <li class="active">{{ album.name }}</li>
-    </ul>
+
+    {% include "partials/library-nav.html" %}
 
     {% include "partials/artist-head.html" %}
 
@@ -94,14 +85,14 @@
                 {% if album.artists|length > 1%}
                 <td>
                     {% if track.artist.id != artist.id %}
-                        <a href="/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a>
+                        <a href="/library/artist/{{ track.artist.slug }}">{{ track.artist.name }}</a>
                     {% else %}
                         {{ track.artist.name }}
                     {% endif %}
                 </td>
                 {% endif %}
                 <td>
-                    <a href="/track/{{ track.slug }}">{{ track.name }}</a>
+                    <a href="/library/track/{{ track.slug }}">{{ track.name }}</a>
                     <a
                         class="btn btn-mini btn-success queue add"
                         href="/queue/add/{{ track.slug|urlencode }}">

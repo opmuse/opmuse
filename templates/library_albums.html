@@ -1,0 +1,49 @@
+{% extends "body.html" %}
+
+{% block title  %}
+Library - Albums -
+    {% if view == "new" %}
+        New
+    {% elif view == "random" %}
+        Random
+    {% else %}
+        Invalid
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div id="library">
+    {% include "partials/library-nav.html" %}
+
+    <ul class="album-nav nav nav-pills">
+        <li class="{{ "active" if request.path_info == "/library/albums/new" }}">
+            <a href="/library/albums/new">New</a>
+        </li>
+        <li class="{{ "active" if request.path_info == "/library/albums/random" }}">
+            <a href="/library/albums/random">Random</a>
+        </li>
+        <li class="{{ "active" if request.path_info == "/library/albums/invalid" }}">
+            <a href="/library/albums/invalid">Invalid</a>
+        </li>
+    </ul>
+
+    <ul class="albums">
+        {% for album in albums %}
+            <li>
+                {% include "partials/album.html" %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if page %}
+        <div class="pagination pagination-centered">
+            <ul>
+                {% if page > 1 %}
+                <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Newer</a></li>
+                {% endif %}
+                <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Older</a></li>
+            </ul>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

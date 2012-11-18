@@ -1,36 +1,36 @@
 <ul class="row-fluid artist-head">
-    {% if lastfm_album and lastfm_album.wiki %}
+    {% if album %}
     <li class="span4">
     {% else %}
     <li class="span8">
     {% endif %}
-        <h3>{{ artist.name }}</h3>
+        <h3><a href="/library/artist/{{ artist.slug }}">{{ artist.name }}</a></h3>
         {% if lastfm_artist and lastfm_artist.bio %}
-        <p>
-            {{ lastfm_artist.bio }}
-        </p>
-        {% for tag in lastfm_artist.tags %}
-        <span class="tag badge badge-success">{{ tag }}</span>
-        {% endfor %}
+            <p>
+                {{ lastfm_artist.bio }}
+            </p>
+            {% for tag in lastfm_artist.tags %}
+                <span class="tag badge badge-success">{{ tag }}</span>
+            {% endfor %}
         {% endif %}
     </li>
-    {% if lastfm_album and lastfm_album.wiki %}
-        <li class="span4">
-            <h3>{{ lastfm_album.name }}</h3>
+    {% if album %}
+    <li class="span4">
+        <h3><a href="/library/album/{{ artist.slug }}/{{ album.slug }}">{{ album.name }}</a></h3>
+        {% if lastfm_album and lastfm_album.wiki %}
             <p>
                 {{ lastfm_album.wiki }}
             </p>
-        </li>
+        {% endif %}
+    </li>
     {% endif %}
-    {% if album %}
-        <li class="span4">
+    <li class="span4">
+        {% if album %}
             {% include "partials/album-cover.html" %}
-        </li>
-    {% else %}
-        <li class="span4">
+        {% else %}
             {% include "partials/artist-cover.html" %}
-        </li>
-    {% endif %}
+        {% endif %}
+    </li>
 </ul>
 
 

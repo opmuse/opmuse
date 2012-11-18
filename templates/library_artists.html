@@ -1,21 +1,17 @@
 {% extends "body.html" %}
 
 {% block title  %}
-    Library
-{% endblock %}
-
-{% block right %}
-    {% include "partials/library-nav.html" %}
+    Library - Artists - New
 {% endblock %}
 
 {% block content %}
 <div id="library">
-    <ul class="breadcrumb">
-        <li>
-            <a href="/library">Library</a>
-            <span class="divider">/</span>
+    {% include "partials/library-nav.html" %}
+
+    <ul class="artist-nav nav nav-pills">
+        <li class="{{ "active" if request.path_info == "/library/artists/new" }}">
+            <a href="/library/artists/new">New</a>
         </li>
-        <li class="active">Artists</li>
     </ul>
 
     <ul class="artists">
@@ -29,9 +25,9 @@
     <div class="pagination pagination-centered">
         <ul>
             {% if page > 1 %}
-            <li><a href="/library/artists?page={{ page - 1 }}">Previous</a></li>
+            <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Previous</a></li>
             {% endif %}
-            <li><a href="/library/artists?page={{ page + 1 }}">Next</a></li>
+            <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
         </ul>
     </div>
 </div>

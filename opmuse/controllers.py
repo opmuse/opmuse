@@ -110,9 +110,9 @@ class Remove:
         messages.success('Removed album "%s"' % album.name)
 
         if len(artists) == 1:
-            raise HTTPRedirect('/artist/%s' % artists[0].slug)
+            raise HTTPRedirect('/library/artist/%s' % artists[0].slug)
         else:
-            raise HTTPRedirect('/library')
+            raise HTTPRedirect('/library/albums/new')
 
 
 class Upload:
@@ -316,6 +316,132 @@ class Styles(object):
         return cherrypy.lib.static.serve_file(lesspath)
 
 
+class Library(object):
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_track.html')
+    def track(self, slug):
+        track = library_dao.get_track_by_slug(slug)
+
+        if track is None:
+            raise cherrypy.NotFound()
+
+        lastfm_artist = lastfm.get_artist(track.artist.name)
+        lastfm_album = lastfm.get_album(track.artist.name, track.album.name)
+
+        return {
+            'track': track,
+            'artist': track.artist,
+            'lastfm_album': lastfm_album,
+            'lastfm_artist': lastfm_artist
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_album.html')
+    def album(self, artist_slug, album_slug):
+        artist = library_dao.get_artist_by_slug(artist_slug)
+        album = library_dao.get_album_by_slug(album_slug)
+
+        if artist is None or album is None:
+            raise cherrypy.NotFound()
+
+        lastfm_artist = lastfm.get_artist(artist.name)
+        lastfm_album = lastfm.get_album(artist.name, album.name)
+
+        return {
+            'artist': artist,
+            'album': album,
+            'lastfm_album': lastfm_album,
+            'lastfm_artist': lastfm_artist
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_tracks.html')
+    def tracks(self, view, page = None):
+        if page is None:
+            page = 1
+
+        page = int(page)
+
+        page_size = 18
+
+        offset = page_size * (page - 1)
+
+        tracks = []
+
+        return {'tracks': tracks, 'page': page, 'view': view}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_artists.html')
+    def artists(self, view, page = None):
+        if page is None:
+            page = 1
+
+        page = int(page)
+
+        page_size = 18
+
+        offset = page_size * (page - 1)
+
+        artists = library_dao.get_artists(page_size, offset)
+
+        return {'artists': artists, 'page': page, 'view': view}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_albums.html')
+    def albums(self, view, page = None):
+
+        if page is None:
+            page = 1
+
+        page = int(page)
+
+        page_size = 18
+
+        offset = page_size * (page - 1)
+
+        if view == "new":
+            albums = library_dao.get_new_albums(page_size, offset)
+        elif view == "random":
+            albums = library_dao.get_random_albums(page_size)
+            page = None
+        else:
+            albums = library_dao.get_invalid_albums(page_size, offset)
+
+        return {'albums': albums, 'page': page, 'view': view}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library_artist.html')
+    def artist(self, slug):
+        artist = library_dao.get_artist_by_slug(slug)
+
+        if artist is None:
+            raise cherrypy.NotFound()
+
+        lastfm_artist = lastfm.get_artist(artist.name)
+
+        namesakes = set()
+
+        for query in artist.name.split(' '):
+            if len(re.sub("[^a-zA-Z0-9]+", '', query)) > 4:
+                for artist_result in Artist.search_query(query).all():
+                    if artist != artist_result:
+                        namesakes.add(artist_result)
+                        if len(namesakes) >= 5:
+                            break
+
+        return {
+            'lastfm_artist': lastfm_artist,
+            'artist': artist,
+            'namesakes': namesakes
+        }
+
+
 class Root(object):
     styles = Styles()
     queue = Queue()
@@ -323,6 +449,7 @@ class Root(object):
     remove = Remove()
     tag = Tag()
     users = Users()
+    library = Library()
 
     @cherrypy.expose
     @cherrypy.tools.multiheaders()
@@ -356,10 +483,10 @@ class Root(object):
 
                 cherrypy.response.multiheaders = headers
 
-                if came_from is not None:
+                if came_from is not None and came_from != "None":
                     raise HTTPRedirect(came_from)
                 else:
-                    raise HTTPRedirect('/')
+                    raise HTTPRedirect('/library/albums/new')
 
         return {}
 
@@ -385,11 +512,11 @@ class Root(object):
 
         if len(artists) + len(albums) + len(tracks) == 1:
             for artist in artists:
-                raise HTTPRedirect('/artist/%s' % artist.slug)
+                raise HTTPRedirect('/library/artist/%s' % artist.slug)
             for album in albums:
-                raise HTTPRedirect('/album/%s/%s' % (album.artists[0].slug, album.slug))
+                raise HTTPRedirect('/library/album/%s/%s' % (album.artists[0].slug, album.slug))
             for track in tracks:
-                raise HTTPRedirect('/track/%s' % track.slug)
+                raise HTTPRedirect('/library/track/%s' % track.slug)
 
         results = {}
 
@@ -447,25 +574,6 @@ class Root(object):
     @cherrypy.tools.jinja(filename='index_auth.html')
     def index_auth(self):
         return {}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='track.html')
-    def track(self, slug):
-        track = library_dao.get_track_by_slug(slug)
-
-        if track is None:
-            raise cherrypy.NotFound()
-
-        lastfm_artist = lastfm.get_artist(track.artist.name)
-        lastfm_album = lastfm.get_album(track.artist.name, track.album.name)
-
-        return {
-            'track': track,
-            'artist': track.artist,
-            'lastfm_album': lastfm_album,
-            'lastfm_artist': lastfm_artist
-        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -550,26 +658,6 @@ class Root(object):
         mimetype = mimetypes.guess_type(entity.cover_path.decode('utf8', 'replace'))
         return mimetype[0] if mimetype is not None else 'image/jpeg'
 
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='album.html')
-    def album(self, artist_slug, album_slug):
-        artist = library_dao.get_artist_by_slug(artist_slug)
-        album = library_dao.get_album_by_slug(album_slug)
-
-        if artist is None or album is None:
-            raise cherrypy.NotFound()
-
-        lastfm_artist = lastfm.get_artist(artist.name)
-        lastfm_album = lastfm.get_album(artist.name, album.name)
-
-        return {
-            'artist': artist,
-            'album': album,
-            'lastfm_album': lastfm_album,
-            'lastfm_artist': lastfm_artist
-        }
-
     def fetch_album_cover(self, album_id):
 
         database = get_session()
@@ -604,33 +692,6 @@ class Root(object):
         album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
 
         database.commit()
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='artist.html')
-    def artist(self, slug):
-        artist = library_dao.get_artist_by_slug(slug)
-
-        if artist is None:
-            raise cherrypy.NotFound()
-
-        lastfm_artist = lastfm.get_artist(artist.name)
-
-        namesakes = set()
-
-        for query in artist.name.split(' '):
-            if len(re.sub("[^a-zA-Z0-9]+", '', query)) > 4:
-                for artist_result in Artist.search_query(query).all():
-                    if artist != artist_result:
-                        namesakes.add(artist_result)
-                        if len(namesakes) >= 5:
-                            break
-
-        return {
-            'lastfm_artist': lastfm_artist,
-            'artist': artist,
-            'namesakes': namesakes
-        }
 
     def retrieve_and_resize(self, image_url):
         image_ext = os.path.splitext(image_url)[1]
@@ -695,73 +756,6 @@ class Root(object):
         artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
 
         database.commit()
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_artists.html')
-    def library_artists(self, page = None):
-        if page is None:
-            page = 1
-
-        page = int(page)
-
-        page_size = 18
-
-        offset = page_size * (page - 1)
-
-        artists = library_dao.get_artists(page_size, offset)
-
-        return {'artists': artists, 'page': page}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_invalid.html')
-    def library_invalid(self, page = None):
-        if page is None:
-            page = 1
-
-        page = int(page)
-
-        page_size = 18
-
-        offset = page_size * (page - 1)
-
-        albums = library_dao.get_invalid_albums(page_size, offset)
-
-        return {'albums': albums, 'page': page}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_random.html')
-    def library_random(self):
-        albums = library_dao.get_random_albums(18)
-        return {'albums': albums}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library.html')
-    def library(self, *args, **kwargs):
-        if 'page' in kwargs:
-            page = kwargs['page']
-        else:
-            page = 1
-
-        if len(args) > 0 and args[0] == 'random':
-            raise cherrypy.InternalRedirect('/library_random')
-        elif len(args) > 0 and args[0] == 'invalid':
-            raise cherrypy.InternalRedirect('/library_invalid', 'page=%s' % page)
-        elif len(args) > 0 and args[0] == 'artists':
-            raise cherrypy.InternalRedirect('/library_artists', 'page=%s' % page)
-
-        page = int(page)
-
-        page_size = 18
-
-        offset = page_size * (page - 1)
-
-        showcase_albums = library_dao.get_new_albums(page_size, offset)
-
-        return {'showcase_albums': showcase_albums, 'page': page}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
