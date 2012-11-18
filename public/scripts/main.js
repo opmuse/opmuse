@@ -10,7 +10,7 @@ require(['jquery'], function($) {
         'queue',
         'player',
         'search',
-        'tag',
+        'edit',
         'logout',
         'library',
         'login',

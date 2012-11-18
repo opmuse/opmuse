@@ -1,10 +1,10 @@
 define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritance, ajaxify) {
     var instance = null;
 
-    var Tag = Class.extend({
+    var Edit = Class.extend({
         init: function () {
             if (instance !== null) {
-                throw Error('Only one instance of Tag allowed!');
+                throw Error('Only one instance of Edit allowed!');
             }
 
             var that = this;
@@ -18,7 +18,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         internalInit: function () {
             var that = this;
 
-            $("#tag form button").click(function (event) {
+            $("#edit form button").click(function (event) {
                 var form = $(this).closest('form');
                 var data = $(form).serialize();
 
@@ -46,9 +46,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                 return false;
             });
 
-            $("#tag .lock").unbind('click.ajaxify')
-                .unbind('click.tag')
-                .bind('click.tag',
+            $("#edit .lock").unbind('click.ajaxify')
+                .unbind('click.edit')
+                .bind('click.edit',
                     function (event) {
                         var type = null;
 
@@ -60,7 +60,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                             type = 'date';
                         }
 
-                        var selector = "#tag ." + type + ":not(.lock)";
+                        var selector = "#edit ." + type + ":not(.lock)";
 
                         $($(selector).attr("readonly", "readonly").get(0)).removeAttr("readonly")
                             .bind('keyup, blur',
@@ -77,7 +77,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
 
     return (function() {
         if (instance === null) {
-            instance = new Tag();
+            instance = new Edit();
         }
 
         return instance;

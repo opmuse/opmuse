@@ -1,14 +1,14 @@
 {% extends "body.html" %}
 
 {% block title  %}
-    Tag
+    Edit
 {% endblock %}
 
 {% block content %}
-<div id="tag">
-    <h1>Edit tags</h1>
+<div id="edit">
+    {% include "partials/library-nav.html" %}
 
-    <form method="post" action="/tag/edit">
+    <form method="post" action="/library/edit/submit">
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -63,7 +63,8 @@
                 {% endfor %}
             <tbody>
         </table>
-        <button class="btn" type="submit">Edit tags and/or move files</button>
+        <button class="btn" name="yes" type="submit" value="yes">Edit and move files.</button>
+        <button class="btn" name="no" type="submit" value="no">Only edit.</button>
     </form>
 </div>
 {% endblock %}

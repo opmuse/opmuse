@@ -26,11 +26,11 @@ from opmuse.utils import HTTPRedirect
 from opmuse.database import get_session
 from opmuse.image import image as image_service
 
-class Tag:
+class Edit:
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='tag.html')
+    @cherrypy.tools.jinja(filename='library/edit.html')
     @cherrypy.tools.authenticated()
-    def default(self, ids):
+    def default(self, ids = ''):
         ids = ids.split(',')
 
         tracks = library_dao.get_tracks_by_ids(ids)
@@ -38,20 +38,9 @@ class Tag:
         return {'tracks': tracks}
 
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='tag_edit.html')
+    @cherrypy.tools.jinja(filename='library/edit_submit.html')
     @cherrypy.tools.authenticated()
-    def edit(self, ids, artists, albums, tracks, dates, numbers):
-
-        update_tracks = self.get_tracks(ids, artists, albums, tracks, dates, numbers)
-
-        library_path = library_dao.get_library_path().encode('utf8')
-
-        return {"update_tracks": update_tracks}
-
-    @cherrypy.expose
-    @cherrypy.tools.jinja(filename='tag_move.html')
-    @cherrypy.tools.authenticated()
-    def move(self, ids, artists, albums, tracks, dates, numbers, yes = False, no = False):
+    def submit(self, ids, artists, albums, tracks, dates, numbers, yes = False, no = False):
 
         move = False
 
@@ -112,7 +101,7 @@ class Remove:
         if len(artists) == 1:
             raise HTTPRedirect('/%s' % artists[0].slug)
         else:
-            raise HTTPRedirect('/albums/new')
+            raise HTTPRedirect('/library/albums/new')
 
 
 class Upload:
@@ -318,6 +307,7 @@ class Styles(object):
 
 class Library(object):
     upload = Upload()
+    edit = Edit()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
@@ -448,7 +438,6 @@ class Root(object):
     styles = Styles()
     queue = Queue()
     remove = Remove()
-    tag = Tag()
     users = Users()
     library = Library()
 

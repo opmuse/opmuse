@@ -34,7 +34,7 @@
         </div>
 
         <div class="btn-group edit-btn">
-            <a class="btn btn-danger" href="/tag/{% for track in album.tracks -%}
+            <a class="btn btn-danger" href="/library/edit/{% for track in album.tracks -%}
                 {{ track.id }},
             {%- endfor %}">Edit</a>
             <a
