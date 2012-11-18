@@ -12,7 +12,8 @@
 .albums {
     clear: both;
     overflow: hidden;
-    padding-top: 10px;
+    padding: 10px 0 0 0;
+    margin: 0;
 
     li {
         list-style: none;
@@ -25,16 +26,32 @@
 
         width: 50%;
 
-        @media only screen and (min-width : 1280px) {
-            width: 33.3%;
+        @media only screen and (min-width : 1125px) {
+            width: 33.33%;
         }
 
-        @media only screen and (min-width : 1665px) {
+        @media only screen and (min-width : 1425px) {
             width: 25%;
         }
 
-        @media only screen and (min-width : 1920px) {
+        @media only screen and (min-width : 1725px) {
             width: 20%;
+        }
+
+        @media only screen and (min-width : 2025px) {
+            width: 16.66%;
+        }
+
+        @media only screen and (min-width : 2325px) {
+            width: 14.28%;
+        }
+
+        @media only screen and (min-width : 2325px) {
+            width: 14.28%;
+        }
+
+        @media only screen and (min-width : 2625px) {
+            width: 12.5%;
         }
 
         .artist,
