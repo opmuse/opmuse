@@ -117,13 +117,13 @@ class Remove:
 
 class Upload:
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='upload.html')
+    @cherrypy.tools.jinja(filename='library/upload.html')
     @cherrypy.tools.authenticated()
     def default(self):
         return {}
 
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='upload_add.html')
+    @cherrypy.tools.jinja(filename='library/upload_add.html')
     @cherrypy.tools.authenticated()
     def add(self):
 
@@ -321,7 +321,7 @@ class Library(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_track.html')
+    @cherrypy.tools.jinja(filename='library/track.html')
     def track(self, slug):
         track = library_dao.get_track_by_slug(slug)
 
@@ -340,7 +340,7 @@ class Library(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_album.html')
+    @cherrypy.tools.jinja(filename='library/album.html')
     def album(self, artist_slug, album_slug):
         artist = library_dao.get_artist_by_slug(artist_slug)
         album = library_dao.get_album_by_slug(album_slug)
@@ -360,7 +360,7 @@ class Library(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_tracks.html')
+    @cherrypy.tools.jinja(filename='library/tracks.html')
     def tracks(self, view, page = None):
         if page is None:
             page = 1
@@ -377,7 +377,7 @@ class Library(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_artists.html')
+    @cherrypy.tools.jinja(filename='library/artists.html')
     def artists(self, view, page = None):
         if page is None:
             page = 1
@@ -394,7 +394,7 @@ class Library(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_albums.html')
+    @cherrypy.tools.jinja(filename='library/albums.html')
     def albums(self, view, page = None):
 
         if page is None:
@@ -418,7 +418,7 @@ class Library(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='library_artist.html')
+    @cherrypy.tools.jinja(filename='library/artist.html')
     def artist(self, slug):
         artist = library_dao.get_artist_by_slug(slug)
 
