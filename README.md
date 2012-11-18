@@ -1,3 +1,4 @@
+[![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
        ________________________________________________
       /\     _____ _____ __  ___ __  __ _____ _____    \
       \/    /    //    //  |/  // / / //  __// ___/    /
@@ -53,5 +54,15 @@ Upgrading
 
     $ rm -rf cache/index/* # remove whoosh index
 
-[![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
+Our Doctrine
+------------
+
+This is what we recite to ourselves while we code.
+
+  - *We* don't *exclusively* store metadata about your library.
+    i.e. artist, album, title are always stored as actual tags on the file. Album covers are stored on the filesystem etc.
+  - Data generated exclusively in opmuse is worthless.
+    i.e. A users played tracks are submitted to last.fm
+  - We use the metadata we recieve verbatim.
+    i.e. Names are always case-sensitive. We don't try to be smart and remove leading spaces or anything, if your collection isn't tagged correctly you will suffer.
 
