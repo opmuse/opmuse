@@ -5,6 +5,7 @@ import cherrypy
 import urllib
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.hybrid import hybrid_property
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
 from repoze.who.plugins.redirector import RedirectorPlugin
@@ -27,6 +28,18 @@ class User(Base):
         self.password = password
         self.mail = mail
         self.salt = salt
+
+    @hybrid_property
+    def gravatar(self):
+        return '%s?size=28' % self._get_gravatar()
+
+    @hybrid_property
+    def gravatar_large(self):
+        return '%s?size=180' % self._get_gravatar()
+
+    def _get_gravatar(self):
+        hash = hashlib.md5(self.mail.encode()).hexdigest()
+        return 'http://www.gravatar.com/avatar/%s.png' % hash
 
 class AuthenticatedTool(cherrypy.Tool):
     def __init__(self):

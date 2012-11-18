@@ -22,6 +22,18 @@
     {% include "partials/users-nav.html" %}
 
     <ul class="row-fluid">
+        <li class="span11">
+            <div class="media">
+                <img class="pull-left media-object img-rounded" src="{{ user.gravatar_large }}" alt="{{ user.login }}'s Gravatar" />
+                <div class="media-body">
+                    <h4 class="media-heading">{{ user.login }}</h4>
+                    <p>{{ user.mail }}</p>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <ul class="row-fluid">
         <li class="span5">
             {% if top_artists_overall %}
                 <table class="table table-striped table-bordered">
