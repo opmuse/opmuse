@@ -1,0 +1,42 @@
+{% extends "body.html" %}
+
+{% block title  %}
+    Users - You - Settings
+{% endblock %}
+
+{% block content %}
+<div id="you">
+    {% include "partials/users-nav.html" %}
+
+    {% include "partials/you-nav.html" %}
+
+    <form method="post" action="/users/you/settings_submit" class="form-horizontal clear">
+        <div class="control-group">
+            <label class="control-label" for="login">Login</label>
+            <div class="controls">
+                <input type="text" name="login" id="login" disabled value="{{ user.login }}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="mail">Mail</label>
+            <div class="controls">
+                <input type="email" name="mail" id="mail" value="{{ user.mail }}" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="password1">Password</label>
+            <div class="controls">
+                <input type="password" name="password1" id="password1" placeholder="New Password" />
+                <input type="password" name="password2" id="password2" placeholder="Confirm Password" />
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">Edit</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+{% endblock %}
+

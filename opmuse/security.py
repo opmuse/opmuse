@@ -18,12 +18,14 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     login = Column(String(128), index=True, unique=True)
+    mail = Column(String(255), index=True, unique=True)
     password = Column(String(128))
     salt = Column(String(64))
 
-    def __init__(self, login, password, salt):
+    def __init__(self, login, password, mail, salt):
         self.login = login
         self.password = password
+        self.mail = mail
         self.salt = salt
 
 class AuthenticatedTool(cherrypy.Tool):

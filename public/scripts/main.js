@@ -18,7 +18,8 @@ require(['jquery'], function($) {
         'messages',
         'modal',
         'popover',
-        'locations'
+        'locations',
+        'you'
     ], function () {
         $("#overlay").remove();
         $('body').trigger('loadFinish');

@@ -20,7 +20,7 @@ from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, library_dao, LibraryProcess
-from opmuse.security import User
+from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
 from opmuse.database import get_session
@@ -201,6 +201,40 @@ class You:
             'auth_url': auth_url,
             'new_auth': new_auth
         }
+
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='users/you_settings.html')
+    @cherrypy.tools.authenticated()
+    def settings(self):
+        return {"user": cherrypy.request.user}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    def settings_submit(self, login = None, mail = None, password1 = None, password2 = None):
+
+        user = cherrypy.request.user
+
+        if mail == '':
+            mail = None
+
+        if password1 == '':
+            password1 = None
+
+        if password2 == '':
+            password2 = None
+
+        if mail is not None and user.mail != mail:
+            user.mail = mail
+            messages.success('Your mail was changed.')
+
+        if password1 is not None and password2 is not None:
+            if password1 != password2:
+                messages.warning('The passwords do not match.')
+            else:
+                user.password = hash_password(password1, user.salt)
+                messages.success('Your password was changed.')
+
+        raise HTTPRedirect('/users/you/settings')
 
 class Users:
     you = You()

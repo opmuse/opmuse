@@ -11,7 +11,7 @@ database = get_raw_session()
 # begin fixtures
 
 salt = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
-user = User('admin', hash_password("admin", salt), salt)
+user = User('admin', hash_password("admin", salt), 'info@example.com', salt)
 database.add(user)
 
 # end fixtures

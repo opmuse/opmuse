@@ -3,6 +3,9 @@ import cherrypy
 
 class Messages:
 
+    def warning(self, text):
+        self.publish('warning', text)
+
     def success(self, text):
         self.publish('success', text)
 
