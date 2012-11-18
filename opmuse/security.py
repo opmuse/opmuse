@@ -165,9 +165,13 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
 
         database = get_session()
 
-        user = database.query(User).filter_by(login = login).one()
+        salt = ''
 
-        salt = user.salt
+        try:
+            user = database.query(User).filter_by(login = login).one()
+            salt = user.salt
+        except NoResultFound:
+            pass
 
         database.remove()
 
