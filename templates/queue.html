@@ -3,7 +3,7 @@
         {% set track = queue.track %}
         {% if album_id != queue.track.album.id or artist_id != queue.track.artist.id %}
         <li>
-            <span class="album-header">
+            <span class="album-header" title="{{ queue.track.artist.name }} - {{ queue.track.album.name }}">
                 <a href="/{{ queue.track.artist.slug }}">
                     {{ queue.track.artist.name }}
                 </a> -
@@ -25,7 +25,7 @@
         <li data-track-duration="{{ queue.track.duration }}" class="track {{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
             <span class="text">
                 <span class="track-number">{{ track.number }}</span>
-                <span class="track-name">
+                <span class="track-name" title="{{ track.name }}">
                     <a href="/library/track/{{ track.slug }}">
                         {{ track.name }}
                     </a>

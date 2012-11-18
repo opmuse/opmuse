@@ -12,20 +12,20 @@
     <div class="container-fluid">
         {% block container %}
             <div class="row-fluid">
-                <div class="span8">
+                <div class="span9">
                     <div id="messages">
                     </div>
                     <div id="content">
                         {% block content %}{% endblock %}
                     </div>
                 </div>
-                <div class="span4">
+                <div class="span3">
                     {% if authenticated %}
                     <div id="right">
                         {% block right %}{% endblock %}
                     </div>
                     <div id="bottom-right">
-                        <div id="queue" class="well">
+                        <div id="queue" class="well well-small">
                             {% include "queue.html" %}
                         </div>
                     </div>
