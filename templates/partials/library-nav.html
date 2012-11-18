@@ -8,5 +8,8 @@
     <li class="{{ "active" if request.path_info|startswith("/library/track") }}">
         <a href="/library/tracks/new">Tracks</a>
     </li>
+    <li class="{{ "active" if request.path_info|startswith("/library/upload") }}">
+        <a href="/library/upload">Upload</a>
+    </li>
 </ul>
 

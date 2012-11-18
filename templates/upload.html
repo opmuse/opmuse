@@ -6,7 +6,9 @@
 
 {% block content %}
 <div id="upload">
-    <form id="fileupload" action="/upload/add" method="POST" enctype="multipart/form-data">
+    {% include "partials/library-nav.html" %}
+
+    <form id="fileupload" action="/library/upload/add" method="POST" enctype="multipart/form-data">
         <div class="btn-group">
             <span class="btn add">
                 <span>Add files</span>

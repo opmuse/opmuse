@@ -317,6 +317,8 @@ class Styles(object):
 
 
 class Library(object):
+    upload = Upload()
+
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library_track.html')
@@ -445,7 +447,6 @@ class Library(object):
 class Root(object):
     styles = Styles()
     queue = Queue()
-    upload = Upload()
     remove = Remove()
     tag = Tag()
     users = Users()
