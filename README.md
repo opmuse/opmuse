@@ -1,4 +1,5 @@
 [![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
+
        ________________________________________________
       /\     _____ _____ __  ___ __  __ _____ _____    \
       \/    /    //    //  |/  // / / //  __// ___/    /
