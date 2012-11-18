@@ -1,4 +1,12 @@
-<img width="220" height="220"
+{% if not cover_size %}
+    {% set cover_size = 220 %}
+{% endif %}
+
+{% if not cover_class %}
+    {% set cover_class = "img-polaroid" %}
+{% endif %}
+
+<img width="{{ cover_size }}" height="{{ cover_size }}"
     src="/cover/album/{{ album.slug }}
         {%- if album.cover_hash -%}
             {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
@@ -7,5 +15,5 @@
         {%- elif album.artists[0].cover_hash -%}
             {{ "?hash=%s" % album.artists[0].cover_hash.decode('utf8')|urlencode }}
         {%- endif -%}"
-    alt="Album cover" class="album-cover" />
+    alt="Album cover" class="album-cover {{ cover_class }}" />
 

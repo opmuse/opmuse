@@ -1,4 +1,12 @@
-<img width="220" height="220"
+{% if not cover_size %}
+    {% set cover_size = 220 %}
+{% endif %}
+
+{% if not cover_class %}
+    {% set cover_class = "img-polaroid" %}
+{% endif %}
+
+<img width="{{ cover_size }}" height="{{ cover_size }}"
     src="/cover/artist/{{ artist.slug }}{{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode if artist.cover_hash else "" }}"
-    alt="Artist cover" class="artist-cover" />
+    alt="Artist cover" class="artist-cover {{ cover_class }}" />
 

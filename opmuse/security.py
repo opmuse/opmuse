@@ -30,16 +30,24 @@ class User(Base):
         self.salt = salt
 
     @hybrid_property
+    def gravatar_small(self):
+        return self._get_gravatar(28)
+
+    @hybrid_property
     def gravatar(self):
-        return '%s?size=28' % self._get_gravatar()
+        return self._get_gravatar(80)
 
     @hybrid_property
     def gravatar_large(self):
-        return '%s?size=180' % self._get_gravatar()
+        return self._get_gravatar(180)
 
-    def _get_gravatar(self):
+    def _get_gravatar(self, size):
+        if self.mail is None:
+            return None
+
         hash = hashlib.md5(self.mail.encode()).hexdigest()
-        return 'http://www.gravatar.com/avatar/%s.png' % hash
+
+        return 'http://www.gravatar.com/avatar/%s.png?size=%s' % (hash, size)
 
 class AuthenticatedTool(cherrypy.Tool):
     def __init__(self):

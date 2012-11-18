@@ -14,15 +14,23 @@
             <th>Lastfm User</th>
         </tr>
         {% for user in users %}
-        <td class="name">
-            <a href="/users/user/{{ user.login }}">
-                <img class="img-rounded" src="{{ user.gravatar }}" alt="{{ user.login }}'s Gravatar" />
-            </a>
-            <a href="/users/user/{{ user.login }}">
-                {{ user.login }}
-            </a>
-        </td>
-        <td>{{ user.lastfm_user }}</td>
+        <tr>
+            <td class="name">
+                <a href="/users/user/{{ user.login }}">
+                    {% if user.gravatar %}
+                    <img class="img-rounded" src="{{ user.gravatar_small }}" alt="{{ user.login }}'s Gravatar" />
+                    {% endif %}
+                </a>
+                <a href="/users/user/{{ user.login }}">
+                    {{ user.login }}
+                </a>
+            </td>
+            <td>
+                {% if user.lastfm_user %}
+                    {{ user.lastfm_user }}
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
     </table>
 

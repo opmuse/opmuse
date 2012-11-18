@@ -603,7 +603,16 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index_auth.html')
     def index_auth(self):
-        return {}
+
+        limit = 8
+
+        users = (cherrypy.request.database.query(User)
+            .order_by(User.login).limit(limit).all())
+
+        albums = library_dao.get_new_albums(limit, 0)
+        artists = library_dao.get_artists(limit, 0)
+
+        return {'users': users, 'albums': albums, 'artists': artists}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
