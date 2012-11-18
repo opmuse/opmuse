@@ -262,9 +262,12 @@ class Users:
 
         page = int(page)
 
-        lastfm_user = lastfm.get_user(user.lastfm_user)
-
-        top_artists_overall = lastfm.get_top_artists_overall(user.lastfm_user, page)
+        if user.lastfm_user is not None:
+            lastfm_user = lastfm.get_user(user.lastfm_user)
+            top_artists_overall = lastfm.get_top_artists_overall(user.lastfm_user, page)
+        else:
+            lastfm_user = None
+            top_artists_overall = None
 
         return {
             'user': user,
