@@ -8,6 +8,10 @@ def pretty_date(time=False):
     """
     from datetime import datetime
     now = datetime.now()
+
+    if type(time) is str:
+        time = int(time)
+
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time,datetime):

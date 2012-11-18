@@ -169,11 +169,13 @@ class Upload:
 
         return {'tracks': tracks, 'messages': messages}
 
-class Lastfm:
+
+class You:
+
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='lastfm.html')
+    @cherrypy.tools.jinja(filename='users/you_lastfm.html')
     @cherrypy.tools.authenticated()
-    def default(self):
+    def lastfm(self):
 
         auth_url = authenticated_user = new_auth = None
 
@@ -200,24 +202,13 @@ class Lastfm:
             'new_auth': new_auth
         }
 
-class You:
-    lastfm = Lastfm()
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='you.html')
-    def default(self):
-        return {}
-
 class Users:
     you = You()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='users.html')
-    def default(self, login = None, page = 1):
-        if login is not None:
-            raise cherrypy.InternalRedirect('/users/user/%s?page=%s' % (login, page))
+    @cherrypy.tools.jinja(filename='users/users.html')
+    def users(self):
 
         users = (cherrypy.request.database.query(User)
             .order_by(User.login).all())
@@ -226,7 +217,7 @@ class Users:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='user.html')
+    @cherrypy.tools.jinja(filename='users/user.html')
     def user(self, login, page = 1):
         try:
             user = (cherrypy.request.database.query(User)
@@ -237,11 +228,14 @@ class Users:
 
         page = int(page)
 
+        lastfm_user = lastfm.get_user(user.lastfm_user)
+
         top_artists_overall = lastfm.get_top_artists_overall(user.lastfm_user, page)
 
         return {
             'user': user,
             'page': page,
+            'lastfm_user': lastfm_user,
             'top_artists_overall': top_artists_overall
         }
 

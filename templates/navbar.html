@@ -24,10 +24,7 @@
                             <a href="/library/albums/new">Library</a>
                         </li>
                         <li class="{{ "active" if request.path_info|startswith("/users") }}">
-                            <a href="/users">Users</a>
-                        </li>
-                        <li class="{{ "active" if request.path_info|startswith("/users") }}">
-                            <a href="/users/you" class="navbar-link" title="{{ request.user.login }}">You</a>
+                            <a href="/users/users">Users</a>
                         </li>
                         <li class="navbar-search">
                             <input class="search-query" type="text" placeholder="Search" />

@@ -4,23 +4,11 @@
     Lastfm
 {% endblock %}
 
-{% block right %}
-    {% include "partials/you-nav.html" %}
-{% endblock %}
-
 {% block content %}
-<div id="lastfm">
-    <ul class="breadcrumb">
-        <li>
-            <a href="/users">Users</a>
-            <span class="divider">/</span>
-        </li>
-        <li>
-            <a href="/users/you">You</a>
-            <span class="divider">/</span>
-        </li>
-        <li class="active">Lastfm</li>
-    </ul>
+<div id="you">
+    {% include "partials/users-nav.html" %}
+
+    {% include "partials/you-nav.html" %}
 
     <ul class="row-fluid">
         <li class="span6">

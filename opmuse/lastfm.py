@@ -139,6 +139,39 @@ class Lastfm:
         )
 
     @lru_cache(maxsize=None)
+    def get_user(self, user_name):
+        session_key = cherrypy.request.user.lastfm_session_key
+
+        try:
+            network = self.get_network(session_key)
+            user = network.get_user(user_name)
+
+            recent_tracks = []
+
+            for playedTrack in user.get_recent_tracks(40):
+                album = playedTrack.track.get_album()
+
+                if album is None:
+                    album = ''
+
+                recent_tracks.append({
+                    "artist": str(playedTrack.track.get_artist()),
+                    "album": str(album),
+                    "name": str(playedTrack.track.get_title()),
+                    "timestamp": playedTrack.timestamp
+                })
+
+            return {
+                'recent_tracks': recent_tracks,
+                'url': user.get_url()
+            }
+
+        except NetworkError:
+            log('Network error, failed to get user "%s".' % (
+                user_name
+            ))
+
+    @lru_cache(maxsize=None)
     def get_top_artists_overall(self, user_name, page = 1, limit = 50):
         session_key = cherrypy.request.user.lastfm_session_key
 
