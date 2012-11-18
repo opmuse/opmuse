@@ -13,13 +13,17 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
             this.files = [];
 
             $('#content').bind('ajaxifyInit', function (event) {
-                if (!$('#fileupload').data('initialized')) {
-                    that.internalInit();
-                }
+                that.internalInit();
             });
+
+            that.internalInit();
         },
         internalInit: function () {
             var that = this;
+
+            if ($('#fileupload').data('initialized')) {
+                return;
+            }
 
             $('#fileupload').data('initialized', true);
 
