@@ -7,7 +7,7 @@
                 <span class="icon-bar"></span>
             </a>
             <span class="throbber"></span>
-            <a class="brand" href="#">opmuse</a>
+            <span class="brand">opmuse</span>
             <div id="top">
                 <div class="nav-collapse collapse">
                 {% if authenticated %}
@@ -19,20 +19,24 @@
                     </p>
                 {% endif %}
                     <ul class="nav">
-                    {% if authenticated %}
-                        <li class="{{ "active" if request.path_info|startswith("/library") }}">
-                            <a href="/library/albums/new">Library</a>
+                        <li class="{{ "active" if request.path_info|startswith("/index") }}">
+                            <a href="/">Home</a>
                         </li>
-                        <li class="{{ "active" if request.path_info|startswith("/users") }}">
-                            <a href="/users/users">Users</a>
-                        </li>
-                        <li class="navbar-search">
-                            <input class="search-query" type="text" placeholder="Search" />
-                        </li>
-                    {% else %}
-                        <li><a class="home" href="/">Home</a></li>
-                        <li><a class="login" href="/login">Login</a></li>
-                    {% endif %}
+                        {% if authenticated %}
+                            <li class="{{ "active" if request.path_info|startswith("/library") }}">
+                                <a href="/library/albums/new">Library</a>
+                            </li>
+                            <li class="{{ "active" if request.path_info|startswith("/users") }}">
+                                <a href="/users/users">Users</a>
+                            </li>
+                            <li class="navbar-search">
+                                <input class="search-query" type="text" placeholder="Search" />
+                            </li>
+                        {% else %}
+                            <li class="{{ "active" if request.path_info == "/login" }}">
+                                <a class="login" href="/login">Login</a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
