@@ -516,7 +516,7 @@ class Root(object):
                 if came_from is not None and came_from != "None":
                     raise HTTPRedirect(came_from)
                 else:
-                    raise HTTPRedirect('/library/albums/new')
+                    raise HTTPRedirect('/')
 
         return {}
 
