@@ -29,7 +29,7 @@ class Image:
             source_width, source_height = int(source_width), int(source_height)
 
             if source_width < source_height:
-                resize = '%dx>' % width
+                resize = '%dx<' % width
 
         if resize is None:
             resize = '>x%d' % height
