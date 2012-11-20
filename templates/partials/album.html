@@ -12,8 +12,12 @@
             <p class="album-track-count badge badge-inverse">added {{ album.added|pretty_date }}</p>
         </div>
         <a
-            class="queue add-album btn btn-small btn-success"
-            href="/queue/add_album/{{ album.slug|urlencode }}">
+            class="queue add add-album btn btn-small btn-success"
+                href="/queue/add/
+                    {%- for track in album.tracks -%}
+                        {{ track.id }},
+                    {%- endfor -%}
+                ">
             Queue
         </a>
         <a href="/{{ album.artists[0].slug|urlencode if not artist else artist.slug|urlencode }}/{{ album.slug|urlencode }}">

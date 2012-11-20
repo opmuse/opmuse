@@ -1,48 +1,50 @@
 <ol class="tracks">
     {% for queue in queues %}
-        {% set track = queue.track %}
-        {% if album_id != queue.track.album.id or artist_id != queue.track.artist.id %}
+        {% set q = queue[0] %}
         <li>
-            <span class="album-header" title="{{ queue.track.artist.name }} - {{ queue.track.album.name }}">
-                <a href="/{{ queue.track.artist.slug|urlencode }}">
-                    {{ queue.track.artist.name }}
+            <span class="album-header" title="{{ q.track.artist.name }} - {{ q.track.album.name }}">
+                <a href="/{{ q.track.artist.slug|urlencode }}">
+                    {{ q.track.artist.name }}
                 </a> -
-                <a href="/{{ queue.track.artist.slug|urlencode }}/{{ queue.track.album.slug|urlencode }}">
-                    {{ queue.track.album.name }}
+                <a href="/{{ q.track.artist.slug|urlencode }}/{{ q.track.album.slug|urlencode }}">
+                    {{ q.track.album.name }}
                 </a>
             </span>
             <span class="album-info">
                 <a
                     class="remove label label-important"
-                    href="/queue/remove_album/{{ track.artist.slug|urlencode }}/{{ track.album.slug|urlencode }}">
+                    href="/queue/remove/
+                    {%- for q in queue -%}
+                        {{ q.track.id }},
+                    {%- endfor -%}
+                    ">
                     <span class="icon-remove icon-white"></span>
                 </a>
             </span>
         </li>
-        {% endif %}
-        {% set album_id = queue.track.album.id %}
-        {% set artist_id = queue.track.artist.id %}
-        <li data-track-duration="{{ queue.track.duration }}" class="track {{ "playing active" if queue.playing }} {{ "played" if queue.played }}">
-            <span class="text">
-                <span class="track-number">{{ track.number }}</span>
-                <span class="track-name" title="{{ track.name }}">
-                    <a href="/library/track/{{ track.slug|urlencode }}">
-                        {{ track.name }}
+        {% for q in queue %}
+            <li data-track-duration="{{ q.track.duration }}" class="track {{ "playing active" if q.playing }} {{ "played" if q.played }}">
+                <span class="text">
+                    <span class="track-number">{{ q.track.number }}</span>
+                    <span class="track-name" title="{{ q.track.name }}">
+                        <a href="/library/track/{{ q.track.slug|urlencode }}">
+                            {{ q.track.name }}
+                        </a>
+                    </span>
+                </span>
+                <span class="track-info">
+                    <span class="track-duration">
+                        {{ q.track.duration|format_seconds }}
+                    </span>
+                    <a
+                        class="remove label label-important"
+                        href="/queue/remove/{{ q.track.id }}">
+                        <span class="icon-remove icon-white"></span>
                     </a>
                 </span>
-            </span>
-            <span class="track-info">
-                <span class="track-duration">
-                    {{ track.duration|format_seconds }}
-                </span>
-                <a
-                    class="remove label label-important"
-                    href="/queue/remove/{{ track.slug|urlencode }}">
-                    <span class="icon-remove icon-white"></span>
-                </a>
-            </span>
-            <div class="clear"></div>
-        </li>
+                <div class="clear"></div>
+            </li>
+        {% endfor %}
     {% endfor %}
 </ol>
 

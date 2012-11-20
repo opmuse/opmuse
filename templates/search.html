@@ -17,8 +17,12 @@
                 <li>
                     <a href="/{{ artist.entity.slug|urlencode }}/{{ album.entity.slug|urlencode }}">{{ album.entity.name }}</a>
                     <a
-                        class="queue add-album"
-                        href="/queue/add_album/{{ album.entity.slug }}">
+                        class="queue add add-album"
+                        href="/queue/add/
+                            {%- for track in album.entity.tracks -%}
+                                {{ track.id }},
+                            {%- endfor -%}
+                        ">
                         +
                     </a>
                     <ul class="tracks">
@@ -27,7 +31,7 @@
                             {{ track.entity.name }}
                             <a
                                 class="queue add"
-                                href="/queue/add/{{ track.entity.slug|urlencode }}">
+                                href="/queue/add/{{ track.entity.id }}">
                                 +
                             </a>
                         </li>

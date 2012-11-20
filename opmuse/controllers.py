@@ -287,23 +287,19 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def add(self, slug):
-        queue_dao.add_track(slug)
+    def add(self, ids):
+        for id in ids.split(','):
+            if id == "":
+                continue
+            queue_dao.add_track(id)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def add_album(self, album_slug, artist_slug = None):
-        queue_dao.add_album(album_slug, artist_slug)
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    def remove_album(self, artist_slug, album_slug):
-        queue_dao.remove_album(artist_slug, album_slug)
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    def remove(self, slug):
-        queue_dao.remove_track(slug)
+    def remove(self, ids):
+        for id in ids.split(','):
+            if id == "":
+                continue
+            queue_dao.remove_track(id)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

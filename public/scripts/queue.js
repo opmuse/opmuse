@@ -30,7 +30,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
         },
         internalInit: function () {
             var that = this;
-            $('.queue.add, .queue.add-album')
+            $('.queue.add')
                 .unbind('click.queue')
                 .bind('click.queue', function (event) {
                 var url = $(this).attr('href');

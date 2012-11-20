@@ -62,8 +62,28 @@ class QueueDao:
         return next_queue.track
 
     def get_queues(self, user_id):
-        queues = (cherrypy.request.database.query(Queue)
-            .filter_by(user_id=user_id).order_by(Queue.weight).all())
+        queues = []
+
+        album = None
+        artist = None
+
+        current_queues = []
+
+        for queue in (cherrypy.request.database.query(Queue)
+                .filter_by(user_id=user_id).order_by(Queue.weight).all()):
+
+            if (album is not None and album.id != queue.track.album.id or
+                artist is not None and artist.id != queue.track.artist.id):
+                queues.append(current_queues)
+                current_queues = []
+
+            current_queues.append(queue)
+
+            album = queue.track.album
+            artist = queue.track.artist
+
+        if len(current_queues) > 0:
+            queues.append(current_queues)
 
         return queues
 
@@ -75,8 +95,8 @@ class QueueDao:
         user_id = cherrypy.request.user.id
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id, played=True).delete()
 
-    def add_track(self, slug):
-        track = library_dao.get_track_by_slug(slug)
+    def add_track(self, id):
+        track = cherrypy.request.database.query(Track).filter_by(id=id).one()
 
         user_id = cherrypy.request.user.id
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
@@ -89,46 +109,9 @@ class QueueDao:
 
         cherrypy.request.database.add(queue)
 
-    def remove_track(self, slug):
+    def remove_track(self, id):
         user_id = cherrypy.request.user.id
-        track = cherrypy.request.database.query(Track).filter_by(slug=slug).one()
-        cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = track.id).delete()
-
-    def remove_album(self, artist_slug, album_slug):
-        cherrypy.request.database.query(Queue).filter(Queue.id.in_(
-            [queue.id for queue in cherrypy.request.database
-            .query(Queue)
-            .join(Track, Track.id == Queue.track_id)
-            .join(Album, Album.id == Track.album_id)
-            .join(Artist, Artist.id == Track.artist_id)
-            .filter(Artist.slug == artist_slug, Album.slug == album_slug)
-            .all()]
-        )).delete(synchronize_session='fetch')
-
-    def add_album(self, album_slug, artist_slug = None):
-        album = library_dao.get_album_by_slug(album_slug)
-
-        if artist_slug is None:
-            artist = None
-        else:
-            artist = library_dao.get_artist_by_slug(artist_slug)
-
-        user_id = cherrypy.request.user.id
-        user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
-
-        weight = self.get_new_pos(user_id)
-
-        for track in album.tracks:
-            if artist is not None and track.artist.id != artist.id:
-                continue
-
-            queue = Queue(weight)
-            queue.track = track
-            queue.user = user
-
-            cherrypy.request.database.add(queue)
-
-            weight += 1
+        cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = id).delete()
 
     def get_new_pos(self, user_id):
         weight = (cherrypy.request.database.query(func.max(Queue.weight))

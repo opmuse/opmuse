@@ -20,14 +20,24 @@
     <div class="btn-container">
         <div class="btn-group queue-btn">
             <a
-                class="queue add-album btn btn-success"
-                href="/queue/add_album/{{ album.slug|urlencode }}">
+                class="queue add add-album btn btn-success"
+                href="/queue/add/
+                    {%- for track in album.tracks -%}
+                        {{ track.id }},
+                    {%- endfor -%}
+                ">
                 Queue all
             </a>
             {% if album.artists|count > 1 %}
             <a
-                class="queue add-album btn btn-success"
-                href="/queue/add_album/{{ album.slug|urlencode }}/{{ artist.slug|urlencode }}">
+                class="queue add add-album btn btn-success"
+                href="/queue/add/
+                    {%- for track in album.tracks -%}
+                        {% if track.artist.id == artist.id %}
+                            {{ track.id }},
+                        {% endif %}
+                    {%- endfor -%}
+                ">
                 current artist
             </a>
             {% endif %}
@@ -66,7 +76,16 @@
                     </th>
                     <td colspan="{{ colspan - 2 }}">
                         {{ dir }}
-                        <span class="edit-btn">
+                        <span class="edit-btn btn-group">
+                            <a
+                                class="queue add add-album btn btn-mini btn-success"
+                                href="/queue/add/
+                                    {%- for track in tracks -%}
+                                        {{ track.id }},
+                                    {%- endfor -%}
+                                ">
+                                Queue all
+                            </a>
                             <a class="btn btn-mini btn-danger" href="/library/edit/{% for track in tracks -%}
                                 {{ track.id }},
                             {%- endfor %}">Edit</a>
@@ -92,7 +111,7 @@
                             <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name }}</a>
                             <a
                                 class="btn btn-mini btn-success queue add"
-                                href="/queue/add/{{ track.slug|urlencode }}">
+                                href="/queue/add/{{ track.id }}">
                                 Queue
                             </a>
                         </td>
