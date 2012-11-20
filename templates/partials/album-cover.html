@@ -7,7 +7,7 @@
 {% endif %}
 
 <img width="{{ cover_size }}" height="{{ cover_size }}"
-    src="/cover/album/{{ album.slug }}
+    src="/cover/album/{{ album.slug|urlencode }}
         {%- if album.cover_hash -%}
             {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
         {# here we kind of sloppily assume that if there was no cover_hash on album

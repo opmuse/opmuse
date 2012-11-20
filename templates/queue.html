@@ -4,17 +4,17 @@
         {% if album_id != queue.track.album.id or artist_id != queue.track.artist.id %}
         <li>
             <span class="album-header" title="{{ queue.track.artist.name }} - {{ queue.track.album.name }}">
-                <a href="/{{ queue.track.artist.slug }}">
+                <a href="/{{ queue.track.artist.slug|urlencode }}">
                     {{ queue.track.artist.name }}
                 </a> -
-                <a href="/{{ queue.track.artist.slug }}/{{ queue.track.album.slug }}">
+                <a href="/{{ queue.track.artist.slug|urlencode }}/{{ queue.track.album.slug|urlencode }}">
                     {{ queue.track.album.name }}
                 </a>
             </span>
             <span class="album-info">
                 <a
                     class="remove label label-important"
-                    href="/queue/remove_album/{{ track.artist.slug }}/{{ track.album.slug }}">
+                    href="/queue/remove_album/{{ track.artist.slug|urlencode }}/{{ track.album.slug|urlencode }}">
                     <span class="icon-remove icon-white"></span>
                 </a>
             </span>
@@ -26,7 +26,7 @@
             <span class="text">
                 <span class="track-number">{{ track.number }}</span>
                 <span class="track-name" title="{{ track.name }}">
-                    <a href="/library/track/{{ track.slug }}">
+                    <a href="/library/track/{{ track.slug|urlencode }}">
                         {{ track.name }}
                     </a>
                 </span>
@@ -37,7 +37,7 @@
                 </span>
                 <a
                     class="remove label label-important"
-                    href="/queue/remove/{{ track.slug }}">
+                    href="/queue/remove/{{ track.slug|urlencode }}">
                     <span class="icon-remove icon-white"></span>
                 </a>
             </span>

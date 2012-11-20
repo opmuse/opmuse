@@ -4,7 +4,7 @@
     {% else %}
     <li class="span8">
     {% endif %}
-        <h3><a href="/{{ artist.slug }}">{{ artist.name }}</a></h3>
+        <h3><a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a></h3>
         {% if lastfm_artist and lastfm_artist.bio %}
             <p>
                 {{ lastfm_artist.bio }}
@@ -16,7 +16,7 @@
     </li>
     {% if album %}
     <li class="span4">
-        <h3><a href="/{{ artist.slug }}/{{ album.slug }}">{{ album.name }}</a></h3>
+        <h3><a href="/{{ artist.slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name }}</a></h3>
         {% if lastfm_album and lastfm_album.wiki %}
             <p>
                 {{ lastfm_album.wiki }}

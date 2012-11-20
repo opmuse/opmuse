@@ -1,6 +1,6 @@
 <div class="artist-container">
     <div class="artist {{ 'invalid' if artist.invalid else '' }}">
-    <a href="/{{ artist.slug }}">
+    <a href="/{{ artist.slug|urlencode }}">
         {% include "partials/artist-cover.html" %}
     </a>
     <div class="artist-desc">
