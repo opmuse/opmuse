@@ -372,9 +372,18 @@ class Library(object):
         lastfm_artist = lastfm.get_artist(artist.name)
         lastfm_album = lastfm.get_album(artist.name, album.name)
 
+        dirs = {}
+
+        for track in album.tracks:
+            if track.paths[0].pretty_dir not in dirs:
+                dirs[track.paths[0].pretty_dir] = []
+
+            dirs[track.paths[0].pretty_dir].append(track)
+
         return {
             'artist': artist,
             'album': album,
+            'dirs': dirs,
             'lastfm_album': lastfm_album,
             'lastfm_artist': lastfm_artist
         }
