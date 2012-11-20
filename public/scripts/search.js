@@ -12,6 +12,15 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                 return;
             }
 
+            var that = this;
+
+            $('#content').bind('ajaxifyInit', function (event) {
+                that.internalInit();
+            });
+
+            that.internalInit();
+        },
+        internalInit: function () {
             $('.search-query').bind('keyup', function (event) {
                 if (event.keyCode == 13) {
                     ajaxify.setPage('/search/' + $(this).val());
