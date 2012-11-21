@@ -10,10 +10,8 @@
     src="/cover/album/{{ album.slug|urlencode }}
         {%- if album.cover_hash -%}
             {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
-        {# here we kind of sloppily assume that if there was no cover_hash on album
-           it will be using the first artists cover... #}
-        {%- elif album.artists[0].cover_hash -%}
-            {{ "?hash=%s" % album.artists[0].cover_hash.decode('utf8')|urlencode }}
+        {%- else -%}
+            {{ "?hash=%s" % ('invalid' if album.invalid else 'valid') }}
         {%- endif -%}"
     alt="Album cover" class="album-cover {{ cover_class }}" />
 

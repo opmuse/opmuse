@@ -7,6 +7,11 @@
 {% endif %}
 
 <img width="{{ cover_size }}" height="{{ cover_size }}"
-    src="/cover/artist/{{ artist.slug|urlencode }}{{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode if artist.cover_hash else "" }}"
+src="/cover/artist/{{ artist.slug|urlencode }}
+    {%- if artist.cover_hash -%}
+        {{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode }}
+    {%- else -%}
+        {{ "?hash=%s" % ('invalid' if artist.invalid else 'valid') }}
+    {%- endif -%}"
     alt="Artist cover" class="artist-cover {{ cover_class }}" />
 
