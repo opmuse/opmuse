@@ -894,7 +894,7 @@ class LibraryDao:
         return (cherrypy.request.database.query(Track)
             .filter(Track.id.in_(ids)).all())
 
-    def add_files(self, filenames, move = False, remove_dirs = True):
+    def add_files(self, filenames, move = False, remove_dirs = True, artist_folder = None):
 
         paths = []
 
@@ -915,9 +915,12 @@ class LibraryDao:
 
                 old_dirname = os.path.dirname(filename)
 
-                dirname = os.path.join(library_path,
-                                       metadata.artist_name.replace("/", "_"),
-                                       metadata.album_name.replace("/", "_"))
+                if artist_folder is None:
+                    artist_folder = metadata.artist_name.replace("/", "_")
+
+                album_folder = metadata.album_name.replace("/", "_")
+
+                dirname = os.path.join(library_path, artist_folder, album_folder)
 
                 dirname = dirname.encode('utf8')
 

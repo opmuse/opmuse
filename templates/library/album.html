@@ -47,6 +47,9 @@
         </div>
 
         <div class="btn-group edit-btn">
+            <a class="btn btn-danger" href="/library/edit/move_to_va/{% for track in album.tracks -%}
+                {{ track.id }},
+            {%- endfor %}">Move to VA</a>
             <a class="btn btn-danger" href="/library/edit/{% for track in album.tracks -%}
                 {{ track.id }},
             {%- endfor %}">Edit</a>
@@ -81,6 +84,9 @@
                                 Queue all
                             </a>
                             <span class="btn-group">
+                                <a class="btn btn-mini btn-danger" href="/library/edit/move_to_va/{% for track in tracks -%}
+                                    {{ track.id }},
+                                {%- endfor %}">Move to VA</a>
                                 <a class="btn btn-mini btn-danger" href="/library/edit/{% for track in tracks -%}
                                     {{ track.id }},
                                 {%- endfor %}">Edit</a>

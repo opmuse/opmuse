@@ -19,7 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import Artist, Album, Track, library_dao, LibraryProcess
+from opmuse.library import Artist, Album, Track, TrackPath, library_dao, LibraryProcess
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
@@ -47,13 +47,6 @@ class Edit:
         if yes:
             move = True
 
-        update_tracks = self.get_tracks(ids, artists, albums, tracks, dates, numbers)
-
-        tracks, messages = library_dao.update_tracks_tags(update_tracks, move)
-
-        return {'tracks': tracks, 'messages': messages}
-
-    def get_tracks(self, ids, artists, albums, tracks, dates, numbers):
         if not isinstance(ids, list):
             ids = [ids]
 
@@ -84,8 +77,33 @@ class Edit:
                 "number": numbers[index]
             })
 
-        return update_tracks
+        tracks, messages = library_dao.update_tracks_tags(update_tracks, move)
 
+        return {'tracks': tracks, 'messages': messages}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    def move_to_va(self, ids):
+
+        filenames = []
+
+        for id in ids.split(','):
+            if id == "":
+                continue
+
+            track_paths = cherrypy.request.database.query(TrackPath).filter_by(track_id=id).all()
+
+            for track_path in track_paths:
+                filenames.append(track_path.path)
+                cherrypy.request.database.delete(track_path)
+
+        cherrypy.request.database.commit()
+
+        tracks, messages = library_dao.add_files(
+            filenames, move = True, remove_dirs = True, artist_folder = 'Various Artists'
+        )
+
+        raise HTTPRedirect('/%s/%s' % (tracks[0].artist.slug, tracks[0].album.slug))
 
 class Remove:
     @cherrypy.expose
