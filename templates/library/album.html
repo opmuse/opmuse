@@ -61,16 +61,6 @@
     </div>
 
     <table class="table table-striped table-bordered">
-        {% set colspan = 4 %}
-        {% if album.artists|length > 1%}
-            {% set colspan = colspan + 1 %}
-        {% endif %}
-        {% for track in album.tracks %}
-            {% if track.invalid %}
-                {% set colspan = colspan + 1 %}
-                {% break %}
-            {% endif %}
-        {% endfor %}
         {% for dir, tracks in dirs %}
             <tbody>
                 <tr class="dir-info">

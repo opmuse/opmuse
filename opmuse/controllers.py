@@ -380,12 +380,24 @@ class Library(object):
 
         dirs = sorted(dirs.items(), key = lambda d : d[0])
 
+        # calculate colspan here and not in template because jinja makes it really difficult
+        colspan = 4
+
+        if len(album.artists) > 1:
+            colspan += 1
+
+        for track in album.tracks:
+            if track.invalid:
+                colspan += 1
+                break
+
         return {
             'artist': artist,
             'album': album,
             'dirs': dirs,
             'lastfm_album': lastfm_album,
-            'lastfm_artist': lastfm_artist
+            'lastfm_artist': lastfm_artist,
+            'colspan': colspan
         }
 
     @cherrypy.expose
