@@ -67,7 +67,7 @@
                     <th colspan="2">
                         Folder
                     </th>
-                    <td colspan="{{ colspan - 2 }}">
+                    <th colspan="{{ colspan - 2 }}">
                         {{ dir }}
                         <span class="edit-btn">
                             {{ remove_modal.remove_modal("removeFolderModal" ~ tracks[0].id, "Remove \"%s\"" % dir, tracks) }}
@@ -93,7 +93,7 @@
                                 </a>
                             </span>
                         </span>
-                    </td>
+                    </th>
                 </tr>
                 {% for track in tracks %}
                     {% if track.invalid %}
@@ -121,6 +121,8 @@
                         <td>{{ track.duration|format_seconds }}</td>
                         {% if track.invalid %}
                             <td>{% include "partials/track-invalid.html" %}</td>
+                        {% elif album.invalid %}
+                            <td>&nbsp;</td>
                         {% endif %}
                     </tr>
                 {% endfor %}
