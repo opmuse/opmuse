@@ -376,6 +376,8 @@ class Library(object):
 
             dirs[track.paths[0].pretty_dir].append(track)
 
+        dirs = sorted(dirs.items(), key = lambda d : d[0])
+
         return {
             'artist': artist,
             'album': album,
