@@ -9,6 +9,9 @@
 {% endblock %}
 
 {% block content %}
+
+{% import "macros/remove-modal.html" as remove_modal %}
+
 <div id="album">
 
     {% include "partials/library-nav.html" %}
@@ -51,7 +54,7 @@
                 class="btn btn-danger"
                 role="button"
                 data-toggle="modal"
-                href="#removeModal">
+                href="#removeAlbumModal">
                 Remove
             </a>
         </div>
@@ -76,7 +79,8 @@
                     </th>
                     <td colspan="{{ colspan - 2 }}">
                         {{ dir }}
-                        <span class="edit-btn btn-group">
+                        <span class="edit-btn">
+                            {{ remove_modal.remove_modal("removeFolderModal" ~ tracks[0].id, "Remove \"%s\"" % dir, tracks) }}
                             <a
                                 class="queue add add-album btn btn-mini btn-success"
                                 href="/queue/add/
@@ -86,9 +90,18 @@
                                 ">
                                 Queue all
                             </a>
-                            <a class="btn btn-mini btn-danger" href="/library/edit/{% for track in tracks -%}
-                                {{ track.id }},
-                            {%- endfor %}">Edit</a>
+                            <span class="btn-group">
+                                <a class="btn btn-mini btn-danger" href="/library/edit/{% for track in tracks -%}
+                                    {{ track.id }},
+                                {%- endfor %}">Edit</a>
+                                <a
+                                    class="btn btn-mini btn-danger"
+                                    role="button"
+                                    data-toggle="modal"
+                                    href="#removeFolderModal{{ tracks[0].id }}">
+                                    Remove
+                                </a>
+                            </span>
                         </span>
                     </td>
                 </tr>
@@ -129,19 +142,7 @@
             </tr>
         </tfoot>
     </table>
-    <div class="modal hide" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="removeModalLabel">Remove Album</h3>
-        </div>
-        <div class="modal-body">
-            <p>This will remove the whole album from opmuse and all tracks from <strong>the filesystem</strong>.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
-            <a class="btn" data-ajaxify="continue" data-dismiss="modal" href="/remove/album/{{ album.id }}">Yes</a>
-        </div>
-    </div>
+    {{ remove_modal.remove_modal("removeAlbumModal", "Remove Album", album.tracks) }}
 </div>
 {% endblock %}
 

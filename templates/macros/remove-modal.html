@@ -1,0 +1,19 @@
+{% macro remove_modal(modalId, modalLabel, tracks) %}
+    <div class="modal hide" id="{{ modalId }}" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="removeModalLabel">{{ modalLabel }}</h3>
+        </div>
+        <div class="modal-body">
+            <p>This will remove all tracks from opmuse and all files from <strong>the filesystem</strong>.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+            <a class="btn" data-ajaxify="continue" data-dismiss="modal" href="/remove/
+                {%- for track in tracks -%}
+                    {{ track.id }},
+                {%- endfor -%}
+                ">Yes</a>
+        </div>
+    </div>
+{% endmacro %}

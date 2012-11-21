@@ -90,19 +90,21 @@ class Edit:
 class Remove:
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def album(self, id):
-        album = (cherrypy.request.database.query(Album)
-            .filter_by(id=id).one())
+    def default(self, ids):
+        artist = album = None
 
-        artists = library_dao.remove_album(album)
+        for id in ids.split(','):
+            if id == "":
+                continue
 
-        messages.success('Removed album "%s"' % album.name)
+            artist, album = library_dao.remove(id)
 
-        if len(artists) == 1:
-            raise HTTPRedirect('/%s' % artists[0].slug)
+        if album is not None:
+            raise HTTPRedirect('/%s/%s' % (artist.slug, album.slug))
+        elif artist is not None:
+            raise HTTPRedirect('/%s' % artist.slug)
         else:
             raise HTTPRedirect('/library/albums/new')
-
 
 class Upload:
     @cherrypy.expose

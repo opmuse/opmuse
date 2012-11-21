@@ -1014,17 +1014,19 @@ class LibraryDao:
             .offset(offset)
             .all())
 
-    def remove_album(self, album):
+    def remove(self, id):
+        track = cherrypy.request.database.query(Track).filter_by(id=id).one()
+
         dirs = set()
 
-        artists = album.artists
+        for path in track.paths:
+            dirs.add(os.path.dirname(path.path))
+            os.remove(path.path)
 
-        for track in album.tracks:
-            for path in track.paths:
-                dirs.add(os.path.dirname(path.path))
-                os.remove(path.path)
+        album = track.album
+        artist = track.artist
 
-            cherrypy.request.database.delete(track)
+        cherrypy.request.database.delete(track)
 
         self.remove_empty_dirs(dirs)
 
@@ -1032,18 +1034,15 @@ class LibraryDao:
 
         if len(album.tracks) == 0:
             cherrypy.request.database.delete(album)
+            album = None
 
         cherrypy.request.database.commit()
 
-        artists_left = []
+        if len(artist.albums) == 0:
+            cherrypy.request.database.delete(artist)
+            artist = None
 
-        for artist in artists:
-            if len(artist.albums) == 0:
-                cherrypy.request.database.delete(artist)
-            else:
-                artists_left.append(artist)
-
-        return artists_left
+        return artist, album
 
     def get_random_albums(self, limit):
         return (cherrypy.request.database
