@@ -11,8 +11,13 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-modal', 'domReady!
             var that = this;
 
             $('#content').bind('ajaxifyInit', function (event) {
-                $("[data-toggle=modal]").unbind('click.ajaxify');
+                that.internalInit();
             });
+
+            that.internalInit();
+        },
+        internalInit: function () {
+            $("[data-toggle=modal]").unbind('click.ajaxify');
         }
     });
 
