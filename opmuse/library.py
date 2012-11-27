@@ -10,8 +10,8 @@ import shutil
 import time
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import (Column, Integer, String, ForeignKey, BINARY, BLOB,
-                       DateTime, Boolean, func)
+from sqlalchemy import (Column, Integer, String, ForeignKey, VARBINARY, BINARY, BLOB,
+                       DateTime, Boolean, func, TypeDecorator)
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -28,6 +28,24 @@ import mutagen.easyid3
 import mutagen.apev2
 import mutagen.musepack
 
+class StringBinaryType(TypeDecorator):
+    """
+    Stores value as a binary string in a VARBINARY column but automatically
+    converts it to utf8-encoded string.
+
+    This is because VARCHAR in MySQL ignores trailing spaces for comparison
+    but we want that.
+    """
+    impl = VARBINARY
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            return value.encode('utf8')
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            return value.decode('utf8')
+
 def log(msg):
     cherrypy.log(msg, context='library')
 
@@ -36,7 +54,7 @@ class Album(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
+    name = Column(StringBinaryType(255))
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
@@ -80,7 +98,7 @@ class Artist(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255).with_variant(mysql.VARCHAR(255, collation='utf8_bin'), 'mysql'))
+    name = Column(StringBinaryType(255))
     slug = Column(String(255), index=True, unique=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
@@ -132,7 +150,7 @@ class Track(Base):
 
     id = Column(Integer, primary_key=True)
     slug = Column(String(255), index=True, unique=True)
-    name = Column(String(255))
+    name = Column(StringBinaryType(255))
     duration = Column(Integer)
     number = Column(String(8))
     format = Column(String(128))
