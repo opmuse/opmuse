@@ -127,7 +127,10 @@ def configure():
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
                                         '..', 'public', 'images'),
         },
-        '/upload/add': {
+        '/library/upload/add': {
+            'response.timeout': 3600
+        },
+        '/library/edit/submit': {
             'response.timeout': 3600
         },
     }
@@ -157,6 +160,7 @@ def configure():
 
     # 5 gigabyte file upload limit
     config['server.max_request_body_size'] = 1024 ** 3 * 5
+    config['engine.timeout_monitor.frequency'] = 60 * 5
 
     cherrypy.config.update(config)
 
