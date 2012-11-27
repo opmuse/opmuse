@@ -2,8 +2,8 @@
 <a href="#" class="icon-folder-open" rel="popover"
     title="Folder doesn't match tags."
     data-trigger="hover"
-    data-content="This track should be located in a folder named <strong>{{ track.album.name }}</strong> which in turn
-    should be located in a folder named <strong>{{ track.artist.name }}</strong>. Do note that these names are case
+    data-content="This track should be located in a folder named <strong>{{ track.album.name|e }}</strong> which in turn
+    should be located in a folder named <strong>{{ track.artist.name|e }}</strong>. Do note that these names are case
     sensitive. <em>This does not affect the playability of this track!</em>">
 </a>
 {% elif track.invalid == "incomplete_tags" %}
