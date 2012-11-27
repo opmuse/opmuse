@@ -18,6 +18,7 @@ require(['jquery'], function($) {
         'messages',
         'modal',
         'popover',
+        'tooltip',
         'locations',
         'you'
     ], function () {
