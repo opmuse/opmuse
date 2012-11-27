@@ -129,7 +129,7 @@ class TrackPath(Base):
     path = Column(BLOB)
     track_id = Column(Integer, ForeignKey('tracks.id'))
 
-    tracks = relationship("Track", backref=backref('paths', cascade="all,delete", order_by=id))
+    track = relationship("Track", backref=backref('paths', cascade="all,delete", order_by=id))
 
     def __init__(self, path):
         self.path = path

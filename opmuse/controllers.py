@@ -95,7 +95,8 @@ class Edit:
 
             for track_path in track_paths:
                 filenames.append(track_path.path)
-                cherrypy.request.database.delete(track_path)
+                cherrypy.request.database.delete(track_path.track)
+
 
         cherrypy.request.database.commit()
 
