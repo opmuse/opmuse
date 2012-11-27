@@ -83,7 +83,7 @@ class Edit:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def move_to_va(self, ids):
+    def move(self, ids, where = None):
 
         filenames = []
 
@@ -100,8 +100,13 @@ class Edit:
 
         cherrypy.request.database.commit()
 
+        if where == "va":
+            artist_folder = 'Various Artists'
+        else:
+            artist_folder = None
+
         tracks, messages = library_dao.add_files(
-            filenames, move = True, remove_dirs = True, artist_folder = 'Various Artists'
+            filenames, move = True, remove_dirs = True, artist_folder = artist_folder
         )
 
         raise HTTPRedirect('/%s/%s' % (tracks[0].artist.slug, tracks[0].album.slug))

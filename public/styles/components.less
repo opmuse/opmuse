@@ -103,12 +103,28 @@
     clear: both;
     overflow: hidden;
 
+    .move-btn,
     .edit-btn {
+        position: static;
+
+        /* these two are here so tooltips work */
+        white-space: inherit;
         float: right;
     }
 
     .queue-btn {
         float: left;
+    }
+}
+
+.dir-info .btn-container {
+    float: right;
+
+    .move-btn,
+    .edit-btn,
+    .queue-btn {
+        font-weight: normal;
+        float: none;
     }
 }
 

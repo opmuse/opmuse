@@ -932,6 +932,8 @@ class LibraryDao:
 
         moved_dirs = set()
 
+        master_artist_folder = artist_folder
+
         for filename in filenames:
             if os.path.splitext(filename)[1].lower()[1:] not in Library.SUPPORTED:
                 continue
@@ -943,8 +945,10 @@ class LibraryDao:
 
                 old_dirname = os.path.dirname(filename)
 
-                if artist_folder is None:
+                if master_artist_folder is None:
                     artist_folder = metadata.artist_name.replace("/", "_")
+                else:
+                    artist_folder = master_artist_folder
 
                 album_folder = metadata.album_name.replace("/", "_")
 

@@ -47,9 +47,6 @@
         </div>
 
         <div class="btn-group edit-btn">
-            <a class="btn btn-danger" href="/library/edit/move_to_va/{% for track in album.tracks -%}
-                {{ track.id }},
-            {%- endfor %}">Move to VA</a>
             <a class="btn btn-danger" href="/library/edit/{% for track in album.tracks -%}
                 {{ track.id }},
             {%- endfor %}">Edit</a>
@@ -60,6 +57,19 @@
                 href="#removeAlbumModal">
                 Remove
             </a>
+        </div>
+
+        <div class="btn-group move-btn">
+            <a rel="tooltip" data-trigger="hover" data-html="true"
+                title="Move to i.e. <strong>{{ artist.name|e }}/{{ album.name|e }}/</strong>" class="btn btn-danger"
+                href="/library/edit/move/{% for track in album.tracks -%}
+                {{ track.id }},
+            {%- endfor %}">Move</a>
+            <a rel="tooltip" data-trigger="hover" data-html="true"
+                title="Move to i.e. <strong>Various Artists/{{ album.name|e }}/</strong>" class="btn btn-danger"
+                href="/library/edit/move/{% for track in album.tracks -%}
+            {{ track.id }},
+            {%- endfor %}/va">VA</a>
         </div>
     </div>
 
@@ -72,32 +82,45 @@
                     </th>
                     <th colspan="{{ colspan - 2 }}">
                         {{ dir }}
-                        <span class="edit-btn">
                             {{ remove_modal.remove_modal("removeFolderModal" ~ tracks[0].id, "Remove \"%s\"" % dir, tracks) }}
-                            <a
-                                class="queue add add-album btn btn-mini btn-success"
-                                href="/queue/add/
-                                    {%- for track in tracks -%}
+                            <span class="btn-container">
+                                <span class="queue-btn btn-group">
+                                    <a
+                                        class="queue add add-album btn btn-mini btn-success"
+                                        href="/queue/add/
+                                            {%- for track in tracks -%}
+                                                {{ track.id }},
+                                            {%- endfor -%}
+                                        ">
+                                        Queue all
+                                    </a>
+                                </span>
+                                <div class="btn-group move-btn">
+                                    <a rel="tooltip" data-trigger="hover" data-html="true"
+                                        title="Move to i.e. <strong>{{ artist.name|e }}/{{ album.name|e }}/</strong>"
+                                        class="btn btn-mini btn-danger"
+                                        href="/library/edit/move/{% for track in tracks -%}
                                         {{ track.id }},
-                                    {%- endfor -%}
-                                ">
-                                Queue all
-                            </a>
-                            <span class="btn-group">
-                                <a class="btn btn-mini btn-danger" href="/library/edit/move_to_va/{% for track in tracks -%}
+                                    {%- endfor %}">Move</a>
+                                    <a rel="tooltip" data-trigger="hover" data-html="true"
+                                        title="Move to i.e. <strong>Various Artists/{{ album.name|e }}/</strong>"
+                                        class="btn btn-mini btn-danger"
+                                        href="/library/edit/move/{% for track in tracks -%}
                                     {{ track.id }},
-                                {%- endfor %}">Move to VA</a>
-                                <a class="btn btn-mini btn-danger" href="/library/edit/{% for track in tracks -%}
-                                    {{ track.id }},
-                                {%- endfor %}">Edit</a>
-                                <a
-                                    class="btn btn-mini btn-danger"
-                                    role="button"
-                                    data-toggle="modal"
-                                    href="#removeFolderModal{{ tracks[0].id }}">
-                                    Remove
-                                </a>
-                            </span>
+                                    {%- endfor %}/va">VA</a>
+                                </div>
+                                <span class="btn-group edit-btn">
+                                    <a class="btn btn-mini btn-danger" href="/library/edit/{% for track in tracks -%}
+                                        {{ track.id }},
+                                    {%- endfor %}">Edit</a>
+                                    <a
+                                        class="btn btn-mini btn-danger"
+                                        role="button"
+                                        data-toggle="modal"
+                                        href="#removeFolderModal{{ tracks[0].id }}">
+                                        Remove
+                                    </a>
+                                </span>
                         </span>
                     </th>
                 </tr>
