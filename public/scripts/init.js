@@ -11,5 +11,6 @@ require.config({
     },
     shim: {
         'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip']
-    }
+    },
+    waitSeconds: 30
 });
