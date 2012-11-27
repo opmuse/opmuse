@@ -11,8 +11,13 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-popover', 'domRead
             var that = this;
 
             $('#content').bind('ajaxifyInit', function (event) {
-                $("a[rel=popover]").popover();
+                that.internalInit();
             });
+
+            that.internalInit();
+        },
+        internalInit: function () {
+            $("a[rel=popover]").popover();
         }
     });
 
