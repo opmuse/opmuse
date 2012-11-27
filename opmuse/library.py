@@ -55,14 +55,23 @@ class Album(Base):
 
     @hybrid_property
     def invalid(self):
+        if len(self.tracks) == 0:
+            return None
+
         return len(self.tracks) != sum(not track.invalid for track in self.tracks)
 
     @hybrid_property
     def duration(self):
+        if len(self.tracks) == 0:
+            return None
+
         return sum(track.duration if track.duration is not None else 0 for track in self.tracks)
 
     @hybrid_property
     def added(self):
+        if len(self.tracks) == 0:
+            return None
+
         return max(track.added for track in self.tracks)
 
 
