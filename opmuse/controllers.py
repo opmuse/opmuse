@@ -767,8 +767,9 @@ class Root(object):
         for album_dir in album_dirs:
             cover_dest = os.path.join(album_dir, b'cover' + cover_ext.encode('utf8'))
 
-            with open(cover_dest, 'wb') as file:
-                file.write(cover)
+            if not os.path.exists(cover_dest):
+                with open(cover_dest, 'wb') as file:
+                    file.write(cover)
 
             album.cover_path = cover_dest
 
@@ -829,10 +830,17 @@ class Root(object):
                     ))
 
         for artist_dir in artist_dirs:
+            if os.path.basename(artist_dir) == b"Various Artists":
+                artist_dir = os.path.join(os.path.dirname(artist_dir), artist.name.encode('utf8'))
+
+                if not os.path.exists(artist_dir):
+                    os.path.makedirs(artist_dir)
+
             cover_dest = os.path.join(artist_dir, b'artist' + cover_ext.encode('utf8'))
 
-            with open(cover_dest, 'wb') as file:
-                file.write(cover)
+            if not os.path.exists(cover_dest):
+                with open(cover_dest, 'wb') as file:
+                    file.write(cover)
 
             artist.cover_path = cover_dest
 

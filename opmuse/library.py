@@ -384,8 +384,15 @@ class PathParser(TagParser):
         album_dir = os.path.dirname(bfilename)
         artist_dir = os.path.dirname(album_dir)
 
+        if os.path.basename(artist_dir) == b'Various Artists':
+            artist_dir = os.path.join(os.path.dirname(artist_dir), metadata.artist_name.encode('utf8'))
+
         album_cover_path = self.match_in_dir(match_files, album_dir)
-        artist_cover_path = self.match_in_dir(match_files, artist_dir)
+
+        if os.path.exists(artist_dir):
+            artist_cover_path = self.match_in_dir(match_files, artist_dir)
+        else:
+            artist_cover_path = None
 
         match = re.search('([0-9]+)', track_name)
         if match is not None:
