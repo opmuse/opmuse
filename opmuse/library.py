@@ -409,9 +409,9 @@ class PathParser(TagParser):
             invalid = []
 
         if metadata is not None:
-            if (metadata.album_name is not None and album.replace('/', '_') != metadata.album_name or
-                metadata.artist_name is not None and artist.replace('/', '_') not in
-                    ("Various Artists", metadata.artist_name)):
+            if (metadata.album_name is not None and album != metadata.album_name.replace('/', '_') or
+                metadata.artist_name is not None and artist not in
+                    ("Various Artists", metadata.artist_name.replace('/', '_'))):
                 invalid = ['dir']
 
         return FileMetadata(artist, album, track_name, None, number, added,
