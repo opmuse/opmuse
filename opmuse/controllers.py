@@ -834,7 +834,7 @@ class Root(object):
                 artist_dir = os.path.join(os.path.dirname(artist_dir), artist.name.encode('utf8'))
 
                 if not os.path.exists(artist_dir):
-                    os.path.makedirs(artist_dir)
+                    os.makedirs(artist_dir)
 
             cover_dest = os.path.join(artist_dir, b'artist' + cover_ext.encode('utf8'))
 
