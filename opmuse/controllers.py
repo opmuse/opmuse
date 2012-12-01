@@ -19,7 +19,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import Artist, Album, Track, TrackPath, library_dao, LibraryProcess
+from opmuse.library import (Artist, Album, Track, TrackPath, library_dao,
+    LibraryProcess, TrackStructureParser)
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
@@ -101,12 +102,12 @@ class Edit:
         cherrypy.request.database.commit()
 
         if where == "va":
-            artist_folder = 'Various Artists'
+            artist_name = 'Various Artists'
         else:
-            artist_folder = None
+            artist_name = None
 
         tracks, messages = library_dao.add_files(
-            filenames, move = True, remove_dirs = True, artist_folder = artist_folder
+            filenames, move = True, remove_dirs = True, artist_name = artist_name
         )
 
         raise HTTPRedirect('/%s/%s' % (tracks[0].artist.slug, tracks[0].album.slug))
@@ -758,14 +759,19 @@ class Root(object):
 
         cover, resize_cover, cover_ext = self.retrieve_and_resize(lastfm_album['cover'])
 
-        album_dirs = set()
+        track_dirs = set()
 
         for track in album.tracks:
             for path in track.paths:
-                album_dirs.add(os.path.dirname(path.path))
+                track_dirs.add(os.path.dirname(path.path))
 
-        for album_dir in album_dirs:
-            cover_dest = os.path.join(album_dir, b'cover' + cover_ext.encode('utf8'))
+        for track_dir in track_dirs:
+            if not os.path.exists(track_dir):
+                os.makedirs(track_dir)
+
+            cover_dest = os.path.join(
+                track_dir, ('%s%s' % (album.slug, cover_ext)).encode('utf8')
+            )
 
             if not os.path.exists(cover_dest):
                 with open(cover_dest, 'wb') as file:
@@ -820,23 +826,21 @@ class Root(object):
 
         cover, resize_cover, cover_ext = self.retrieve_and_resize(lastfm_artist['cover'])
 
-        artist_dirs = set()
+        track_dirs = set()
 
         for album in artist.albums:
             for track in album.tracks:
                 for path in track.paths:
-                    artist_dirs.add(os.path.dirname(
-                        os.path.dirname(path.path)
-                    ))
+                    track_dirs.add(os.path.dirname(path.path))
 
-        for artist_dir in artist_dirs:
-            if os.path.basename(artist_dir) == b"Various Artists":
-                artist_dir = os.path.join(os.path.dirname(artist_dir), artist.name.encode('utf8'))
+        for track_dir in track_dirs:
 
-                if not os.path.exists(artist_dir):
-                    os.makedirs(artist_dir)
+            if not os.path.exists(track_dir):
+                os.makedirs(track_dir)
 
-            cover_dest = os.path.join(artist_dir, b'artist' + cover_ext.encode('utf8'))
+            cover_dest = os.path.join(
+                track_dir, ('%s%s' % (artist.slug, cover_ext)).encode('utf8')
+            )
 
             if not os.path.exists(cover_dest):
                 with open(cover_dest, 'wb') as file:

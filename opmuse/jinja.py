@@ -6,8 +6,13 @@ from cherrypy._cptools import HandlerWrapperTool
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
 import opmuse.pretty
+from opmuse.library import TrackStructureParser
 import locale
 from opmuse.queues import queue_dao
+
+def track_path(track, artist = None):
+    track_structure = TrackStructureParser(track, data_override = {'artist': artist})
+    return track_structure.get_path().decode('utf8')
 
 def startswith(value, start):
     return value.startswith(start)
@@ -71,6 +76,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['format_number'] = format_number
         self.env.filters['json'] = json
         self.env.filters['startswith'] = startswith
+        self.env.filters['track_path'] = track_path
 
     start.priority = 130
 

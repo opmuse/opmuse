@@ -61,13 +61,13 @@
 
         <div class="btn-group move-btn">
             <a rel="tooltip" data-trigger="hover" data-html="true"
-                title="Move to i.e. <strong>{{ artist.name|e }}/{{ album.name|e }}/</strong>" class="btn btn-danger"
-                href="/library/edit/move/{% for track in album.tracks -%}
+                title="Move to i.e. <strong>{{ album.tracks[0]|track_path|e }}/</strong>"
+                class="btn btn-danger" href="/library/edit/move/{% for track in album.tracks -%}
                 {{ track.id }},
             {%- endfor %}">Move</a>
             <a rel="tooltip" data-trigger="hover" data-html="true"
-                title="Move to i.e. <strong>Various Artists/{{ album.name|e }}/</strong>" class="btn btn-danger"
-                href="/library/edit/move/{% for track in album.tracks -%}
+                title="Move to i.e. <strong>{{ album.tracks[0]|track_path("Various Artists")|e }}/</strong>"
+                class="btn btn-danger" href="/library/edit/move/{% for track in album.tracks -%}
             {{ track.id }},
             {%- endfor %}/va">VA</a>
         </div>
@@ -97,13 +97,13 @@
                                 </span>
                                 <div class="btn-group move-btn">
                                     <a rel="tooltip" data-trigger="hover" data-html="true"
-                                        title="Move to i.e. <strong>{{ artist.name|e }}/{{ album.name|e }}/</strong>"
+                                        title="Move to i.e. <strong>{{ tracks[0]|track_path|e }}/</strong>"
                                         class="btn btn-mini btn-danger"
                                         href="/library/edit/move/{% for track in tracks -%}
                                         {{ track.id }},
                                     {%- endfor %}">Move</a>
                                     <a rel="tooltip" data-trigger="hover" data-html="true"
-                                        title="Move to i.e. <strong>Various Artists/{{ album.name|e }}/</strong>"
+                                        title="Move to i.e. <strong>{{ tracks[0]|track_path("Various Artists")|e }}/</strong>"
                                         class="btn btn-mini btn-danger"
                                         href="/library/edit/move/{% for track in tracks -%}
                                     {{ track.id }},

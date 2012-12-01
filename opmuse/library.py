@@ -368,31 +368,29 @@ class PathParser(TagParser):
 
         number = None
 
-        match_files = [
-            b'^cover\.jpg$',
-            b'^cover\.png$',
-            b'^cover\.gif$',
-            b'^artist\.jpg$',
-            b'^artist\.png$',
-            b'^artist\.gif$',
-            b'.*cover.*\.jpg$',
-            b'.*front.*\.jpg$',
-            b'.*folder.*\.jpg$',
-            b'.*\.jpg$'
+        track_dir = os.path.dirname(bfilename)
+
+        album_cover_path = self.match_in_dir([
+            b'.*(cover|front|folder).*\.(jpg|png|gif)$',
+            b'.*\.(jpg|png|gif)$'
+        ], track_dir)
+
+        artist_cover_match = [
+            b'.*(artist).*\.(jpg|png|gif)$',
         ]
 
-        album_dir = os.path.dirname(bfilename)
-        artist_dir = os.path.dirname(album_dir)
+        if metadata is not None and metadata.artist_name is not None:
+            artist_re = re.sub(r'[^A-Za-z0-9]', '.?', metadata.artist_name)
 
-        if os.path.basename(artist_dir) == b'Various Artists':
-            artist_dir = os.path.join(os.path.dirname(artist_dir), metadata.artist_name.encode('utf8'))
+            artist_cover_match.append(
+                ('%s\.(jpg|png|gif)$' % artist_re).encode('utf8')
+            )
 
-        album_cover_path = self.match_in_dir(match_files, album_dir)
+            artist_cover_match.append(
+                ('.*(%s).*\.(jpg|png|gif)$' % artist_re).encode('utf8')
+            )
 
-        if os.path.exists(artist_dir):
-            artist_cover_path = self.match_in_dir(match_files, artist_dir)
-        else:
-            artist_cover_path = None
+        artist_cover_path = self.match_in_dir(artist_cover_match, track_dir)
 
         match = re.search('([0-9]+)', track_name)
         if match is not None:
@@ -416,10 +414,13 @@ class PathParser(TagParser):
             invalid = []
 
         if metadata is not None:
-            if (metadata.album_name is not None and album != metadata.album_name.replace('/', '_') or
-                metadata.artist_name is not None and artist not in
-                    ("Various Artists", metadata.artist_name.replace('/', '_'))):
-                invalid = ['dir']
+            structure_parser = MetadataStructureParser(metadata, bfilename)
+
+            if not structure_parser.is_valid():
+                structure_parser = MetadataStructureParser(metadata, bfilename, {'artist': 'Various Artists'})
+
+                if not structure_parser.is_valid():
+                    invalid = ['dir']
 
         return FileMetadata(artist, album, track_name, None, number, added,
                             None, None, invalid, album_cover_path, artist_cover_path)
@@ -492,6 +493,83 @@ class TagReader:
 
 
 reader = TagReader()
+
+class StructureParser:
+
+    def __init__(self, filename, data_override = {}):
+        config = cherrypy.tree.apps[''].config['opmuse']
+        self._fs_structure = config['library.fs.structure']
+        self._path = os.path.abspath(config['library.path']).encode('utf8')
+        self._filename = None if filename is None else os.path.abspath(filename)
+        self._data_override = data_override
+
+    def is_valid(self):
+        if self._filename is None:
+            raise ValueError('filename was not provided, can\'t use is_valid().')
+
+        correct_path = self.get_path()
+        actual_path = os.path.dirname(self._filename)[len(self._path):]
+
+        return correct_path == actual_path
+
+    def get_path(self, absolute = False):
+
+        data = self.get_data()
+
+        path = self._fs_structure
+
+        for name, value in data.items():
+            # TODO
+            if value is None:
+                continue
+
+            if name in self._data_override and self._data_override[name] is not None:
+                value = self._data_override[name]
+
+            path = path.replace(':%s' % name, value.replace('/', '_'))
+
+        if path[len(path) - 1] == '/':
+            path = path[0:(len(path) - 1)]
+
+        if not absolute and path[0] != '/':
+            path = '/%s' % path
+        elif absolute:
+            path = path[1:]
+
+        path = path.encode('utf8')
+
+        if absolute:
+            return os.path.join(self._path, path)
+        else:
+            return path
+
+    def get_data(self):
+        raise NotImplementedError()
+
+
+class TrackStructureParser(StructureParser):
+
+    def __init__(self, track, filename = None, data_override = {}):
+        StructureParser.__init__(self, filename, data_override)
+        self._track = track
+
+    def get_data(self):
+        return {
+            'artist': self._track.artist.name,
+            'album': self._track.album.name,
+        }
+
+class MetadataStructureParser(StructureParser):
+
+    def __init__(self, metadata, filename = None, data_override = {}):
+        StructureParser.__init__(self, filename, data_override)
+        self._metadata = metadata
+
+    def get_data(self):
+        return {
+            'artist': self._metadata.artist_name,
+            'album': self._metadata.album_name,
+        }
 
 class Library:
 
@@ -918,7 +996,7 @@ class LibraryDao:
         return (cherrypy.request.database.query(Track)
             .filter(Track.id.in_(ids)).all())
 
-    def add_files(self, filenames, move = False, remove_dirs = True, artist_folder = None):
+    def add_files(self, filenames, move = False, remove_dirs = True, artist_name = None):
 
         paths = []
 
@@ -927,8 +1005,6 @@ class LibraryDao:
         old_dirs = set()
 
         moved_dirs = set()
-
-        master_artist_folder = artist_folder
 
         for filename in filenames:
             if os.path.splitext(filename)[1].lower()[1:] not in Library.SUPPORTED:
@@ -939,18 +1015,10 @@ class LibraryDao:
 
                 metadata = reader.parse(filename)
 
+                structure_parser = MetadataStructureParser(metadata, filename, {'artist': artist_name})
+
+                dirname = structure_parser.get_path(absolute = True)
                 old_dirname = os.path.dirname(filename)
-
-                if master_artist_folder is None:
-                    artist_folder = metadata.artist_name.replace("/", "_")
-                else:
-                    artist_folder = master_artist_folder
-
-                album_folder = metadata.album_name.replace("/", "_")
-
-                dirname = os.path.join(library_path, artist_folder, album_folder)
-
-                dirname = dirname.encode('utf8')
 
                 if os.path.exists(dirname):
                     if not os.path.isdir(dirname):
