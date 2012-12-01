@@ -54,7 +54,7 @@ class Album(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(StringBinaryType(255))
+    name = Column(StringBinaryType(255), index=True)
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
@@ -98,7 +98,7 @@ class Artist(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(StringBinaryType(255))
+    name = Column(StringBinaryType(255), index=True)
     slug = Column(String(255), index=True, unique=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
@@ -150,7 +150,7 @@ class Track(Base):
 
     id = Column(Integer, primary_key=True)
     slug = Column(String(255), index=True, unique=True)
-    name = Column(StringBinaryType(255))
+    name = Column(StringBinaryType(255), index=True)
     duration = Column(Integer)
     number = Column(String(8))
     format = Column(String(128))
@@ -650,7 +650,7 @@ class LibraryProcess:
             # file most likely just moved
             if filename not in [path.path for path in track.paths]:
                 track.paths.append(TrackPath(filename))
-                self._database.commit()
+            self._database.commit()
             return track
         # file doesn't exist
         except NoResultFound:
@@ -668,12 +668,19 @@ class LibraryProcess:
                 name=metadata.artist_name
             ).one()
         except NoResultFound:
-            artist_slug = self._produce_artist_slug(
-                metadata.artist_name
-            )
+            index = 0
+            while True:
+                index, artist_slug = LibraryProcess.slugify(metadata.artist_name, index)
+                try:
+                    self._database.query(Artist).filter_by(slug=artist_slug).one()
+                except NoResultFound:
+                    break
+                index += 1
+
             artist = Artist(metadata.artist_name, artist_slug)
             self._database.add(artist)
-            self._database.commit()
+
+        self._database.commit()
 
         if metadata.artist_name is not None:
             artist.name = metadata.artist_name
@@ -686,14 +693,20 @@ class LibraryProcess:
                 name=metadata.album_name
             ).one()
         except NoResultFound:
-            album_slug = self._produce_album_slug(
-                metadata.album_name
-            )
+            index = 0
+            while True:
+                index, album_slug = LibraryProcess.slugify(metadata.album_name, index)
+                try:
+                    self._database.query(Album).filter_by(slug=album_slug).one()
+                except NoResultFound:
+                    break
+                index += 1
 
             album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
 
             self._database.add(album)
-            self._database.commit()
+
+        self._database.commit()
 
         if metadata.album_name is not None:
             album.name = metadata.album_name
@@ -727,9 +740,15 @@ class LibraryProcess:
 
         added = metadata.added
 
-        track_slug = self._produce_track_slug(
-            metadata.artist_name, metadata.album_name, metadata.track_name
-        )
+        index = 0
+        while True:
+            index, track_slug = LibraryProcess.slugify("%s_%s_%s" %
+                (metadata.artist_name, metadata.album_name, metadata.track_name), index)
+            try:
+                self._database.query(Track).filter_by(slug=track_slug).one()
+            except NoResultFound:
+                break
+            index += 1
 
         track.slug = track_slug
         track.name = metadata.track_name
@@ -784,36 +803,6 @@ class LibraryProcess:
                 break
 
         return number
-
-    def _produce_artist_slug(self, artist):
-        index = 0
-        while True:
-            index, slug = LibraryProcess.slugify(artist, index)
-            try:
-                self._database.query(Artist).filter_by(slug=slug).one()
-            except NoResultFound:
-                return slug
-            index += 1
-
-    def _produce_album_slug(self, album):
-        index = 0
-        while True:
-            index, slug = LibraryProcess.slugify(album, index)
-            try:
-                self._database.query(Album).filter_by(slug=slug).one()
-            except NoResultFound:
-                return slug
-            index += 1
-
-    def _produce_track_slug(self, artist, album, track):
-        index = 0
-        while True:
-            index, slug = LibraryProcess.slugify("%s_%s_%s" % (artist, album, track), index)
-            try:
-                self._database.query(Track).filter_by(slug=slug).one()
-            except NoResultFound:
-                return slug
-            index += 1
 
     @staticmethod
     def slugify(string, index):
