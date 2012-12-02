@@ -575,6 +575,7 @@ class TrackStructureParser(StructureParser):
             'artist': self._track.artist.name,
             'album': self._track.album.name,
             'disc': self._track.disc,
+            'date': self._track.album.date,
         }
 
 class MetadataStructureParser(StructureParser):
@@ -588,6 +589,7 @@ class MetadataStructureParser(StructureParser):
             'artist': self._metadata.artist_name,
             'album': self._metadata.album_name,
             'disc': self._metadata.disc,
+            'date': self._metadata.date,
         }
 
 class Library:
