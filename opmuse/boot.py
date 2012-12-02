@@ -104,6 +104,7 @@ def configure():
 
     app_config = {
         '/': {
+            'tools.autovary.on': True,
             'tools.encode.on': False,
             'tools.database.on': True,
             'tools.jinjaauthenticated.on': True,
