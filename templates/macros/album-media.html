@@ -1,0 +1,18 @@
+{% macro album_media(album, children = []) %}
+    <div class="media album">
+        <a href="/{{ album.artists[0].slug|urlencode }}/{{ album.slug|urlencode }}">
+            {% set cover_class = "img-rounded media-object pull-left" %}
+            {% set cover_size = 80 %}
+            {% include "partials/album-cover.html" %}
+        </a>
+        <div class="media-body">
+            <h4 class="media-heading">{{ album.name }}</h4>
+            <p>by {{ album.artists[0].name }}</p>
+            {% if caller %}
+                {% for child in children %}
+                    {{ caller(child) }}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}

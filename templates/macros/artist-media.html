@@ -1,0 +1,17 @@
+{% macro artist_media(artist, children = []) %}
+    <div class="media artist">
+        <a href="/{{ artist.slug|urlencode }}">
+            {% set cover_class = "img-rounded media-object pull-left" %}
+            {% set cover_size = 80 %}
+            {% include "partials/artist-cover.html" %}
+        </a>
+        <div class="media-body">
+            <h4 class="media-heading">{{ artist.name }}</h4>
+            {% if caller %}
+                {% for child in children %}
+                    {{ caller(child) }}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}

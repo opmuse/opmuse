@@ -5,43 +5,20 @@
 {% endblock %}
 
 {% block content %}
+{% import "macros/artist-media.html" as artist_media %}
+{% import "macros/album-media.html" as album_media %}
 <div id="search">
     <h1>Search</h1>
 
-    <ul class="artists">
-        {% for key, artist in results.items() %}
-        <li>
-            <a href="/{{ artist.entity.slug|urlencode }}">{{ artist.entity.name }}</a>
-            <ul class="albums">
-                {% for key, album in artist.albums.items() %}
-                <li>
-                    <a href="/{{ artist.entity.slug|urlencode }}/{{ album.entity.slug|urlencode }}">{{ album.entity.name }}</a>
-                    <a
-                        class="queue add add-album"
-                        href="/queue/add/
-                            {%- for track in album.entity.tracks -%}
-                                {{ track.id }},
-                            {%- endfor -%}
-                        ">
-                        +
-                    </a>
-                    <ul class="tracks">
-                        {% for key, track in album.tracks.items() %}
-                        <li>
-                            {{ track.entity.name }}
-                            <a
-                                class="queue add"
-                                href="/queue/add/{{ track.entity.id }}">
-                                +
-                            </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </li>
-                {% endfor %}
-            </ul>
-        </li>
-        {% endfor %}
-    </ul>
+    {% for key, result_artist in results.items() %}
+        {% call(album) artist_media.artist_media(result_artist.entity, result_artist.albums.items()) %}
+            {% call(track) album_media.album_media(album[1].entity, album[1].tracks.items()) %}
+                {% set track = track[1].entity %}
+                <div class="track">
+                    {% include "partials/track.html" %}
+                </div>
+            {% endcall %}
+        {% endcall %}
+    {% endfor %}
 </div>
 {% endblock %}

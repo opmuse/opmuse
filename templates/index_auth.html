@@ -5,37 +5,20 @@
 {% endblock %}
 
 {% block content %}
+{% import "macros/artist-media.html" as artist_media %}
+{% import "macros/album-media.html" as album_media %}
 <div id="index">
     <ul class="row-fluid">
         <li class="span4">
             <h1><a href="/library/artists/new">Artists</a></h1>
             {% for artist in artists %}
-                <div class="media">
-                    <a href="/{{ artist.slug|urlencode }}">
-                        {% set cover_class = "img-rounded media-object pull-left" %}
-                        {% set cover_size = 80 %}
-                        {% include "partials/artist-cover.html" %}
-                    </a>
-                    <div class="media-body">
-                        <h4 class="media-heading">{{ artist.name }}</h4>
-                    </div>
-                </div>
+                {{ artist_media.artist_media(artist) }}
             {% endfor %}
         </li>
         <li class="span4">
             <h1><a href="/library/albums/new">Albums</a></h1>
             {% for album in albums %}
-                <div class="media">
-                    <a href="/{{ album.artists[0].slug|urlencode }}/{{ album.slug|urlencode }}">
-                        {% set cover_class = "img-rounded media-object pull-left" %}
-                        {% set cover_size = 80 %}
-                        {% include "partials/album-cover.html" %}
-                    </a>
-                    <div class="media-body">
-                        <h4 class="media-heading">{{ album.name }}</h4>
-                        <p>by {{ album.artists[0].name }}</p>
-                    </div>
-                </div>
+                {{ album_media.album_media(album) }}
             {% endfor %}
         </li>
         <li class="span4">
