@@ -10,6 +10,7 @@ import shutil
 import time
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (Column, Integer, String, ForeignKey, VARBINARY, BINARY, BLOB,
                        DateTime, Boolean, func, TypeDecorator)
 from sqlalchemy.dialects import mysql
@@ -54,7 +55,7 @@ class Album(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(StringBinaryType(255), index=True)
+    name = Column(StringBinaryType(255), index=True, unique=True)
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32))
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
@@ -98,7 +99,7 @@ class Artist(Base):
     __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
-    name = Column(StringBinaryType(255), index=True)
+    name = Column(StringBinaryType(255), index=True, unique=True)
     slug = Column(String(255), index=True, unique=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
@@ -758,7 +759,15 @@ class LibraryProcess:
             artist = Artist(metadata.artist_name, artist_slug)
             self._database.add(artist)
 
-        self._database.commit()
+        try:
+            self._database.commit()
+        except IntegrityError:
+            # we get an IntegrityError if the unique constraint kicks in
+            # in which case the artist already exists so fetch it instead.
+            self._database.rollback()
+            artist = self._database.query(Artist).filter_by(
+                name=metadata.artist_name
+            ).one()
 
         if metadata.artist_name is not None:
             artist.name = metadata.artist_name
@@ -784,7 +793,15 @@ class LibraryProcess:
 
             self._database.add(album)
 
-        self._database.commit()
+        try:
+            self._database.commit()
+        except IntegrityError:
+            # we get an IntegrityError if the unique constraint kicks in
+            # in which case the album already exists so fetch it instead.
+            self._database.rollback()
+            album = self._database.query(Album).filter_by(
+                name=metadata.album_name
+            ).one()
 
         if metadata.album_name is not None:
             album.name = metadata.album_name
