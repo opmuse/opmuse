@@ -415,7 +415,7 @@ class PathParser(TagParser):
         disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]+)', track_dir, flags = re.IGNORECASE)
 
         if disc_match:
-            disc = disc_match.group(2)
+            disc = disc_match.group(2).decode('utf8')
         else:
             disc = None
 
@@ -473,10 +473,16 @@ class TagReader:
         self._parsers.extend(self._mutagen_parsers)
         self._parsers.append(PathParser())
 
-    def parse(self, filename):
+    def parse_mutagen(self, filename):
+        return self.parse(filename, self._mutagen_parsers)
+
+    def parse(self, filename, parsers = None):
         metadata = None
 
-        for parser in self._parsers:
+        if parsers is None:
+            parsers = self._parsers
+
+        for parser in parsers:
 
             parser_name = parser.__class__.__name__
 
@@ -527,7 +533,7 @@ class StructureParser:
 
         data = self.get_data()
 
-        path = self._fs_structure
+        path_parts = self.split(self._fs_structure, ':')
 
         for name, value in data.items():
             if value is None:
@@ -538,7 +544,35 @@ class StructureParser:
 
             value = value.replace('/', '_')
 
-            path = re.sub(r':%s(!([^:/]+))?' % name, lambda m: (m.group(2) or '') + value if value != '' else '', path)
+            def sub_callback(match):
+                if value == '':
+                    return ''
+
+                new_value = value
+
+                if match.group(2) is not None:
+                    fixes = match.group(2).split('!')
+
+                    if len(fixes) > 1:
+                        prefix, suffix = fixes
+                    else:
+                        prefix, suffix = fixes[0], ''
+
+                    if prefix:
+                        new_value = "%s%s" % (prefix, new_value)
+
+                    if suffix:
+                        new_value = "%s%s" % (new_value, suffix)
+
+                return new_value
+
+            for index, part in enumerate(path_parts):
+                path_parts[index] = re.sub(r':%s(!([^:/]+))?' % name, sub_callback, part)
+
+        path = ''
+
+        for part in path_parts:
+            path += part
 
         path = re.sub(r'[/]+', '/', path)
 
@@ -562,6 +596,22 @@ class StructureParser:
 
     def get_data(self):
         raise NotImplementedError()
+
+    @staticmethod
+    def split(split, sep):
+        splits = re.split('([^%s]*)' % sep, split)
+
+        new_splits = []
+
+        length = len(splits)
+
+        if length % 2 != 0:
+            length -= 1
+
+        for index in range(0, length, 2):
+            new_splits.append('%s%s' % (splits[index], splits[index + 1]))
+
+        return new_splits
 
 
 class TrackStructureParser(StructureParser):
@@ -1055,7 +1105,7 @@ class LibraryDao:
             if move:
                 library_path = self.get_library_path()
 
-                metadata = reader.parse(filename)
+                metadata = reader.parse_mutagen(filename)
 
                 structure_parser = MetadataStructureParser(metadata, filename, {'artist': artist_name})
 

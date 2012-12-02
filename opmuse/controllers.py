@@ -419,19 +419,13 @@ class Library(object):
                 colspan += 1
                 break
 
-        disc = None
+        disc = False
 
         for track in album.tracks:
-            if disc is not None and track.disc != disc:
+            if track.disc is not None:
+                disc = True
                 colspan += 1
                 break
-
-            disc = track.disc
-        else:
-            disc = None
-
-        if disc is not None:
-            disc = True
 
         return {
             'artist': artist,

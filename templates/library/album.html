@@ -130,7 +130,11 @@
                     {% endif %}
                         <td class="indent">&nbsp;</td>
                         {% if disc %}
-                            <td>{{ track.disc }}</td>
+                            {% if track.disc %}
+                                <td>{{ track.disc }}</td>
+                            {% else %}
+                                <td>%nbsp;</td>
+                            {% endif %}
                         {% endif %}
                         <td>{{ track.number }}</td>
                         {% if album.artists|length > 1%}
