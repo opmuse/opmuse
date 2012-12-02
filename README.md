@@ -58,9 +58,7 @@ Upgrading
 Our Doctrine
 ------------
 
-This is what we recite to ourselves while we code.
-
-  - *We* don't *exclusively* store metadata about your library.
+  - We don't exclusively store metadata about your library.
 
     i.e. artist, album, title are always stored as actual tags on the file. Album covers are stored on the filesystem etc.
 
@@ -68,7 +66,11 @@ This is what we recite to ourselves while we code.
 
     i.e. A users played tracks are submitted to last.fm
 
-  - We use the metadata we recieve verbatim.
+  - We trust the data provided for us.
 
     i.e. Names are always case-sensitive. We don't try to be smart and remove leading spaces or anything, if your collection isn't tagged correctly you will suffer.
+
+  - We care about structure.
+
+    i.e. If a file's location doesn't correspond to its tags we mark it as invalid and provide facilities for fixing this.
 
