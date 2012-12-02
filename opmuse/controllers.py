@@ -19,8 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import (Artist, Album, Track, TrackPath, library_dao,
-    LibraryProcess, TrackStructureParser)
+from opmuse.library import Artist, Album, Track, TrackPath, library_dao, LibraryProcess
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect

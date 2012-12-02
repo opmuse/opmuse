@@ -530,17 +530,23 @@ class StructureParser:
         path = self._fs_structure
 
         for name, value in data.items():
-            # TODO
             if value is None:
-                continue
+                value = ''
 
             if name in self._data_override and self._data_override[name] is not None:
                 value = self._data_override[name]
 
-            path = path.replace(':%s' % name, value.replace('/', '_'))
+            value = value.replace('/', '_')
+
+            path = re.sub(r':%s(!([^:/]+))?' % name, lambda m: (m.group(2) or '') + value if value != '' else '', path)
+
+        path = re.sub(r'[/]+', '/', path)
 
         if path[len(path) - 1] == '/':
             path = path[0:(len(path) - 1)]
+
+        if len(path) == 0:
+            return None
 
         if not absolute and path[0] != '/':
             path = '/%s' % path
@@ -568,6 +574,7 @@ class TrackStructureParser(StructureParser):
         return {
             'artist': self._track.artist.name,
             'album': self._track.album.name,
+            'disc': self._track.disc,
         }
 
 class MetadataStructureParser(StructureParser):
@@ -580,6 +587,7 @@ class MetadataStructureParser(StructureParser):
         return {
             'artist': self._metadata.artist_name,
             'album': self._metadata.album_name,
+            'disc': self._metadata.disc,
         }
 
 class Library:
