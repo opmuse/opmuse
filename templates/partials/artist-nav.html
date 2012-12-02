@@ -9,17 +9,18 @@
             <a href="{{ lastfm_album.url }}">Go to Lastfm album page</a>
         </li>
         {% endif %}
-        <li class="nav-header">Similar Artists</li>
-        {% for similar in lastfm_artist.similar %}
+        {% if album %}
         <li>
-            <a href="/search/{{ similar.name }}/artist">{{ similar.name }}</a>
+            <a href="http://www.discogs.com/search?q={{ "artist:'" ~ artist.name ~ "' " ~ album.name|urlencode }}&type=release">
+                Discogs
+            </a>
         </li>
-        {% endfor %}
-        <li class="nav-header">Namesakes</li>
-        {% for artist in namesakes %}
+        {% else %}
         <li>
-            <a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a>
+            <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
+                Discogs
+            </a>
         </li>
-        {% endfor %}
+        {% endif %}
     </ul>
 </div>

@@ -4,20 +4,40 @@
 .artist-head {
     .album-cover,
     .artist-cover {
-        margin: 20px 0 0 10px;
+        margin: 0 0 15px 10px;
     }
 
-    h3.album-head .date {
-        margin-left: 6px;
-        font-size: .8em;
-        color: #888;
+    ul {
+        margin: 0;
+    }
 
-        &:after {
-            content: ')';
+    h3 {
+        font-size: 1.5em;
+        margin: 0 0 5px 0;
+        line-height: 30px;
+
+        &.album-head .date {
+            margin-left: 6px;
+            font-size: .8em;
+            color: #888;
+
+            &:after {
+                content: ')';
+            }
+
+            &:before {
+                content: '(';
+            }
         }
+    }
 
-        &:before {
-            content: '(';
+    h4 {
+        margin: 2px 0 2px 0;
+    }
+
+    .badge {
+        a {
+            color: #FDFDFD;
         }
     }
 }

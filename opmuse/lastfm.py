@@ -260,7 +260,7 @@ class Lastfm:
                     'name': similar.item.get_name()
                 })
 
-            tags = [str(topItem.item) for topItem in artist.get_top_tags(10)]
+            tags = [str(topItem.item) for topItem in artist.get_top_tags(5)]
 
             return {
                 'url': artist.get_url(),
