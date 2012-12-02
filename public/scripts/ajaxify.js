@@ -74,21 +74,25 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
 
             this.selector = '#top, #queue, #right, #content, #footer';
 
-            history.ready = false;
-
             this.initialURL = document.location.href;
 
-            $(window).bind('popstate', function (event) {
-                // ignore initial popstate that at least chrome fires, but not firefox
-                if (!history.ready) {
-                    return;
-                }
+            this.activeRequest = null;
 
-                href = document.location.pathname;
+            // setTimeout hack to ignore initial popstate that at least chrome fires,
+            // but not firefox
+            setTimeout(function () {
+                $(window).bind('popstate', function (event) {
 
-                if (href !== null) {
-                    that.loadPage(href);
-                }
+                    href = document.location.pathname;
+
+                    if (that.activeRequest !== null) {
+                        that.activeRequest.abort();
+                    }
+
+                    if (href !== null) {
+                        that.loadPage(href);
+                    }
+                });
             });
 
             this.internalInit();
@@ -123,14 +127,18 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
 
             that.disableElements(contents);
 
-            $.ajax(href, {
+            this.activeRequest = $.ajax(href, {
                 success: function (data, textStatus, xhr) {
                     that.setPageInDom(data);
                     that.enableElements(contents);
+                    that.activeRequest = null;
                 },
                 error: function (xhr) {
-                    that.setErrorPageInDom(xhr.responseText);
+                    if (xhr.statusText != 'abort') {
+                        that.setErrorPageInDom(xhr.responseText);
+                    }
                     that.enableElements(contents);
+                    that.activeRequest = null;
                 },
             });
         },
@@ -185,7 +193,6 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
         setPage: function (href) {
             href = this.getPage(href);
 
-            history.ready = true;
             history.pushState({}, "", href);
 
             this.loadPage(href);
