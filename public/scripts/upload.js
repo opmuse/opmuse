@@ -104,6 +104,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                         );
 
                         that.send();
+                    }).error(function (jqXHR, textStatus, errorThrown) {
+                        ajaxify.setErrorPageInDom(jqXHR.responseText);
                     });
             }
         }

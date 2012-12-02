@@ -147,6 +147,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
                 $(content).html(html.find(content + ' > *'));
                 $(content).scrollTop(0);
             }
+
             this.internalInit();
         },
         disableElements: function (element) {
