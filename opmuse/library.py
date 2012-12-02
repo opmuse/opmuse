@@ -161,9 +161,10 @@ class Track(Base):
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
     invalid = Column(String(32), index=True)
+    disc = Column(String(8))
 
     album = relationship("Album", lazy='joined', innerjoin=True,
-        backref=backref('tracks', order_by=(number, name)))
+        backref=backref('tracks', order_by=(disc, number, name)))
 
     artist = relationship("Artist", lazy='joined', innerjoin=True,
         backref=backref('tracks', order_by=name))
@@ -188,6 +189,7 @@ class FileMetadata:
         self.invalid = args[8]
         self.cover_path = args[9]
         self.artist_cover_path = args[10]
+        self.disc = args[11]
 
         self.metadatas = args
 
@@ -257,7 +259,7 @@ class MutagenParser(TagParser):
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
             log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
-            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], None, None)))
+            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], ) + ((None, ) * 3)))
 
         artist = str(tag['artist'][0]) if 'artist' in tag else None
         album = str(tag['album'][0]) if 'album' in tag else None
@@ -266,6 +268,7 @@ class MutagenParser(TagParser):
         number = str(tag['tracknumber'][0]) if 'tracknumber' in tag else None
         date = str(tag['date'][0]) if 'date' in tag else None
         bitrate = tag.info.bitrate if hasattr(tag.info, 'bitrate') else None
+        disc = str(tag['discnumber'][0]) if 'discnumber' in tag else None
 
         # won't fit in SQL INT, and i'm guessing something's up :|
         if bitrate is not None and bitrate > 2147483647:
@@ -280,7 +283,7 @@ class MutagenParser(TagParser):
             invalid = ['valid']
 
         return FileMetadata(artist, album, track, duration, number, None, date,
-                            bitrate, invalid, None, None)
+                            bitrate, invalid, None, None, disc)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -355,7 +358,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 11)
+                return FileMetadata(*(None, ) * 12)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
@@ -409,6 +412,13 @@ class PathParser(TagParser):
 
         track_name = track_name.strip('\n -').split("-")[-1].strip()
 
+        disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]+)', track_dir, flags = re.IGNORECASE)
+
+        if disc_match:
+            disc = disc_match.group(2)
+        else:
+            disc = None
+
         if metadata is None or metadata.artist_name is None or metadata.album_name is None or metadata.track_name is None:
             invalid = ['missing_tags']
         else:
@@ -424,7 +434,7 @@ class PathParser(TagParser):
                     invalid = ['dir']
 
         return FileMetadata(artist, album, track_name, None, number, added,
-                            None, None, invalid, album_cover_path, artist_cover_path)
+                            None, None, invalid, album_cover_path, artist_cover_path, disc)
 
 
     def match_in_dir(self, match_files, dir):
@@ -852,6 +862,7 @@ class LibraryProcess:
         track.format = format
         track.added = added
         track.bitrate = metadata.bitrate
+        track.disc = metadata.disc
 
         if metadata.invalid == ['valid']:
             track.invalid = None
@@ -971,6 +982,7 @@ class LibraryDao:
             track_name = track['track']
             date = track['date']
             number = track['number']
+            disc = track['disc']
 
             track = (cherrypy.request.database.query(Track)
                 .filter_by(id=id).one())
@@ -988,6 +1000,9 @@ class LibraryDao:
 
                 if date is not None and date != '':
                     tag['date'] = date
+
+                if disc is not None and disc != '':
+                    tag['discnumber'] = disc
 
                 tag.save()
 

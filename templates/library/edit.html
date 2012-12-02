@@ -30,12 +30,16 @@
                     <th>
                         Number
                     </th>
+                    <th>
+                        Disc
+                        <a href="#" class="btn-small btn lock disc">Lock</a>
+                    </th>
                 </tr>
             </thead>
             <tbody>
             {% for track in tracks %}
                 <tr class="track-info">
-                    <td colspan="5">
+                    <td colspan="6">
                         <span class="title">Affected Files:</span>
                         {% for path in track.paths %}
                         {{ path.pretty_path }}
@@ -58,6 +62,9 @@
                     </td>
                     <td>
                         <input type="text" class="number" name="numbers" value="{{ track.number|e if track.number else '' }}" />
+                    </td>
+                    <td>
+                        <input type="text" class="disc" name="discs" value="{{ track.disc|e if track.disc else '' }}" />
                     </td>
                 </tr>
                 {% endfor %}

@@ -58,6 +58,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                             type = 'artist';
                         } else if ($(this).is(".date")) {
                             type = 'date';
+                        } else if ($(this).is(".disc")) {
+                            type = 'disc';
                         }
 
                         var selector = "#edit ." + type + ":not(.lock)";

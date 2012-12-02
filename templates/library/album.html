@@ -129,6 +129,9 @@
                     <tr class="error">
                     {% endif %}
                         <td class="indent">&nbsp;</td>
+                        {% if disc %}
+                            <td>{{ track.disc }}</td>
+                        {% endif %}
                         <td>{{ track.number }}</td>
                         {% if album.artists|length > 1%}
                         <td>

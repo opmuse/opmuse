@@ -41,7 +41,7 @@ class Edit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit_submit.html')
     @cherrypy.tools.authenticated()
-    def submit(self, ids, artists, albums, tracks, dates, numbers, yes = False, no = False):
+    def submit(self, ids, artists, albums, tracks, dates, numbers, discs, yes = False, no = False):
 
         move = False
 
@@ -66,6 +66,9 @@ class Edit:
         if not isinstance(numbers, list):
             numbers = [numbers]
 
+        if not isinstance(discs, list):
+            discs = [discs]
+
         update_tracks = []
 
         for index, id in enumerate(ids):
@@ -75,7 +78,8 @@ class Edit:
                 "album": albums[index],
                 "track": tracks[index],
                 "date": dates[index],
-                "number": numbers[index]
+                "number": numbers[index],
+                "disc": discs[index]
             })
 
         tracks, messages = library_dao.update_tracks_tags(update_tracks, move)
@@ -416,13 +420,28 @@ class Library(object):
                 colspan += 1
                 break
 
+        disc = None
+
+        for track in album.tracks:
+            if disc is not None and track.disc != disc:
+                colspan += 1
+                break
+
+            disc = track.disc
+        else:
+            disc = None
+
+        if disc is not None:
+            disc = True
+
         return {
             'artist': artist,
             'album': album,
             'dirs': dirs,
             'lastfm_album': lastfm_album,
             'lastfm_artist': lastfm_artist,
-            'colspan': colspan
+            'colspan': colspan,
+            'disc': disc
         }
 
     @cherrypy.expose
