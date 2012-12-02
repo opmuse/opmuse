@@ -1,15 +1,20 @@
 <div class="album-container">
     <div class="album {{ 'invalid' if album.invalid else '' }}">
         <div class="album-badges">
+            {% if album.date %}
+            <p class="album-date badge badge-inverse">{{ album.date }}</p>
+            {% endif %}
+            <p class="album-track-count badge badge-inverse">{{ album.tracks|count }} tracks</p>
+            <p class="album-track-count badge badge-inverse">{{ album.duration|format_seconds }}</p>
+            <p class="album-track-count badge badge-inverse">{{ album.added|pretty_date }}</p>
+        </div>
+        <div class="album-badges bottom">
             {% if album.invalid %}
             <p class="album-invalid badge badge-important">invalid</p>
             {% endif %}
-            {% if album.date %}
-            <p class="album-date badge badge-inverse">released {{ album.date }}</p>
+            {% if album.artists|length > 1 %}
+            <p class="album-va badge badge-success">VA</p>
             {% endif %}
-            <p class="album-track-count badge badge-inverse">has {{ album.tracks|count }}</p>
-            <p class="album-track-count badge badge-inverse">plays {{ album.duration|format_seconds }}</p>
-            <p class="album-track-count badge badge-inverse">added {{ album.added|pretty_date }}</p>
         </div>
         <a
             class="queue add add-album btn btn-small btn-success"
@@ -27,11 +32,9 @@
             <h3 class="album-name">
                 {{ album.name }}
             </h3>
-            {% if not artist %}
-            <p>
-                by {{ album.artists[0].name }}
+            <p title="{% include "partials/album-desc.html"|e %}">
+                {% include "partials/album-desc.html" %}
             </p>
-            {% endif %}
         </div>
     </div>
 </div>

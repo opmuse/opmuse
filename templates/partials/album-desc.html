@@ -1,0 +1,8 @@
+{%- if album.artists|length > 1 -%}
+    with {% for artist in album.artists -%}
+    {%- if not loop.first and not loop.last %}, {% elif loop.last %} and {% endif -%}
+    {{ artist.name }}
+    {%- endfor -%}.
+{%- else -%}
+    by {{ album.artists[0].name }}.
+{%- endif -%}

@@ -79,13 +79,31 @@
             .album-badges {
                 top: -6px;
                 left: -6px;
+
+                &.bottom {
+                    top: 217px;
+                    left: 135px;
+                    width: 100px;
+                    p {
+                        float: right;
+                    }
+                }
+
+                p {
+                    font-size: 0.8em;
+                }
+
+                .badge {
+                    line-height: 12px;
+                }
             }
 
             .album-invalid,
             .album-date,
+            .album-va,
             .album-track-count {
                 display: block;
-                opacity: .9;
+                opacity: .8;
                 margin: 2px 0 0 0;
                 float: left;
                 clear: both;
