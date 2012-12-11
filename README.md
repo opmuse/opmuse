@@ -1,6 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
 
-.. image:: https://github.com/opmuse/opmuse/raw/master/screen1.png
+![A screenshot.](https://github.com/opmuse/opmuse/raw/master/screen1.png)
 
 What is opmuse?
 ---------------
