@@ -1,11 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
 
-       ________________________________________________
-      /\     _____ _____ __  ___ __  __ _____ _____    \
-      \/    /    //    //  |/  // / / //  __// ___/    /
-      /    /    //  __//      // /_/ //__  // ___/    /
-     /    /____//__/  /__//__//_____//____//____/    /\
-     \_______________________________________________\/
+.. image:: https://github.com/opmuse/opmuse/raw/master/screen1.png
 
 What is opmuse?
 ---------------
