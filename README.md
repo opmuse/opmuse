@@ -1,11 +1,17 @@
 [![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/inty/opmuse)
 
-![A screenshot.](https://github.com/opmuse/opmuse/raw/master/screen1.png)
+       ________________________________________________
+      /\     _____ _____ __  ___ __  __ _____ _____    \
+      \/    /    //    //  |/  // / / //  __// ___/    /
+      /    /    //  __//      // /_/ //__  // ___/    /
+     /    /____//__/  /__//__//_____//____//____/    /\
+     \_______________________________________________\/
 
 What is opmuse?
 ---------------
 
 A web application to play, organize and share your music library.
+
 
 Requirements
 ------------
@@ -68,4 +74,11 @@ Our Doctrine
   - We care about structure.
 
     i.e. If a file's location doesn't correspond to its tags we mark it as invalid and provide facilities for fixing this.
+
+Here's opmuse
+-------------
+
+This is a taste of what it looks like, hopefully it's not too outdated at time of viewing.
+
+![A screenshot.](https://github.com/opmuse/opmuse/raw/master/screen1.png)
 
