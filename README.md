@@ -14,6 +14,8 @@ OSes. If you're on Windows you're on your own.
 Setup
 -----
 
+    $ git clone https://github.com/opmuse/opmuse.git
+    $ cd opmuse
     $ git submodule init
     $ git submodule update
     $ virtualenv -p python3 ./virtualenv
