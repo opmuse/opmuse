@@ -374,17 +374,22 @@ class PathParser(TagParser):
 
         track_dir = os.path.dirname(bfilename)
 
+        track_dir_files = []
+
+        for file in os.listdir(track_dir):
+            track_dir_files.append(os.path.join(track_dir, file))
+
         album_cover_path = self.match_in_dir([
             b'.*(cover|front|folder).*\.(jpg|png|gif)$',
             b'.*\.(jpg|png|gif)$'
-        ], track_dir)
+        ], track_dir_files)
 
         artist_cover_match = [
             b'.*(artist).*\.(jpg|png|gif)$',
         ]
 
         if metadata is not None and metadata.artist_name is not None:
-            artist_re = re.sub(r'[^A-Za-z0-9]', '.?', metadata.artist_name)
+            artist_re = re.sub(r'[^A-Za-z0-9]', '.?', metadata.artist_name.strip())
 
             artist_cover_match.append(
                 ('%s\.(jpg|png|gif)$' % artist_re).encode('utf8')
@@ -394,7 +399,7 @@ class PathParser(TagParser):
                 ('.*(%s).*\.(jpg|png|gif)$' % artist_re).encode('utf8')
             )
 
-        artist_cover_path = self.match_in_dir(artist_cover_match, track_dir)
+        artist_cover_path = self.match_in_dir(artist_cover_match, track_dir_files)
 
         match = re.search('([0-9]+)', track_name)
         if match is not None:
@@ -437,13 +442,14 @@ class PathParser(TagParser):
                             None, None, invalid, album_cover_path, artist_cover_path, disc)
 
 
-    def match_in_dir(self, match_files, dir):
+    @staticmethod
+    def match_in_dir(match_files, files):
         match = None
 
         for match_file in match_files:
-            for file in os.listdir(dir):
+            for file in files:
                 if re.match(match_file, file, flags = re.IGNORECASE):
-                    match = os.path.abspath(os.path.join(dir, file))
+                    match = os.path.abspath(file)
                     break
             if match is not None:
                 break
