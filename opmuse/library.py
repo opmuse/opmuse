@@ -161,7 +161,7 @@ class Track(Base):
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
     invalid = Column(String(32), index=True)
-    disc = Column(String(8))
+    disc = Column(String(64))
 
     album = relationship("Album", lazy='joined', innerjoin=True,
         backref=backref('tracks', order_by=(disc, number, name)))
@@ -412,7 +412,7 @@ class PathParser(TagParser):
 
         track_name = track_name.strip('\n -').split("-")[-1].strip()
 
-        disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]+)', track_dir, flags = re.IGNORECASE)
+        disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]{1,2})', track_dir, flags = re.IGNORECASE)
 
         if disc_match:
             disc = disc_match.group(2).decode('utf8')
