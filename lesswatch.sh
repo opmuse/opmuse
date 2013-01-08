@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BASE=$(realpath $(dirname $0))
+BASE=$(readlink -f $(dirname $0))
 
 export PATH=$PATH:$BASE/vendor/less.js/bin
 
