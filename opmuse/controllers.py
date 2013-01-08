@@ -880,7 +880,7 @@ class Root(object):
         else:
             scheme = cherrypy.request.scheme
 
-        host = cherrypy.request.headers.get('X-Forwarded-Host')
+        host = cherrypy.request.headers.get('X-Forwarded-Host').split(",")[0].strip()
 
         if host is None:
             host = cherrypy.request.headers.get('host')
