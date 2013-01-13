@@ -149,7 +149,9 @@ class Upload:
     @cherrypy.tools.authenticated()
     def add(self):
 
-        filename = cherrypy.request.headers.elements('content-disposition')[0].params['filename']
+        content_disposition = cherrypy.request.headers.get('content-disposition')
+
+        filename = content_disposition[content_disposition.index('filename=') + 9:]
 
         if filename.startswith('"') and filename.endswith('"'):
             filename = filename[1:-1]
