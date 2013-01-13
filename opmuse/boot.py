@@ -1,9 +1,5 @@
 import sys
 import os
-
-VENDOR = os.path.join(os.path.dirname(__file__), '..', 'vendor')
-sys.path.append(os.path.join(VENDOR, 'WhooshAlchemy'))
-
 import cherrypy
 from cherrypy.process.plugins import SimplePlugin
 import subprocess

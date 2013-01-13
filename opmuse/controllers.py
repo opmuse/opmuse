@@ -25,6 +25,7 @@ from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
 from opmuse.database import get_session
 from opmuse.image import image as image_service
+from opmuse.search import search
 
 class Edit:
     @cherrypy.expose
@@ -510,7 +511,7 @@ class Library(object):
 
         for query in artist.name.split(' '):
             if len(re.sub("[^a-zA-Z0-9]+", '', query)) > 4:
-                for artist_result in Artist.search_query(query).all():
+                for artist_result in search.query_artist(query).all():
                     if artist != artist_result:
                         namesakes.add(artist_result)
                         if len(namesakes) >= 5:
@@ -583,7 +584,7 @@ class Root(object):
     @cherrypy.tools.jinja(filename='search.html')
     def search(self, query, type = None):
 
-        artists = Artist.search_query(query).all()
+        artists = search.query_artist(query).all()
         albums = None
         tracks = None
 
@@ -593,10 +594,10 @@ class Root(object):
             tracks = []
 
         if albums is None:
-            albums = Album.search_query(query).all()
+            albums = search.query_album(query).all()
 
         if tracks is None:
-            tracks = Track.search_query(query).all()
+            tracks = search.query_track(query).all()
 
         if len(artists) + len(albums) + len(tracks) == 1:
             for artist in artists:

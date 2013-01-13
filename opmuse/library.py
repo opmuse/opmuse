@@ -20,6 +20,7 @@ from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_type
 from opmuse.image import image
+from opmuse.search import search
 import mutagen.mp3
 import mutagen.oggvorbis
 import mutagen.easymp4
@@ -52,7 +53,6 @@ def log(msg):
 
 class Album(Base):
     __tablename__ = 'albums'
-    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     name = Column(StringBinaryType(255), index=True, unique=True)
@@ -96,7 +96,6 @@ class Album(Base):
 
 class Artist(Base):
     __tablename__ = 'artists'
-    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     name = Column(StringBinaryType(255), index=True, unique=True)
@@ -147,7 +146,6 @@ class TrackPath(Base):
 
 class Track(Base):
     __tablename__ = 'tracks'
-    __searchable__ = ['name']
 
     id = Column(Integer, primary_key=True)
     slug = Column(String(255), index=True, unique=True)
@@ -740,20 +738,17 @@ class Library:
         # from the library path
         for track in self._database.query(Track).all():
             if len(track.paths) == 0:
-                self._database.delete(track)
-                self._database.commit()
+                library_dao.delete_track(track, self._database)
 
         # remove albums without tracks
         for album in self._database.query(Album).all():
             if len(album.tracks) == 0:
-                self._database.delete(album)
-                self._database.commit()
+                library_dao.delete_album(album, self._database)
 
         # remove artists without albums
         for artist in self._database.query(Artist).all():
             if len(artist.albums) == 0:
-                self._database.delete(artist)
-                self._database.commit()
+                library_dao.delete_artist(artist, self._database)
 
         self._database.remove()
 
@@ -949,6 +944,10 @@ class LibraryProcess:
 
         self._database.commit()
 
+        search.add_artist(artist)
+        search.add_album(album)
+        search.add_track(track)
+
         return track
 
     @staticmethod
@@ -1031,6 +1030,42 @@ class LibraryProcess:
 
 class LibraryDao:
 
+    def delete_track(self, track, database = None):
+        if database is None:
+            database = cherrypy.request.database
+
+        album = track.album
+        artist = track.artist
+
+        database.delete(track)
+        database.commit()
+
+        search.delete_track(track)
+
+        if len(album.tracks) == 0:
+            self.delete_album(album, database)
+
+        if len(artist.albums) == 0:
+            self.delete_artist(artist, database)
+
+    def delete_album(self, album, database = None):
+        if database is None:
+            database = cherrypy.request.database
+
+        database.delete(album)
+        database.commit()
+
+        search.delete_album(album)
+
+    def delete_artist(self, artist, database = None):
+        if database is None:
+            database = cherrypy.request.database
+
+        database.delete(artist)
+        database.commit()
+
+        search.delete_artist(artist)
+
     def get_library_path(self):
         library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
 
@@ -1072,8 +1107,7 @@ class LibraryDao:
 
                 tag.save()
 
-            cherrypy.request.database.delete(track)
-            cherrypy.request.database.commit()
+            self.delete_track(track)
 
         return self.add_files(filenames, move)
 
@@ -1223,20 +1257,14 @@ class LibraryDao:
         album = track.album
         artist = track.artist
 
-        cherrypy.request.database.delete(track)
+        self.delete_track(track)
 
         self.remove_empty_dirs(dirs)
 
-        cherrypy.request.database.commit()
-
         if len(album.tracks) == 0:
-            cherrypy.request.database.delete(album)
             album = None
 
-        cherrypy.request.database.commit()
-
         if len(artist.albums) == 0:
-            cherrypy.request.database.delete(artist)
             artist = None
 
         return artist, album
