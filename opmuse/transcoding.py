@@ -199,7 +199,8 @@ class Transcoding:
         ['iTunes.*Macintosh', ['audio/mp3']],
         ['VLC', ['audio/ogg', 'audio/mp3']],
         # This matches Nokia N9s default player
-        ['GStreamer', ['audio/ogg', 'audio/mp3']]
+        ['GStreamer', ['audio/ogg', 'audio/mp3']],
+        ['iPad', ['audio/mp3']],
     ]
 
     transcoders = [Mp3FFMPEGTranscoder, OggFFMPEGTranscoder]
