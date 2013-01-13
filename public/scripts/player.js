@@ -20,6 +20,12 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
 
             that.currentTrackDuration = 0;
 
+            $(window).bind('beforeunload', function (event) {
+                if (!that.player.paused) {
+                    return false;
+                }
+            });
+
             $(that.player).bind('playing', function (event) {
                 queue.reload(function (data) {
                     that.currentTrackDuration = queue.getCurrentTrackDuration();
