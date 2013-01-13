@@ -16,6 +16,8 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             this.pauseButton = $('#pause-button');
             this.nextButton = $('#next-button');
 
+            this.loaded = false;
+
             that.currentTrackDuration = 0;
 
             $(that.player).bind('playing', function (event) {
@@ -32,7 +34,10 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             $(that.player).bind('ended', function (event) {
                 that.setProgress(0);
                 that.load();
-                that.player.play();
+
+                setTimeout(function () {
+                    that.player.play();
+                }, 0);
             });
 
             $(that.player).bind('timeupdate', function (event) {
@@ -41,9 +46,16 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             });
 
             that.playButton.click(function() {
-                that.player.play();
-                that.playButton.hide();
-                that.pauseButton.show();
+                if (!that.loaded) {
+                    that.load();
+                    that.loaded = true;
+                }
+
+                setTimeout(function () {
+                    that.player.play();
+                    that.playButton.hide();
+                    that.pauseButton.show();
+                }, 0);
 
                 return false;
             });
@@ -57,20 +69,17 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             });
 
             that.nextButton.click(function() {
-                var paused = that.player.paused;
                 that.load();
 
-                if (paused === false) {
+                setTimeout(function () {
                     that.player.play();
-                }
+                }, 0);
 
                 return false;
             });
 
             that.pauseButton.hide();
             that.playerControls.show();
-
-            that.load();
 
             $('#footer').bind('ajaxifyInit', function (event) {
                 that.internalInit();
