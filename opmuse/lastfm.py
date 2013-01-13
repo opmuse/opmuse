@@ -12,8 +12,10 @@ from opmuse.security import User
 User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
 
+
 def log(msg):
     cherrypy.log(msg, context='lastfm')
+
 
 class Lastfm:
     def __init__(self):
@@ -133,9 +135,7 @@ class Lastfm:
 
     def get_utc_timestamp(self):
         return calendar.timegm(
-            datetime.datetime
-                .utcnow()
-                .utctimetuple()
+            datetime.datetime.utcnow().utctimetuple()
         )
 
     @lru_cache(maxsize=None)
@@ -275,6 +275,7 @@ class Lastfm:
                 error
             ))
 
+
 class SessionKey:
 
     def __init__(self):
@@ -296,4 +297,3 @@ class SessionKey:
         return key
 
 lastfm = Lastfm()
-

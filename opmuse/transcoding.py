@@ -8,8 +8,10 @@ import calendar
 import datetime
 from pydispatch import dispatcher
 
+
 class FFMPEGError(Exception):
     pass
+
 
 class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
     """
@@ -42,6 +44,7 @@ class Transcoder:
     @staticmethod
     def outputs():
         raise NotImplementedError()
+
 
 class FFMPEGTranscoder(Transcoder):
 
@@ -161,6 +164,7 @@ class CopyFFMPEGTranscoder(FFMPEGTranscoder):
             # default to a bitrate of 128kbit/s
             return int(128000 / 8)
 
+
 class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
     # -aq 0 should be v0
     ffmpeg_output_args = ["-acodec", "libmp3lame", "-f", "mp3", "-aq", "0"]
@@ -173,6 +177,7 @@ class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
         # lame v0's target bitrate is 245kbit/s (but is of course VBR)
         return int(245000 / 8)
 
+
 class OggFFMPEGTranscoder(FFMPEGTranscoder):
     ffmpeg_output_args = ["-acodec", "libvorbis", "-f", "ogg", "-aq", "6"]
     ffmpeg_input_args = []
@@ -183,6 +188,7 @@ class OggFFMPEGTranscoder(FFMPEGTranscoder):
     def bitrate(self):
         # -aq 6 is about 192kbit/s
         return int(192000 / 8)
+
 
 class Transcoding:
     # list of players that don't supply proper Accept headers, basically...
@@ -253,5 +259,5 @@ class Transcoding:
 
             total_time = int(time.time() - start_time)
 
-transcoding = Transcoding()
 
+transcoding = Transcoding()

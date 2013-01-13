@@ -20,6 +20,7 @@ tempfile.tempdir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'cache', 'upload'
 ))
 
+
 # http://tools.cherrypy.org/wiki/BackgroundTaskQueue
 class BackgroundTaskQueue(SimplePlugin):
 
@@ -84,6 +85,7 @@ def multi_headers():
             headers.append(new_header)
         cherrypy.response.header_list.extend(headers)
 
+
 def configure():
     cherrypy.tools.jinja = Jinja()
     cherrypy.tools.database = SqlAlchemyTool()
@@ -108,8 +110,7 @@ def configure():
             'tools.library.on': True,
             'tools.jinjaenv.on': True,
             'tools.sessions.storage_type': "file",
-            'tools.sessions.storage_path': join(abspath(dirname(__file__)),
-                                            '..', 'cache', 'session'),
+            'tools.sessions.storage_path': join(abspath(dirname(__file__)), '..', 'cache', 'session'),
             'tools.sessions.locking': "explicit",
             'tools.sessions.persistent': False,
             'tools.sessions.httponly': True,
@@ -168,6 +169,7 @@ def boot():
     cherrypy.engine.start()
     cherrypy.engine.block()
 
+
 def boot_lesswatch():
     lesswatch = join(abspath(dirname(__file__)), '..', 'lesswatch.sh')
     subprocess.Popen(lesswatch)
@@ -210,4 +212,3 @@ if __name__ == '__main__':
         DropPrivileges(cherrypy.engine, uid=args.user, umask=0o022).subscribe()
 
     boot()
-

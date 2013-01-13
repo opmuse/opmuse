@@ -10,21 +10,27 @@ from opmuse.library import TrackStructureParser
 import locale
 from opmuse.queues import queue_dao
 
+
 def track_path(track, artist = None):
     track_structure = TrackStructureParser(track, data_override = {'artist': artist})
     return track_structure.get_path().decode('utf8')
 
+
 def startswith(value, start):
     return value.startswith(start)
+
 
 def json(value):
     return json_dumps(value)
 
+
 def format_number(number):
     return locale.format('%d', number, grouping=True)
 
+
 def pretty_date(date):
     return opmuse.pretty.pretty_date(date)
+
 
 def format_seconds(seconds):
     if seconds is None:
@@ -40,10 +46,12 @@ def format_seconds(seconds):
 
     return "%s%02d:%02d" % (string, minutes, seconds)
 
+
 # TODO this has been added in master
 #       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
 def urlencode(value):
     return quote(value)
+
 
 class JinjaPlugin(SimplePlugin):
 
@@ -85,6 +93,7 @@ class JinjaPlugin(SimplePlugin):
 
     def stop(self):
         self.env = None
+
 
 class Jinja(HandlerWrapperTool):
 
@@ -137,4 +146,3 @@ class JinjaGlobalsTool(cherrypy.Tool):
 
     def start(self):
         cherrypy.request.jinja.globals['server_name'] = cherrypy.request.app.config['opmuse']['server_name']
-

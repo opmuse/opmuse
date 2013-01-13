@@ -1,6 +1,7 @@
 import cherrypy
 import json
 
+
 class HTTPRedirect(cherrypy.HTTPRedirect):
     def set_response(self):
         if cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest':

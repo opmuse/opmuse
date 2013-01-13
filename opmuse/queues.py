@@ -7,6 +7,7 @@ from opmuse.database import Base
 from opmuse.security import User
 from opmuse.library import Track, Artist, Album, library_dao
 
+
 class Queue(Base):
     __tablename__ = 'queues'
 

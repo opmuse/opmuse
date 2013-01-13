@@ -8,10 +8,12 @@ from sqlalchemy.pool import NullPool
 Base = declarative_base()
 Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
 
+
 def get_type():
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']
     return urlparse(url).scheme
+
 
 def get_engine():
     config = cherrypy.tree.apps[''].config['opmuse']
@@ -19,6 +21,7 @@ def get_engine():
     echo = config['database.echo']
     return create_engine(url, echo=echo, poolclass=NullPool,
                                 isolation_level="READ UNCOMMITTED")
+
 
 def get_raw_session(create_all = False):
     engine = get_engine()
@@ -28,12 +31,14 @@ def get_raw_session(create_all = False):
 
     return sessionmaker(bind=engine)()
 
+
 def get_session():
     session = scoped_session(sessionmaker(autoflush=True,
                                           autocommit=False))
     cherrypy.engine.publish('bind', session)
 
     return session
+
 
 class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
 
@@ -62,6 +67,7 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
         self.engine.dispose()
         self.engine = None
 
+
 class SqlAlchemyTool(cherrypy.Tool):
     def __init__(self):
         cherrypy.Tool.__init__(self, 'on_start_resource',
@@ -89,4 +95,3 @@ class SqlAlchemyTool(cherrypy.Tool):
     def bind_session(self):
         cherrypy.engine.publish('bind', self.session)
         cherrypy.request.database = self.session
-

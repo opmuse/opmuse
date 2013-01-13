@@ -1,5 +1,6 @@
 import subprocess
 
+
 class Image:
 
     FNULL = open('/dev/null', 'w')

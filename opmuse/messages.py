@@ -1,6 +1,7 @@
 import json
 import cherrypy
 
+
 class Messages:
 
     def warning(self, text):

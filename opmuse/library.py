@@ -30,6 +30,7 @@ import mutagen.easyid3
 import mutagen.apev2
 import mutagen.musepack
 
+
 class StringBinaryType(TypeDecorator):
     """
     Stores value as a binary string in a VARBINARY column but automatically
@@ -48,8 +49,10 @@ class StringBinaryType(TypeDecorator):
         if value is not None:
             return value.decode('utf8')
 
+
 def log(msg):
     cherrypy.log(msg, context='library')
+
 
 class Album(Base):
     __tablename__ = 'albums'
@@ -144,6 +147,7 @@ class TrackPath(Base):
         pretty_path = self.pretty_path
         return "%s/" % os.path.dirname(pretty_path)
 
+
 class Track(Base):
     __tablename__ = 'tracks'
 
@@ -172,6 +176,7 @@ class Track(Base):
 
     def __str__(self):
         return "%s - %s - %s" % (self.artist.name, self.album.name, self.name)
+
 
 class FileMetadata:
 
@@ -230,6 +235,7 @@ class FileMetadata:
     def __str__(self):
         return str(self.metadatas)
 
+
 class TagParser:
     def is_supported(self, filename):
         extensions = self.supported_extensions()
@@ -250,6 +256,7 @@ class TagParser:
 
     def parse(self, filename, metadata):
         raise NotImplementedError()
+
 
 class MutagenParser(TagParser):
     def parse(self, filename, metadata):
@@ -286,6 +293,7 @@ class MutagenParser(TagParser):
     def get_tag(self, filename):
         raise NotImplementedError()
 
+
 class MpcParser(MutagenParser):
 
     def get_tag(self, filename):
@@ -293,6 +301,7 @@ class MpcParser(MutagenParser):
 
     def supported_extensions(self):
         return [b'mpc']
+
 
 class ApeParser(MutagenParser):
 
@@ -302,6 +311,7 @@ class ApeParser(MutagenParser):
     def supported_extensions(self):
         return [b'ape']
 
+
 class WmaParser(MutagenParser):
 
     def get_tag(self, filename):
@@ -309,6 +319,7 @@ class WmaParser(MutagenParser):
 
     def supported_extensions(self):
         return [b'wma']
+
 
 class FlacParser(MutagenParser):
 
@@ -318,6 +329,7 @@ class FlacParser(MutagenParser):
     def supported_extensions(self):
         return [b'flac']
 
+
 class Mp4Parser(MutagenParser):
 
     def get_tag(self, filename):
@@ -325,6 +337,7 @@ class Mp4Parser(MutagenParser):
 
     def supported_extensions(self):
         return [b'm4p', b'mp4', b'm4a']
+
 
 class OggParser(MutagenParser):
 
@@ -334,6 +347,7 @@ class OggParser(MutagenParser):
     def supported_extensions(self):
         return [b'ogg']
 
+
 class Id3Parser(MutagenParser):
 
     def get_tag(self, filename):
@@ -341,6 +355,7 @@ class Id3Parser(MutagenParser):
 
     def supported_extensions(self):
         return [b'mp3', b'mp2']
+
 
 class PathParser(TagParser):
     """
@@ -439,7 +454,6 @@ class PathParser(TagParser):
         return FileMetadata(artist, album, track_name, None, number, added,
                             None, None, invalid, album_cover_path, artist_cover_path, disc)
 
-
     @staticmethod
     def match_in_dir(match_files, files):
         match = None
@@ -456,6 +470,7 @@ class PathParser(TagParser):
 
     def supported_extensions(self):
         return None
+
 
 class TagReader:
 
@@ -514,6 +529,7 @@ class TagReader:
 
 
 reader = TagReader()
+
 
 class StructureParser:
 
@@ -632,6 +648,7 @@ class TrackStructureParser(StructureParser):
             'date': self._track.album.date,
         }
 
+
 class MetadataStructureParser(StructureParser):
 
     def __init__(self, metadata, filename = None, data_override = {}):
@@ -645,6 +662,7 @@ class MetadataStructureParser(StructureParser):
             'disc': self._metadata.disc,
             'date': self._metadata.date,
         }
+
 
 class Library:
 
@@ -755,6 +773,7 @@ class Library:
         self.scanning = False
 
         log("Done updating library.")
+
 
 class LibraryProcess:
 
@@ -1028,6 +1047,7 @@ class LibraryProcess:
 
             return base64.b64encode(mmh3.hash_bytes(bytes))
 
+
 class LibraryDao:
 
     def delete_track(self, track, database = None):
@@ -1113,7 +1133,7 @@ class LibraryDao:
 
     def get_invalid_track_count(self):
         return (cherrypy.request.database.query(func.count(Track.id))
-            .filter(Track.invalid != None).scalar())
+            .filter("invalid is not null").scalar())
 
     def get_album_count(self):
         return cherrypy.request.database.query(func.count(Album.id)).scalar()
@@ -1281,7 +1301,7 @@ class LibraryDao:
                 .query(Album)
                 .join(Track, Album.id == Track.album_id)
                 .group_by(Album.id)
-                .filter(Track.invalid != None)
+                .filter("invalid is not null")
                 .order_by(func.max(Track.added).desc())
                 .limit(limit)
                 .offset(offset)
@@ -1297,7 +1317,9 @@ class LibraryDao:
                 .offset(offset)
                 .all())
 
+
 library_dao = LibraryDao()
+
 
 class LibraryPlugin(SimplePlugin):
 
@@ -1329,6 +1351,7 @@ class LibraryPlugin(SimplePlugin):
         self.library = None
         self.thread = None
 
+
 class LibraryTool(cherrypy.Tool):
     def __init__(self):
         cherrypy.Tool.__init__(self, 'on_start_resource',
@@ -1338,4 +1361,3 @@ class LibraryTool(cherrypy.Tool):
         binds = cherrypy.engine.publish('bind_library')
         cherrypy.request.library = binds[0]
         cherrypy.request.library_dao = library_dao
-

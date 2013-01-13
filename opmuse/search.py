@@ -9,8 +9,8 @@ from whoosh.qparser import MultifieldParser
 import opmuse.library
 
 index_names = ['Artist', 'Album', 'Track']
-
 write_handlers = {}
+
 
 class WriteHandler:
     def __init__(self, index):

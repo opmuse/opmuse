@@ -14,6 +14,7 @@ from repoze.who.classifiers import default_challenge_decider
 from repoze.who._compat import get_cookies
 from opmuse.database import Base, get_session
 
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -49,6 +50,7 @@ class User(Base):
 
         return 'http://www.gravatar.com/avatar/%s.png?size=%s' % (hash, size)
 
+
 class AuthenticatedTool(cherrypy.Tool):
     def __init__(self):
         cherrypy.Tool.__init__(self, 'on_start_resource',
@@ -58,6 +60,7 @@ class AuthenticatedTool(cherrypy.Tool):
         if ('repoze.who.identity' not in cherrypy.request.wsgi_environ or
             not cherrypy.request.wsgi_environ.get('repoze.who.identity')):
             raise cherrypy.HTTPError(401)
+
 
 # TODO move this to AuthenticatedTool
 class JinjaAuthenticatedTool(cherrypy.Tool):
@@ -83,6 +86,7 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
 
             cherrypy.request.jinja.globals['user'] = cherrypy.request.user = user
 
+
 class DatabaseAuthenticator(object):
 
     def authenticate(self, environ, identity):
@@ -105,6 +109,7 @@ class DatabaseAuthenticator(object):
             pass
 
         return None
+
 
 class AuthTktQueryStringIdentifier:
     """
@@ -138,6 +143,7 @@ class AuthTktQueryStringIdentifier:
 
     def forget(self, environ, identity):
         pass
+
 
 class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
     """
@@ -195,6 +201,7 @@ def hash_password(password, salt):
 
     return hashed
 
+
 def repozewho_pipeline(app):
 
     database = DatabaseAuthenticator()
@@ -219,4 +226,3 @@ def repozewho_pipeline(app):
         log_stream = cherrypy.log.access_log,
         log_level = logging.INFO
     )
-

@@ -27,6 +27,7 @@ from opmuse.database import get_session
 from opmuse.image import image as image_service
 from opmuse.search import search
 
+
 class Edit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit.html')
@@ -102,7 +103,6 @@ class Edit:
                 filenames.append(track_path.path)
                 cherrypy.request.database.delete(track_path.track)
 
-
         cherrypy.request.database.commit()
 
         if where == "va":
@@ -115,6 +115,7 @@ class Edit:
         )
 
         raise HTTPRedirect('/%s/%s' % (tracks[0].artist.slug, tracks[0].album.slug))
+
 
 class Remove:
     @cherrypy.expose
@@ -134,6 +135,7 @@ class Remove:
             raise HTTPRedirect('/%s' % artist.slug)
         else:
             raise HTTPRedirect('/library/albums/new')
+
 
 class Upload:
     @cherrypy.expose
@@ -267,6 +269,7 @@ class You:
 
         raise HTTPRedirect('/users/you/settings')
 
+
 class Users:
     you = You()
 
@@ -275,8 +278,7 @@ class Users:
     @cherrypy.tools.jinja(filename='users/users.html')
     def users(self):
 
-        users = (cherrypy.request.database.query(User)
-            .order_by(User.login).all())
+        users = (cherrypy.request.database.query(User).order_by(User.login).all())
 
         return {'users': users}
 
@@ -306,6 +308,7 @@ class Users:
             'lastfm_user': lastfm_user,
             'top_artists_overall': top_artists_overall
         }
+
 
 class Queue:
 
@@ -407,7 +410,7 @@ class Library(object):
 
             dirs[track.paths[0].pretty_dir].append(track)
 
-        dirs = sorted(dirs.items(), key = lambda d : d[0])
+        dirs = sorted(dirs.items(), key = lambda d: d[0])
 
         # calculate colspan here and not in template because jinja makes it really difficult
         colspan = 4
@@ -865,7 +868,7 @@ class Root(object):
         # TODO use "cookie_name" prop from authtkt plugin...
         auth_tkt = cookies.get('auth_tkt').value
 
-        if cherrypy.request.app.config.get('opmuse').get('stream.ssl') == False:
+        if cherrypy.request.app.config.get('opmuse').get('stream.ssl') is False:
             scheme = 'http'
         else:
             scheme = cherrypy.request.scheme
@@ -881,7 +884,7 @@ class Root(object):
 
         cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=play.m3u'
 
-        return {'url': url }
+        return {'url': url}
 
     @cherrypy.expose
     @cherrypy.tools.transcodingsubprocess()
@@ -915,4 +918,3 @@ class Root(object):
             yield track
 
         return transcoding.transcode(track_generator(), transcoder)
-
