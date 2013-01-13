@@ -692,19 +692,11 @@ class Root(object):
     def get_cover(self, type, slug):
         entity = None
 
-        invalid_placeholder = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
-            '..', 'public', 'images', 'invalid_placeholder.png'
-        )
-
         if type == "album":
             entity = library_dao.get_album_by_slug(slug)
 
             if entity is None:
                 raise cherrypy.NotFound()
-
-            if entity.invalid:
-                return cherrypy.lib.static.serve_file(invalid_placeholder)
 
             for artist in entity.artists:
                 if artist.cover_path is None:
@@ -723,9 +715,6 @@ class Root(object):
 
             if entity is None:
                 raise cherrypy.NotFound()
-
-            if entity.invalid:
-                return cherrypy.lib.static.serve_file(invalid_placeholder)
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
                 entity.cover_path = None
