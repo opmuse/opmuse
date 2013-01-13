@@ -3,7 +3,12 @@ language: python
 python:
     - "3.2"
 
+install:
+    - pip install -r requirements.txt
+    - pip install pep8
+
 script:
+    - pep8 --ignore=E251,E501,E128,E127,E124,E125 opmuse
     - cp config/opmuse.dist.ini config/opmuse.ini
     - python tests/main.py
 
