@@ -67,6 +67,7 @@ class QueueDao:
 
         album = None
         artist = None
+        track = None
 
         current_queues = []
 
@@ -74,7 +75,8 @@ class QueueDao:
                 .filter_by(user_id=user_id).order_by(Queue.weight).all()):
 
             if (album is not None and album.id != queue.track.album.id or
-                artist is not None and artist.id != queue.track.artist.id):
+                artist is not None and artist.id != queue.track.artist.id or
+                track is not None and track.disc != queue.track.disc):
                 queues.append(current_queues)
                 current_queues = []
 
@@ -82,6 +84,7 @@ class QueueDao:
 
             album = queue.track.album
             artist = queue.track.artist
+            track = queue.track
 
         if len(current_queues) > 0:
             queues.append(current_queues)
