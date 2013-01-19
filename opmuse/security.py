@@ -48,7 +48,7 @@ class User(Base):
 
         hash = hashlib.md5(self.mail.encode()).hexdigest()
 
-        return 'http://www.gravatar.com/avatar/%s.png?size=%s' % (hash, size)
+        return '%s://www.gravatar.com/avatar/%s.png?size=%s' % (cherrypy.request.scheme, hash, size)
 
 
 class AuthenticatedTool(cherrypy.Tool):
