@@ -12,7 +12,7 @@ from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (Column, Integer, String, ForeignKey, VARBINARY, BINARY, BLOB,
-                       DateTime, Boolean, func, TypeDecorator)
+                       DateTime, Boolean, func, TypeDecorator, Index)
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -56,11 +56,12 @@ def log(msg):
 
 class Album(Base):
     __tablename__ = 'albums'
+    __table_args__ = (Index('name_date', "name", "date", unique=True), ) + Base.__table_args__
 
     id = Column(Integer, primary_key=True)
-    name = Column(StringBinaryType(255), index=True, unique=True)
+    name = Column(StringBinaryType(255))
     slug = Column(String(255), index=True, unique=True)
-    date = Column(String(32))
+    date = Column(String(32), index=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
@@ -870,12 +871,18 @@ class LibraryProcess:
 
         try:
             album = self._database.query(Album).filter_by(
-                name=metadata.album_name
+                name=metadata.album_name, date=metadata.date
             ).one()
         except NoResultFound:
             index = 0
             while True:
-                index, album_slug = LibraryProcess.slugify(metadata.album_name, index)
+                if index == 0 or metadata.date is None:
+                    slug = metadata.album_name
+                    index, album_slug = LibraryProcess.slugify(slug, index)
+                else:
+                    slug = '%s_%s' % (metadata.album_name, metadata.date)
+                    index, album_slug = LibraryProcess.slugify(slug, 0)
+
                 try:
                     self._database.query(Album).filter_by(slug=album_slug).one()
                 except NoResultFound:
@@ -893,7 +900,7 @@ class LibraryProcess:
             # in which case the album already exists so fetch it instead.
             self._database.rollback()
             album = self._database.query(Album).filter_by(
-                name=metadata.album_name
+                name=metadata.album_name, date=metadata.date
             ).one()
 
         if metadata.album_name is not None:

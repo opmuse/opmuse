@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import NullPool
 
 Base = declarative_base()
-Base.__table_args__ = {'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}
+Base.__table_args__ = ({'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}, )
 
 
 def get_type():
