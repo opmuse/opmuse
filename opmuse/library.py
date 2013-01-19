@@ -162,6 +162,7 @@ class Track(Base):
     hash = Column(BINARY(24), index=True, unique=True)
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
+    size = Column(Integer)
     invalid = Column(String(32), index=True)
     disc = Column(String(64))
 
@@ -193,6 +194,7 @@ class FileMetadata:
         self.cover_path = args[9]
         self.artist_cover_path = args[10]
         self.disc = args[11]
+        self.size = args[12]
 
         self.metadatas = args
 
@@ -264,7 +266,7 @@ class MutagenParser(TagParser):
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
             log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
-            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], ) + ((None, ) * 3)))
+            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], ) + ((None, ) * 4)))
 
         artist = str(tag['artist'][0]) if 'artist' in tag else None
         album = str(tag['album'][0]) if 'album' in tag else None
@@ -288,7 +290,7 @@ class MutagenParser(TagParser):
             invalid = ['valid']
 
         return FileMetadata(artist, album, track, duration, number, None, date,
-                            bitrate, invalid, None, None, disc)
+                            bitrate, invalid, None, None, disc, None)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -371,7 +373,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 12)
+                return FileMetadata(*(None, ) * 13)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
@@ -382,6 +384,7 @@ class PathParser(TagParser):
 
         stat = os.stat(bfilename)
         added = datetime.datetime.fromtimestamp(stat.st_mtime)
+        size = stat.st_size
 
         number = None
 
@@ -451,8 +454,8 @@ class PathParser(TagParser):
                 if not structure_parser.is_valid():
                     invalid = ['dir']
 
-        return FileMetadata(artist, album, track_name, None, number, added,
-                            None, None, invalid, album_cover_path, artist_cover_path, disc)
+        return FileMetadata(artist, album, track_name, None, number, added, None, None,
+            invalid, album_cover_path, artist_cover_path, disc, size)
 
     @staticmethod
     def match_in_dir(match_files, files):
@@ -942,6 +945,7 @@ class LibraryProcess:
         track.format = format
         track.added = added
         track.bitrate = metadata.bitrate
+        track.size = metadata.size
         track.disc = metadata.disc
 
         if metadata.invalid == ['valid']:
