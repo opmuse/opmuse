@@ -28,7 +28,12 @@ body {
     position: fixed;
     z-index: 1000;
     background-color: @bodyBackground;
+
     padding-top: 60px;
+
+    @media (max-width: @navbarCollapseWidth) {
+        padding-top: 0;
+    }
 }
 
 #top-content {
@@ -38,9 +43,14 @@ body {
 }
 
 #right-span {
-    margin-top: 60px;
     position: fixed;
     right: 5px;
+
+    margin-top: 60px;
+
+    @media (max-width: @navbarCollapseWidth) {
+        margin-top: 0;
+    }
 }
 
 footer {
@@ -96,6 +106,20 @@ footer {
 .navbar {
     .brand {
         margin-left: -10px;
+    }
+
+    .navbar-logout {
+        display: none;
+    }
+
+    @media (max-width: @navbarCollapseWidth) {
+        .navbar-logout {
+            display: block;
+        }
+
+        .navbar-you .logout {
+            display: none;
+        }
     }
 
     .navbar-you {
