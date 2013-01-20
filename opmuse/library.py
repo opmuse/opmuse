@@ -743,6 +743,8 @@ class Library:
                 p = Thread(target=LibraryProcess, args = (to_process, None, no))
                 p.start()
 
+                log("Spawned library thread %d with ident %s)." % (no, p.ident))
+
                 threads.append(p)
 
                 to_process = []
@@ -876,12 +878,7 @@ class LibraryProcess:
         except NoResultFound:
             index = 0
             while True:
-                if index == 0 or metadata.date is None:
-                    slug = metadata.album_name
-                    index, album_slug = LibraryProcess.slugify(slug, index)
-                else:
-                    slug = '%s_%s' % (metadata.album_name, metadata.date)
-                    index, album_slug = LibraryProcess.slugify(slug, 0)
+                index, album_slug = LibraryProcess.slugify(metadata.album_name, index)
 
                 try:
                     self._database.query(Album).filter_by(slug=album_slug).one()
