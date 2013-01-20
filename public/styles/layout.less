@@ -80,18 +80,6 @@ footer {
     }
 }
 
-.throbber {
-    display: none;
-    float: left;
-    margin: 6px 0 0 0;
-    padding: 0 0 0 20px;
-}
-
-.brand,
-.throbber {
-    width: 70px;
-}
-
 .tmpl {
     display: none;
 }
@@ -104,8 +92,24 @@ footer {
 }
 
 .navbar {
-    .brand {
+
+    .throbber {
+        display: none;
+        float: left;
+
+        .icon-spinner {
+            margin-top: -3px;
+        }
+    }
+
+    .brand,
+    .throbber {
+        text-align: center;
+        line-height: 20px;
+        width: 70px;
         margin-left: -10px;
+        padding: 10px 20px;
+        height: 20px;
     }
 
     .navbar-logout {

@@ -6,8 +6,7 @@ require.config({
         'jquery.ui.widget': 'lib/jquery.ui.widget',
         'jquery': 'lib/jquery',
         'bootstrap': 'lib/bootstrap',
-        'domReady': 'lib/domReady',
-        'throbber': 'lib/throbber'
+        'domReady': 'lib/domReady'
     },
     shim: {
         'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip']

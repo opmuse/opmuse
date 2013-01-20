@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, inheritance, throbber) {
+define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
 
     var Throb = Class.extend({
         init: function (throbber, brand) {
@@ -6,15 +6,6 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
 
             this.throbber = $(throbber);
             this.brand = $(brand);
-
-            this.throb = new Throbber({
-                color: '#B16848',
-                size: 28,
-                fade: 1500,
-                rotationspeed: 10,
-                lines: 10,
-                strokewidth: 2.4,
-            }).appendTo(this.throbber.get(0));
 
             this.active = 0;
 
@@ -39,14 +30,10 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
         stop: function () {
             this.throbber.hide();
             this.brand.show();
-
-            this.throb.start();
         },
         start: function () {
             this.throbber.show();
             this.brand.hide();
-
-            this.throb.start();
         }
     });
 

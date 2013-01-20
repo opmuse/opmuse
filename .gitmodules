@@ -13,9 +13,6 @@
 [submodule "vendor/watchr"]
 	path = vendor/watchr
 	url = https://github.com/mynyml/watchr.git
-[submodule "vendor/throbber.js"]
-	path = vendor/throbber.js
-	url = https://github.com/aino/throbber.js.git
 [submodule "vendor/jQuery-File-Upload"]
 	path = vendor/jQuery-File-Upload
 	url = git://github.com/blueimp/jQuery-File-Upload.git
