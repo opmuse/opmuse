@@ -23,10 +23,6 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
             that.internalInit();
 
             setInterval(this.reload.bind(this), 2 * 60 * 1000);
-
-            $("#bottom-right").bind("layoutResize", function (event) {
-                that.resize();
-            });
         },
         internalInit: function () {
             var that = this;
@@ -74,20 +70,12 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
                     $("#queue").html(data);
                     ajaxify.load('#queue');
                     that.internalInit();
-                    that.resize();
 
                     if (typeof successCallback != 'undefined' && successCallback !== null) {
                         successCallback(data);
                     }
                 }
             });
-        },
-        resize: function () {
-            $("#queue > .tracks").hide();
-            var margin = $("#queue").outerHeight() + 10;
-            $("#queue > .tracks").height(
-                $("#bottom-right").height() - margin
-            ).show();
         },
         getCurrentTrackDuration: function () {
             return $("#queue .track.playing").data('track-duration');
