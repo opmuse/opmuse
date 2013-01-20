@@ -13,10 +13,19 @@
         {% block container %}
             <div class="row-fluid">
                 <div class="span9">
-                    <div id="messages">
+                    <div class="row-fluid">
+                        <div class="span12">
+                            {% include "player.html" %}
+                        </div>
                     </div>
-                    <div id="content">
-                        {% block content %}{% endblock %}
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <div id="messages">
+                            </div>
+                            <div id="content">
+                                {% block content %}{% endblock %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="span3">

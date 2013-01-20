@@ -1,46 +1,38 @@
-#player {
-    display: none;
-}
+.player-container {
+    padding: 8px 8px 8px 16px;
 
-#player-controls {
-    display: none; // Displayed in the javascript on document ready
-
-    .icon {
-        height: 30px;
-        width: 30px;
-        border: 0;
-        color: transparent;
-        font-size: 0;
-        display: block;
-        float: left;
+    #player {
+        display: none;
     }
-}
 
-#player-progress {
-    .progress {
-        width: 250px;
-        float: left;
-        margin: 5px 0 0 10px;
+    #player-controls {
+        display: none; // Displayed in the javascript on document ready
 
-        @media only screen and (min-width : 900px) {
-            width: 180px;
-        }
+        #next-button, #play-button, #pause-button {
+            height: 30px;
+            width: 30px;
+            color: #444;
+            display: block;
+            float: left;
+            margin: 0 6px 0 0;
 
-        @media only screen and (min-width : 1280px) {
-            width: 310px;
-        }
-
-        @media only screen and (min-width : 1665px) {
-            width: 490px;
-        }
-
-        @media only screen and (min-width : 1920px) {
-            width: 590px;
+            &:hover {
+                color: #111;
+                text-decoration: none;
+            }
         }
     }
-}
 
-#player-stream {
-    margin: 0 0 0 10px;
-    float: left;
+    #player-progress {
+        .progress {
+            width: 59%;
+            float: left;
+            margin: 5px 0 0 10px;
+        }
+    }
+
+    #player-stream {
+        margin: 0 0 0 10px;
+        float: right;
+    }
 }

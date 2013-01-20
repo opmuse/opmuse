@@ -18,22 +18,30 @@ body {
     padding: 0 10px
 }
 
-@footer-height: 70px;
-
 footer {
     background-color: @bodyBackground;
-    height: @footer-height;
     position: fixed;
     bottom: 0;
     width: 100%;
 
     .footer-content {
-        height: @footer-height - 20;
-        margin-top: 10px;
-        padding: 10px 0 5px;
+        margin-top: 4px;
+        font-size: .8em;
+        border-top: 1px solid #ddd;
+        background-color: #fcfcfc;
+        height: 30px;
 
-        border-top: 1px solid lighten(@accentColor, 20%);
-        background-color: lighten(@accentColor, 45%);
+        p {
+            float: left;
+            margin: 0 8px 0 4px;
+            line-height: 30px;
+        }
+
+        .copyright {
+            p {
+                float: right;
+            }
+        }
     }
 }
 

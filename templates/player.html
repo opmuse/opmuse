@@ -1,38 +1,43 @@
-<audio
-    id="player"
-    preload="none">
-</audio>
+<div class="well well-small player-container">
+    <audio
+        id="player"
+        preload="none">
+    </audio>
 
-<div id="player-controls">
-    <a
-        class="icon next-icon"
-        id="next-button"
-        href="#">
-        Next
-    </a>
-    <a
-        class="icon play-icon"
-        id="play-button"
-        href="#">
-        Play
-    </a>
-    <a
-        class="icon pause-icon"
-        id="pause-button"
-        href="#">
-        Pause
-    </a>
-</div>
-
-<div id="player-progress">
-    <div class="progress progress-striped">
-        <div class="bar" style="width: 0%"></div>
+    <div id="player-controls">
+        <a
+            id="play-button"
+            title="Play"
+            href="#">
+            <i class="icon-play icon-2x"></i>
+        </a>
+        <a
+            id="pause-button"
+            title="Pause"
+            href="#">
+            <i class="icon-pause icon-2x"></i>
+        </a>
+        <a
+            id="next-button"
+            title="Next"
+            href="#">
+            <i class="icon-step-forward icon-2x"></i>
+        </a>
     </div>
-</div>
 
-<div id="player-stream">
-    <a class="open-stream btn"
-        href="/play.m3u">
-        Open Stream
-    </a>
+    <div id="player-progress">
+        <div class="progress progress-striped">
+            <div class="bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div id="player-stream">
+        <a class="open-stream btn"
+            href="/play.m3u">
+            <i class="icon-download"></i>
+            Stream
+        </a>
+    </div>
+
+    <div class="clear"></div>
 </div>

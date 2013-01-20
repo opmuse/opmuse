@@ -120,6 +120,10 @@ def configure():
                                         '..', 'public', 'scripts'),
         }, '/users/you/lastfm': {
             'tools.sessions.on': True,
+        }, '/font': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': join(abspath(dirname(__file__)),
+                                        '..', 'public', 'font'),
         }, '/images': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),

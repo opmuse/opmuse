@@ -3,31 +3,14 @@
         <div class="container-fluid">
             <div class="row-fluid">
                 <div class="span8">
-                    {% include "player.html" %}
+                    <p><strong>Scanning:</strong> {{ 'Yes' if request.library.scanning else 'No' }}</p>
+                    <p><strong>Tracks:</strong> {{ request.library_dao.get_track_count() }}</p>
+                    <p><strong>Albums:</strong> {{ request.library_dao.get_album_count() }}</p>
+                    <p><strong>Artists:</strong> {{ request.library_dao.get_artist_count() }}</p>
+                    <p><strong>Invalid:</strong> {{ request.library_dao.get_invalid_track_count() }}</p>
                 </div>
-                <div class="span4">
-                    <div id="library_stats">
-                        <dl>
-                            <dt>Scanning</dt>
-                            <dd>{{ 'Yes' if request.library.scanning else 'No' }}</dd>
-                        </dl>
-                        <dl>
-                            <dt>Invalid</dt>
-                            <dd>{{ request.library_dao.get_invalid_track_count() }}</dd>
-                        </dl>
-                        <dl>
-                            <dt>Tracks</dt>
-                            <dd>{{ request.library_dao.get_track_count() }}</dd>
-                        </dl>
-                        <dl>
-                            <dt>Albums</dt>
-                            <dd>{{ request.library_dao.get_album_count() }}</dd>
-                        </dl>
-                        <dl>
-                            <dt>Artists</dt>
-                            <dd>{{ request.library_dao.get_artist_count() }}</dd>
-                        </dl>
-                    </div>
+                <div class="span4 copyright">
+                    <p>&copy; opmuse 2012-2013</p>
                 </div>
             </div>
         </div>
