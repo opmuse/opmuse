@@ -1,5 +1,24 @@
 #index {
-    .hero-unit {
-        min-height: 200px;
+    &.index_unauth {
+        padding-top: 60px;
+
+        @media (max-width: @navbarCollapseWidth) {
+            padding-top: 0;
+        }
+
+        .music-span {
+            text-align: center;
+
+            .icon-music {
+                width: 180px;
+                height: 180px;
+                font-size: 180px;
+            }
+        }
+
+        .hero-unit {
+            min-height: 200px;
+
+        }
     }
 }
