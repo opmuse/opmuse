@@ -5,7 +5,6 @@ require(['jquery'], function($) {
     });
 
     require([
-        'layout',
         'ajaxify',
         'queue',
         'player',

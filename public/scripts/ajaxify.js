@@ -153,7 +153,7 @@ define(['jquery', 'inheritance', 'throbber', 'bind', 'domReady!'], function($, i
             for (var index in this.contents) {
                 var content = this.contents[index];
                 $(content).html(html.find(content + ' > *'));
-                $(content).scrollTop(0);
+                $(window).scrollTop(0);
             }
 
             this.internalInit();
