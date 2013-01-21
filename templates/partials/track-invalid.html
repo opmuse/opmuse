@@ -1,5 +1,5 @@
 {% if track.invalid == "dir" %}
-<a href="#" class="icon-folder-open" rel="popover"
+<a href="#" class="invalid-track invalid-dir icon-folder-open" rel="popover"
     title="Folder doesn't match tags."
     data-trigger="hover"
     data-html="true"
@@ -7,7 +7,7 @@
     sensitive. <em>This does not affect the playability of this track!</em>">
 </a>
 {% elif track.invalid == "incomplete_tags" %}
-<a href="#" class="icon-tag" rel="popover"
+<a href="#" class="invalid-track invalid-incomplete icon-tag" rel="popover"
     title="Required tags are missing."
     data-trigger="hover"
     data-html="true"
@@ -16,7 +16,7 @@
 </a>
 {% elif track.invalid == "broken_tags" %}
 {# TODO find a better icon :/ #}
-<a href="#" class="icon-tags" rel="popover"
+<a href="#" class="invalid-track invalid-broken icon-tags" rel="popover"
     title="Tags are broken."
     data-trigger="hover"
     data-html="true"

@@ -18,13 +18,13 @@
             </span>
             <span class="album-info">
                 <a
-                    class="remove label label-important"
+                    class="remove"
                     href="/queue/remove/
                     {%- for q in queue -%}
                         {{ q.track.id }},
                     {%- endfor -%}
                     ">
-                    <span class="icon-remove icon-white"></span>
+                    <span class="icon-remove-sign"></span>
                 </a>
             </span>
         </li>
@@ -43,9 +43,9 @@
                         {{ q.track.duration|format_seconds }}
                     </span>
                     <a
-                        class="remove label label-important"
+                        class="remove"
                         href="/queue/remove/{{ q.track.id }}">
-                        <span class="icon-remove icon-white"></span>
+                        <span class="icon-remove-sign"></span>
                     </a>
                 </span>
                 <div class="clear"></div>
@@ -57,12 +57,16 @@
 <div class="btn-group">
     <a
         id="clear-queue"
-        class="btn"
+        class="btn btn-small btn-danger"
         href="/queue/clear">
-        Clear all</a>
+        <i class="icon-remove-sign"></i>
+        All
+    </a>
     <a
         id="clear-played-queue"
-        class="btn"
+        class="btn btn-small btn-danger"
         href="/queue/clear/played">
-        played</a>
+        <i class="icon-remove-sign"></i>
+        played
+    </a>
 </div>

@@ -10,10 +10,12 @@
         </div>
         <div class="album-badges bottom">
             {% if album.invalid %}
-            <p class="album-invalid badge badge-important">Has invalid tracks</p>
+            <p class="album-invalid badge badge-important" title="This album containts invalid tracks.">
+                <i class="icon-warning-sign"></i>
+            </p>
             {% endif %}
             {% if album.artists|length > 1 %}
-            <p class="album-va badge badge-success">VA</p>
+                <p class="album-va badge badge-success">VA</p>
             {% endif %}
         </div>
         <a
