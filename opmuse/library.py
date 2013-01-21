@@ -11,7 +11,7 @@ import time
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import (Column, Integer, String, ForeignKey, VARBINARY, BINARY, BLOB,
+from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
                        DateTime, Boolean, func, TypeDecorator, Index)
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred
@@ -163,7 +163,7 @@ class Track(Base):
     hash = Column(BINARY(24), index=True, unique=True)
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
-    size = Column(Integer)
+    size = Column(BigInteger)
     invalid = Column(String(32), index=True)
     disc = Column(String(64))
 
