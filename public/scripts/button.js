@@ -1,0 +1,31 @@
+define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-button', 'domReady!'], function($, inheritance) {
+
+    var instance = null;
+
+    var Button = Class.extend({
+        init: function () {
+            if (instance !== null) {
+                throw Error('Only one instance of Button allowed!');
+            }
+
+            var that = this;
+
+            $('#content').bind('ajaxifyInit', function (event) {
+                that.internalInit();
+            });
+
+            that.internalInit();
+        },
+        internalInit: function () {
+            $(".dropdown-toggle").unbind('click.ajaxify');
+        }
+    });
+
+    return (function() {
+        if (instance === null) {
+            instance = new Button();
+        }
+
+        return instance;
+    })();
+});

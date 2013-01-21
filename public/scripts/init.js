@@ -9,7 +9,8 @@ require.config({
         'domReady': 'lib/domReady'
     },
     shim: {
-        'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip']
+        'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip'],
+        'bootstrap/bootstrap-button': ['bootstrap/bootstrap-dropdown']
     },
     waitSeconds: 30
 });

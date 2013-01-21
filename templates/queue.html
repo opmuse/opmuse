@@ -1,3 +1,22 @@
+<div class="btn-group">
+    <a
+        id="clear-queue"
+        class="btn btn-mini btn-danger"
+        href="/queue/clear">
+        <i class="icon-remove-sign"></i>
+        All
+    </a>
+    <a
+        id="clear-played-queue"
+        class="btn btn-mini btn-danger"
+        href="/queue/clear/played">
+        <i class="icon-remove-sign"></i>
+        played
+    </a>
+</div>
+
+<div class="clear"></div>
+
 <ol class="tracks">
     {% for queue in queues %}
         {% set q = queue[0] %}
@@ -53,20 +72,3 @@
         {% endfor %}
     {% endfor %}
 </ol>
-
-<div class="btn-group">
-    <a
-        id="clear-queue"
-        class="btn btn-small btn-danger"
-        href="/queue/clear">
-        <i class="icon-remove-sign"></i>
-        All
-    </a>
-    <a
-        id="clear-played-queue"
-        class="btn btn-small btn-danger"
-        href="/queue/clear/played">
-        <i class="icon-remove-sign"></i>
-        played
-    </a>
-</div>

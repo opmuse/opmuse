@@ -4,7 +4,12 @@
 .artist-head {
     .album-cover,
     .artist-cover {
-        margin: 0 0 15px 10px;
+        margin: 0 30px;
+        float: right;
+
+        @media (max-width: @navbarCollapseWidth) {
+            display: none;
+        }
     }
 
     ul {
@@ -19,7 +24,7 @@
         &.album-head .date {
             margin-left: 6px;
             font-size: .8em;
-            color: #888;
+            color: @grayLight;
 
             &:after {
                 content: ')';
@@ -29,6 +34,18 @@
                 content: '(';
             }
         }
+    }
+
+    .album-subline {
+        margin: 0;
+        font-size: .8em;
+        color: @grayLight;
+    }
+
+    p {
+        margin: 20px 0 20px 0;
+        clear: both;
+        overflow: hidden;
     }
 
     h4 {

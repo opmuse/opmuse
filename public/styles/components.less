@@ -58,7 +58,7 @@
                 width: @album-width;
 
                 h3 {
-                    line-height: 20px;
+                    line-height: 26px;
                 }
 
                 h3, p {
@@ -66,7 +66,14 @@
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                }
+
+                h3 {
                     font-size: 1.2em;
+                }
+
+                p {
+                    font-size: 1em;
                 }
             }
 
@@ -89,18 +96,8 @@
                     }
                 }
 
-                p {
-                    font-size: 0.8em;
-                    font-weight: normal;
-                }
-
                 .badge {
                     line-height: 12px;
-                }
-
-                .album-invalid {
-                    font-size: .9em;
-                    font-weight: bold;
                 }
             }
 
@@ -109,7 +106,6 @@
             .album-va,
             .album-track-count {
                 display: block;
-                opacity: .8;
                 margin: 2px 0 0 0;
                 float: left;
                 clear: both;
@@ -123,33 +119,22 @@
     }
 }
 
-.btn-container {
-    clear: both;
-    overflow: hidden;
+.edit-btn {
+    float: right;
+    font-weight: normal;
 
-    .move-btn,
-    .edit-btn {
-        position: static;
-
-        /* these two are here so tooltips work */
-        white-space: inherit;
-        float: right;
-    }
-
-    .queue-btn {
-        float: left;
+    .dropdown-menu {
+        li a {
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: .8em;
+        }
     }
 }
 
-.dir-info .btn-container {
-    float: right;
-
-    .move-btn,
-    .edit-btn,
-    .queue-btn {
-        font-weight: normal;
-        float: none;
-    }
+.queue-btn {
+    float: left;
 }
 
 .album-cover,

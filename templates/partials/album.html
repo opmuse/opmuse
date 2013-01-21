@@ -38,14 +38,12 @@
                 <p class="album-va badge badge-success">VA</p>
             {% endif %}
         </div>
-        <a
-            class="queue add add-album btn btn-small btn-success"
-                href="/queue/add/
-                    {%- for track in album.tracks -%}
-                        {{ track.id }},
-                    {%- endfor -%}
-                ">
-            Queue
+        <a class="queue add add-album btn btn-small btn-inverse"
+            href="/queue/add/
+                {%- for track in album.tracks -%}
+                    {{ track.id }},
+                {%- endfor -%}">
+            <i class="icon-headphones"></i>
         </a>
         <a href="/{{ album.artists[0].slug|urlencode if not artist else artist.slug|urlencode }}/{{ album.slug|urlencode }}">
             {% include "partials/album-cover.html" %}

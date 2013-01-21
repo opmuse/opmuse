@@ -1,9 +1,15 @@
 #queue {
     ol {
-        overflow-y: auto;
+        overflow-y: hidden;
         overflow-x: hidden;
         list-style: none;
         margin: 0;
+    }
+
+    .track-duration,
+    .track-name,
+    .track-number {
+        font-size: .8em;
     }
 
     li,
@@ -68,5 +74,10 @@
 
     .playing {
         background-color: #d6d6d6;
+    }
+
+    .btn-group {
+        float: left;
+        margin: -15px 0 8px -15px;
     }
 }

@@ -8,50 +8,48 @@
                     <span class="date">{{ album.date }}</span>
                     {% endif %}
                 </h3>
+                <p class="album-subline">
+                    {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}.
+                </p>
             {% else %}
                 <h3>{{ artist.name }}</h3>
             {% endif %}
         </li>
     </ul>
     <ul class="row-fluid">
-        <li class="span8">
-            {% if album %}
-                {% if lastfm_album and lastfm_album.wiki %}
-                    <p>
+        <li class="span12">
+            <p>
+                {% if album %}
+                    {% include "partials/album-cover.html" %}
+                {% else %}
+                    {% include "partials/artist-cover.html" %}
+                {% endif %}
+
+                {% if album %}
+                    {% if lastfm_album and lastfm_album.wiki %}
                         {{ lastfm_album.wiki }}
-                    </p>
-                {% elif lastfm_artist and lastfm_artist.bio %}
-                    <p>
+                    {% elif lastfm_artist and lastfm_artist.bio %}
                         {{ lastfm_artist.bio }}
-                    </p>
-                {% endif %}
-            {% else %}
-                {% if lastfm_artist and lastfm_artist.bio %}
-                    <p>
+                    {% endif %}
+                {% else %}
+                    {% if lastfm_artist and lastfm_artist.bio %}
                         {{ lastfm_artist.bio }}
-                    </p>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
-        </li>
-        <li class="span4">
-            {% if album %}
-                {% include "partials/album-cover.html" %}
-            {% else %}
-                {% include "partials/artist-cover.html" %}
-            {% endif %}
+            </p>
         </li>
     </ul>
     <ul class="row-fluid">
         <li class="span4">
             <h4>Genres</h4>
             {% for tag in lastfm_artist.tags %}
-                <span class="tag badge badge-success">{{ tag }}</span>
+                <span class="tag badge badge-inverse">{{ tag }}</span>
             {% endfor %}
         </li>
         <li class="span4">
             <h4>Similar</h4>
             {% for similar in lastfm_artist.similar %}
-                <span class="badge badge-success">
+                <span class="badge badge-inverse">
                     <a href="/search/{{ similar.name }}/artist">{{ similar.name }}</a>
                 </span>
             {% endfor %}
@@ -59,7 +57,7 @@
         <li class="span4">
             <h4>Namesakes</h4>
             {% for artist in namesakes %}
-                <span class="badge badge-success">
+                <span class="badge badge-inverse">
                     <a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a>
                 </span>
             {% endfor %}

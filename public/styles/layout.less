@@ -2,6 +2,10 @@
     background-image: url("/images/noise.png");
 }
 
+a:hover {
+    text-decoration: none;
+}
+
 .sidebar-nav {
     padding: 9px 0;
 }
@@ -22,6 +26,10 @@ body {
     background-color: #fff;
     box-shadow: inset -10px 0 10px -10px rgba(0, 0, 0, 0.05);
     border-right: 1px solid #ddd;
+
+    @media (max-width: @navbarCollapseWidth) {
+        padding-top: 75px;
+    }
 }
 
 #top-content-span {
@@ -135,6 +143,12 @@ footer {
     .navbar-search {
         margin-left: 10px;
     }
+}
+
+.badge,
+.label {
+    font-family: @originalSansFontFamily;
+    font-size: .7em;
 }
 
 #overlay {

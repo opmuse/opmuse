@@ -8,25 +8,31 @@
 @grayLighter: #dadada;
 @white: #fdfdfd;
 
-@linkColor: @accentColor;
-@linkColorHover: darken(@linkColor, 10%);
+@linkColor: #000;
+@linkColorHover: @linkColor;
+
+@originalSansFontFamily: "Helvetica Neue", Helvetica, Arial, sans-serif;
+@sansFontFamily: "News Cycle", "Arial Narrow Bold", sans-serif;
+@serifFontFamily: Georgia, "Times New Roman", Times, serif;
+@monoFontFamily: Menlo, Monaco, Consolas, "Courier New", monospace;
+
+@baseFontSize: 16px;
+@baseFontFamily: @serifFontFamily;
+@baseLineHeight: 22px;
+@altFontFamily:@sansFontFamily;
+
+@headingsFontFamily: @sansFontFamily;
+@headingsFontWeight: bold;
+@headingsColor: @black;
 
 @tableBackground: #f9f9f9;
 @tableBackgroundAccent: #f6f6f6;
 @tableBackgroundHover: #f2f2f2;
 @tableBorder: #ccc;
 
-@wellBackground: lighten(desaturate(@accentColor, 10%), 40%);
-
-@navbarText: desaturate(darken(@accentColor, 25%), 15%);
-@navbarLinkColor: darken(@accentColor, 15%);
-@navbarLinkColorHover: darken(@accentColor, 25%);
-
-@navbarBackgroundHighlight: lighten(desaturate(@accentColor, 30%), 40%);
-@navbarBackground: darken(@navbarBackgroundHighlight, 10%);
-@navbarBorder: darken(@navbarBackground, 32%);
-
-@heroUnitBackground: lighten(desaturate(@accentColor, 35%), 40%);
+@navbarText: @black;
+@navbarLinkColor: @linkColor;
+@navbarLinkColorHover: @linkColorHover;
 
 // 1920 / 2 - 20
 @navbarCollapseWidth: 940px;

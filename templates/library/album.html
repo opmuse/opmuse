@@ -20,58 +20,78 @@
 
     <hr>
 
-    <div class="btn-container">
-        <div class="btn-group queue-btn">
-            <a
-                class="queue add add-album btn btn-success"
-                href="/queue/add/
-                    {%- for track in album.tracks -%}
+    <div class="btn-group queue-btn">
+        <a
+            class="queue add add-album btn-small btn btn-inverse"
+            title="Queue all"
+            href="/queue/add/
+                {%- for track in album.tracks -%}
+                    {{ track.id }},
+                {%- endfor -%}
+            ">
+            <i class="icon-headphones"></i>
+        </a>
+        {% if album.artists|count > 1 %}
+        <a
+            class="queue add add-album btn-small btn btn-inverse"
+            title="Queue current artist"
+            href="/queue/add/
+                {%- for track in album.tracks -%}
+                    {% if track.artist.id == artist.id %}
                         {{ track.id }},
-                    {%- endfor -%}
-                ">
-                Queue all
-            </a>
-            {% if album.artists|count > 1 %}
-            <a
-                class="queue add add-album btn btn-success"
-                href="/queue/add/
-                    {%- for track in album.tracks -%}
-                        {% if track.artist.id == artist.id %}
-                            {{ track.id }},
-                        {% endif %}
-                    {%- endfor -%}
-                ">
-                current artist
-            </a>
-            {% endif %}
-        </div>
-
-        <div class="btn-group edit-btn">
-            <a class="btn btn-danger" href="/library/edit/{% for track in album.tracks -%}
-                {{ track.id }},
-            {%- endfor %}">Edit</a>
-            <a
-                class="btn btn-danger"
-                role="button"
-                data-toggle="modal"
-                href="#removeAlbumModal">
-                Remove
-            </a>
-        </div>
-
-        <div class="btn-group move-btn">
-            <a rel="tooltip" data-trigger="hover" data-html="true"
-                title="Move to i.e. <strong>{{ album.tracks[0]|track_path|e }}/</strong>"
-                class="btn btn-danger" href="/library/edit/move/{% for track in album.tracks -%}
-                {{ track.id }},
-            {%- endfor %}">Move</a>
-            <a rel="tooltip" data-trigger="hover" data-html="true"
-                title="Move to i.e. <strong>{{ album.tracks[0]|track_path("Various Artists")|e }}/</strong>"
-                class="btn btn-danger" href="/library/edit/move/{% for track in album.tracks -%}
-            {{ track.id }},
-            {%- endfor %}/va">VA</a>
-        </div>
+                    {% endif %}
+                {%- endfor -%}
+            ">
+            <i class="icon-headphones"></i>
+        </a>
+        {% endif %}
     </div>
+
+    <div class="btn-group edit-btn">
+        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+            Tracks
+            <span class="icon-caret-down"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+                <a href="/library/edit/{% for track in album.tracks -%}
+                    {{ track.id }}, {%- endfor %}">
+                    <i class="icon-pencil"></i>
+                    Edit
+                </a>
+            </li>
+            <li>
+                <a
+                    role="button"
+                    data-toggle="modal"
+                    href="#removeAlbumModal">
+                    <i class="icon-trash"></i>
+                    Remove
+                </a>
+            </li>
+            <li class="divider"></li>
+            <li>
+                <a title="Move to {{ album.tracks[0]|track_path|e }}/"
+                    href="/library/edit/move/{% for track in album.tracks -%}
+                    {{ track.id }},
+                    {%- endfor %}">
+                    <i class="icon-folder-open"></i>
+                    Move to <strong>{{ album.tracks[0]|track_path }}/</strong>
+                </a>
+            </li>
+            <li>
+                <a title="Move to {{ album.tracks[0]|track_path("Various Artists")|e }}/"
+                    href="/library/edit/move/{% for track in album.tracks -%}
+                {{ track.id }},
+                {%- endfor %}/va">
+                    <i class="icon-folder-open"></i>
+                    Move to <strong>{{ album.tracks[0]|track_path("Various Artists") }}/</strong>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="clear"></div>
 
     <table class="table table-striped table-bordered">
         {% for dir, tracks in dirs %}
@@ -82,45 +102,61 @@
                     </th>
                     <th colspan="{{ colspan - 2 }}">
                         {{ dir }}
-                            {{ remove_modal.remove_modal("removeFolderModal" ~ tracks[0].id, "Remove \"%s\"" % dir, tracks) }}
-                            <span class="btn-container">
-                                <span class="queue-btn btn-group">
-                                    <a
-                                        class="queue add add-album btn btn-mini btn-success"
-                                        href="/queue/add/
-                                            {%- for track in tracks -%}
-                                                {{ track.id }},
-                                            {%- endfor -%}
-                                        ">
-                                        Queue all
+                        {{ remove_modal.remove_modal("removeFolderModal" ~ tracks[0].id, "Remove \"%s\"" % dir, tracks) }}
+                        <span class="btn-group queue-btn">
+                            <a
+                                class="queue add add-album btn btn-mini btn-inverse"
+                                href="/queue/add/
+                                    {%- for track in tracks -%}
+                                        {{ track.id }},
+                                    {%- endfor -%}
+                                ">
+                                <i class="icon-headphones"></i>
+                            </a>
+                        </span>
+                        <span class="btn-group edit-btn">
+                            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                                Tracks
+                                <span class="icon-caret-down"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="/library/edit/{% for track in tracks -%}
+                                        {{ track.id }},
+                                        {%- endfor %}">
+                                        <i class="icon-pencil"></i>
+                                        Edit
                                     </a>
-                                </span>
-                                <div class="btn-group move-btn">
-                                    <a rel="tooltip" data-trigger="hover" data-html="true"
-                                        title="Move to i.e. <strong>{{ tracks[0]|track_path|e }}/</strong>"
-                                        class="btn btn-mini btn-danger"
-                                        href="/library/edit/move/{% for track in tracks -%}
-                                        {{ track.id }},
-                                    {%- endfor %}">Move</a>
-                                    <a rel="tooltip" data-trigger="hover" data-html="true"
-                                        title="Move to i.e. <strong>{{ tracks[0]|track_path("Various Artists")|e }}/</strong>"
-                                        class="btn btn-mini btn-danger"
-                                        href="/library/edit/move/{% for track in tracks -%}
-                                    {{ track.id }},
-                                    {%- endfor %}/va">VA</a>
-                                </div>
-                                <span class="btn-group edit-btn">
-                                    <a class="btn btn-mini btn-danger" href="/library/edit/{% for track in tracks -%}
-                                        {{ track.id }},
-                                    {%- endfor %}">Edit</a>
+                                </li>
+                                <li>
                                     <a
-                                        class="btn btn-mini btn-danger"
                                         role="button"
                                         data-toggle="modal"
                                         href="#removeFolderModal{{ tracks[0].id }}">
+                                        <i class="icon-trash"></i>
                                         Remove
                                     </a>
-                                </span>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a title="Move to {{ tracks[0]|track_path|e }}/"
+                                        href="/library/edit/move/{% for track in tracks -%}
+                                        {{ track.id }},
+                                        {%- endfor %}">
+                                        <i class="icon-folder-open"></i>
+                                        Move to <strong>{{ tracks[0]|track_path|e }}/</strong>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a title="Move to {{ tracks[0]|track_path("Various Artists")|e }}/"
+                                        href="/library/edit/move/{% for track in tracks -%}
+                                    {{ track.id }},
+                                    {%- endfor %}/va">
+                                        <i class="icon-folder-open"></i>
+                                        Move to <strong>{{ tracks[0]|track_path("Various Artists")|e }}/</strong>
+                                    </a>
+                                </li>
+                            </ul>
                         </span>
                     </th>
                 </tr>
@@ -131,7 +167,7 @@
                         <td class="indent">&nbsp;</td>
                         {% if disc %}
                             {% if track.disc %}
-                                <td>{{ track.disc }}</td>
+                                <td>Disc {{ track.disc }}</td>
                             {% else %}
                                 <td>%nbsp;</td>
                             {% endif %}
@@ -147,12 +183,14 @@
                         </td>
                         {% endif %}
                         <td>
+                            <span class="btn-group queue-btn">
+                                <a
+                                    class="btn btn-mini btn-inverse queue add"
+                                    href="/queue/add/{{ track.id }}">
+                                    <i class="icon-headphones"></i>
+                                </a>
+                            </span>
                             <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name }}</a>
-                            <a
-                                class="btn btn-mini btn-success queue add"
-                                href="/queue/add/{{ track.id }}">
-                                Queue
-                            </a>
                         </td>
                         <td>{{ track.duration|format_seconds }}</td>
                         {% if track.invalid %}

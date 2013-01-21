@@ -6,6 +6,7 @@ require(['jquery'], function($) {
 
     require([
         'bootstrap/bootstrap-collapse',
+        'button',
         'ajaxify',
         'queue',
         'player',
