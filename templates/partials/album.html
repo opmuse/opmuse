@@ -1,3 +1,23 @@
+{% macro album_desc(album, href) %}
+    {%- if album.artists|length > 1 -%}
+        with {% for artist in album.artists -%}
+        {%- if not loop.first and not loop.last %}, {% elif loop.last %} and {% endif -%}
+            {%- if href -%}
+                <a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a>
+            {%- else -%}
+                {{ artist.name }}
+            {%- endif -%}
+        {%- endfor -%}.
+    {%- else -%}
+        by {% if href -%}
+            <a href="/{{ album.artists[0].slug|urlencode }}">{{ album.artists[0].name }}</a>
+        {%- else -%}
+            {{ album.artists[0].name }}
+        {%- endif -%}
+        .
+    {%- endif -%}
+{% endmacro %}
+
 <div class="album-container">
     <div class="album {{ 'invalid' if album.invalid else '' }}">
         <div class="album-badges">
@@ -34,9 +54,10 @@
             <h3 class="album-name">
                 {{ album.name }}
             </h3>
-            <p title="{% include "partials/album-desc.html"|e %}">
-                {% include "partials/album-desc.html" %}
+            <p title="{{ album_desc(album, false)|e }}">
+                {{ album_desc(album, true) }}
             </p>
         </div>
     </div>
 </div>
+
