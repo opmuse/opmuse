@@ -662,6 +662,9 @@ class Root(object):
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index_unauth.html')
     def index_unauth(self, came_from = None):
+        if 'Referer' not in cherrypy.request.headers:
+            raise HTTPRedirect('/login')
+
         return {}
 
     @cherrypy.expose
