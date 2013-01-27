@@ -7,7 +7,7 @@
 
     #player-controls {
         position: absolute;
-        top: -15px;
+        top: 6px;
         left: 10px;
 
         #next-button {
@@ -21,10 +21,7 @@
         }
 
         #next-button, #play-button, #pause-button {
-            border-radius: 2px;
-            background-color: #000;
             padding: 1px 8px;
-            color: @white;
             display: block;
             font-size: 16px;
 
@@ -37,10 +34,15 @@
 
     #player-progress {
         border-radius: 2px;
-        width: 30%;
         position: absolute;
-        top: -14px;
+        top: 6px;
         left: 80px;
+
+        width: 50%;
+
+        @media (max-width: 900px) {
+            width: 35%;
+        }
 
         #player-track {
             position: absolute;
