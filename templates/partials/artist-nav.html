@@ -1,12 +1,12 @@
-<div class="artist-nav well well-small sidebar-nav">
+<div class="artist-nav sidebar-nav well well-small">
     <ul class="nav nav-list">
         <li class="nav-header">External pages</li>
         <li>
-            <a href="{{ lastfm_artist.url }}">Go to Lastfm artist page</a>
+            <a href="{{ lastfm_artist.url }}">Lastfm artist page</a>
         </li>
         {% if lastfm_album %}
         <li>
-            <a href="{{ lastfm_album.url }}">Go to Lastfm album page</a>
+            <a href="{{ lastfm_album.url }}">Lastfm album page</a>
         </li>
         {% endif %}
         {% if album %}
@@ -22,5 +22,27 @@
             </a>
         </li>
         {% endif %}
+        <li class="nav-header">Genres</li>
+        <li>
+        {% for tag in lastfm_artist.tags %}
+            <span class="tag badge badge-inverse">{{ tag }}</span>
+        {% endfor %}
+        </li>
+        <li class="nav-header">Similar</li>
+        <li>
+        {% for similar in lastfm_artist.similar %}
+            <span class="badge badge-inverse">
+                <a href="/search/{{ similar.name }}/artist">{{ similar.name }}</a>
+            </span>
+        {% endfor %}
+        </li>
+        <li class="nav-header">Namesakes</li>
+        <li>
+        {% for artist in namesakes %}
+            <span class="badge badge-inverse">
+                <a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a>
+            </span>
+        {% endfor %}
+        </li>
     </ul>
 </div>

@@ -15,6 +15,7 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             this.playButton = $('#play-button');
             this.pauseButton = $('#pause-button');
             this.nextButton = $('#next-button');
+            this.playerTrack = $('#player-track');
 
             this.loaded = false;
 
@@ -28,7 +29,9 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
 
             $(that.player).bind('playing', function (event) {
                 queue.reload(function (data) {
-                    that.currentTrackDuration = queue.getCurrentTrackDuration();
+                    var track = queue.getCurrentTrack();
+                    that.playerTrack.text(track.title);
+                    that.currentTrackDuration = track.duration;
                 });
                 that.setProgressActive(true);
             });
@@ -85,11 +88,6 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             });
 
             that.pauseButton.hide();
-            that.playerControls.show();
-
-            $('#footer').bind('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
 
             that.internalInit();
         },
@@ -106,7 +104,7 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'domReady!'], function($, i
             this.playerProgress.find('.bar').width(prog + '%');
         },
         internalInit: function () {
-            $('#next-button, #play-button, #pause-button, .open-stream').unbind('click.ajaxify');
+            $('#next-button, #play-button, #pause-button').unbind('click.ajaxify');
         },
         load: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {

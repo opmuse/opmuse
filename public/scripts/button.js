@@ -10,7 +10,7 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-button', 'domReady
 
             var that = this;
 
-            $('#content').bind('ajaxifyInit', function (event) {
+            $('#main').bind('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

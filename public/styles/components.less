@@ -14,44 +14,15 @@
 
     .artist-container,
     .album-container {
-        margin-top: 14px;
+        margin: 8px 22px;
         float: left;
-
-        width: 50%;
-
-        @media only screen and (min-width : 1125px) {
-            width: 33.33%;
-        }
-
-        @media only screen and (min-width : 1425px) {
-            width: 25%;
-        }
-
-        @media only screen and (min-width : 1725px) {
-            width: 20%;
-        }
-
-        @media only screen and (min-width : 2025px) {
-            width: 16.66%;
-        }
-
-        @media only screen and (min-width : 2325px) {
-            width: 14.28%;
-        }
-
-        @media only screen and (min-width : 2325px) {
-            width: 14.28%;
-        }
-
-        @media only screen and (min-width : 2625px) {
-            width: 12.5%;
-        }
 
         .artist,
         .album {
             margin: 0 auto;
             position: relative;
             width: @album-width;
+            text-align: center;
 
             .artist-desc,
             .album-desc {
@@ -152,5 +123,13 @@
 
     &.artist > .media-body > .media-heading {
         margin-bottom: 70px;
+    }
+}
+
+.artist-nav {
+    .badge {
+        a {
+            color: #FDFDFD;
+        }
     }
 }

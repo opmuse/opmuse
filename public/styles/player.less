@@ -1,21 +1,32 @@
 .player-container {
-    padding: 8px 8px 8px 16px;
-    margin-bottom: 10px;
+    padding: 20px 10px 0 10px;
 
     #player {
         display: none;
     }
 
     #player-controls {
-        display: none; // Displayed in the javascript on document ready
+        position: absolute;
+        top: -15px;
+        left: 10px;
+
+        #next-button {
+            float: left;
+            margin-left: 6px;
+        }
+
+        #play-button, #pause-button {
+            float: left;
+            margin-left: 0;
+        }
 
         #next-button, #play-button, #pause-button {
-            height: 30px;
-            width: 30px;
-            color: #444;
+            border-radius: 2px;
+            background-color: #000;
+            padding: 1px 8px;
+            color: @white;
             display: block;
-            float: left;
-            margin: 0 6px 0 0;
+            font-size: 16px;
 
             &:hover {
                 color: #111;
@@ -25,15 +36,80 @@
     }
 
     #player-progress {
+        border-radius: 2px;
+        width: 30%;
+        position: absolute;
+        top: -14px;
+        left: 80px;
+
+        #player-track {
+            position: absolute;
+            left: 0;
+            top: 0;
+            text-align: center;
+            width: 96%;
+            margin-left: 6px;
+            font-size: .9em;
+            color: @white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .progress {
-            width: 59%;
-            float: left;
-            margin: 5px 0 0 10px;
+            #gradient > .vertical(lighten(@black, 20%), lighten(@black, 10%));
+
+            .bar {
+                #gradient > .vertical(#252525, #000000);
+            }
+        }
+    }
+}
+
+.panel-open {
+    #player-controls {
+        width: 20%;
+        float: left;
+        position: static;
+        top: auto;
+        left: auto;
+
+        #next-button {
+            float: right;
+            margin-right: 15%;
+            margin-left: 0;
+        }
+
+        #play-button, #pause-button {
+            margin-left: 15%;
+        }
+
+        #next-button, #play-button, #pause-button {
+            font-size: 28px;
+            padding: 0;
+            background-color: transparent;
+            color: @white;
+            display: block;
         }
     }
 
-    #player-stream {
-        margin: 0 0 0 10px;
+    #player-progress {
+        width: 75%;
+        position: relative;
+        top: auto;
+        left: auto;
         float: right;
+        margin-right: 10px;
+        margin-top: 2px;
+    }
+}
+
+#panel {
+    @media (max-width: 768px) {
+        .panel-open;
+    }
+
+    &.open {
+        .panel-open;
     }
 }

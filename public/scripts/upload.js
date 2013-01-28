@@ -12,7 +12,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
 
             this.files = [];
 
-            $('#content').bind('ajaxifyInit', function (event) {
+            $('#main').bind('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

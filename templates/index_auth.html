@@ -9,7 +9,7 @@
 {% import "macros/album-media.html" as album_media %}
 <div id="index">
     <ul class="row-fluid">
-        <li class="span8">
+        <li class="span7">
             <h1><a href="/library/albums/new">Albums</a></h1>
             <ul class="row-fluid albums">
                 <li class="span6">
@@ -24,7 +24,7 @@
                 </li>
             </ul>
         </li>
-        <li class="span4">
+        <li class="span3">
             <h1><a href="/users/users">Users</a></h1>
             {% for user in users %}
                 <div class="media">
@@ -38,6 +38,21 @@
                     </div>
                 </div>
             {% endfor %}
+        </li>
+        <li class="span2">
+            <h1>Library</h1>
+            <dl>
+                <dt>Scanning:</dt>
+                <dd> {{ 'Yes' if request.library.scanning else 'No' }}</dd>
+                <dt>Tracks:</dt>
+                <dd> {{ request.library_dao.get_track_count() }}</dd>
+                <dt>Albums:</dt>
+                <dd> {{ request.library_dao.get_album_count() }}</dd>
+                <dt>Artists:</dt>
+                <dd> {{ request.library_dao.get_artist_count() }}</dd>
+                <dt>Invalid:</dt>
+                <dd> {{ request.library_dao.get_invalid_track_count() }}</dd>
+            </dl>
         </li>
     </ul>
 </div>

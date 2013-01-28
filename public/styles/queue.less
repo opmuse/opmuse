@@ -1,9 +1,17 @@
 #queue {
-    ol {
-        overflow-y: hidden;
+    padding: 0 10px 15px 10px;
+
+    .tracks {
         overflow-x: hidden;
+        overflow-y: scroll;
+        height: 300px;
         list-style: none;
         margin: 0;
+
+        @media (max-width: 768px) {
+            overflow: hidden;
+            height: auto;
+        }
     }
 
     .track-duration,
@@ -46,7 +54,7 @@
         width: 88%;
     }
 
-    .remove {
+    a.remove {
         display: inline;
         font-weight: bold;
         width: 32px;
@@ -68,16 +76,90 @@
         float: right;
     }
 
+    .playing-icon,
+    .played-icon {
+        display: none;
+    }
+
     .played {
-        background-color: #e2e2e2;
+        .noplay-icon {
+            display: none;
+        }
+
+        .played-icon {
+            display: inline;
+        }
     }
 
     .playing {
-        background-color: #d6d6d6;
+        .noplay-icon {
+            display: none;
+        }
+
+        .playing-icon {
+            display: inline;
+        }
     }
 
-    .btn-group {
+    .track-icon {
+        width: 20px;
+        display: inline-block;
+
+        .icon-check {
+            margin-left: 3px;
+        }
+    }
+
+    .btn-stream {
+        margin: 0 0 8px 0;
+        position: absolute;
+        top: -15px;
+        right: 110px;
+
+        .open-stream {
+            &:not(.open) {
+                display: block;
+                background-color: #000;
+                color: @white;
+                padding: 1px 8px;
+                font-size: 18px;
+            }
+
+            &.open {
+                display: none;
+            }
+        }
+    }
+
+    .btn-clear {
+        margin: 0 0 8px 0;
         float: left;
-        margin: -15px 0 8px -15px;
+    }
+}
+
+.panel-open {
+    .btn-stream {
+        float: right;
+        position: static;
+        top: auto;
+        right: auto;
+
+        .open-stream {
+            display: none;
+
+            &.open {
+                display: block;
+            }
+        }
+    }
+}
+
+#panel {
+    @media (max-width: 768px) {
+        .panel-open;
+    }
+
+    &.open {
+        .panel-open;
     }
 }

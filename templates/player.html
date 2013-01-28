@@ -1,4 +1,4 @@
-<div class="well well-small player-container">
+<div class="player-container">
     <audio
         id="player"
         preload="none">
@@ -9,35 +9,35 @@
             id="play-button"
             title="Play"
             href="#">
-            <i class="icon-play icon-2x"></i>
+            <i class="icon-play"></i>
         </a>
         <a
             id="pause-button"
             title="Pause"
             href="#">
-            <i class="icon-pause icon-2x"></i>
+            <i class="icon-pause"></i>
         </a>
         <a
             id="next-button"
             title="Next"
             href="#">
-            <i class="icon-step-forward icon-2x"></i>
+            <i class="icon-step-forward"></i>
         </a>
     </div>
 
     <div id="player-progress">
-        <div class="progress progress-striped">
-            <div class="bar" style="width: 0%"></div>
+        <div class="progress">
+            <p id="player-track"></p>
+            <div class="bar" style="width: 0%">
+            </div>
         </div>
     </div>
 
-    <div id="player-stream">
-        <a class="open-stream btn"
-            href="/play.m3u">
-            <i class="icon-download"></i>
-            Stream
-        </a>
-    </div>
-
     <div class="clear"></div>
+</div>
+
+<hr />
+
+<div id="queue">
+    {% include "queue.html" %}
 </div>
