@@ -10,6 +10,7 @@ from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAu
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaGlobalsTool, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
+from opmuse.utils import cgitb_log_err
 import opmuse.lastfm
 import queue
 import threading
@@ -96,12 +97,14 @@ def configure():
     cherrypy.tools.jinjaenv = JinjaEnvTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
+    cherrypy.tools.cgitb_log_err = cherrypy.Tool('before_error_response', cgitb_log_err)
     import opmuse.controllers
 
     config_file = join(abspath(dirname(__file__)), '..', 'config', 'opmuse.ini')
 
     app_config = {
         '/': {
+            'tools.cgitb_log_err.on': True,
             'tools.autovary.on': True,
             'tools.encode.on': False,
             'tools.database.on': True,
