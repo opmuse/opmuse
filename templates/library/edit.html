@@ -49,22 +49,28 @@
                 <tr>
                     <td>
                         <input type="hidden" name="ids" value="{{ track.id }}" />
-                        <input type="text" class="artist" name="artists" value="{{ track.artist.name|e }}" />
+                        <input autocomplete="off" type="text" class="artist"
+                            name="artists" value="{{ track.artist.name|e }}" />
                     </td>
                     <td>
-                        <input type="text" class="album" name="albums" value="{{ track.album.name|e }}" />
+                        <input autocomplete="off" type="text" class="album"
+                            name="albums" value="{{ track.album.name|e }}" />
                     </td>
                     <td>
-                        <input type="text" class="track" name="tracks" value="{{ track.name|e }}" />
+                        <input autocomplete="off" type="text" class="track"
+                            name="tracks" value="{{ track.name|e }}" />
                     </td>
                     <td>
-                        <input type="text" class="date" name="dates" value="{{ track.album.date|e if track.album.date else '' }}" />
+                        <input autocomplete="off" type="text" class="date"
+                            name="dates" value="{{ track.album.date|e if track.album.date else '' }}" />
                     </td>
                     <td>
-                        <input type="text" class="number" name="numbers" value="{{ track.number|e if track.number else '' }}" />
+                        <input autocomplete="off" type="text" class="number"
+                            name="numbers" value="{{ track.number|e if track.number else '' }}" />
                     </td>
                     <td>
-                        <input type="text" class="disc" name="discs" value="{{ track.disc|e if track.disc else '' }}" />
+                        <input autocomplete="off" type="text" class="disc"
+                            name="discs" value="{{ track.disc|e if track.disc else '' }}" />
                     </td>
                 </tr>
                 {% endfor %}
