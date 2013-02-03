@@ -6,7 +6,13 @@ import re
 import cherrypy
 import calendar
 import datetime
+import fcntl
+import select
 from pydispatch import dispatcher
+
+
+def log(msg):
+    cherrypy.log(msg, context='transcoding')
 
 
 class FFMPEGError(Exception):
@@ -85,8 +91,7 @@ class FFMPEGTranscoder(Transcoder):
             args[index] = arg.replace(b'EXT', ext)
 
         self.process = subprocess.Popen(args, shell = False, stdout = subprocess.PIPE,
-                                        stderr = self.FNULL,
-                                        stdin = None)
+                                        stderr = subprocess.PIPE, stdin = None)
 
         cherrypy.request.ffmpegtranscoder_subprocess = self.process
         cherrypy.request.transcoding_track = self.track
@@ -101,28 +106,82 @@ class FFMPEGTranscoder(Transcoder):
 
         cherrypy.request.ffmpegtranscoder_subprocess = None
 
-    def transcode(self):
+    @staticmethod
+    def set_nonblocking(fileno):
+        fcntl.fcntl(
+            fileno, fcntl.F_SETFL, fcntl.fcntl(fileno, fcntl.F_GETFL) | os.O_NONBLOCK,
+        )
 
-        # total seconds transcoded
-        seconds = 0
+    def read_process(self):
+        FFMPEGTranscoder.set_nonblocking(self.process.stderr.fileno())
+
+        poll = select.poll()
+
+        poll.register(self.process.stdout, select.POLLIN | select.POLLHUP)
+        poll.register(self.process.stderr, select.POLLIN | select.POLLHUP)
+
+        pollc = 2
+
+        events = poll.poll()
+
+        bitrate = self.bitrate()
+
+        use_ffmpeg_bitrate = False
+
+        if bitrate is None:
+            bitrate = self.initial_bitrate()
+            use_ffmpeg_bitrate = True
+
+        while pollc > 0 and len(events) > 0:
+            info = data = None
+
+            for event in events:
+                rfd, event = event
+
+                if event & select.POLLIN:
+                    if rfd == self.process.stdout.fileno():
+                        data = self.process.stdout.read(bitrate)
+
+                    if rfd == self.process.stderr.fileno():
+                        readx = select.select([self.process.stderr.fileno()], [], [])[0]
+
+                        if readx:
+                            chunk = self.process.stderr.read()
+
+                            if len(chunk) > 0:
+                                match = re.match(b'.*bitrate=[ ]*(?P<bitrate>[0-9.]+)', chunk)
+
+                                if match:
+                                    info = match.groupdict()
+
+                if event & select.POLLHUP:
+                    poll.unregister(rfd)
+                    pollc = pollc - 1
+
+                if pollc > 0:
+                    events = poll.poll()
+
+            yield data, bitrate
+
+            if use_ffmpeg_bitrate and info is not None:
+                bitrate = int(float(info['bitrate'].decode()) * 1024 / 8)
+
+    def transcode(self):
 
         # how many seconds to stay ahead of the client
         seconds_keep_ahead = 10
 
         start_time = time.time()
-        one_second = .95
 
-        bitrate = self.bitrate()
+        streamed = 0
+        chunks = 0
 
-        while True:
-            data = self.process.stdout.read(bitrate)
-
-            if len(data) == 0:
-                break
+        for data, bitrate in self.read_process():
 
             yield data
 
-            seconds += 1
+            streamed += bitrate
+            chunks += 1
 
             # we pace the streaming so we don't have to send more than
             # the client can chew. this is also good for start/end_transcoding
@@ -132,22 +191,37 @@ class FFMPEGTranscoder(Transcoder):
             # what we do is try to stay seconds_keep_ahead seconds ahead of the
             # client, no more, no less...
 
-            seconds_ahead = seconds * one_second - (time.time() - start_time)
+            # we estimate how much we've sent by using the latest bitrate we
+            # received from ffmpeg...
+            seconds = streamed / bitrate
 
-            if seconds_ahead < seconds_keep_ahead:
-                wait = one_second - (seconds_keep_ahead - seconds_ahead)
-            else:
-                wait = one_second
+            seconds_ahead = seconds - (time.time() - start_time)
+
+            # ... and then we just continue (if wait below 0) or wait until we are
+            # no more than seconds_keep_ahead ahead
+            wait = seconds_ahead - seconds_keep_ahead + 1
+
+            if False:
+                log('Streaming at %d b/s, we\'re %.4fs ahead (total %ds) and waiting for %.4fs.' %
+                    (bitrate, seconds_ahead, seconds, wait))
 
             if wait > 0:
                 time.sleep(wait)
 
+    def initial_bitrate(self):
+        """
+        If bitrate() isn't implemented this needs to be implemented for an
+        initial bitrate to use before we get one from ffmpeg.
+        """
+        raise NotImplementedError()
+
     def bitrate(self):
         """
         Should return the approximate bitrate this transcoder produces, so we
-        can approximately pace the streaming properly
+        can approximately pace the streaming properly. If this isn't specified
+        we use whatever ffmpeg tells us.
         """
-        raise NotImplementedError()
+        return None
 
 
 class CopyFFMPEGTranscoder(FFMPEGTranscoder):
@@ -157,12 +231,16 @@ class CopyFFMPEGTranscoder(FFMPEGTranscoder):
     def outputs():
         return None
 
+    def initial_bitrate(self):
+        # used when track has no bitrate
+        return int(192000 / 8)
+
     def bitrate(self):
         if self.track.bitrate is not None and self.track.bitrate != 0:
             return int(self.track.bitrate / 8)
         else:
-            # default to a bitrate of 128kbit/s
-            return int(128000 / 8)
+            # just use the one ffmpeg outputs
+            return None
 
 
 class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
@@ -173,7 +251,7 @@ class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
     def outputs():
         return 'audio/mp3'
 
-    def bitrate(self):
+    def initial_bitrate(self):
         # lame v0's target bitrate is 245kbit/s (but is of course VBR)
         return int(245000 / 8)
 
@@ -185,7 +263,7 @@ class OggFFMPEGTranscoder(FFMPEGTranscoder):
     def outputs():
         return 'audio/ogg'
 
-    def bitrate(self):
+    def initial_bitrate(self):
         # -aq 6 is about 192kbit/s
         return int(192000 / 8)
 
@@ -256,8 +334,5 @@ class Transcoding:
             with transcoder(track) as transcode:
                 for data in transcode():
                     yield data
-
-            total_time = int(time.time() - start_time)
-
 
 transcoding = Transcoding()
