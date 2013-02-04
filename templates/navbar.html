@@ -15,7 +15,7 @@
                         <a class="logout btn btn-small"
                             href="/logout?came_from={{ current_url|urlencode }}">
                             <i class="icon-signout"></i>
-                            Logout
+                            Sign out {{ request.user.login }}
                         </a>
                     </p>
                 {% endif %}
@@ -29,12 +29,6 @@
                             </li>
                             <li class="{{ "active" if request.path_info|startswith("/users") }}">
                                 <a href="/users/users">Users</a>
-                            </li>
-                            <li class="navbar-logout">
-                                <a class="logout"
-                                    href="/logout?came_from={{ current_url|urlencode }}">
-                                    Logout
-                                </a>
                             </li>
                             <li class="navbar-search">
                                 <input class="search-query" type="text" placeholder="Search" />
