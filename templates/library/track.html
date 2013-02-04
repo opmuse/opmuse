@@ -32,41 +32,67 @@
         </div>
     </div>
 
-    <dl class="dl-horizontal">
-        <dt>Invalid</dt>
-        <dd>{{ track.invalid }}</dd>
-        <dt>Artist</dt>
-        <dd>{{ track.artist.name }}</dd>
-        <dt>Album</dt>
-        <dd>{{ track.album.name }}</dd>
-        <dt>Track</dt>
-        <dd>{{ track.name }}</dd>
-        <dt>Number</dt>
-        <dd>{{ track.number }}</dd>
-        <dt>Disc</dt>
-        <dd>{{ track.number }}</dd>
-        <dt>Duration</dt>
-        <dd>{{ track.duration|format_seconds }}</dd>
-        <dt>Date (Year)</dt>
-        <dd>{{ track.date if track.date else "Unknown" }}</dd>
-        <dt>Format</dt>
-        <dd>{{ track.format }}</dd>
-        <dt>Bitrate</dt>
-        <dd>{{ track.bitrate }}</dd>
-        <dt>Size</dt>
-        <dd>{{ track.size }}</dd>
-        <dt>Files</dt>
-        <dd>
-        <ul>
-            {% for path in track.paths %}
-            {# when displaying non-utf8 filenames the names will be incorrect,
-            don't think we can solve this, maybe aid the user in renaming the
-            files with our metadata... #}
-            <li>{{ path.path.decode('utf8', 'replace') }}</li>
-            {% endfor %}
-        </ul>
-        </dd>
-    </dl>
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Invalid</th>
+            <td>{{ track.invalid }}</td>
+        </tr>
+        <tr>
+            <th>Artist</th>
+            <td>{{ track.artist.name }}</td>
+        </tr>
+        <tr>
+            <th>Album</th>
+            <td>{{ track.album.name }}</td>
+        </tr>
+        <tr>
+            <th>Track</th>
+            <td>{{ track.name }}</td>
+        </tr>
+        <tr>
+            <th>Number</th>
+            <td>{{ track.number }}</td>
+        </tr>
+        <tr>
+            <th>Disc</th>
+            <td>{{ track.disc }}</td>
+        </tr>
+        <tr>
+            <th>Duration</th>
+            <td>{{ track.duration|format_seconds }}</td>
+        </tr>
+        <tr>
+            <th>Format</th>
+            <td>{{ track.format }}</td>
+        </tr>
+        <tr>
+            <th>Bitrate</th>
+            <td>
+                {% if track.bitrate %}
+                    {{ (track.bitrate / 1024) | format_number }} kbits/s
+                {% else %}
+                    Unknown
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Size</th>
+            <td>{{ track.size|format_bytes }}</td>
+        </tr>
+        <tr>
+            <th>Files</th>
+            <td>
+                <ul>
+                    {% for path in track.paths %}
+                    {# when displaying non-utf8 filenames the names will be incorrect,
+                    don't think we can solve this, maybe aid the user in renaming the
+                    files with our metadata... #}
+                    <li>{{ path.path.decode('utf8', 'replace') }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+    </table>
 
 </div>
 {% endblock %}
