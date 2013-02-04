@@ -169,7 +169,7 @@ class FFMPEGTranscoder(Transcoder):
     def transcode(self):
 
         # how many seconds to stay ahead of the client
-        seconds_keep_ahead = 10
+        seconds_keep_ahead = 15
 
         start_time = time.time()
 
