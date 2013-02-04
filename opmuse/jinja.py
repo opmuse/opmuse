@@ -10,6 +10,18 @@ from opmuse.library import TrackStructureParser
 import locale
 from opmuse.queues import queue_dao
 
+def format_bytes(bytes, precision=2):
+    bytes = int(bytes)
+
+    suffixes = ['B','KB','MB','GB','TB']
+    suffixIndex = 0
+
+    while bytes > 1024:
+        suffixIndex += 1
+        bytes = bytes / 1024.0
+
+    return "%.*f %s" % (precision, bytes, suffixes[suffixIndex])
+
 
 def track_path(track, artist = None):
     track_structure = TrackStructureParser(track, data_override = {'artist': artist})
@@ -82,6 +94,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['pretty_date'] = pretty_date
         self.env.filters['urlencode'] = urlencode
         self.env.filters['format_number'] = format_number
+        self.env.filters['format_bytes'] = format_bytes
         self.env.filters['json'] = json
         self.env.filters['startswith'] = startswith
         self.env.filters['track_path'] = track_path
