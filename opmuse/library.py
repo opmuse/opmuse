@@ -1180,10 +1180,18 @@ class LibraryDao:
                 dirname = structure_parser.get_path(absolute = True)
                 old_dirname = os.path.dirname(filename)
 
+                if dirname is None:
+                    messages.append(
+                        'Couldn\'t find appropriate path for %s.' % os.path.basename(filename).decode('utf8', 'replace')
+                    )
+                    continue
+
                 if os.path.exists(dirname):
                     if not os.path.isdir(dirname):
                         dirname = dirname[len(library_path) - 1:]
-                        messages.append('The path "%s" exists and is not a directory.' % dirname.decode('utf8', 'replace'))
+                        messages.append(
+                            'The path "%s" exists and is not a directory.' % dirname.decode('utf8', 'replace')
+                        )
                         continue
                 else:
                     os.makedirs(dirname)
