@@ -147,7 +147,10 @@ class Upload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload_add.html')
     @cherrypy.tools.authenticated()
-    def add(self):
+    def add(self, archive_password = None):
+
+        if archive_password is not None and len(archive_password) == 0:
+            archive_password = None
 
         content_disposition = cherrypy.request.headers.get('content-disposition')
 
@@ -168,28 +171,46 @@ class Upload:
 
         rarfile.PATH_SEP = '/'
 
+        messages = []
+
         with open(filename, 'wb') as fileobj:
             fileobj.write(cherrypy.request.rfile.read())
 
         if ext == "zip":
             zip = ZipFile(filename)
-            zip.extractall(tempdir)
 
-            for name in zip.namelist():
-                # ignore hidden files, e.g. OSX archive weird and such
-                if name.startswith("."):
-                    continue
+            if archive_password is not None:
+                zip.setpassword(archive_password.encode())
 
-                filenames.append(os.path.join(tempdir, name).encode('utf8'))
+            try:
+                zip.extractall(tempdir)
+
+                for name in zip.namelist():
+                    # ignore hidden files, e.g. OSX archive weird and such
+                    if name.startswith("."):
+                        continue
+
+                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
+
+            except RuntimeError as error:
+                messages.append("%s: %s" % (os.path.basename(filename), error))
+
         elif ext == "rar":
             rar = RarFile(filename)
-            rar.extractall(tempdir)
 
-            for name in rar.namelist():
-                if name.startswith("."):
-                    continue
+            if archive_password is None and rar.needs_password():
+                messages.append("%s needs password but none provided." % os.path.basename(filename))
+            else:
+                if archive_password is not None:
+                    rar.setpassword(archive_password)
 
-                filenames.append(os.path.join(tempdir, name).encode('utf8'))
+                rar.extractall(tempdir)
+
+                for name in rar.namelist():
+                    if name.startswith("."):
+                        continue
+
+                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
         else:
             filenames.append(filename.encode('utf8'))
 
@@ -198,7 +219,9 @@ class Upload:
             # archive or whatever
             os.utime(filename, None)
 
-        tracks, messages = library_dao.add_files(filenames, move = True, remove_dirs = False)
+        tracks, add_files_messages = library_dao.add_files(filenames, move = True, remove_dirs = False)
+
+        messages += add_files_messages
 
         shutil.rmtree(tempdir)
 

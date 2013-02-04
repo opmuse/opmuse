@@ -85,7 +85,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
             if (that.files.length > 0) {
                 var file = that.files[0];
 
-                $('#fileupload').fileupload('send', { files: file.file })
+                var archivePassword = $(file.dom).find('[name=archive_password]').val();
+
+                var url = $("#fileupload").attr("action") + "?archive_password=" + archivePassword;
+
+                $('#fileupload').fileupload('send', { files: file.file, url: url })
                     .success(function (result, textStatus, jqXHR) {
                         $(file.dom).remove();
 
