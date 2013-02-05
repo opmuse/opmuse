@@ -177,12 +177,12 @@ class Upload:
             fileobj.write(cherrypy.request.rfile.read())
 
         if ext == "zip":
-            zip = ZipFile(filename)
-
-            if archive_password is not None:
-                zip.setpassword(archive_password.encode())
-
             try:
+                zip = ZipFile(filename)
+
+                if archive_password is not None:
+                    zip.setpassword(archive_password.encode())
+
                 zip.extractall(tempdir)
 
                 for name in zip.namelist():
@@ -192,25 +192,30 @@ class Upload:
 
                     filenames.append(os.path.join(tempdir, name).encode('utf8'))
 
-            except RuntimeError as error:
+            except Exception as error:
                 messages.append("%s: %s" % (os.path.basename(filename), error))
 
         elif ext == "rar":
-            rar = RarFile(filename)
+            try:
+                rar = RarFile(filename)
 
-            if archive_password is None and rar.needs_password():
-                messages.append("%s needs password but none provided." % os.path.basename(filename))
-            else:
-                if archive_password is not None:
-                    rar.setpassword(archive_password)
+                if archive_password is None and rar.needs_password():
+                    messages.append("%s needs password but none provided." % os.path.basename(filename))
+                else:
+                    if archive_password is not None:
+                        rar.setpassword(archive_password)
 
-                rar.extractall(tempdir)
+                        rar.extractall(tempdir)
 
-                for name in rar.namelist():
-                    if name.startswith("."):
-                        continue
+                        for name in rar.namelist():
+                            if name.startswith("."):
+                                continue
 
-                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
+                            filenames.append(os.path.join(tempdir, name).encode('utf8'))
+
+            except Exception as error:
+                messages.append("%s: %s" % (os.path.basename(filename), error))
+
         else:
             filenames.append(filename.encode('utf8'))
 
