@@ -10,6 +10,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
 
             var that = this;
 
+            that.parallelUploads = 2;
+            that.activeUploads = 0;
+
             this.files = [];
 
             $('#main').bind('ajaxifyInit', function (event) {
@@ -47,10 +50,10 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                         });
                     });
                 },
-                progressall: function (event, data) {
+                progress: function (event, data) {
                     var progress = parseInt((data.loaded / data.total) * 100, 10);
 
-                    $('#fileupload .files tr:visible .progress').addClass('active').find('.bar').eq(0).css(
+                    $(data.fileDom).find('.progress').addClass('active').find('.bar').eq(0).css(
                         'width',
                         progress + '%'
                     );
@@ -86,35 +89,47 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
         send: function () {
             var that = this;
 
-            if (that.files.length > 0) {
-                var file = that.files[0];
+            var count = that.parallelUploads - that.activeUploads;
+
+            for (var index = 0; index < count; index++) {
+
+                if (index >= that.files.length) {
+                    break;
+                }
+
+                var file = that.files.splice(0, 1)[0];
 
                 var archivePassword = $(file.dom).find('[name=archive_password]').val();
 
                 var url = $("#fileupload").attr("action") + "?archive_password=" + archivePassword;
 
-                $('#fileupload').fileupload('send', { files: file.file, url: url })
-                    .success(function (result, textStatus, jqXHR) {
-                        $(file.dom).remove();
+                that.activeUploads++;
 
-                        var resultDom = $(result);
+                (function (file) {
+                    $('#fileupload').fileupload('send', { files: file.file, url: url, fileDom: file.dom })
+                        .success(function (result, textStatus, jqXHR) {
+                            that.activeUploads--;
 
-                        that.files.splice(0, 1);
+                            $(file.dom).remove();
 
-                        ajaxify.load(resultDom);
+                            var resultDom = $(result);
 
-                        $("#upload .uploaded .tracks").append(
-                            resultDom.find('.track')
-                        );
+                            ajaxify.load(resultDom);
 
-                        $("#upload .uploaded .messages").append(
-                            resultDom.find('.message')
-                        );
+                            $("#upload .uploaded .tracks").append(
+                                resultDom.find('.track')
+                            );
 
-                        that.send();
-                    }).error(function (jqXHR, textStatus, errorThrown) {
-                        ajaxify.setErrorPageInDom(jqXHR.responseText);
-                    });
+                            $("#upload .uploaded .messages").append(
+                                resultDom.find('.message')
+                            );
+
+                            that.send();
+                        }).error(function (jqXHR, textStatus, errorThrown) {
+                            that.activeUploads--;
+                            ajaxify.setErrorPageInDom(jqXHR.responseText);
+                        });
+                })(file);
             }
         }
     });
