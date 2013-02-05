@@ -12,6 +12,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
 
             that.parallelUploads = 2;
             that.activeUploads = 0;
+            that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
 
             this.files = [];
 
@@ -38,7 +39,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                         var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl");
                         fileDom.find('.filename').text(this.name);
 
-                        if (['application/zip', 'application/rar'].indexOf(this.type) != -1) {
+                        if (that.archives.indexOf(this.type) != -1) {
                             fileDom.find('[name=archive_password]').show();
                         }
 
