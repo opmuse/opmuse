@@ -205,13 +205,13 @@ class Upload:
                     if archive_password is not None:
                         rar.setpassword(archive_password)
 
-                        rar.extractall(tempdir)
+                    rar.extractall(tempdir)
 
-                        for name in rar.namelist():
-                            if name.startswith("."):
-                                continue
+                    for name in rar.namelist():
+                        if name.startswith("."):
+                            continue
 
-                            filenames.append(os.path.join(tempdir, name).encode('utf8'))
+                        filenames.append(os.path.join(tempdir, name).encode('utf8'))
 
             except Exception as error:
                 messages.append("%s: %s" % (os.path.basename(filename), error))
