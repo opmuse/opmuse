@@ -10,10 +10,11 @@ from opmuse.library import TrackStructureParser
 import locale
 from opmuse.queues import queue_dao
 
+
 def format_bytes(bytes, precision=2):
     bytes = int(bytes)
 
-    suffixes = ['B','KB','MB','GB','TB']
+    suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
     suffixIndex = 0
 
     while bytes > 1024:
