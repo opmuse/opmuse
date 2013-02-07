@@ -54,8 +54,6 @@ class Transcoder:
 
 class FFMPEGTranscoder(Transcoder):
 
-    FNULL = open('/dev/null', 'w')
-
     def __init__(self, track):
         self.track = track
 
@@ -169,7 +167,9 @@ class FFMPEGTranscoder(Transcoder):
     def transcode(self):
 
         # how many seconds to stay ahead of the client
-        seconds_keep_ahead = 15
+        seconds_keep_ahead = 13
+        # ... and if we fall behind more than this try to slowly adjust
+        seconds_adjust = 4
 
         start_time = time.time()
 
@@ -201,8 +201,19 @@ class FFMPEGTranscoder(Transcoder):
             # no more than seconds_keep_ahead ahead
             wait = seconds_ahead - seconds_keep_ahead + 1
 
+            wait_adjust = (wait - seconds_adjust) / 10
+
+            if wait > 1:
+                wait = 1
+
+                if wait_adjust > 0:
+                    wait += wait_adjust
+
+            elif wait < 0:
+                wait = 0
+
             if False:
-                log('Streaming at %d b/s, we\'re %.4fs ahead (total %ds) and waiting for %.4fs.' %
+                log('Streaming at %d b/s, we\'re %.2fs ahead (total %ds) and waiting for %.2fs.' %
                     (bitrate, seconds_ahead, seconds, wait))
 
             if wait > 0:
