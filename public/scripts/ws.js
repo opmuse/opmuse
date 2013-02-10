@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'sprintf', 'bind', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 
@@ -14,7 +14,14 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 return;
             }
 
-            var host = document.location.host;
+            var host = null;
+
+            if (opmuseGlobals.ws_port !== null) {
+                host = sprintf("%s:%d", document.location.hostname, opmuseGlobals.ws_port);
+            } else {
+                host = document.location.host;
+            }
+
             var scheme = null;
 
             if (document.location.protocol == 'https:') {

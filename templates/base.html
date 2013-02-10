@@ -8,11 +8,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
         {% set version = request.app.config.opmuse.version %}
+        {% set ws_port = request.app.config.opmuse['ws.port'] %}
 
         <script type="text/javascript">
             window.opmuseGlobals = {
                 version: {{ version }},
-                authenticated: {{ "true" if request.user else "false" }}
+                authenticated: {{ "true" if request.user else "false" }},
+                ws_port: {{ ws_port if ws_port else "null" }}
             };
         </script>
 
