@@ -59,10 +59,15 @@
         }
 
         .progress {
-            #gradient > .vertical(lighten(@black, 20%), lighten(@black, 10%));
+            #gradient > .vertical(lighten(@black, 25%), lighten(@black, 15%));
 
             .bar {
-                #gradient > .vertical(#252525, #000000);
+                &.seconds {
+                    #gradient > .vertical(#252525, #000000);
+                }
+                &.ahead {
+                    #gradient > .vertical(#525252, #2c2c2c);
+                }
             }
         }
     }

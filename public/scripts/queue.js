@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, inheritance, ajaxify) {
+define(['jquery', 'inheritance', 'ajaxify', 'ws', 'bind', 'domReady!'], function($, inheritance, ajaxify, ws) {
 
     var instance = null;
 
@@ -22,7 +22,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
 
             that.internalInit();
 
-            setInterval(this.reload.bind(this), 2 * 60 * 1000);
+            ws.on('queue.update', function () {
+                that.reload();
+            });
         },
         internalInit: function () {
             var that = this;
@@ -30,11 +32,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
                 .unbind('click.queue')
                 .bind('click.queue', function (event) {
                 var url = $(this).attr('href');
-                $.ajax(url, {
-                    success: function (data) {
-                        that.reload();
-                    }
-                });
+                $.ajax(url);
                 return false;
             }).unbind('click.ajaxify');
 
@@ -42,11 +40,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
                 .unbind('click.queue')
                 .bind("click.queue", function (event) {
                 var url = $(this).attr('href');
-                $.ajax(url, {
-                    success: function (data) {
-                        that.reload();
-                    }
-                });
+                $.ajax(url);
                 return false;
             }).unbind('click.ajaxify');
 
@@ -54,11 +48,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
                 .unbind('click.queue')
                 .bind('click.queue', function (event) {
                 var url = $(this).attr('href');
-                $.ajax(url, {
-                    success: function (data) {
-                        that.reload();
-                    }
-                });
+                $.ajax(url);
                 return false;
             }).unbind('click.ajaxify');
 

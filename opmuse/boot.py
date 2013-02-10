@@ -11,6 +11,7 @@ from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaGlobalsTool, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err
+from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 import opmuse.lastfm
 import queue
 import threading
@@ -86,7 +87,6 @@ def multi_headers():
             headers.append(new_header)
         cherrypy.response.header_list.extend(headers)
 
-
 def configure():
     cherrypy.tools.jinja = Jinja()
     cherrypy.tools.database = SqlAlchemyTool()
@@ -98,6 +98,7 @@ def configure():
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     cherrypy.tools.cgitb_log_err = cherrypy.Tool('before_error_response', cgitb_log_err)
+    cherrypy.tools.websocket = WebSocketTool()
     import opmuse.controllers
 
     config_file = join(abspath(dirname(__file__)), '..', 'config', 'opmuse.ini')
@@ -117,6 +118,9 @@ def configure():
             'tools.sessions.locking': "explicit",
             'tools.sessions.persistent': False,
             'tools.sessions.httponly': True,
+        }, '/ws': {
+            'tools.websocket.on': True,
+            'tools.websocket.handler_cls': WebSocketHandler
         }, '/scripts': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
@@ -145,6 +149,8 @@ def configure():
     app.merge(config_file)
 
     app.wsgiapp.pipeline.append(('repoze.who', repozewho_pipeline))
+
+    WebSocketPlugin(cherrypy.engine).subscribe()
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
     cherrypy.engine.database.subscribe()

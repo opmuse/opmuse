@@ -11,7 +11,8 @@
 
         <script type="text/javascript">
             window.opmuseGlobals = {
-                version: {{ version }}
+                version: {{ version }},
+                authenticated: {{ "true" if request.user else "false" }}
             };
         </script>
 

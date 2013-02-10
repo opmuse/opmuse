@@ -3,9 +3,11 @@ from sqlalchemy import Column, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
+from pydispatch import dispatcher
 from opmuse.database import Base
 from opmuse.security import User
 from opmuse.library import Track, Artist, Album, library_dao
+from opmuse.ws import ws
 
 
 class Queue(Base):
@@ -23,6 +25,61 @@ class Queue(Base):
 
     def __init__(self, weight):
         self.weight = weight
+
+
+class QueueEvents:
+    def __init__(self):
+        dispatcher.connect(
+            self.start_transcoding,
+            signal='start_transcoding',
+            sender=dispatcher.Any
+        )
+
+        dispatcher.connect(
+            self.transcoding_progress,
+            signal='transcoding_progress',
+            sender=dispatcher.Any
+        )
+
+        ws.on('queue.open', self.queue_open)
+
+    def queue_open(self, ws_user):
+        track = ws_user.get('queue.current_track')
+        progress = ws_user.get('queue.current_progress')
+
+        if track is not None:
+            ws.emit('queue.current_track', track, ws_user = ws_user)
+
+        if progress is not None:
+            ws.emit('queue.current_progress', progress, ws_user = ws_user)
+
+    def transcoding_progress(self, progress, track):
+        ws_user = ws.get_ws_user()
+        ws_user.set('queue.current_progress', progress)
+
+        ws.emit('queue.progress', progress, self.serialize_track(track))
+
+    def start_transcoding(self, sender):
+        track = sender
+
+        track = self.serialize_track(track)
+
+        ws_user = ws.get_ws_user()
+        ws_user.set('queue.current_track', track)
+
+        ws.emit('queue.start', track)
+
+    def serialize_track(self, track):
+        return {
+            'album': {
+                'name': track.album.name
+            },
+            'artist': {
+                'name': track.artist.name,
+            },
+            'name': track.name,
+            'duration': track.duration,
+        }
 
 
 class QueueDao:
@@ -94,10 +151,14 @@ class QueueDao:
     def clear(self):
         user_id = cherrypy.request.user.id
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id).delete()
+        cherrypy.request.database.commit()
+        ws.emit('queue.update')
 
     def clear_played(self):
         user_id = cherrypy.request.user.id
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id, played=True).delete()
+        cherrypy.request.database.commit()
+        ws.emit('queue.update')
 
     def add_track(self, id):
         track = cherrypy.request.database.query(Track).filter_by(id=id).one()
@@ -112,10 +173,14 @@ class QueueDao:
         queue.user = user
 
         cherrypy.request.database.add(queue)
+        cherrypy.request.database.commit()
+        ws.emit('queue.update')
 
     def remove_track(self, id):
         user_id = cherrypy.request.user.id
         cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = id).delete()
+        cherrypy.request.database.commit()
+        ws.emit('queue.update')
 
     def get_new_pos(self, user_id):
         weight = (cherrypy.request.database.query(func.max(Queue.weight))
@@ -129,3 +194,4 @@ class QueueDao:
         return weight
 
 queue_dao = QueueDao()
+queue_events = QueueEvents()

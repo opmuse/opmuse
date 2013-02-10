@@ -26,6 +26,7 @@ from opmuse.utils import HTTPRedirect
 from opmuse.database import get_session
 from opmuse.image import image as image_service
 from opmuse.search import search
+from opmuse.ws import WsController
 
 
 class Edit:
@@ -563,6 +564,7 @@ class Root(object):
     remove = Remove()
     users = Users()
     library = Library()
+    ws = WsController()
 
     @cherrypy.expose
     def default(self, *args, **kwargs):

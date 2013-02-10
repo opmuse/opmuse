@@ -212,6 +212,12 @@ class FFMPEGTranscoder(Transcoder):
             elif wait < 0:
                 wait = 0
 
+            dispatcher.send(signal='transcoding_progress', progress={
+                'seconds': seconds,
+                'bitrate': bitrate,
+                'seconds_ahead': seconds_ahead,
+            }, track=self.track)
+
             if False:
                 log('Streaming at %d b/s, we\'re %.2fs ahead (total %ds) and waiting for %.2fs.' %
                     (bitrate, seconds_ahead, seconds, wait))

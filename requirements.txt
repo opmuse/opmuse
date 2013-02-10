@@ -9,3 +9,4 @@ PyDispatcher==2.0.3
 Whoosh==2.4.1
 vendor/mutagen-py3.tar.bz2
 rarfile==2.5
+ws4py==0.2.4
