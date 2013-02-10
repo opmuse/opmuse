@@ -207,7 +207,7 @@ def repozewho_pipeline(app):
     database = DatabaseAuthenticator()
     redirector = RedirectorPlugin('/login')
 
-    auth_tkt = UserSecretAuthTktCookiePlugin(cookie_name = 'auth_tkt', include_ip = True)
+    auth_tkt = UserSecretAuthTktCookiePlugin(cookie_name = 'auth_tkt', include_ip = False)
     query_string = AuthTktQueryStringIdentifier()
 
     identifiers = [('query_string', query_string), ('auth_tkt', auth_tkt)]
