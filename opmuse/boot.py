@@ -87,6 +87,7 @@ def multi_headers():
             headers.append(new_header)
         cherrypy.response.header_list.extend(headers)
 
+
 def configure():
     cherrypy.tools.jinja = Jinja()
     cherrypy.tools.database = SqlAlchemyTool()
