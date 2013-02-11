@@ -19,3 +19,6 @@
 [submodule "vendor/Font-Awesome"]
 	path = vendor/Font-Awesome
 	url = git://github.com/FortAwesome/Font-Awesome.git
+[submodule "vendor/momentjs"]
+	path = vendor/momentjs
+	url = git://github.com/timrwood/moment.git

@@ -7,7 +7,8 @@ require.config({
         'jquery': 'lib/jquery',
         'bootstrap': 'lib/bootstrap',
         'domReady': 'lib/domReady',
-        'sprintf': 'lib/sprintf'
+        'sprintf': 'lib/sprintf',
+        'moment': 'lib/moment'
     },
     shim: {
         'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip'],
