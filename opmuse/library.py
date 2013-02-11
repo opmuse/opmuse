@@ -12,7 +12,7 @@ from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
-                       DateTime, Boolean, func, TypeDecorator, Index)
+                        DateTime, Boolean, func, TypeDecorator, Index)
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -109,7 +109,7 @@ class Artist(Base):
     cover_hash = Column(BINARY(24))
 
     albums = relationship("Album", secondary='tracks',
-        order_by=(Album.date.desc(), Album.name))
+                          order_by=(Album.date.desc(), Album.name))
 
     def __init__(self, name, slug):
         self.name = name
@@ -168,10 +168,10 @@ class Track(Base):
     disc = Column(String(64))
 
     album = relationship("Album", lazy='joined', innerjoin=True,
-        backref=backref('tracks', order_by=(disc, number, name)))
+                         backref=backref('tracks', order_by=(disc, number, name)))
 
     artist = relationship("Artist", lazy='joined', innerjoin=True,
-        backref=backref('tracks', order_by=name))
+                          backref=backref('tracks', order_by=name))
 
     def __init__(self, hash):
         self.hash = hash
@@ -456,7 +456,7 @@ class PathParser(TagParser):
                     invalid = ['dir']
 
         return FileMetadata(artist, album, track_name, None, number, added, None, None,
-            invalid, album_cover_path, artist_cover_path, disc, size)
+                            invalid, album_cover_path, artist_cover_path, disc, size)
 
     @staticmethod
     def match_in_dir(match_files, files):
@@ -934,8 +934,9 @@ class LibraryProcess:
 
         index = 0
         while True:
-            index, track_slug = LibraryProcess.slugify("%s_%s_%s" %
-                (metadata.artist_name, metadata.album_name, metadata.track_name), index)
+            index, track_slug = LibraryProcess.slugify(
+                "%s_%s_%s" % (metadata.artist_name, metadata.album_name, metadata.track_name), index
+            )
             try:
                 self._database.query(Track).filter_by(slug=track_slug).one()
             except NoResultFound:
@@ -1019,11 +1020,11 @@ class LibraryProcess:
             return LibraryProcess.slugify(string, index)
 
         string = (string
-            .replace('&', 'and')
-            .replace('å', 'a')
-            .replace('ä', 'a')
-            .replace('ö', 'o')
-            .replace('ü', 'u'))
+                  .replace('&', 'and')
+                  .replace('å', 'a')
+                  .replace('ä', 'a')
+                  .replace('ö', 'o')
+                  .replace('ü', 'u'))
 
         string = re.sub(r'[^A-Za-z0-9_\'"()-]+', '_', string)
 
@@ -1114,7 +1115,7 @@ class LibraryDao:
             disc = track['disc']
 
             track = (cherrypy.request.database.query(Track)
-                .filter_by(id=id).one())
+                     .filter_by(id=id).one())
 
             for path in track.paths:
                 filenames.append(path.path)
@@ -1140,8 +1141,7 @@ class LibraryDao:
         return self.add_files(filenames, move)
 
     def get_invalid_track_count(self):
-        return (cherrypy.request.database.query(func.count(Track.id))
-            .filter("invalid is not null").scalar())
+        return cherrypy.request.database.query(func.count(Track.id)).filter("invalid is not null").scalar()
 
     def get_album_count(self):
         return cherrypy.request.database.query(func.count(Album.id)).scalar()
@@ -1154,7 +1154,7 @@ class LibraryDao:
 
     def get_tracks_by_ids(self, ids):
         return (cherrypy.request.database.query(Track)
-            .filter(Track.id.in_(ids)).order_by(Track.disc).order_by(Track.number).order_by(Track.name).all())
+                .filter(Track.id.in_(ids)).order_by(Track.disc).order_by(Track.number).order_by(Track.name).all())
 
     def add_files(self, filenames, move = False, remove_dirs = True, artist_name = None):
 
@@ -1274,12 +1274,12 @@ class LibraryDao:
 
     def get_artists(self, limit, offset):
         return (cherrypy.request.database.query(Artist)
-            .join(Track, Track.artist_id == Artist.id)
-            .group_by(Artist.id)
-            .order_by(func.max(Track.added).desc())
-            .limit(limit)
-            .offset(offset)
-            .all())
+                .join(Track, Track.artist_id == Artist.id)
+                .group_by(Artist.id)
+                .order_by(func.max(Track.added).desc())
+                .limit(limit)
+                .offset(offset)
+                .all())
 
     def remove(self, id):
         track = cherrypy.request.database.query(Track).filter_by(id=id).one()

@@ -25,7 +25,7 @@ class Lastfm:
         cherrypy.request.lastfm_start_transcoding_time = self.get_utc_timestamp()
         session_key = cherrypy.request.user.lastfm_session_key
         cherrypy.engine.bgtask.put(self.update_now_playing, session_key,
-            **self.track_to_args(track))
+                                   **self.track_to_args(track))
 
     def transcoding_end(self, track):
         session_key = cherrypy.request.user.lastfm_session_key
@@ -33,7 +33,7 @@ class Lastfm:
         start_time = cherrypy.request.lastfm_start_transcoding_time
         cherrypy.request.lastfm_start_transcoding_time = None
         cherrypy.engine.bgtask.put(self.scrobble, user, session_key,
-            start_time, **self.track_to_args(track))
+                                   start_time, **self.track_to_args(track))
 
     def get_network(self, session_key = ''):
         config = cherrypy.tree.apps[''].config['opmuse']
@@ -72,8 +72,7 @@ class Lastfm:
         try:
             time_since_start = self.get_utc_timestamp() - start_time
 
-            if not (args['duration'] > 30 and (time_since_start > 4 * 60 or
-                time_since_start > args['duration'] / 2)):
+            if not (args['duration'] > 30 and (time_since_start > 4 * 60 or time_since_start > args['duration'] / 2)):
                 log('%s skipped scrobbling "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
                     user,
                     args['artist'],

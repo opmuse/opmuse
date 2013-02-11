@@ -319,8 +319,8 @@ class Users:
     def user(self, login, page = 1):
         try:
             user = (cherrypy.request.database.query(User)
-                .filter_by(login=login)
-                .order_by(User.login).one())
+                    .filter_by(login=login)
+                    .order_by(User.login).one())
         except NoResultFound:
             raise cherrypy.NotFound()
 
@@ -702,7 +702,7 @@ class Root(object):
     def index_auth(self):
 
         users = (cherrypy.request.database.query(User)
-            .order_by(User.login).limit(8).all())
+                 .order_by(User.login).limit(8).all())
 
         albums = library_dao.get_random_albums(16)
 

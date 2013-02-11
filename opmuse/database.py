@@ -20,7 +20,7 @@ def get_engine():
     url = config['database.url']
     echo = config['database.echo']
     return create_engine(url, echo=echo, poolclass=NullPool,
-                                isolation_level="READ UNCOMMITTED")
+                         isolation_level="READ UNCOMMITTED")
 
 
 def get_raw_session(create_all = False):

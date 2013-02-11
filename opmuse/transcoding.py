@@ -67,19 +67,20 @@ class FFMPEGTranscoder(Transcoder):
         track_number = self.track.number if self.track.number is not None else 0
 
         args = (['ffmpeg'] +
-            self.ffmpeg_input_args +
-            ['-i', filename] +
-            # always produce stereo output
-            ['-ac', '2'] +
-            # strip any video streams
-            ['-vn'] +
-            self.ffmpeg_output_args + [
-                '-metadata', 'artist=%s' % artist,
-                '-metadata', 'album=%s' % album,
-                '-metadata', 'title=%s' % title,
-                '-metadata', 'tracknumber=%s' % track_number,
-                '-'
-            ])
+                self.ffmpeg_input_args +
+                ['-i', filename] +
+                # always produce stereo output
+                ['-ac', '2'] +
+                # strip any video streams
+                ['-vn'] +
+                self.ffmpeg_output_args + [
+                    '-metadata', 'artist=%s' % artist,
+                    '-metadata', 'album=%s' % album,
+                    '-metadata', 'title=%s' % title,
+                    '-metadata', 'tracknumber=%s' % track_number,
+                    '-'
+                ]
+        )
 
         for index, arg in enumerate(args):
             if not isinstance(arg, bytes):

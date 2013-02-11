@@ -70,8 +70,10 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
 
     def start(self):
 
-        cherrypy.request.jinja.globals['authenticated'] = ('repoze.who.identity' in cherrypy.request.wsgi_environ and
-            cherrypy.request.wsgi_environ.get('repoze.who.identity'))
+        cherrypy.request.jinja.globals['authenticated'] = (
+            'repoze.who.identity' in cherrypy.request.wsgi_environ and
+            cherrypy.request.wsgi_environ.get('repoze.who.identity')
+        )
 
         identity = cherrypy.request.wsgi_environ.get('repoze.who.identity')
 
@@ -81,8 +83,7 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
 
             login = identity['repoze.who.plugins.auth_tkt.userid']
 
-            user = (cherrypy.request.database.query(User)
-                .filter_by(login=login).one())
+            user = cherrypy.request.database.query(User).filter_by(login=login).one()
 
             cherrypy.request.jinja.globals['user'] = cherrypy.request.user = user
 
@@ -97,8 +98,7 @@ class DatabaseAuthenticator(object):
             return None
 
         try:
-            user = (cherrypy.request.database.query(User)
-                .filter_by(login=login).one())
+            user = cherrypy.request.database.query(User).filter_by(login=login).one()
 
             hashed = hash_password(password, user.salt)
 

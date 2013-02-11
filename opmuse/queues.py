@@ -76,20 +76,20 @@ class QueueDao:
         queue = next_queue = None
         try:
             queue = (database.query(Queue)
-                .filter_by(user_id=user_id, playing=True)
-                .order_by(Queue.weight).one())
+                     .filter_by(user_id=user_id, playing=True)
+                     .order_by(Queue.weight).one())
 
             next_queue = (database.query(Queue)
-                .filter_by(user_id=user_id)
-                .filter(Queue.weight > queue.weight)
-                .order_by(Queue.weight).first())
+                          .filter_by(user_id=user_id)
+                          .filter(Queue.weight > queue.weight)
+                          .order_by(Queue.weight).first())
         except NoResultFound:
             pass
 
         if next_queue is None:
             next_queue = (database.query(Queue)
-                .filter_by(user_id=user_id)
-                .order_by(Queue.weight).first())
+                          .filter_by(user_id=user_id)
+                          .order_by(Queue.weight).first())
 
         if next_queue is None:
             return None
@@ -116,8 +116,7 @@ class QueueDao:
 
         current_queues = []
 
-        for queue in (cherrypy.request.database.query(Queue)
-                .filter_by(user_id=user_id).order_by(Queue.weight).all()):
+        for queue in cherrypy.request.database.query(Queue).filter_by(user_id=user_id).order_by(Queue.weight).all():
 
             if (album is not None and album.id != queue.track.album.id or
                 artist is not None and artist.id != queue.track.artist.id or
@@ -171,8 +170,7 @@ class QueueDao:
         ws.emit('queue.update')
 
     def get_new_pos(self, user_id):
-        weight = (cherrypy.request.database.query(func.max(Queue.weight))
-            .filter_by(user_id=user_id).scalar())
+        weight = cherrypy.request.database.query(func.max(Queue.weight)).filter_by(user_id=user_id).scalar()
 
         if weight is None:
             weight = 0
