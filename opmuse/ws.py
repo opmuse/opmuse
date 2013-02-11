@@ -2,8 +2,6 @@ import json
 import cherrypy
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
-from pydispatch import dispatcher
-#from ws4py.messaging import TextMessage
 
 
 class WebSocketHandler(WebSocket):
@@ -19,7 +17,6 @@ class WebSocketHandler(WebSocket):
     def received_message(self, message):
         data = json.loads(message.data.decode('utf8'))
         ws.receive(data['event'], data['args'], self)
-        #cherrypy.log("%s sent %s" % (self.user['login'], m.data.decode('utf8')))
 
     def closed(self, code, reason=None):
         ws.cleanup(self)
@@ -40,7 +37,6 @@ class WsUser:
             return self._data[key]
 
     def add_handler(self, handler):
-        dispatcher.send(signal='ws.add_handler', handler=handler, ws_user=self)
         self.handlers.append(handler)
 
     def remove_handler(self, handler):

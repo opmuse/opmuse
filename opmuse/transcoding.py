@@ -8,7 +8,6 @@ import calendar
 import datetime
 import fcntl
 import select
-from pydispatch import dispatcher
 
 
 def log(msg):
@@ -40,7 +39,7 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
             cherrypy.request.transcoding_track is not None):
 
             track = cherrypy.request.transcoding_track
-            dispatcher.send(signal='end_transcoding', sender=track)
+            cherrypy.engine.publish('transcoding.end', track=track)
 
 
 class Transcoder:
@@ -184,7 +183,7 @@ class FFMPEGTranscoder(Transcoder):
             chunks += 1
 
             # we pace the streaming so we don't have to send more than
-            # the client can chew. this is also good for start/end_transcoding
+            # the client can chew. this is also good for transcoding.{start,end}
             # events that lastfm uses so it can more accurately know how much
             # the client has actually played.
             #
@@ -212,7 +211,7 @@ class FFMPEGTranscoder(Transcoder):
             elif wait < 0:
                 wait = 0
 
-            dispatcher.send(signal='transcoding_progress', progress={
+            cherrypy.engine.publish('transcoding.progress', progress={
                 'seconds': seconds,
                 'bitrate': bitrate,
                 'seconds_ahead': seconds_ahead,
@@ -346,7 +345,7 @@ class Transcoding:
             if isinstance(transcoder, Transcoder):
                 raise Exception("transcoder must be an instance of Transcoder")
 
-            dispatcher.send(signal='start_transcoding', sender=track)
+            cherrypy.engine.publish('transcoding.start', track=track)
 
             with transcoder(track) as transcode:
                 for data in transcode():

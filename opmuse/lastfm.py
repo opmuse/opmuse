@@ -6,7 +6,6 @@ from functools import lru_cache
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError
 from pylast import PERIOD_OVERALL
-from pydispatch import dispatcher
 from opmuse.security import User
 
 User.lastfm_session_key = Column(String(32))
@@ -19,30 +18,22 @@ def log(msg):
 
 class Lastfm:
     def __init__(self):
-        dispatcher.connect(
-            self.start_transcoding,
-            signal='start_transcoding',
-            sender=dispatcher.Any
-        )
-        dispatcher.connect(
-            self.end_transcoding,
-            signal='end_transcoding',
-            sender=dispatcher.Any
-        )
+        cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
+        cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
 
-    def start_transcoding(self, sender):
+    def transcoding_start(self, track):
         cherrypy.request.lastfm_start_transcoding_time = self.get_utc_timestamp()
         session_key = cherrypy.request.user.lastfm_session_key
         cherrypy.engine.bgtask.put(self.update_now_playing, session_key,
-            **self.track_to_args(sender))
+            **self.track_to_args(track))
 
-    def end_transcoding(self, sender):
+    def transcoding_end(self, track):
         session_key = cherrypy.request.user.lastfm_session_key
         user = cherrypy.request.user.login
         start_time = cherrypy.request.lastfm_start_transcoding_time
         cherrypy.request.lastfm_start_transcoding_time = None
         cherrypy.engine.bgtask.put(self.scrobble, user, session_key,
-            start_time, **self.track_to_args(sender))
+            start_time, **self.track_to_args(track))
 
     def get_network(self, session_key = ''):
         config = cherrypy.tree.apps[''].config['opmuse']

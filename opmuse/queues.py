@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
-from pydispatch import dispatcher
 from opmuse.database import Base
 from opmuse.security import User
 from opmuse.library import Track, Artist, Album, library_dao
@@ -29,17 +28,8 @@ class Queue(Base):
 
 class QueueEvents:
     def __init__(self):
-        dispatcher.connect(
-            self.start_transcoding,
-            signal='start_transcoding',
-            sender=dispatcher.Any
-        )
-
-        dispatcher.connect(
-            self.transcoding_progress,
-            signal='transcoding_progress',
-            sender=dispatcher.Any
-        )
+        cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
+        cherrypy.engine.subscribe('transcoding.progress', self.transcoding_progress)
 
         ws.on('queue.open', self.queue_open)
 
@@ -59,9 +49,7 @@ class QueueEvents:
 
         ws.emit('queue.progress', progress, self.serialize_track(track))
 
-    def start_transcoding(self, sender):
-        track = sender
-
+    def transcoding_start(self, track):
         track = self.serialize_track(track)
 
         ws_user = ws.get_ws_user()
