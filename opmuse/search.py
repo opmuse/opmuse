@@ -12,8 +12,13 @@ index_names = ['Artist', 'Album', 'Track']
 write_handlers = {}
 
 
+def log(msg):
+    cherrypy.log(msg, context='search')
+
+
 class WriteHandler:
-    def __init__(self, index):
+    def __init__(self, name, index):
+        self.name = name
         self.index = index
         self._deletes = []
         self._updates = {}
@@ -25,14 +30,20 @@ class WriteHandler:
         self._updates[id] = kwargs
 
     def commit(self):
+        updates = deletes = 0
         with self.index.writer() as writer:
             while len(self._updates) > 0:
                 id, kwargs = self._updates.popitem()
                 writer.add_document(id = id, **kwargs)
+                updates += 1
 
             while len(self._deletes) > 0:
                 id = self._deletes.pop()
                 writer.delete_document(id)
+                deletes += 1
+
+        if updates > 0 or deletes > 0:
+            log("in %s: %d updates and %d deletes." % (self.name, updates, deletes))
 
 
 class Search:
@@ -120,7 +131,7 @@ class WhooshPlugin(Monitor):
 
                 index = whoosh.index.create_in(index_path, schema)
 
-            write_handler = WriteHandler(index)
+            write_handler = WriteHandler(index_name, index)
 
             write_handlers[index_name] = write_handler
 
