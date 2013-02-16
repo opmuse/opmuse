@@ -128,11 +128,13 @@ class FFMPEGTranscoder(Transcoder):
         events = poll.poll()
 
         bitrate = self.bitrate()
+        lowest_bitrate = self.lowest_bitrate()
+        initial_bitrate = self.initial_bitrate()
 
         use_ffmpeg_bitrate = False
 
         if bitrate is None:
-            bitrate = self.initial_bitrate()
+            bitrate = initial_bitrate
             use_ffmpeg_bitrate = True
 
         while pollc > 0 and len(events) > 0:
@@ -169,10 +171,13 @@ class FFMPEGTranscoder(Transcoder):
             if use_ffmpeg_bitrate and info is not None:
                 bitrate = int(float(info['bitrate'].decode()) * 1024 / 8)
 
+                if lowest_bitrate is not None and bitrate < lowest_bitrate:
+                    bitrate = initial_bitrate
+
     def transcode(self):
 
         # how many seconds to stay ahead of the client
-        seconds_keep_ahead = 15
+        seconds_keep_ahead = 10
         # ... and if we fall behind more than this try to slowly adjust
         seconds_adjust = 5
 
@@ -229,6 +234,13 @@ class FFMPEGTranscoder(Transcoder):
             if wait > 0:
                 time.sleep(wait)
 
+    def lowest_bitrate(self):
+        """
+        Implement this to ignore bitrates lower than this and use the
+        initial_bitrate instead. This is only useful when bitrate() returns None.
+        """
+        return None
+
     def initial_bitrate(self):
         """
         If bitrate() isn't implemented this needs to be implemented for an
@@ -283,6 +295,9 @@ class OggFFMPEGTranscoder(FFMPEGTranscoder):
 
     def outputs():
         return 'audio/ogg'
+
+    def lowest_bitrate(self):
+        return int(160000 / 8)
 
     def initial_bitrate(self):
         # -aq 6 is about 192kbit/s
