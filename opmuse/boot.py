@@ -1,6 +1,7 @@
 import sys
 import os
 import cherrypy
+import cherrypy._cpwsgi_server
 from cherrypy.process.plugins import SimplePlugin
 import subprocess
 from os.path import join, abspath, dirname
@@ -151,6 +152,45 @@ def configure():
 
     app.wsgiapp.pipeline.append(('repoze.who', repozewho_pipeline))
 
+    config = cherrypy._cpconfig.Config(file=config_file)
+
+    # 5 gigabyte file upload limit
+    config['server.max_request_body_size'] = 1024 ** 3 * 5
+    config['engine.timeout_monitor.frequency'] = 60 * 5
+
+    cherrypy.config.update(config)
+
+    cherrypy._cpconfig.environments['production']['jinja.auto_reload'] = False
+
+    if 'ssl_server.enabled' in cherrypy.config and cherrypy.config['ssl_server.enabled']:
+        socket_host = cherrypy.config['ssl_server.socket_host']
+        socket_port = cherrypy.config['ssl_server.socket_port']
+        ssl_certificate = cherrypy.config['ssl_server.ssl_certificate']
+        ssl_private_key = cherrypy.config['ssl_server.ssl_private_key']
+
+        if 'ssl_server.ssl_certificate_chain' in cherrypy.config:
+            ssl_certificate_chain = cherrypy.config['ssl_server.ssl_certificate_chain']
+        else:
+            ssl_certificate_chain = None
+
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config')
+
+        if not os.path.isabs(ssl_certificate):
+            ssl_certificate = os.path.join(config_path, ssl_certificate)
+
+        if not os.path.isabs(ssl_private_key):
+            ssl_private_key = os.path.join(config_path, ssl_private_key)
+
+        if ssl_certificate_chain is not None and not os.path.isabs(ssl_certificate_chain):
+            ssl_certificate_chain = os.path.join(config_path, ssl_certificate_chain)
+
+        ssl_server = cherrypy._cpserver.Server()
+        ssl_server.bind_addr = (socket_host, socket_port)
+        ssl_server.ssl_certificate = ssl_certificate
+        ssl_server.ssl_private_key = ssl_private_key
+        ssl_server.ssl_certificate_chain = ssl_certificate_chain
+        ssl_server.subscribe()
+
     WebSocketPlugin(cherrypy.engine).subscribe()
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
@@ -167,16 +207,6 @@ def configure():
 
     cherrypy.engine.bgtask = BackgroundTaskQueue(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
-
-    config = cherrypy._cpconfig.Config(file=config_file)
-
-    # 5 gigabyte file upload limit
-    config['server.max_request_body_size'] = 1024 ** 3 * 5
-    config['engine.timeout_monitor.frequency'] = 60 * 5
-
-    cherrypy.config.update(config)
-
-    cherrypy._cpconfig.environments['production']['jinja.auto_reload'] = False
 
 
 def boot():
