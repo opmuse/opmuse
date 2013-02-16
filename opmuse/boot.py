@@ -231,6 +231,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='opmuse')
     parser.add_argument('-d', '--daemon', action='store_true', help='Run as daemon')
     parser.add_argument('-l', '--log', action='store', help='Log file location.')
+    parser.add_argument('-le', '--errorlog', action='store', help='Log error messages in this separate file.')
     parser.add_argument('-u', '--user', action='store', help='When running as daemon, what user to run as.', default='nobody')
     parser.add_argument('-e', '--env', action='store', help='cherrypy environment.')
 
@@ -248,6 +249,13 @@ if __name__ == '__main__':
             'log.screen': False,
             'log.error_file': args.log,
             'log.access_file': args.log
+        })
+
+    if args.log is None and args.errorlog is not None:
+        parser.error('--log needs to be set if --errorlog is used.')
+    elif args.errorlog is not None:
+        cherrypy.config.update({
+            'log.error_file': args.errorlog,
         })
 
     if args.daemon:
