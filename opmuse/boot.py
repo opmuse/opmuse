@@ -1,10 +1,14 @@
 import sys
 import os
-import cherrypy
-import cherrypy._cpwsgi_server
-from cherrypy.process.plugins import SimplePlugin
+import logging
 import subprocess
+import cherrypy
+import queue
+import threading
+import tempfile
+import locale
 from os.path import join, abspath, dirname
+from cherrypy.process.plugins import SimplePlugin
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
@@ -14,10 +18,6 @@ from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 import opmuse.lastfm
-import queue
-import threading
-import tempfile
-import locale
 
 tempfile.tempdir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'cache', 'upload'
@@ -207,6 +207,9 @@ def configure():
 
     cherrypy.engine.bgtask = BackgroundTaskQueue(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
+
+    if 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:
+        cherrypy.log.error_log.setLevel(logging.DEBUG)
 
 
 def boot():
