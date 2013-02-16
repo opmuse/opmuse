@@ -1,13 +1,15 @@
-import io
 import os
 import time
 import subprocess
 import re
 import cherrypy
-import calendar
-import datetime
 import fcntl
 import select
+import logging
+
+
+def debug(msg):
+    cherrypy.log.error(msg, context='transcoding', severity=logging.DEBUG)
 
 
 def log(msg):
@@ -57,9 +59,10 @@ class FFMPEGTranscoder(Transcoder):
         self.track = track
 
     def __enter__(self):
-        filename = self.track.paths[0].path
+        self.filename = self.track.paths[0].path
+        self.pretty_filename = self.track.paths[0].pretty_path
 
-        ext = os.path.splitext(os.path.basename(filename))[1].lower()[1:]
+        ext = os.path.splitext(os.path.basename(self.filename))[1].lower()[1:]
 
         artist = self.track.artist.name
         album = self.track.album.name
@@ -68,7 +71,7 @@ class FFMPEGTranscoder(Transcoder):
 
         args = (['ffmpeg'] +
                 self.ffmpeg_input_args +
-                ['-i', filename] +
+                ['-i', self.filename] +
                 # always produce stereo output
                 ['-ac', '2'] +
                 # strip any video streams
@@ -93,6 +96,8 @@ class FFMPEGTranscoder(Transcoder):
 
         cherrypy.request.ffmpegtranscoder_subprocess = self.process
         cherrypy.request.transcoding_track = self.track
+
+        debug('transcoding with: %s' % b' '.join(args).decode('utf8', 'replace'))
 
         return self.transcode
 
@@ -218,9 +223,8 @@ class FFMPEGTranscoder(Transcoder):
                 'seconds_ahead': seconds_ahead,
             }, track=self.track)
 
-            if False:
-                log('Streaming at %d b/s, we\'re %.2fs ahead (total %ds) and waiting for %.2fs.' %
-                    (bitrate, seconds_ahead, seconds, wait))
+            debug('"%s" streaming at %d b/s, we\'re %.2fs ahead (total %ds) and waiting for %.2fs.' %
+                 (self.pretty_filename, bitrate, seconds_ahead, seconds, wait))
 
             if wait > 0:
                 time.sleep(wait)
