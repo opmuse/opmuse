@@ -2,9 +2,10 @@ import re
 import cherrypy
 import calendar
 import datetime
+import math
 from functools import lru_cache
 from sqlalchemy import Column, String
-from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError
+from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError, MalformedResponseError
 from pylast import PERIOD_OVERALL
 from opmuse.security import User
 
@@ -20,20 +21,21 @@ class Lastfm:
     def __init__(self):
         cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
         cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
+        cherrypy.engine.subscribe('transcoding.progress', self.transcoding_progress)
+
+    def transcoding_progress(self, progress, track):
+        cherrypy.request.lastfm_progress = progress['seconds'] - progress['seconds_ahead']
 
     def transcoding_start(self, track):
-        cherrypy.request.lastfm_start_transcoding_time = self.get_utc_timestamp()
         session_key = cherrypy.request.user.lastfm_session_key
-        cherrypy.engine.bgtask.put(self.update_now_playing, session_key,
-                                   **self.track_to_args(track))
+        cherrypy.engine.bgtask.put(self.update_now_playing, session_key, **self.track_to_args(track))
 
     def transcoding_end(self, track):
-        session_key = cherrypy.request.user.lastfm_session_key
-        user = cherrypy.request.user.login
-        start_time = cherrypy.request.lastfm_start_transcoding_time
-        cherrypy.request.lastfm_start_transcoding_time = None
-        cherrypy.engine.bgtask.put(self.scrobble, user, session_key,
-                                   start_time, **self.track_to_args(track))
+        if hasattr(cherrypy.request, 'lastfm_progress') and cherrypy.request.lastfm_progress is not None:
+            seconds = cherrypy.request.lastfm_progress
+            session_key = cherrypy.request.user.lastfm_session_key
+            user = cherrypy.request.user.login
+            cherrypy.engine.bgtask.put(self.scrobble, user, session_key, seconds, **self.track_to_args(track))
 
     def get_network(self, session_key = ''):
         config = cherrypy.tree.apps[''].config['opmuse']
@@ -65,27 +67,25 @@ class Lastfm:
                 args['title'],
             ))
 
-    def scrobble(self, user, session_key, start_time, **args):
+    def scrobble(self, user, session_key, seconds, **args):
         if session_key is None:
             return
 
         try:
-            time_since_start = self.get_utc_timestamp() - start_time
-
-            if not (args['duration'] > 30 and (time_since_start > 4 * 60 or time_since_start > args['duration'] / 2)):
+            if not (args['duration'] > 30 and (seconds > 4 * 60 or seconds > args['duration'] / 2)):
                 log('%s skipped scrobbling "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
                     user,
                     args['artist'],
                     args['album'],
                     args['title'],
                     args['duration'],
-                    time_since_start
+                    seconds
                 ))
                 return
 
             network = self.get_network(session_key)
 
-            args['timestamp'] = start_time
+            args['timestamp'] = math.floor(self.get_utc_timestamp() - seconds)
 
             network.scrobble(**args)
 
@@ -95,7 +95,7 @@ class Lastfm:
                 args['album'],
                 args['title'],
                 args['duration'],
-                time_since_start
+                seconds
             ))
 
         except NetworkError:
@@ -230,7 +230,7 @@ class Lastfm:
                 'wiki': album.get_wiki_summary(),
                 'cover': album.get_cover_image()
             }
-        except (WSError, NetworkError) as error:
+        except (WSError, NetworkError, MalformedResponseError) as error:
             log('Failed to get album "%s - %s": %s' % (
                 artist_name,
                 album_name,
@@ -259,7 +259,7 @@ class Lastfm:
                 'bio': artist.get_bio_summary(),
                 'similar': similars
             }
-        except (WSError, NetworkError) as error:
+        except (WSError, NetworkError, MalformedResponseError) as error:
             log('Failed to get artist "%s": %s' % (
                 artist_name,
                 error
