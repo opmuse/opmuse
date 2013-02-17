@@ -1,4 +1,39 @@
-define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritance, storage) {
+
+    var Panel = Class.extend({
+        init: function () {
+            var panelOpen = storage.get('layout.panel.open');
+
+            var that = this;
+
+            this.panel = $("#panel");
+
+            $("#panel-handle").click(function (event) {
+                if (that.panel.hasClass("open")) {
+                    that.close();
+                } else {
+                    that.open();
+                }
+            });
+
+            if (panelOpen === true) {
+                that.open();
+            }
+        },
+        open: function () {
+            this.panel.addClass("open");
+            this.panel.data("margin-bottom", this.panel.css("margin-bottom"));
+            this.panel.css("margin-bottom", 0);
+
+            storage.set('layout.panel.open', true);
+        },
+        close: function () {
+            this.panel.removeClass("open");
+            this.panel.css("margin-bottom", this.panel.data("margin-bottom"));
+
+            storage.set('layout.panel.open', false);
+        }
+    });
 
     var instance = null;
 
@@ -8,17 +43,7 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
                 throw Error('Only one instance of Layout allowed!');
             }
 
-            $("#panel-handle").click(function (event) {
-                if ($("#panel").hasClass("open")) {
-                    $("#panel").removeClass("open");
-                    $("#panel").css("margin-bottom", $("#panel").data("margin-bottom"));
-                } else {
-                    $("#panel").addClass("open");
-                    var marginBottom = $("#panel").css("margin-bottom");
-                    $("#panel").data("margin-bottom", marginBottom);
-                    $("#panel").css("margin-bottom", 0);
-                }
-            });
+            this.panel = new Panel();
         }
     });
 
