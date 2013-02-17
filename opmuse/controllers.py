@@ -926,27 +926,27 @@ class Root(object):
 
         user_id = cherrypy.request.user.id
 
-        track = queue_dao.get_next_track(user_id, repeat = False)
+        queue = queue_dao.get_next(user_id)
 
-        if track is None:
+        if queue is None:
             raise cherrypy.HTTPError(status=409)
 
         user_agent = cherrypy.request.headers['User-Agent']
 
         transcoder, format = transcoding.determine_transcoder(
-            track,
+            queue.track,
             user_agent,
             [accept.value for accept in cherrypy.request.headers.elements('Accept')]
         )
 
         cherrypy.log(
             '%s is streaming "%s" in %s (original was %s) with "%s"' %
-            (cherrypy.request.user.login, track, format, track.format, user_agent)
+            (cherrypy.request.user.login, queue.track, format, queue.track.format, user_agent)
         )
 
         cherrypy.response.headers['Content-Type'] = format
 
         def track_generator():
-            yield track
+            yield queue.track, queue.current_seconds
 
         return transcoding.transcode(track_generator(), transcoder)

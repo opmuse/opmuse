@@ -1,4 +1,5 @@
 import cherrypy
+import math
 from sqlalchemy import Column, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
@@ -16,7 +17,8 @@ class Queue(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     track_id = Column(Integer, ForeignKey('tracks.id'))
     weight = Column(Integer, index = True)
-    playing = Column(Boolean)
+    current_seconds = Column(Integer)
+    current = Column(Boolean)
     played = Column(Boolean)
 
     user = relationship("User", backref=backref('users', order_by=id))
@@ -30,8 +32,15 @@ class QueueEvents:
     def __init__(self):
         cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
         cherrypy.engine.subscribe('transcoding.progress', self.transcoding_progress)
+        cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
+        cherrypy.engine.subscribe('transcoding.done', self.transcoding_done)
+        cherrypy.engine.subscribe('queue.next', self.queue_next)
 
         ws.on('queue.open', self.queue_open)
+
+    def queue_next(self, next):
+        if next is None:
+            ws.emit('queue.next.none')
 
     def queue_open(self, ws_user):
         track = ws_user.get('queue.current_track')
@@ -49,6 +58,8 @@ class QueueEvents:
 
         ws.emit('queue.progress', progress, self.serialize_track(track))
 
+        cherrypy.request.queue_progress = progress
+
     def transcoding_start(self, track):
         track = self.serialize_track(track)
 
@@ -56,6 +67,29 @@ class QueueEvents:
         ws_user.set('queue.current_track', track)
 
         ws.emit('queue.start', track)
+
+    def transcoding_done(self, track):
+        if hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None:
+            queue_current = cherrypy.request.queue_current
+
+            queue_dao.update_queue(queue_current.id, current_seconds = None, played = True)
+
+            # this is to avoid transcoding_end from firing
+            cherrypy.request.queue_current = None
+
+            ws_user = ws.get_ws_user()
+            ws_user.set('queue.current_track', None)
+            ws_user.set('queue.current_progress', None)
+
+    def transcoding_end(self, track):
+        if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
+            hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None):
+            queue_current = cherrypy.request.queue_current
+            progress = cherrypy.request.queue_progress
+
+            current_seconds = math.floor(progress['seconds'] - progress['seconds_ahead'])
+
+            queue_dao.update_queue(queue_current.id, current_seconds = current_seconds)
 
     def serialize_track(self, track):
         return {
@@ -71,41 +105,50 @@ class QueueEvents:
 
 
 class QueueDao:
-    def get_next_track(self, user_id, repeat = False):
+    def update_queue(self, id, **kwargs):
+        cherrypy.request.database.query(Queue).filter_by(id=id).update(kwargs)
+        cherrypy.request.database.commit()
+
+    def get_next(self, user_id):
         database = cherrypy.request.database
-        queue = next_queue = None
+        current_queue = next_queue = None
+
         try:
-            queue = (database.query(Queue)
-                     .filter_by(user_id=user_id, playing=True)
+            current_queue = (database.query(Queue)
+                     .filter_by(user_id=user_id, current=True)
                      .order_by(Queue.weight).one())
 
-            next_queue = (database.query(Queue)
-                          .filter_by(user_id=user_id)
-                          .filter(Queue.weight > queue.weight)
-                          .order_by(Queue.weight).first())
+            if current_queue.current_seconds is not None:
+                next_queue = current_queue
+                current_queue = None
         except NoResultFound:
             pass
 
         if next_queue is None:
-            next_queue = (database.query(Queue)
-                          .filter_by(user_id=user_id)
-                          .order_by(Queue.weight).first())
+            if current_queue is not None:
+                next_queue = (database.query(Queue)
+                              .filter_by(user_id=user_id)
+                              .filter(Queue.weight > current_queue.weight)
+                              .order_by(Queue.weight).first())
+            else:
+                database.query(Queue).filter_by(user_id=user_id).update({'played': None})
+                next_queue = (database.query(Queue)
+                              .filter_by(user_id=user_id)
+                              .order_by(Queue.weight).first())
 
-        if next_queue is None:
-            return None
+        if current_queue is not None:
+            current_queue.current = False
 
-        if not repeat and next_queue.played:
-            return None
-
-        next_queue.playing = True
-
-        if queue is not None:
-            queue.played = True
-            queue.playing = False
+        if next_queue is not None:
+            next_queue.current = True
 
         database.commit()
 
-        return next_queue.track
+        cherrypy.request.queue_current = next_queue
+
+        cherrypy.engine.publish('queue.next', next=next_queue)
+
+        return next_queue
 
     def get_queues(self, user_id):
         queues = []

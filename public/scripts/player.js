@@ -38,7 +38,7 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'ws', 'moment', 'sprintf', 
             });
 
             ws.on('queue.current_track', function (track) {
-                that.setPlaying(track);
+                that.setCurrent(track);
             });
 
             ws.on('queue.current_progress', function (progress) {
@@ -46,8 +46,7 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'ws', 'moment', 'sprintf', 
             });
 
             ws.on('queue.start', function (track) {
-                that.setPlaying(track);
-                that.playerTrack.find('.title').text(sprintf("%s - %s", track.artist.name, track.name));
+                that.setCurrent(track);
 
                 queue.reload();
 
@@ -60,6 +59,12 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'ws', 'moment', 'sprintf', 
                 }
 
                 that.setProgress(progress.seconds, progress.seconds_ahead);
+            });
+
+            ws.on('queue.next.none', function () {
+                that.setCurrent(null);
+                that.setProgress(0, 0);
+                queue.reload();
             });
 
             $(that.player).bind('ended', function (event) {
@@ -108,23 +113,33 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'ws', 'moment', 'sprintf', 
 
             that.internalInit();
         },
-        setPlaying: function (track) {
+        setCurrent: function (track) {
             var that = this;
+
             that.currentTrack = track;
-            that.playerTrack.find('.title').text(sprintf("%s - %s", track.artist.name, track.name));
+
+            var title = that.playerTrack.find('.title');
+
+            if (track === null) {
+                title.text('');
+            } else {
+                title.text(sprintf("%s - %s", track.artist.name, track.name));
+            }
         },
         setProgress: function (seconds, seconds_ahead) {
             var that = this;
 
-            var duration = that.currentTrack.duration;
+            var seconds_perc = seconds_ahead_perc = 0;
 
-            that.playerProgress.find('.bar.seconds').width(
-                (((seconds - seconds_ahead) / duration) * 100) + '%'
-            );
+            if (that.currentTrack !== null) {
+                var duration = that.currentTrack.duration;
+                seconds_perc = ((seconds - seconds_ahead) / duration) * 100;
+                seconds_ahead_perc = (seconds_ahead / duration) * 100;
+            }
 
-            that.playerProgress.find('.bar.ahead').width(
-                ((seconds_ahead / duration) * 100) + '%'
-            );
+            that.playerProgress.find('.bar.seconds').width(seconds_perc + '%');
+
+            that.playerProgress.find('.bar.ahead').width(seconds_ahead_perc + '%');
 
             var actual_seconds = seconds - seconds_ahead;
 
@@ -136,9 +151,13 @@ define(['jquery', 'inheritance', 'queue', 'ajaxify', 'ws', 'moment', 'sprintf', 
                 format = "mm:ss";
             }
 
-            that.playerTrack.find('.time').text(
-                moment().hours(0).minutes(0).seconds(actual_seconds).format(format)
-            );
+            var time = '';
+
+            if (actual_seconds > 0) {
+                time = moment().hours(0).minutes(0).seconds(actual_seconds).format(format);
+            }
+
+            that.playerTrack.find('.time').text(time);
         },
         internalInit: function () {
             $('#next-button, #play-button, #pause-button').unbind('click.ajaxify');

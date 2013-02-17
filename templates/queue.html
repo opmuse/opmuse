@@ -59,11 +59,11 @@
         </li>
         {% for q in queue %}
             <li data-track-duration="{{ q.track.duration }}" data-track-title="{{ q.track.artist.name }} - {{ q.track.name }}"
-                class="track {{ "playing active" if q.playing }} {{ "played" if q.played }}">
+                class="track {{ "current active" if q.current }} {{ "played" if q.played }}">
                 <span class="text">
                     <span class="track-icon">
                         <i class="noplay-icon icon-check-empty"></i>
-                        <i class="playing-icon icon-music"></i>
+                        <i class="current-icon icon-music"></i>
                         <i class="played-icon icon-check"></i>
                     </span>
                     <span class="track-number">{{ q.track.number }}</span>

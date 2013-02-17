@@ -41,7 +41,10 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
             cherrypy.request.transcoding_track is not None):
 
             track = cherrypy.request.transcoding_track
+
             cherrypy.engine.publish('transcoding.end', track=track)
+
+            debug('"%s" transcoding ended.' % track)
 
 
 class Transcoder:
@@ -55,8 +58,9 @@ class Transcoder:
 
 class FFMPEGTranscoder(Transcoder):
 
-    def __init__(self, track):
+    def __init__(self, track, skip_seconds):
         self.track = track
+        self.skip_seconds = skip_seconds
 
     def __enter__(self):
         self.filename = self.track.paths[0].path
@@ -69,7 +73,13 @@ class FFMPEGTranscoder(Transcoder):
         title = self.track.name
         track_number = self.track.number if self.track.number is not None else 0
 
+        if self.skip_seconds is not None:
+            skip_seconds_args = ['-ss', str(self.skip_seconds)]
+        else:
+            skip_seconds_args = []
+
         args = (['ffmpeg'] +
+                skip_seconds_args +
                 self.ffmpeg_input_args +
                 ['-i', self.filename] +
                 # always produce stereo output
@@ -108,6 +118,10 @@ class FFMPEGTranscoder(Transcoder):
             raise FFMPEGError('ffmpeg returned non-zero status "%d".' % self.process.returncode)
 
         cherrypy.request.ffmpegtranscoder_subprocess = None
+
+        cherrypy.engine.publish('transcoding.done', track=self.track)
+
+        debug('"%s" transcoding done.' % self.track)
 
     @staticmethod
     def set_nonblocking(fileno):
@@ -183,17 +197,17 @@ class FFMPEGTranscoder(Transcoder):
 
         start_time = time.time()
 
-        streamed = 0
+        transcoded = 0
         chunks = 0
 
         for data, bitrate in self.read_process():
 
             yield data
 
-            streamed += bitrate
+            transcoded += bitrate
             chunks += 1
 
-            # we pace the streaming so we don't have to send more than
+            # we pace the transcoding so we don't have to send more than
             # the client can chew. this is also good for transcoding.{start,end}
             # events that lastfm uses so it can more accurately know how much
             # the client has actually played.
@@ -203,9 +217,15 @@ class FFMPEGTranscoder(Transcoder):
 
             # we estimate how much we've sent by using the latest bitrate we
             # received from ffmpeg...
-            seconds = streamed / bitrate
+            seconds = transcoded / bitrate
 
-            seconds_ahead = seconds - (time.time() - start_time)
+            wall_time = time.time() - start_time
+
+            if self.skip_seconds is not None:
+                seconds += self.skip_seconds
+                wall_time += self.skip_seconds
+
+            seconds_ahead = seconds - wall_time
 
             # ... and then we just continue (if wait below 0) or wait until we are
             # no more than seconds_keep_ahead ahead
@@ -228,7 +248,7 @@ class FFMPEGTranscoder(Transcoder):
                 'seconds_ahead': seconds_ahead,
             }, track=self.track)
 
-            debug('"%s" streaming at %d b/s, we\'re %.2fs ahead (total %ds) and waiting for %.2fs.' %
+            debug('"%s" transcoding at %d b/s, we\'re %.2fs ahead (total %ds) and waiting for %.2fs.' %
                  (self.pretty_filename, bitrate, seconds_ahead, seconds, wait))
 
             if wait > 0:
@@ -251,7 +271,7 @@ class FFMPEGTranscoder(Transcoder):
     def bitrate(self):
         """
         Should return the approximate bitrate this transcoder produces, so we
-        can approximately pace the streaming properly. If this isn't specified
+        can approximately pace the transcoding properly. If this isn't specified
         we use whatever ffmpeg tells us.
         """
         return None
@@ -358,7 +378,7 @@ class Transcoding:
         if transcoder is None:
             transcoder = CopyFFMPEGTranscoder
 
-        for track in tracks:
+        for track, skip_seconds in tracks:
 
             start_time = time.time()
 
@@ -367,7 +387,7 @@ class Transcoding:
 
             cherrypy.engine.publish('transcoding.start', track=track)
 
-            with transcoder(track) as transcode:
+            with transcoder(track, skip_seconds) as transcode:
                 for data in transcode():
                     yield data
 

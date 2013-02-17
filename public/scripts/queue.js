@@ -68,14 +68,6 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'bind', 'domReady!'], function
                     }
                 }
             });
-        },
-        getCurrentTrack: function () {
-            var track = $("#queue .track.playing");
-
-            return {
-                'duration': track.data('track-duration'),
-                'title': track.data('track-title'),
-            };
         }
     });
 

@@ -76,13 +76,14 @@
         float: right;
     }
 
-    .playing-icon,
+    .current-icon,
     .played-icon {
         display: none;
     }
 
     .played {
-        .noplay-icon {
+        .noplay-icon,
+        .current-icon {
             display: none;
         }
 
@@ -91,12 +92,13 @@
         }
     }
 
-    .playing {
+    .current {
+        .played-icon,
         .noplay-icon {
             display: none;
         }
 
-        .playing-icon {
+        .current-icon {
             display: inline;
         }
     }
