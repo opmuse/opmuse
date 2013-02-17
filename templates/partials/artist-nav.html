@@ -22,13 +22,17 @@
             </a>
         </li>
         {% endif %}
-        <li class="nav-header">Genres</li>
+        <li class="nav-header">Lastfm Stats</li>
+        <li>
+            {{ lastfm_artist.listeners|format_number }} Listeners
+        </li>
+        <li class="nav-header">Lastfm Genres</li>
         <li>
         {% for tag in lastfm_artist.tags %}
             <span class="tag badge badge-inverse">{{ tag }}</span>
         {% endfor %}
         </li>
-        <li class="nav-header">Similar</li>
+        <li class="nav-header">Lastfm Similar</li>
         <li>
         {% for similar in lastfm_artist.similar %}
             <span class="badge badge-inverse">
