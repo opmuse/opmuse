@@ -545,7 +545,7 @@ class Library(object):
 
         for query in artist.name.split(' '):
             if len(re.sub("[^a-zA-Z0-9]+", '', query)) > 4:
-                for artist_result in search.query_artist(query).all():
+                for artist_result in search.query_artist(query):
                     if artist != artist_result:
                         namesakes.add(artist_result)
                         if len(namesakes) >= 5:
@@ -619,7 +619,7 @@ class Root(object):
     @cherrypy.tools.jinja(filename='search.html')
     def search(self, query, type = None):
 
-        artists = search.query_artist(query).all()
+        artists = search.query_artist(query)
         albums = None
         tracks = None
 
@@ -629,10 +629,10 @@ class Root(object):
             tracks = []
 
         if albums is None:
-            albums = search.query_album(query).all()
+            albums = search.query_album(query)
 
         if tracks is None:
-            tracks = search.query_track(query).all()
+            tracks = search.query_track(query)
 
         if len(artists) + len(albums) + len(tracks) == 1:
             for artist in artists:
@@ -642,7 +642,7 @@ class Root(object):
             for track in tracks:
                 raise HTTPRedirect('/library/track/%s' % track.slug)
 
-        results = {}
+        results = OrderedDict({})
 
         for artist in artists:
             results[artist.id] = {

@@ -4,7 +4,7 @@ from cherrypy.process.plugins import Monitor
 import whoosh.index
 import whoosh.fields
 from whoosh.writing import BufferedWriter
-from whoosh.analysis import StemmingAnalyzer
+from whoosh.analysis import SimpleAnalyzer
 from whoosh.qparser import MultifieldParser
 import opmuse.library
 
@@ -73,25 +73,35 @@ class Search:
         write_handler.update_document(str(artist.id), name = artist.name)
 
     def query_track(self, query):
-        keys = self._query("Track", query)
-        return self._fetch_by_keys(opmuse.library.Track, keys)
+        results = self._query("Track", query)
+        return self._fetch_by_keys(opmuse.library.Track, results)
 
     def query_album(self, query):
-        keys = self._query("Album", query)
-        return self._fetch_by_keys(opmuse.library.Album, keys)
+        results = self._query("Album", query)
+        return self._fetch_by_keys(opmuse.library.Album, results)
 
     def query_artist(self, query):
-        keys = self._query("Artist", query)
-        return self._fetch_by_keys(opmuse.library.Artist, keys)
+        results = self._query("Artist", query)
+        return self._fetch_by_keys(opmuse.library.Artist, results)
 
-    def _fetch_by_keys(self, entity, keys):
-        return cherrypy.request.database.query(entity).filter(entity.id.in_(keys))
+    def _fetch_by_keys(self, entity, results):
+        ids = [result[0] for result in results]
+        entities = cherrypy.request.database.query(entity).filter(entity.id.in_(ids)).all()
+        return self._sort_by_score(entities, results)
+
+    def _sort_by_score(self, entities, results):
+        indexed_results = {}
+
+        for id, score in results:
+            indexed_results[id] = score
+
+        return sorted(entities, key=lambda entity: indexed_results[entity.id])
 
     def _query(self, index_name, query):
         write_handler = write_handlers[index_name]
         parser = MultifieldParser(list(write_handler.index.schema._fields.keys()), write_handler.index.schema)
         results = write_handler.index.searcher().search(parser.parse(query))
-        return set([x['id'] for x in results])
+        return set([(int(result['id']), result.score) for result in results])
 
 
 class WhooshPlugin(Monitor):
@@ -126,7 +136,7 @@ class WhooshPlugin(Monitor):
 
                 schema = whoosh.fields.Schema(
                     id = whoosh.fields.ID(stored=True, unique=True),
-                    name = whoosh.fields.TEXT(analyzer=StemmingAnalyzer())
+                    name = whoosh.fields.TEXT(analyzer=SimpleAnalyzer())
                 )
 
                 index = whoosh.index.create_in(index_path, schema)
