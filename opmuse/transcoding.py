@@ -141,15 +141,10 @@ class FFMPEGTranscoder(Transcoder):
 
         events = poll.poll()
 
-        bitrate = self.bitrate()
         lowest_bitrate = self.lowest_bitrate()
         initial_bitrate = self.initial_bitrate()
 
-        use_ffmpeg_bitrate = False
-
-        if bitrate is None:
-            bitrate = initial_bitrate
-            use_ffmpeg_bitrate = True
+        bitrate = initial_bitrate
 
         while pollc > 0 and len(events) > 0:
             info = data = None
@@ -182,7 +177,7 @@ class FFMPEGTranscoder(Transcoder):
 
             yield data, bitrate
 
-            if use_ffmpeg_bitrate and info is not None:
+            if info is not None:
                 bitrate = int(float(info['bitrate'].decode()) * 1024 / 8)
 
                 if lowest_bitrate is not None and bitrate < lowest_bitrate:
@@ -256,25 +251,15 @@ class FFMPEGTranscoder(Transcoder):
 
     def lowest_bitrate(self):
         """
-        Implement this to ignore bitrates lower than this and use the
-        initial_bitrate instead. This is only useful when bitrate() returns None.
+        Implement this to ignore bitrates lower than this and use the initial_bitrate instead.
         """
         return None
 
     def initial_bitrate(self):
         """
-        If bitrate() isn't implemented this needs to be implemented for an
         initial bitrate to use before we get one from ffmpeg.
         """
         raise NotImplementedError()
-
-    def bitrate(self):
-        """
-        Should return the approximate bitrate this transcoder produces, so we
-        can approximately pace the transcoding properly. If this isn't specified
-        we use whatever ffmpeg tells us.
-        """
-        return None
 
 
 class CopyFFMPEGTranscoder(FFMPEGTranscoder):
@@ -284,16 +269,18 @@ class CopyFFMPEGTranscoder(FFMPEGTranscoder):
     def outputs():
         return None
 
-    def initial_bitrate(self):
-        # used when track has no bitrate
-        return int(192000 / 8)
+    def lowest_bitrate(self):
+        if self.track.bitrate is not None and self.track.bitrate != 0:
+            return int((self.track.bitrate * .8) / 8)
 
-    def bitrate(self):
+    def initial_bitrate(self):
         if self.track.bitrate is not None and self.track.bitrate != 0:
             return int(self.track.bitrate / 8)
         else:
-            # just use the one ffmpeg outputs
-            return None
+            # this value is veeery arbitrary because we don't know the format
+            # audio quality or nothing... but on the other hand all tracks should
+            # have a bitrate
+            return int(192000 / 8)
 
 
 class Mp3FFMPEGTranscoder(FFMPEGTranscoder):
