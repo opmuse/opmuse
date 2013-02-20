@@ -24,7 +24,9 @@
         {% endif %}
         <li class="nav-header">Lastfm Stats</li>
         <li>
-            {{ lastfm_artist.listeners|format_number }} Listeners
+            {% if lastfm_artist.listeners %}
+                {{ lastfm_artist.listeners|format_number }} Listeners
+            {% endif %}
         </li>
         <li class="nav-header">Lastfm Genres</li>
         <li>
