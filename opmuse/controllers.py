@@ -513,6 +513,8 @@ class Library(object):
                         artists.append(artist_results[0])
 
             page = None
+        else:
+            artists = library_dao.get_invalid_artists(page_size, offset)
 
         return {'artists': artists, 'page': page, 'view': view}
 

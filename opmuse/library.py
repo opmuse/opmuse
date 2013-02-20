@@ -1332,6 +1332,17 @@ class LibraryDao:
 
         return entities
 
+    def get_invalid_artists(self, limit, offset):
+        return (cherrypy.request.database
+                .query(Artist)
+                .join(Track, Artist.id == Track.artist_id)
+                .group_by(Artist.id)
+                .filter("invalid is not null")
+                .order_by(func.max(Track.added).desc())
+                .limit(limit)
+                .offset(offset)
+                .all())
+
     def get_invalid_albums(self, limit, offset):
         return (cherrypy.request.database
                 .query(Album)
