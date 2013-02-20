@@ -495,6 +495,9 @@ class Library(object):
 
         if view == "new":
             artists = library_dao.get_artists(page_size, offset)
+        elif view == "random":
+            artists = library_dao.get_random_artists(page_size)
+            page = None
         elif view == "yours":
             artists = []
 

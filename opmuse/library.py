@@ -1306,25 +1306,31 @@ class LibraryDao:
 
         return artist, album
 
+    def get_random_artists(self, limit):
+        return self._get_random_entity(Artist, limit)
+
     def get_random_albums(self, limit):
-        max_id = cherrypy.request.database.query(func.max(Album.id)).one()[0]
+        return self._get_random_entity(Album, limit)
+
+    def _get_random_entity(self, Entity, limit):
+        max_id = cherrypy.request.database.query(func.max(Entity.id)).one()[0]
 
         ids = []
 
         for i in range(0, limit * 10):
             ids.append(random.randrange(1, max_id))
 
-        albums = (cherrypy.request.database
-                .query(Album)
-                .filter(Album.id.in_(ids))
+        entities = (cherrypy.request.database
+                .query(Entity)
+                .filter(Entity.id.in_(ids))
                 .order_by(func.rand())
                 .limit(limit)
                 .all())
 
-        if len(albums) < limit:
-            albums += self.get_random_albums(limit - len(albums))
+        if len(entities) < limit:
+            entities += self.get_random_entity(Entity, limit - len(entities))
 
-        return albums
+        return entities
 
     def get_invalid_albums(self, limit, offset):
         return (cherrypy.request.database

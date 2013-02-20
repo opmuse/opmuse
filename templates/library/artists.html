@@ -4,6 +4,8 @@
     Library - Artists
     {% if view == "new" %}
         New
+    {% elif view == "random" %}
+        Random
     {% elif view == "yours" %}
         Yours
     {% endif %}
@@ -16,6 +18,9 @@
     <ul class="artists-nav nav nav-pills">
         <li class="{{ "active" if request.path_info == "/library/artists/new" }}">
             <a href="/library/artists/new">New</a>
+        </li>
+        <li class="{{ "active" if request.path_info == "/library/artists/random" }}">
+            <a href="/library/artists/random">Random</a>
         </li>
         <li class="{{ "active" if request.path_info == "/library/artists/yours" }}">
             <a href="/library/artists/yours">Yours</a>
