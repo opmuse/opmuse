@@ -220,7 +220,6 @@ class Lastfm:
                     index += sub_index
                     sub_index = 0
 
-
                 playcount = None
 
                 try:

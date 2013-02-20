@@ -115,8 +115,8 @@ class QueueDao:
 
         try:
             current_queue = (database.query(Queue)
-                     .filter_by(user_id=user_id, current=True)
-                     .order_by(Queue.weight).one())
+                             .filter_by(user_id=user_id, current=True)
+                             .order_by(Queue.weight).one())
 
             if current_queue.current_seconds is not None:
                 next_queue = current_queue

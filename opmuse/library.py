@@ -1321,11 +1321,11 @@ class LibraryDao:
             ids.append(random.randrange(1, max_id))
 
         entities = (cherrypy.request.database
-                .query(Entity)
-                .filter(Entity.id.in_(ids))
-                .order_by(func.rand())
-                .limit(limit)
-                .all())
+                    .query(Entity)
+                    .filter(Entity.id.in_(ids))
+                    .order_by(func.rand())
+                    .limit(limit)
+                    .all())
 
         if len(entities) < limit:
             entities += self.get_random_entity(Entity, limit - len(entities))
