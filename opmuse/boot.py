@@ -17,7 +17,7 @@ from opmuse.jinja import Jinja, JinjaGlobalsTool, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
-import opmuse.lastfm
+from opmuse.lastfm import LastfmMonitor
 
 tempfile.tempdir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'cache', 'upload'
@@ -192,6 +192,8 @@ def configure():
         ssl_server.subscribe()
 
     WebSocketPlugin(cherrypy.engine).subscribe()
+
+    LastfmMonitor(cherrypy.engine).subscribe()
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
     cherrypy.engine.database.subscribe()

@@ -1,7 +1,12 @@
 {% extends "body.html" %}
 
 {% block title  %}
-    Library - Artists - New
+    Library - Artists
+    {% if view == "new" %}
+        New
+    {% elif view == "yours" %}
+        Yours
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -11,6 +16,9 @@
     <ul class="artists-nav nav nav-pills">
         <li class="{{ "active" if request.path_info == "/library/artists/new" }}">
             <a href="/library/artists/new">New</a>
+        </li>
+        <li class="{{ "active" if request.path_info == "/library/artists/yours" }}">
+            <a href="/library/artists/yours">Yours</a>
         </li>
     </ul>
 
@@ -22,13 +30,15 @@
     {% endfor %}
     </ul>
 
-    <div class="pagination pagination-centered">
-        <ul>
-            {% if page > 1 %}
-            <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Previous</a></li>
-            {% endif %}
-            <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
-        </ul>
-    </div>
+    {% if page %}
+        <div class="pagination pagination-centered">
+            <ul>
+                {% if page > 1 %}
+                <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Previous</a></li>
+                {% endif %}
+                <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
+            </ul>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

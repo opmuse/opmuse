@@ -3,11 +3,13 @@ import cherrypy
 import calendar
 import datetime
 import math
+from cherrypy.process.plugins import Monitor
 from functools import lru_cache
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError, MalformedResponseError
 from pylast import PERIOD_OVERALL
 from opmuse.security import User
+from opmuse.database import get_session
 
 User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
@@ -128,9 +130,9 @@ class Lastfm:
             datetime.datetime.utcnow().utctimetuple()
         )
 
-    @lru_cache(maxsize=None)
-    def get_user(self, user_name):
-        session_key = cherrypy.request.user.lastfm_session_key
+    def get_user(self, user_name, session_key = None):
+        if session_key is None:
+            session_key = cherrypy.request.user.lastfm_session_key
 
         try:
             network = self.get_network(session_key)
@@ -153,7 +155,9 @@ class Lastfm:
 
             return {
                 'recent_tracks': recent_tracks,
-                'url': user.get_url()
+                'url': user.get_url(),
+                'top_artists_overall': self.get_top_artists_overall(user_name, 1, 500, session_key),
+                'top_albums_overall': self.get_top_albums_overall(user_name, 1, 500, session_key)
             }
 
         except NetworkError:
@@ -161,9 +165,43 @@ class Lastfm:
                 user_name
             ))
 
-    @lru_cache(maxsize=None)
-    def get_top_artists_overall(self, user_name, page = 1, limit = 50):
-        session_key = cherrypy.request.user.lastfm_session_key
+    def get_top_albums_overall(self, user_name, page = 1, limit = 50, session_key = None):
+        if session_key is None:
+            session_key = cherrypy.request.user.lastfm_session_key
+
+        try:
+            network = self.get_network(session_key)
+            user = network.get_user(user_name)
+
+            top_albums_overall = []
+
+            index = (page - 1) * limit
+            sub_index = 0
+            last_weight = None
+
+            for album in self._param_call(user, 'get_top_albums', {'limit': limit, 'page': page}, [PERIOD_OVERALL]):
+                sub_index += 1
+
+                if last_weight is None or album.weight != last_weight:
+                    index += sub_index
+                    sub_index = 0
+
+                top_albums_overall.append({
+                    'name': album.item.get_name(),
+                    'playcount': album.item.get_playcount(),
+                    'weight': int(album.weight),
+                    'index': index
+                })
+
+                last_weight = album.weight
+
+            return top_albums_overall
+        except NetworkError:
+            log('Network error, failed to get %s.' % user_name)
+
+    def get_top_artists_overall(self, user_name, page = 1, limit = 50, session_key = None):
+        if session_key is None:
+            session_key = cherrypy.request.user.lastfm_session_key
 
         try:
             network = self.get_network(session_key)
@@ -182,9 +220,18 @@ class Lastfm:
                     index += sub_index
                     sub_index = 0
 
+
+                playcount = None
+
+                try:
+                    playcount = artist.item.get_playcount()
+                except MalformedResponseError:
+                    # this seems to occur on some items :/
+                    pass
+
                 top_artists_overall.append({
                     'name': artist.item.get_name(),
-                    'playcount': artist.item.get_playcount(),
+                    'playcount': playcount,
                     'weight': int(artist.weight),
                     'index': index
                 })
@@ -193,10 +240,7 @@ class Lastfm:
 
             return top_artists_overall
         except NetworkError:
-            log('Network error, failed to get album "%s - %s".' % (
-                artist_name,
-                album_name
-            ))
+            log('Network error, failed to get %s.' % user_name)
 
     def _param_call(self, object, method, params, args):
         """
@@ -287,4 +331,51 @@ class SessionKey:
 
         return key
 
+
+class Users:
+    AGE = 3600 * 2
+
+    def __init__(self):
+        self._data = {}
+
+    def needs_update(self, user):
+        if user.id in self._data:
+            data = self._data[user.id]
+
+            if (datetime.datetime.now() - data['time']).seconds > Users.AGE:
+                return True
+            else:
+                return False
+        else:
+            return True
+
+    def get(self, user):
+        if user.id in self._data:
+            return self._data[user.id]['lastfm_user']
+        else:
+            return None
+
+    def set(self, user, lastfm_user):
+        self._data[user.id] = {
+            'time': datetime.datetime.now(),
+            'lastfm_user': lastfm_user
+        }
+
+
+class LastfmMonitor(Monitor):
+    FREQUENCY = 120
+
+    def __init__(self, bus, *args, **kwargs):
+        Monitor.__init__(self, bus, self.run, LastfmMonitor.FREQUENCY, *args, **kwargs)
+
+    def run(self):
+        session = get_session()
+
+        for user in session.query(User).all():
+            if user.lastfm_user is not None and lastfm_users.needs_update(user):
+                lastfm_user = lastfm.get_user(user.lastfm_user, user.lastfm_session_key)
+                lastfm_users.set(user, lastfm_user)
+                log("Updated user %s." % user.login)
+
+lastfm_users = Users()
 lastfm = Lastfm()

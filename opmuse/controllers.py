@@ -18,7 +18,7 @@ from collections import OrderedDict
 from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
-from opmuse.lastfm import SessionKey, lastfm
+from opmuse.lastfm import SessionKey, lastfm, lastfm_users
 from opmuse.library import Artist, Album, Track, TrackPath, library_dao, LibraryProcess
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
@@ -316,7 +316,7 @@ class Users:
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='users/user.html')
-    def user(self, login, page = 1):
+    def user(self, login):
         try:
             user = (cherrypy.request.database.query(User)
                     .filter_by(login=login)
@@ -324,20 +324,11 @@ class Users:
         except NoResultFound:
             raise cherrypy.NotFound()
 
-        page = int(page)
-
-        if user.lastfm_user is not None:
-            lastfm_user = lastfm.get_user(user.lastfm_user)
-            top_artists_overall = lastfm.get_top_artists_overall(user.lastfm_user, page)
-        else:
-            lastfm_user = None
-            top_artists_overall = None
+        lastfm_user = lastfm_users.get(user)
 
         return {
             'user': user,
-            'page': page,
-            'lastfm_user': lastfm_user,
-            'top_artists_overall': top_artists_overall
+            'lastfm_user': lastfm_user
         }
 
 
@@ -502,7 +493,23 @@ class Library(object):
 
         offset = page_size * (page - 1)
 
-        artists = library_dao.get_artists(page_size, offset)
+        if view == "new":
+            artists = library_dao.get_artists(page_size, offset)
+        elif view == "yours":
+            artists = []
+
+            lastfm_user = lastfm_users.get(cherrypy.request.user)
+
+            if lastfm_user is not None:
+                index = 0
+
+                for artist in lastfm_user['top_artists_overall']:
+                    artist_results = search.query_artist(artist['name'])
+
+                    if len(artist_results) > 0:
+                        artists.append(artist_results[0])
+
+            page = None
 
         return {'artists': artists, 'page': page, 'view': view}
 
@@ -524,6 +531,21 @@ class Library(object):
             albums = library_dao.get_new_albums(page_size, offset)
         elif view == "random":
             albums = library_dao.get_random_albums(page_size)
+            page = None
+        elif view == "yours":
+            albums = []
+
+            lastfm_user = lastfm_users.get(cherrypy.request.user)
+
+            if lastfm_user is not None:
+                index = 0
+
+                for album in lastfm_user['top_albums_overall']:
+                    album_results = search.query_album(album['name'])
+
+                    if len(album_results) > 0:
+                        albums.append(album_results[0])
+
             page = None
         else:
             albums = library_dao.get_invalid_albums(page_size, offset)

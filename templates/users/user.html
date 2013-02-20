@@ -35,12 +35,12 @@
 
     <ul class="row-fluid">
         <li class="span5">
-            {% if top_artists_overall %}
+            {% if lastfm_user.top_artists_overall %}
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th colspan="3">Lastfm Top Artists</th>
                     </tr>
-                    {% for artist in top_artists_overall %}
+                    {% for artist in lastfm_user.top_artists_overall %}
                     <tr>
                         <td>{{ artist.index }}</td>
                         <td><a href="/search/{{ artist.name }}/artist">{{ artist.name }}</a></td>
@@ -48,14 +48,6 @@
                     </tr>
                     {% endfor %}
                 </table>
-                <div class="pagination pagination-centered">
-                    <ul>
-                        {% if page > 1 %}
-                        <li><a href="/users/user/{{ user.login }}?page={{ page - 1 }}">Prev</a></li>
-                        {% endif %}
-                        <li><a href="/users/user/{{ user.login }}?page={{ page + 1 }}">Next</a></li>
-                    </ul>
-                </div>
             {% endif %}
         </li>
         <li class="span6">
