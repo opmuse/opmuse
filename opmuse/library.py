@@ -8,6 +8,7 @@ import datetime
 import math
 import shutil
 import time
+import random
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
@@ -1306,11 +1307,24 @@ class LibraryDao:
         return artist, album
 
     def get_random_albums(self, limit):
-        return (cherrypy.request.database
+        max_id = cherrypy.request.database.query(func.max(Album.id)).one()[0]
+
+        ids = []
+
+        for i in range(0, limit * 10):
+            ids.append(random.randrange(1, max_id))
+
+        albums = (cherrypy.request.database
                 .query(Album)
+                .filter(Album.id.in_(ids))
                 .order_by(func.rand())
                 .limit(limit)
                 .all())
+
+        if len(albums) < limit:
+            albums += self.get_random_albums(limit - len(albums))
+
+        return albums
 
     def get_invalid_albums(self, limit, offset):
         return (cherrypy.request.database
