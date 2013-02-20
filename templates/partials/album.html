@@ -45,12 +45,16 @@
                 {%- endfor -%}">
             <i class="icon-headphones"></i>
         </a>
-        <a href="/{{ album.artists[0].slug|urlencode if not artist else artist.slug|urlencode }}/{{ album.slug|urlencode }}">
+        {% set album_url = (album.artists[0].slug|urlencode if not artist else artist.slug|urlencode) +
+                            "/" + album.slug|urlencode %}
+        <a href="/{{ album_url }}">
             {% include "partials/album-cover.html" %}
         </a>
         <div class="album-desc">
             <h3 class="album-name">
-                {{ album.name }}
+                <a href="/{{ album_url }}">
+                    {{ album.name }}
+                </a>
             </h3>
             <p title="{{ album_desc(album, false)|e }}">
                 {{ album_desc(album, true) }}
