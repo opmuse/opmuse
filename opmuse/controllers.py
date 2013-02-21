@@ -740,6 +740,9 @@ class Root(object):
 
             lastfm_user = cherrypy.request.lastfm_users.get(user)
 
+            if lastfm_user is None:
+                continue
+
             for recent_track in lastfm_user['recent_tracks']:
                 artist_names.add(recent_track['artist'])
 
