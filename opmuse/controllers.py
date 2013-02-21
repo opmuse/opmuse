@@ -8,6 +8,7 @@ import rarfile
 import mimetypes
 import base64
 import mmh3
+import random
 from urllib.request import urlretrieve
 from urllib.parse import unquote
 from zipfile import ZipFile
@@ -728,12 +729,35 @@ class Root(object):
     @cherrypy.tools.jinja(filename='index_auth.html')
     def index_auth(self):
 
+        artist_names = set()
+
         users = (cherrypy.request.database.query(User)
                  .order_by(User.login).limit(8).all())
 
-        albums = library_dao.get_random_albums(16)
+        for user in users:
+            if user.lastfm_user is None:
+                continue
 
-        return {'users': users, 'albums': albums}
+            lastfm_user = cherrypy.request.lastfm_users.get(user)
+
+            for recent_track in lastfm_user['recent_tracks']:
+                artist_names.add(recent_track['artist'])
+
+        artist_names = list(artist_names)
+
+        random.shuffle(artist_names)
+
+        artist_names = artist_names[:16]
+
+        artists = []
+
+        for artist_name in artist_names:
+            results = search.query_artist(artist_name)
+
+            if len(results) > 0:
+                artists.append(results[0])
+
+        return {'users': users, 'artists': artists}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
