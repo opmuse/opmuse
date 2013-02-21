@@ -765,7 +765,6 @@ class Root(object):
                 if index >= 16:
                     break
 
-
         return {'users': users, 'artists': artists}
 
     @cherrypy.expose
