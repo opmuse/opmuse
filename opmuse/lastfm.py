@@ -186,9 +186,17 @@ class Lastfm:
                     index += sub_index
                     sub_index = 0
 
+                playcount = None
+
+                try:
+                    playcount = album.item.get_playcount()
+                except MalformedResponseError:
+                    # this seems to occur on some items :/
+                    pass
+
                 top_albums_overall.append({
                     'name': album.item.get_name(),
-                    'playcount': album.item.get_playcount(),
+                    'playcount': playcount,
                     'weight': int(album.weight),
                     'index': index
                 })
