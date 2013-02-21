@@ -750,15 +750,21 @@ class Root(object):
 
         random.shuffle(artist_names)
 
-        artist_names = artist_names[:16]
-
         artists = []
+
+        index = 0
 
         for artist_name in artist_names:
             results = search.query_artist(artist_name)
 
             if len(results) > 0:
                 artists.append(results[0])
+
+                index += 1
+
+                if index >= 16:
+                    break
+
 
         return {'users': users, 'artists': artists}
 
