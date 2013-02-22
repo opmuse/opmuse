@@ -18,7 +18,7 @@ from collections import OrderedDict
 from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
-from opmuse.lastfm import SessionKey, lastfm, lastfm_users
+from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import Artist, Album, Track, TrackPath, library_dao, LibraryProcess
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
@@ -324,7 +324,7 @@ class Users:
         except NoResultFound:
             raise cherrypy.NotFound()
 
-        lastfm_user = lastfm_users.get(user)
+        lastfm_user = cherrypy.request.lastfm_users.get(user)
 
         return {
             'user': user,
@@ -501,7 +501,7 @@ class Library(object):
         elif view == "yours":
             artists = []
 
-            lastfm_user = lastfm_users.get(cherrypy.request.user)
+            lastfm_user = cherrypy.request.lastfm_users.get(cherrypy.request.user)
 
             if lastfm_user is not None:
                 index = 0
@@ -540,7 +540,7 @@ class Library(object):
         elif view == "yours":
             albums = []
 
-            lastfm_user = lastfm_users.get(cherrypy.request.user)
+            lastfm_user = cherrypy.request.lastfm_users.get(cherrypy.request.user)
 
             if lastfm_user is not None:
                 index = 0

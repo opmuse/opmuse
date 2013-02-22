@@ -10,6 +10,7 @@ from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkErro
 from pylast import PERIOD_OVERALL
 from opmuse.security import User
 from opmuse.database import get_session
+from opmuse.cache import Cache
 
 User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
@@ -341,32 +342,19 @@ class SessionKey:
 
 class Users:
     AGE = 3600 * 2
+    KEY_FORMAT = "lastfm_user_%d"
 
-    def __init__(self):
-        self._data = {}
+    def __init__(self, session):
+        self._cache = Cache(session)
 
     def needs_update(self, user):
-        if user.id in self._data:
-            data = self._data[user.id]
-
-            if (datetime.datetime.now() - data['time']).seconds > Users.AGE:
-                return True
-            else:
-                return False
-        else:
-            return True
+        return self._cache.needs_update(Users.KEY_FORMAT % user.id, Users.AGE)
 
     def get(self, user):
-        if user.id in self._data:
-            return self._data[user.id]['lastfm_user']
-        else:
-            return None
+        return self._cache.get(Users.KEY_FORMAT % user.id)
 
     def set(self, user, lastfm_user):
-        self._data[user.id] = {
-            'time': datetime.datetime.now(),
-            'lastfm_user': lastfm_user
-        }
+        self._cache.set(Users.KEY_FORMAT % user.id, lastfm_user)
 
 
 class LastfmMonitor(Monitor):
@@ -378,11 +366,21 @@ class LastfmMonitor(Monitor):
     def run(self):
         session = get_session()
 
-        for user in session.query(User).all():
-            if user.lastfm_user is not None and lastfm_users.needs_update(user):
+        users = Users(session)
+
+        for user in session.query(User).filter("lastfm_user is not null").all():
+            if users.needs_update(user):
                 lastfm_user = lastfm.get_user(user.lastfm_user, user.lastfm_session_key)
-                lastfm_users.set(user, lastfm_user)
+                users.set(user, lastfm_user)
                 log("Updated user %s." % user.login)
 
-lastfm_users = Users()
+
+class LastfmTool(cherrypy.Tool):
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'on_start_resource',
+                               self.bind_session, priority=20)
+
+    def bind_session(self):
+        cherrypy.request.lastfm_users = Users(cherrypy.request.database)
+
 lastfm = Lastfm()
