@@ -197,26 +197,39 @@ class QueueDao:
         cherrypy.request.database.commit()
         ws.emit('queue.update')
 
-    def add_track(self, id):
-        track = cherrypy.request.database.query(Track).filter_by(id=id).one()
-
+    def add_tracks(self, ids):
         user_id = cherrypy.request.user.id
         user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
 
-        weight = self.get_new_pos(user_id)
+        for id in ids:
+            if id == "":
+                continue
 
-        queue = Queue(weight)
-        queue.track = track
-        queue.user = user
+            track = cherrypy.request.database.query(Track).filter_by(id=id).one()
 
-        cherrypy.request.database.add(queue)
+            weight = self.get_new_pos(user_id)
+
+            queue = Queue(weight)
+            queue.track = track
+            queue.user = user
+
+            cherrypy.request.database.add(queue)
+
         cherrypy.request.database.commit()
+
         ws.emit('queue.update')
 
-    def remove_track(self, id):
+    def remove_tracks(self, ids):
         user_id = cherrypy.request.user.id
-        cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = id).delete()
+
+        for id in ids:
+            if id == "":
+                continue
+
+            cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = id).delete()
+
         cherrypy.request.database.commit()
+
         ws.emit('queue.update')
 
     def get_new_pos(self, user_id):

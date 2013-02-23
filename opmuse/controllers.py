@@ -345,18 +345,12 @@ class Queue:
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def add(self, ids):
-        for id in ids.split(','):
-            if id == "":
-                continue
-            queue_dao.add_track(id)
+        queue_dao.add_tracks(ids.split(','))
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     def remove(self, ids):
-        for id in ids.split(','):
-            if id == "":
-                continue
-            queue_dao.remove_track(id)
+        queue_dao.remove_tracks(ids.split(','))
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
