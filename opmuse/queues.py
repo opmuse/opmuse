@@ -61,6 +61,10 @@ class QueueEvents:
         cherrypy.request.queue_progress = progress
 
     def transcoding_start(self, track):
+        if hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None:
+            queue_current = cherrypy.request.queue_current
+            queue_dao.update_queue(queue_current.id, current_seconds = None)
+
         track = self.serialize_track(track)
 
         ws_user = ws.get_ws_user()
@@ -72,7 +76,7 @@ class QueueEvents:
         if hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None:
             queue_current = cherrypy.request.queue_current
 
-            queue_dao.update_queue(queue_current.id, current_seconds = None, played = True)
+            queue_dao.update_queue(queue_current.id, played = True)
 
             # this is to avoid transcoding_end from firing
             cherrypy.request.queue_current = None
@@ -84,12 +88,12 @@ class QueueEvents:
     def transcoding_end(self, track):
         if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
             hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None):
-            queue_current = cherrypy.request.queue_current
-            progress = cherrypy.request.queue_progress
+            queue_current = queue_dao.get_queue(cherrypy.request.queue_current.id)
 
-            current_seconds = math.floor(progress['seconds'] - progress['seconds_ahead'])
-
-            queue_dao.update_queue(queue_current.id, current_seconds = current_seconds)
+            if queue_current.current:
+                progress = cherrypy.request.queue_progress
+                current_seconds = math.floor(progress['seconds'] - progress['seconds_ahead'])
+                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds)
 
     def serialize_track(self, track):
         return {
@@ -105,6 +109,9 @@ class QueueEvents:
 
 
 class QueueDao:
+    def get_queue(self, id):
+        return cherrypy.request.database.query(Queue).filter_by(id=id).one()
+
     def update_queue(self, id, **kwargs):
         cherrypy.request.database.query(Queue).filter_by(id=id).update(kwargs)
         cherrypy.request.database.commit()
