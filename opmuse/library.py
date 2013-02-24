@@ -22,6 +22,7 @@ from threading import Thread
 from opmuse.database import Base, get_session, get_type
 from opmuse.image import image
 from opmuse.search import search
+from unidecode import unidecode
 import mutagen.mp3
 import mutagen.oggvorbis
 import mutagen.easymp4
@@ -1070,12 +1071,9 @@ class LibraryProcess:
             index += 1
             return LibraryProcess.slugify(string, index)
 
-        string = (string
-                  .replace('&', 'and')
-                  .replace('å', 'a')
-                  .replace('ä', 'a')
-                  .replace('ö', 'o')
-                  .replace('ü', 'u'))
+        string = unidecode(string)
+
+        string = string.lower()
 
         string = re.sub(r'[^A-Za-z0-9_\'"()-]+', '_', string)
 
