@@ -163,6 +163,8 @@
                 {% for track in tracks %}
                     {% if track.invalid %}
                     <tr class="error">
+                    {% else %}
+                    <tr>
                     {% endif %}
                         <td class="indent">&nbsp;</td>
                         {% if disc %}
@@ -190,6 +192,12 @@
                                     <i class="icon-headphones"></i>
                                 </a>
                             </span>
+                            {% if track.low_quality %}
+                                <span class="badge badge-warning"
+                                    title="Track is of low quality, consider replacing it.">
+                                    <i class="icon-thumbs-down"></i>
+                                </span>
+                            {% endif %}
                             <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
                         </td>
                         <td>{{ track.duration|format_seconds }}</td>

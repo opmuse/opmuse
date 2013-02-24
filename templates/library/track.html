@@ -73,6 +73,12 @@
                 {% else %}
                     Unknown
                 {% endif %}
+                {% if track.low_quality %}
+                    <span class="badge badge-warning"
+                        title="Track is of low quality, consider replacing it.">
+                        <i class="icon-thumbs-down"></i>
+                    </span>
+                {% endif %}
             </td>
         </tr>
         <tr>

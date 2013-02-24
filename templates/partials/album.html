@@ -29,6 +29,12 @@
             <p class="album-track-count badge badge-inverse">{{ album.added|pretty_date }}</p>
         </div>
         <div class="album-badges bottom">
+            {% if album.low_quality %}
+                <p class="album-low-quality badge badge-warning"
+                    title="Album has tracks of low quality, consider replacing them.">
+                    <i class="icon-thumbs-down"></i>
+                </p>
+            {% endif %}
             {% if album.invalid %}
             <p class="album-invalid badge badge-important" title="This album containts invalid tracks.">
                 <i class="icon-warning-sign"></i>

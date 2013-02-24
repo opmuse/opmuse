@@ -82,6 +82,13 @@ class Album(Base):
         return len(self.artists) > 1
 
     @hybrid_property
+    def low_quality(self):
+        if len(self.tracks) == 0:
+            return False
+
+        return sum(int(track.low_quality) for track in self.tracks) > 0
+
+    @hybrid_property
     def invalid(self):
         if len(self.tracks) == 0:
             return None
@@ -180,6 +187,18 @@ class Track(Base):
 
     def __init__(self, hash):
         self.hash = hash
+
+    @hybrid_property
+    def low_quality(self):
+        if self.bitrate is not None:
+            if self.format == "audio/mp3":
+                # lame v3
+                return self.bitrate < 175000
+            if self.format == "audio/ogg":
+                # vorbis aq 4
+                return self.bitrate < 128000
+
+        return False
 
     def __str__(self):
         return "%s - %s - %s" % (self.artist.name, self.album.name, self.name)
