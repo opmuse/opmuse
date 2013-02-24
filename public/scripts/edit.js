@@ -64,12 +64,21 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
 
                         var selector = "#edit input." + type + ":not(.lock)";
 
-                        $($(selector).attr("readonly", "readonly").get(0)).removeAttr("readonly")
-                            .bind('keyup, blur',
-                                function (event) {
-                                    $(selector).val($(this).val());
-                                }
-                            ).blur();
+                        if ($(this).hasClass('locked')) {
+                            $(selector)
+                                .removeAttr("readonly")
+                                .unbind('keyup.lock, blur.lock');
+
+                            $(this).removeClass('locked');
+                        } else {
+                            $($(selector).attr("readonly", "readonly").get(0)).removeAttr("readonly")
+                                .bind('keyup.lock, blur.lock',
+                                    function (event) {
+                                        $(selector).val($(this).val());
+                                    }
+                                ).blur();
+                            $(this).addClass('locked');
+                        }
 
                         return false;
                     }
