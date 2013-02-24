@@ -196,11 +196,11 @@ class Track(Base):
     def low_quality(self):
         if self.bitrate is not None:
             if self.format == "audio/mp3":
-                # lame v3
-                return self.bitrate < 175000
+                # lame v4
+                return self.bitrate < 165000
             if self.format == "audio/ogg":
-                # vorbis aq 4
-                return self.bitrate < 128000
+                # vorbis aq 3
+                return self.bitrate < 110000
 
         return False
 
