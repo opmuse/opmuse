@@ -62,7 +62,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                             type = 'disc';
                         }
 
-                        var selector = "#edit ." + type + ":not(.lock)";
+                        var selector = "#edit input." + type + ":not(.lock)";
 
                         $($(selector).attr("readonly", "readonly").get(0)).removeAttr("readonly")
                             .bind('keyup, blur',
