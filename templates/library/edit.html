@@ -12,27 +12,27 @@
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th>
+                    <th class="artist">
                         Artist
-                        <a href="#" class="btn-small btn lock artist">Lock</a>
+                        <a href="#" class="btn-mini btn lock artist">Lock</a>
                     </th>
-                    <th>
+                    <th class="album">
                         Album
-                        <a href="#" class="btn-small btn lock album">Lock</a>
+                        <a href="#" class="btn-mini btn lock album">Lock</a>
                     </th>
-                    <th>
+                    <th class="track">
                         Name
                     </th>
-                    <th>
-                        Date (year)
-                        <a href="#" class="btn-small btn lock date">Lock</a>
+                    <th class="date">
+                        Date
+                        <a href="#" class="btn-mini btn lock date">Lock</a>
                     </th>
-                    <th>
+                    <th class="number">
                         Number
                     </th>
-                    <th>
+                    <th class="disc">
                         Disc
-                        <a href="#" class="btn-small btn lock disc">Lock</a>
+                        <a href="#" class="btn-mini btn lock disc">Lock</a>
                     </th>
                 </tr>
             </thead>
@@ -40,7 +40,7 @@
             {% for track in tracks %}
                 <tr class="track-info">
                     <td colspan="6">
-                        <span class="title">Affected Files:</span>
+                        <span class="title">Files:</span>
                         {% for path in track.paths %}
                         {{ path.pretty_path }}
                         {% endfor %}
