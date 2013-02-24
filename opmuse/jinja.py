@@ -14,6 +14,7 @@ from opmuse.queues import queue_dao
 
 VISIBLE_WS = "\u2423"
 
+
 def rand_id():
     return str(random.randrange(1, 99999))
 
