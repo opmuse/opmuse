@@ -46,7 +46,7 @@
         <li>
         {% for artist in namesakes %}
             <span class="badge badge-inverse">
-                <a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a>
+                <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a>
             </span>
         {% endfor %}
         </li>

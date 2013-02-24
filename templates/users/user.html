@@ -43,7 +43,7 @@
                     {% for artist in lastfm_user.top_artists_overall %}
                     <tr>
                         <td>{{ artist.index }}</td>
-                        <td><a href="/search/{{ artist.name }}/artist">{{ artist.name }}</a></td>
+                        <td><a href="/search/{{ artist.name }}/artist">{{ artist.name|show_ws }}</a></td>
                         <td>{{ artist.weight|format_number }}</td>
                     </tr>
                     {% endfor %}
@@ -64,7 +64,7 @@
                     {% endif %}
                     <tr>
                         <td>{{ track.timestamp|pretty_date }}</td>
-                        <td><a href="/search/{{ track.name }}">{{ track.name }}</a></td>
+                        <td><a href="/search/{{ track.name }}">{{ track.name|show_ws }}</a></td>
                     </tr>
                     {% set last_track = track %}
                     {% endfor %}

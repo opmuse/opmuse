@@ -1,5 +1,6 @@
 import os
 import cherrypy
+import re
 from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
@@ -9,6 +10,28 @@ import opmuse.pretty
 from opmuse.library import TrackStructureParser
 import locale
 from opmuse.queues import queue_dao
+
+VISIBLE_WS = "\u2423"
+
+def replace_ws(string):
+    match = re.search('\S', string)
+
+    if match is not None:
+        index = match.start()
+        return "%s%s" % (index * VISIBLE_WS, string[index:])
+    else:
+        return len(string) * VISIBLE_WS
+
+
+def show_ws(string):
+    """
+    Helper for replacing trailing whitespace with the unicode visible space
+    character
+    """
+    if string is None or len(string) == 0:
+        return "[MISSING]"
+
+    return replace_ws(replace_ws(string)[::-1])[::-1]
 
 
 def format_bytes(bytes, precision=2):
@@ -95,6 +118,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['pretty_date'] = pretty_date
         self.env.filters['urlencode'] = urlencode
         self.env.filters['format_number'] = format_number
+        self.env.filters['show_ws'] = show_ws
         self.env.filters['format_bytes'] = format_bytes
         self.env.filters['json'] = json
         self.env.filters['startswith'] = startswith

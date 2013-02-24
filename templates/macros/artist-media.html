@@ -8,7 +8,7 @@
         <div class="media-body">
             <h4 class="media-heading">
                 <a href="/{{ artist.slug|urlencode }}">
-                    {{ artist.name }}
+                    {{ artist.name|show_ws }}
                 </a>
             </h4>
             {% if caller %}

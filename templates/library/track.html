@@ -1,7 +1,7 @@
 {% extends "body_twocol.html" %}
 
 {% block title  %}
-    {{ track.artist.name }} - {{ track.album.name }} - {{ track.name }}
+    {{ track.artist.name|show_ws }} - {{ track.album.name|show_ws }} - {{ track.name|show_ws }}
 {% endblock %}
 
 {% block right %}
@@ -39,15 +39,15 @@
         </tr>
         <tr>
             <th>Artist</th>
-            <td>{{ track.artist.name }}</td>
+            <td>{{ track.artist.name|show_ws }}</td>
         </tr>
         <tr>
             <th>Album</th>
-            <td>{{ track.album.name }}</td>
+            <td>{{ track.album.name|show_ws }}</td>
         </tr>
         <tr>
             <th>Track</th>
-            <td>{{ track.name }}</td>
+            <td>{{ track.name|show_ws }}</td>
         </tr>
         <tr>
             <th>Number</th>
