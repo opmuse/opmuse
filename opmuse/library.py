@@ -1283,7 +1283,7 @@ class LibraryDao:
                 for from_path in os.listdir(from_dir):
                     shutil.move(os.path.join(from_dir, from_path), os.path.join(to_dir, from_path))
 
-        LibraryProcess(paths, cherrypy.request.database, 0, tracks)
+        LibraryProcess(self.get_library_path(), paths, cherrypy.request.database, 0, tracks)
 
         if remove_dirs:
             self.remove_empty_dirs(old_dirs)
