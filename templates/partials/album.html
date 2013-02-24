@@ -3,16 +3,16 @@
         with {% for artist in album.artists -%}
         {%- if not loop.first and not loop.last %}, {% elif loop.last %} and {% endif -%}
             {%- if href -%}
-                <a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a>
+                <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a>
             {%- else -%}
-                {{ artist.name }}
+                {{ artist.name|show_ws }}
             {%- endif -%}
         {%- endfor -%}.
     {%- else -%}
         by {% if href -%}
-            <a href="/{{ album.artists[0].slug|urlencode }}">{{ album.artists[0].name }}</a>
+            <a href="/{{ album.artists[0].slug|urlencode }}">{{ album.artists[0].name|show_ws }}</a>
         {%- else -%}
-            {{ album.artists[0].name }}
+            {{ album.artists[0].name|show_ws }}
         {%- endif -%}
         .
     {%- endif -%}
@@ -53,7 +53,7 @@
         <div class="album-desc">
             <h3 class="album-name">
                 <a href="/{{ album_url }}">
-                    {{ album.name }}
+                    {{ album.name|show_ws }}
                 </a>
             </h3>
             <p title="{{ album_desc(album, false)|e }}">

@@ -3,7 +3,7 @@
         <li class="span12">
             {% if album %}
                 <h3 class="album-head">
-                    <a href="/{{ artist.slug|urlencode }}">{{ artist.name }}</a> - {{ album.name }}
+                    <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a> - {{ album.name|show_ws }}
                     {% if album.date %}
                     <span class="date">{{ album.date }}</span>
                     {% endif %}
@@ -12,7 +12,7 @@
                     {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}.
                 </p>
             {% else %}
-                <h3>{{ artist.name }}</h3>
+                <h3>{{ artist.name|show_ws }}</h3>
             {% endif %}
         </li>
     </ul>

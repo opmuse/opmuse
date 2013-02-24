@@ -2,17 +2,17 @@
     <span class="track-number">{{ track.number }}</span>
     <span class="artist-name">
         <a href="/{{ track.artist.slug|urlencode }}">
-            {{ track.artist.name }}
+            {{ track.artist.name|show_ws }}
         </a>
     </span>
     <span class="album-name">
         <a href="/{{ track.artist.slug|urlencode }}/{{ track.album.slug|urlencode }}">
-            {{ track.album.name }}
+            {{ track.album.name|show_ws }}
         </a>
     </span>
     <span class="track-name">
         <a href="/library/track/{{ track.slug|urlencode }}">
-            {{ track.name }}
+            {{ track.name|show_ws }}
         </a>
     </span>
     <span class="track-duration">
