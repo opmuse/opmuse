@@ -1,6 +1,7 @@
 import os
 import cherrypy
 import re
+import random
 from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
@@ -12,6 +13,10 @@ import locale
 from opmuse.queues import queue_dao
 
 VISIBLE_WS = "\u2423"
+
+def rand_id():
+    return str(random.randrange(1, 99999))
+
 
 def replace_ws(string):
     match = re.search('\S', string)
@@ -144,6 +149,8 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['json'] = json
         self.env.filters['startswith'] = startswith
         self.env.filters['track_path'] = track_path
+
+        self.env.globals['rand_id'] = rand_id
 
     start.priority = 130
 
