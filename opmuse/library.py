@@ -281,12 +281,12 @@ class TagParser:
         """
         raise NotImplementedError()
 
-    def parse(self, filename, metadata):
+    def parse(self, filename, metadata, path = None):
         raise NotImplementedError()
 
 
 class MutagenParser(TagParser):
-    def parse(self, filename, metadata):
+    def parse(self, filename, metadata, path = None):
         try:
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
@@ -399,7 +399,10 @@ class PathParser(TagParser):
     might be album name, parent folder might be artist name ...)
     """
 
-    def parse(self, filename, metadata):
+    def parse(self, filename, metadata, path = None):
+        if path is None:
+            raise ValueError('PathParser requires path to be specified.')
+
         bfilename = filename
         try:
             filename = filename.decode('utf8')
@@ -411,10 +414,17 @@ class PathParser(TagParser):
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
-        path_comp = os.path.split(os.path.dirname(filename))
-        album = path_comp[1]
-        path_comp = os.path.split(path_comp[0])
-        artist = path_comp[1]
+
+        path_comp = os.path.split(os.path.dirname(filename)[len(path) + 1:])
+
+        if len(path_comp[0]) > 0 and len(path_comp[1]) > 0:
+            album = path_comp[1]
+            path_comp = os.path.split(path_comp[0])
+            artist = path_comp[1]
+        elif len(path_comp[0]) == 0 and len(path_comp[1]) > 0:
+            artist = album = path_comp[1]
+        else:
+            artist = album = None
 
         stat = os.stat(bfilename)
         added = datetime.datetime.fromtimestamp(stat.st_mtime)
@@ -532,7 +542,7 @@ class TagReader:
     def parse_mutagen(self, filename):
         return self.parse(filename, self._mutagen_parsers)
 
-    def parse(self, filename, parsers = None):
+    def parse(self, filename, parsers = None, path = None):
         metadata = None
 
         if parsers is None:
@@ -545,7 +555,7 @@ class TagReader:
             if not parser.is_supported(filename):
                 continue
 
-            new_metadata = parser.parse(filename, metadata)
+            new_metadata = parser.parse(filename, metadata, path)
 
             if not isinstance(new_metadata, FileMetadata):
                 raise Exception("TagParser.parse must return a FileMetadata instance.")
@@ -773,7 +783,7 @@ class Library:
             to_process.append(filename)
 
             if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                p = Thread(target=LibraryProcess, args = (to_process, None, no))
+                p = Thread(target=LibraryProcess, args = (self._path, to_process, None, no))
                 p.start()
 
                 log("Spawned library thread %d with ident %s)." % (no, p.ident))
@@ -816,8 +826,9 @@ class Library:
 
 class LibraryProcess:
 
-    def __init__(self, queue, database = None, no = -1, tracks = None):
+    def __init__(self, path, queue, database = None, no = -1, tracks = None):
 
+        self._path = path
         self.no = no
 
         log('Process %d about to process %d files.' %
@@ -866,7 +877,7 @@ class LibraryProcess:
             self._database.add(track)
             self._database.commit()
 
-        metadata = reader.parse(filename)
+        metadata = reader.parse(filename, None, self._path)
 
         artist = None
         album = None
@@ -1038,6 +1049,9 @@ class LibraryProcess:
 
     @staticmethod
     def slugify(string, index):
+        if string is None:
+            string = ""
+
         if index > 0:
             index_str = str(index)
             string = "%s_%s" % (string[:(255 - len(index_str))], index_str)

@@ -3,7 +3,8 @@
         <li class="span12">
             {% if album %}
                 <h3 class="album-head">
-                    <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a> - {{ album.name|show_ws }}
+                    <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a> -
+                    <a href="/{{ artist.slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name|show_ws }}</a>
                     {% if album.date %}
                     <span class="date">{{ album.date }}</span>
                     {% endif %}
