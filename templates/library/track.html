@@ -88,6 +88,12 @@
         <tr>
             <th>Files</th>
             <td>
+                {% if track.has_dups %}
+                    <span class="badge badge-warning"
+                        title="Track has duplicates, you could remove all but one of them.">
+                        <i class="icon-group"></i>
+                    </span>
+                {% endif %}
                 <ul>
                     {% for path in track.paths %}
                     {# when displaying non-utf8 filenames the names will be incorrect,

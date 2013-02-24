@@ -189,6 +189,10 @@ class Track(Base):
         self.hash = hash
 
     @hybrid_property
+    def has_dups(self):
+        return len(self.paths) > 1
+
+    @hybrid_property
     def low_quality(self):
         if self.bitrate is not None:
             if self.format == "audio/mp3":

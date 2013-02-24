@@ -110,6 +110,12 @@
                                     <i class="icon-headphones"></i>
                                 </a>
                             </span>
+                            {% if track.has_dups %}
+                                <span class="badge badge-warning"
+                                    title="Track has duplicates, you could remove all but one of them.">
+                                    <i class="icon-group"></i>
+                                </span>
+                            {% endif %}
                             {% if track.low_quality %}
                                 <span class="badge badge-warning"
                                     title="Track is of low quality, consider replacing it.">
