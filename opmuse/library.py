@@ -78,6 +78,10 @@ class Album(Base):
         self.cover_hash = cover_hash
 
     @hybrid_property
+    def is_va(self):
+        return len(self.artists) > 1
+
+    @hybrid_property
     def invalid(self):
         if len(self.tracks) == 0:
             return None

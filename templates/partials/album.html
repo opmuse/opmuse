@@ -34,7 +34,7 @@
                 <i class="icon-warning-sign"></i>
             </p>
             {% endif %}
-            {% if album.artists|length > 1 %}
+            {% if album.is_va %}
                 <p class="album-va badge badge-success">VA</p>
             {% endif %}
         </div>

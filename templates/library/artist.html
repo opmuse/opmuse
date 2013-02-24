@@ -17,10 +17,26 @@
 
     <hr />
 
+    <h3>Albums</h3>
+
     <ul class="albums">
         {% for album in artist.albums %}
         <li>
-            {% include "partials/album.html" %}
+            {% if not album.is_va %}
+                {% include "partials/album.html" %}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Various Artists</h2>
+
+    <ul class="albums">
+        {% for album in artist.albums %}
+        <li>
+            {% if album.is_va %}
+                {% include "partials/album.html" %}
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
