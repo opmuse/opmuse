@@ -283,6 +283,15 @@ class MutagenParser(TagParser):
         bitrate = tag.info.bitrate if hasattr(tag.info, 'bitrate') else None
         disc = str(tag['discnumber'][0]) if 'discnumber' in tag else None
 
+        if artist is not None and len(artist) == 0:
+            artist = None
+
+        if album is not None and len(album) == 0:
+            album = None
+
+        if track is not None and len(track) == 0:
+            track = None
+
         # won't fit in SQL INT, and i'm guessing something's up :|
         if bitrate is not None and bitrate > 2147483647:
             bitrate = None
