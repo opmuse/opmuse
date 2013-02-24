@@ -10,7 +10,7 @@
 
 {% block content %}
 
-{% import "macros/remove-modal.html" as remove_modal %}
+{% import "macros/edit-dropdown.html" as edit_dropdown %}
 
 <div id="album">
 
@@ -48,47 +48,7 @@
     </div>
 
     <div class="btn-group edit-btn">
-        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-            Tracks
-            <span class="icon-caret-down"></span>
-        </a>
-        <ul class="dropdown-menu">
-            <li>
-                <a href="/library/edit/{% for track in album.tracks -%}
-                    {{ track.id }}, {%- endfor %}">
-                    <i class="icon-pencil"></i>
-                    Edit
-                </a>
-            </li>
-            <li>
-                <a
-                    role="button"
-                    data-toggle="modal"
-                    href="#removeAlbumModal">
-                    <i class="icon-trash"></i>
-                    Remove
-                </a>
-            </li>
-            <li class="divider"></li>
-            <li>
-                <a title="Move to {{ album.tracks[0]|track_path|e }}/"
-                    href="/library/edit/move/{% for track in album.tracks -%}
-                    {{ track.id }},
-                    {%- endfor %}">
-                    <i class="icon-folder-open"></i>
-                    Move to <strong>{{ album.tracks[0]|track_path }}/</strong>
-                </a>
-            </li>
-            <li>
-                <a title="Move to {{ album.tracks[0]|track_path("Various Artists")|e }}/"
-                    href="/library/edit/move/{% for track in album.tracks -%}
-                {{ track.id }},
-                {%- endfor %}/va">
-                    <i class="icon-folder-open"></i>
-                    Move to <strong>{{ album.tracks[0]|track_path("Various Artists") }}/</strong>
-                </a>
-            </li>
-        </ul>
+        {{ edit_dropdown.dropdown(album.tracks) }}
     </div>
 
     <div class="clear"></div>
@@ -102,7 +62,6 @@
                     </th>
                     <th colspan="{{ colspan - 2 }}">
                         {{ dir }}
-                        {{ remove_modal.remove_modal("removeFolderModal" ~ tracks[0].id, "Remove \"%s\"" % dir, tracks) }}
                         <span class="btn-group queue-btn">
                             <a
                                 class="queue add add-album btn btn-mini btn-inverse"
@@ -115,48 +74,7 @@
                             </a>
                         </span>
                         <span class="btn-group edit-btn">
-                            <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
-                                Tracks
-                                <span class="icon-caret-down"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="/library/edit/{% for track in tracks -%}
-                                        {{ track.id }},
-                                        {%- endfor %}">
-                                        <i class="icon-pencil"></i>
-                                        Edit
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        role="button"
-                                        data-toggle="modal"
-                                        href="#removeFolderModal{{ tracks[0].id }}">
-                                        <i class="icon-trash"></i>
-                                        Remove
-                                    </a>
-                                </li>
-                                <li class="divider"></li>
-                                <li>
-                                    <a title="Move to {{ tracks[0]|track_path|e }}/"
-                                        href="/library/edit/move/{% for track in tracks -%}
-                                        {{ track.id }},
-                                        {%- endfor %}">
-                                        <i class="icon-folder-open"></i>
-                                        Move to <strong>{{ tracks[0]|track_path|e }}/</strong>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a title="Move to {{ tracks[0]|track_path("Various Artists")|e }}/"
-                                        href="/library/edit/move/{% for track in tracks -%}
-                                    {{ track.id }},
-                                    {%- endfor %}/va">
-                                        <i class="icon-folder-open"></i>
-                                        Move to <strong>{{ tracks[0]|track_path("Various Artists")|e }}/</strong>
-                                    </a>
-                                </li>
-                            </ul>
+                            {{ edit_dropdown.dropdown(tracks) }}
                         </span>
                     </th>
                 </tr>
@@ -216,7 +134,6 @@
             </tr>
         </tfoot>
     </table>
-    {{ remove_modal.remove_modal("removeAlbumModal", "Remove Album", album.tracks) }}
 </div>
 {% endblock %}
 

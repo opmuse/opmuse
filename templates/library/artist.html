@@ -9,6 +9,9 @@
 {% endblock %}
 
 {% block content %}
+
+{% import "macros/edit-dropdown.html" as edit_dropdown %}
+
 <div id="artist">
 
     {% include "partials/library-nav.html" %}
@@ -16,6 +19,10 @@
     {% include "partials/artist-head.html" %}
 
     <hr />
+
+    <div class="btn-group edit-btn">
+        {{ edit_dropdown.dropdown(artist.tracks) }}
+    </div>
 
     <h3>Albums</h3>
 
