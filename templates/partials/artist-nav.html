@@ -11,7 +11,7 @@
         {% endif %}
         {% if album %}
         <li>
-            <a href="http://www.discogs.com/search?q={{ "artist:'" ~ artist.name ~ "' " ~ album.name|urlencode }}&type=release">
+            <a href="http://www.discogs.com/search?q={{ "artist:'" ~ artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
                 Discogs
             </a>
         </li>
@@ -38,7 +38,7 @@
         <li>
         {% for similar in lastfm_artist.similar %}
             <span class="badge badge-inverse">
-                <a href="/search/{{ similar.name }}/artist">{{ similar.name }}</a>
+                <a href="/search/{{ similar.name|urlencode }}/artist">{{ similar.name }}</a>
             </span>
         {% endfor %}
         </li>
@@ -46,7 +46,7 @@
         <li>
         {% for artist in namesakes %}
             <span class="badge badge-inverse">
-                <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a>
+                <a href="/{{ artist.slug }}">{{ artist.name|show_ws }}</a>
             </span>
         {% endfor %}
         </li>
