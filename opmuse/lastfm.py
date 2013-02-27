@@ -297,12 +297,12 @@ class Lastfm:
 
             similars = []
 
-            for similar in artist.get_similar(5):
+            for similar in artist.get_similar(10):
                 similars.append({
                     'name': similar.item.get_name()
                 })
 
-            tags = [str(topItem.item) for topItem in artist.get_top_tags(5)]
+            tags = [str(topItem.item) for topItem in artist.get_top_tags(10)]
 
             return {
                 'url': artist.get_url(),
