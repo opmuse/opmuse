@@ -51,8 +51,12 @@
                 {%- endfor -%}">
             <i class="icon-headphones"></i>
         </a>
-        {% set album_url = (album.artists[0].slug|urlencode if not artist else artist.slug|urlencode) +
-                            "/" + album.slug|urlencode %}
+        {% if album.is_va %}
+            {% set album_url =  "va/" + album.slug|urlencode %}
+        {% else %}
+            {% set album_url = (album.artists[0].slug|urlencode if not artist else artist.slug|urlencode) +
+                                "/" + album.slug|urlencode %}
+        {% endif %}
         <a href="/{{ album_url }}">
             {% include "partials/album-cover.html" %}
         </a>

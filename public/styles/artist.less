@@ -21,25 +21,28 @@
         margin: 0 0 5px 0;
         line-height: 30px;
 
-        &.album-head .date {
-            margin-left: 6px;
-            font-size: .8em;
-            color: @grayLight;
-
-            &:after {
-                content: ')';
-            }
-
-            &:before {
-                content: '(';
+        &.track-head,
+        &.album-head {
+            small {
+                font-size: .8em;
+                display: block;
+                color: @textColor;
+                a {
+                    color: @linkColor;
+                }
             }
         }
     }
 
+    .track-subline,
     .album-subline {
         margin: 0;
         font-size: .8em;
         color: @grayLight;
+
+        a {
+            color: @grayLight;
+        }
     }
 
     p {

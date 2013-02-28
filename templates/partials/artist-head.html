@@ -1,31 +1,57 @@
+{% macro print_artists(artists, print_by) %}
+    {% if print_by %}
+        {% if artists|length > 1 %}
+            with
+        {% else %}
+            by
+        {% endif %}
+    {% endif %}
+    {% for artist in artists %}
+        {%- if artists|length > 1 and loop.last %}
+        and
+        {% elif not loop.first -%}
+        ,
+        {% endif %}
+        <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a>
+    {%- endfor %}.
+{% endmacro %}
 <div class="artist-head">
     <ul class="row-fluid">
-        <li class="span12">
-            {% if album %}
+        <li class="span8">
+            {% if artists|length > 1 %}
+                {% set artist_slug = "va" %}
+            {% else %}
+                {% set artist_slug = artists[0].slug %}
+            {% endif %}
+            {% if track %}
+                <h3 class="track-head">
+                    <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
+                    <small>
+                        <a href="/{{ artist_slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name|show_ws }}</a>
+                    </small>
+                </h3>
+                <p class="track-subline">
+                    {{ print_artists(artists, true) }}
+                </p>
+            {% elif album %}
                 <h3 class="album-head">
-                    <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a> -
-                    <a href="/{{ artist.slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name|show_ws }}</a>
-                    {% if album.date %}
-                    <span class="date">{{ album.date }}</span>
-                    {% endif %}
+                    <a href="/{{ artist_slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name|show_ws }}</a>
+                    <small>
+                        {{ print_artists(artists, true) }}
+                    </small>
                 </h3>
                 <p class="album-subline">
+                    {% if album.date %}
+                        {{ album.date }},
+                    {% endif %}
                     {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}.
                 </p>
             {% else %}
-                <h3>{{ artist.name|show_ws }}</h3>
+            <h3>
+                {{ print_artists(artists, false) }}
+            </h3>
             {% endif %}
-        </li>
-    </ul>
-    <ul class="row-fluid">
-        <li class="span12">
             <p>
-                {% if album %}
-                    {% include "partials/album-cover.html" %}
-                {% else %}
-                    {% include "partials/artist-cover.html" %}
-                {% endif %}
-
                 {% if album %}
                     {% if lastfm_album and lastfm_album.wiki %}
                         {{ lastfm_album.wiki }}
@@ -38,6 +64,13 @@
                     {% endif %}
                 {% endif %}
             </p>
+        </li>
+        <li class="span4">
+            {% if album %}
+                {% include "partials/album-cover.html" %}
+            {% else %}
+                {% include "partials/artist-cover.html" %}
+            {% endif %}
         </li>
     </ul>
 </div>

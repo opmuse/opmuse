@@ -410,14 +410,13 @@ class Library(object):
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library/album.html')
     def album(self, artist_slug, album_slug):
-        artist = library_dao.get_artist_by_slug(artist_slug)
         album = library_dao.get_album_by_slug(album_slug)
 
-        if artist is None or album is None:
+        if album is None:
             raise cherrypy.NotFound()
 
-        lastfm_artist = lastfm.get_artist(artist.name)
-        lastfm_album = lastfm.get_album(artist.name, album.name)
+        lastfm_artist = lastfm.get_artist(album.artists[0].name)
+        lastfm_album = lastfm.get_album(album.artists[0].name, album.name)
 
         dirs = {}
 
@@ -449,7 +448,6 @@ class Library(object):
                 break
 
         return {
-            'artist': artist,
             'album': album,
             'dirs': dirs,
             'lastfm_album': lastfm_album,

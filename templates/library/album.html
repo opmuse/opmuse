@@ -1,11 +1,17 @@
 {% extends "body_twocol.html" %}
 
 {% block title  %}
-    {{ artist.name|show_ws }} - {{ album.name|show_ws }}
+    {% if album.artists|length == 0 %}
+        {{ album.artists[0].name|show_ws }} -
+    {% endif %}
+    {{ album.name|show_ws }}
 {% endblock %}
 
 {% block right %}
-    {% include 'partials/artist-nav.html' %}
+    {% if album.artists|length == 0 %}
+        {% set artist = album.artists[0] %}
+        {% include 'partials/artist-nav.html' %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -16,9 +22,10 @@
 
     {% include "partials/library-nav.html" %}
 
+    {% set artists = album.artists %}
     {% include "partials/artist-head.html" %}
 
-    <hr>
+    <hr />
 
     <div class="btn-group queue-btn">
         <a
@@ -31,20 +38,6 @@
             ">
             <i class="icon-headphones"></i>
         </a>
-        {% if album.artists|count > 1 %}
-        <a
-            class="queue add add-album btn-small btn btn-inverse"
-            title="Queue current artist"
-            href="/queue/add/
-                {%- for track in album.tracks -%}
-                    {% if track.artist.id == artist.id %}
-                        {{ track.id }},
-                    {% endif %}
-                {%- endfor -%}
-            ">
-            <i class="icon-headphones"></i>
-        </a>
-        {% endif %}
     </div>
 
     <div class="btn-group edit-btn">
@@ -95,11 +88,7 @@
                         <td>{{ track.number }}</td>
                         {% if album.artists|length > 1%}
                         <td>
-                            {% if track.artist.id != artist.id %}
-                                <a href="/{{ track.artist.slug|urlencode }}">{{ track.artist.name|show_ws }}</a>
-                            {% else %}
-                                {{ track.artist.name|show_ws }}
-                            {% endif %}
+                            <a href="/{{ track.artist.slug|urlencode }}">{{ track.artist.name|show_ws }}</a>
                         </td>
                         {% endif %}
                         <td>
