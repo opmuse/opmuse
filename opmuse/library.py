@@ -1414,7 +1414,6 @@ class LibraryDao:
                 .offset(offset)
                 .all())
 
-
     def get_new_albums(self, limit, offset):
         return (cherrypy.request.database
                 .query(Album)
