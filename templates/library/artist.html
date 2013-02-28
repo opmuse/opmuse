@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block right %}
+    {% set lastfm_artists = [lastfm_artist] %}
+    {% set artists = [artist] %}
     {% include 'partials/artist-nav.html' %}
 {% endblock %}
 

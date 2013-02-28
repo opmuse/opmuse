@@ -8,10 +8,8 @@
 {% endblock %}
 
 {% block right %}
-    {% if album.artists|length == 0 %}
-        {% set artist = album.artists[0] %}
-        {% include 'partials/artist-nav.html' %}
-    {% endif %}
+    {% set artists = album.artists %}
+    {% include 'partials/artist-nav.html' %}
 {% endblock %}
 
 {% block content %}

@@ -401,7 +401,6 @@ class Library(object):
 
         return {
             'track': track,
-            'artist': track.artist,
             'lastfm_album': lastfm_album,
             'lastfm_artist': lastfm_artist
         }
@@ -415,7 +414,12 @@ class Library(object):
         if album is None:
             raise cherrypy.NotFound()
 
-        lastfm_artist = lastfm.get_artist(album.artists[0].name)
+        lastfm_artists = []
+
+        for artist in album.artists:
+            lastfm_artists.append(lastfm.get_artist(artist.name))
+
+        # TODO just take first artist when querying for album...
         lastfm_album = lastfm.get_album(album.artists[0].name, album.name)
 
         dirs = {}
@@ -451,7 +455,7 @@ class Library(object):
             'album': album,
             'dirs': dirs,
             'lastfm_album': lastfm_album,
-            'lastfm_artist': lastfm_artist,
+            'lastfm_artists': lastfm_artists,
             'colspan': colspan,
             'disc': disc
         }
