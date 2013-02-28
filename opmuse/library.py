@@ -13,7 +13,7 @@ from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
-                        DateTime, Boolean, func, TypeDecorator, Index)
+                        DateTime, Boolean, func, TypeDecorator, Index, distinct)
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -1401,6 +1401,19 @@ class LibraryDao:
                 .limit(limit)
                 .offset(offset)
                 .all())
+
+    def get_va_albums(self, limit, offset):
+        return (cherrypy.request.database
+                .query(Album)
+                .join(Track, Album.id == Track.album_id)
+                .join(Artist, Artist.id == Track.artist_id)
+                .order_by(func.max(Track.added).desc())
+                .group_by(Album.id)
+                .having(func.count(distinct(Artist.id)) > 1)
+                .limit(limit)
+                .offset(offset)
+                .all())
+
 
     def get_new_albums(self, limit, offset):
         return (cherrypy.request.database

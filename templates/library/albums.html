@@ -6,6 +6,8 @@ Library - Albums -
         New
     {% elif view == "random" %}
         Random
+    {% elif view == "va" %}
+        Various Artists
     {% elif view == "yours" %}
         Yours
     {% else %}
@@ -26,6 +28,9 @@ Library - Albums -
         </li>
         <li class="{{ "active" if request.path_info == "/library/albums/yours" }}">
             <a href="/library/albums/yours">Yours</a>
+        </li>
+        <li class="{{ "active" if request.path_info == "/library/albums/va" }}">
+            <a href="/library/albums/va">VA</a>
         </li>
         <li class="{{ "active" if request.path_info == "/library/albums/invalid" }}">
             <a href="/library/albums/invalid">Invalid</a>

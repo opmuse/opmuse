@@ -532,6 +532,8 @@ class Library(object):
         elif view == "random":
             albums = library_dao.get_random_albums(page_size)
             page = None
+        elif view == "va":
+            albums = library_dao.get_va_albums(page_size, offset)
         elif view == "yours":
             albums = []
 
