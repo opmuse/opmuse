@@ -8,6 +8,8 @@ define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritanc
 
             this.panel = $("#panel");
 
+            this.marginBottom = this.panel.css("margin-bottom");
+
             $("#panel-handle").click(function (event) {
                 if (that.panel.hasClass("open")) {
                     that.close();
@@ -22,14 +24,13 @@ define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritanc
         },
         open: function () {
             this.panel.addClass("open");
-            this.panel.data("margin-bottom", this.panel.css("margin-bottom"));
             this.panel.css("margin-bottom", 0);
 
             storage.set('layout.panel.open', true);
         },
         close: function () {
             this.panel.removeClass("open");
-            this.panel.css("margin-bottom", this.panel.data("margin-bottom"));
+            this.panel.css("margin-bottom", this.marginBottom);
 
             storage.set('layout.panel.open', false);
         }
