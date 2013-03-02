@@ -2,7 +2,9 @@ import queue
 import threading
 import cherrypy
 import logging
+import inspect
 from cherrypy.process.plugins import SimplePlugin
+from opmuse.database import get_session
 
 
 def debug(msg):
@@ -39,6 +41,8 @@ class BackgroundTaskQueue(SimplePlugin):
         self.running = False
 
     def run(self):
+        database = get_session()
+
         while self.running:
             try:
                 try:
@@ -50,6 +54,11 @@ class BackgroundTaskQueue(SimplePlugin):
                     continue
                 else:
                     debug("Running bgtask %r with args %r and kwargs %r." % (func, args, kwargs))
+
+                    argspec = inspect.getfullargspec(func)
+
+                    if '_database' in argspec.args:
+                        kwargs['_database'] = database
 
                     func(*args, **kwargs)
 
