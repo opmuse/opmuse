@@ -3,12 +3,9 @@ import os
 import logging
 import subprocess
 import cherrypy
-import queue
-import threading
 import tempfile
 import locale
 from os.path import join, abspath, dirname
-from cherrypy.process.plugins import SimplePlugin
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
@@ -18,63 +15,12 @@ from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.lastfm import LastfmMonitor, LastfmTool
+from opmuse.bgtask import BackgroundTaskQueue
 import opmuse.cache
 
 tempfile.tempdir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'cache', 'upload'
 ))
-
-
-# http://tools.cherrypy.org/wiki/BackgroundTaskQueue
-class BackgroundTaskQueue(SimplePlugin):
-
-    thread = None
-
-    def __init__(self, bus, qsize=100, qwait=2, safe_stop=True):
-        SimplePlugin.__init__(self, bus)
-        self.q = queue.Queue(qsize)
-        self.qwait = qwait
-        self.safe_stop = safe_stop
-
-    def start(self):
-        self.running = True
-        if not self.thread:
-            self.thread = threading.Thread(target=self.run)
-            self.thread.start()
-
-    start.priority = 90
-
-    def stop(self):
-        if self.safe_stop:
-            self.running = "draining"
-        else:
-            self.running = False
-
-        if self.thread:
-            self.thread.join()
-            self.thread = None
-        self.running = False
-
-    def run(self):
-        while self.running:
-            try:
-                try:
-                    func, args, kwargs = self.q.get(block=True, timeout=self.qwait)
-                except queue.Empty:
-                    if self.running == "draining":
-                        return
-                    continue
-                else:
-                    func(*args, **kwargs)
-                    if hasattr(self.q, 'task_done'):
-                        self.q.task_done()
-            except:
-                self.bus.log("Error in BackgroundTaskQueue %r." % self,
-                             level=40, traceback=True)
-
-    def put(self, func, *args, **kwargs):
-        """Schedule the given func to be run."""
-        self.q.put((func, args, kwargs))
 
 
 def multi_headers():
