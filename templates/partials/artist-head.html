@@ -51,19 +51,15 @@
                 {{ print_artists(artists, false) }}
             </h3>
             {% endif %}
-            <p>
-                {% if album %}
-                    {% if lastfm_album and lastfm_album.wiki %}
-                        {{ lastfm_album.wiki }}
-                    {% elif lastfm_artist and lastfm_artist.bio %}
-                        {{ lastfm_artist.bio }}
-                    {% endif %}
-                {% else %}
-                    {% if lastfm_artist and lastfm_artist.bio %}
-                        {{ lastfm_artist.bio }}
-                    {% endif %}
-                {% endif %}
-            </p>
+            {% if wikipedia_artist %}
+                {{ wikipedia_artist.summary }}
+            {% endif %}
+            {% if wikipedia_album %}
+                {{ wikipedia_album.summary }}
+            {% endif %}
+            {% if wikipedia_track %}
+                {{ wikipedia_track.summary }}
+            {% endif %}
         </li>
         <li class="span4">
             {% if album %}

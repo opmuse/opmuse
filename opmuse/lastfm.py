@@ -279,7 +279,6 @@ class Lastfm:
             return {
                 'url': album.get_url(),
                 'name': album.get_name(),
-                'wiki': album.get_wiki_summary(),
                 'cover': album.get_cover_image()
             }
         except (WSError, NetworkError, MalformedResponseError) as error:
@@ -309,7 +308,6 @@ class Lastfm:
                 'cover': artist.get_cover_image(),
                 'listeners': artist.get_listener_count(),
                 'tags': tags,
-                'bio': artist.get_bio_summary(),
                 'similar': similars
             }
         except (WSError, NetworkError, MalformedResponseError) as error:

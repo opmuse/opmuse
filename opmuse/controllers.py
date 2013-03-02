@@ -28,6 +28,7 @@ from opmuse.database import get_session
 from opmuse.image import image as image_service
 from opmuse.search import search
 from opmuse.ws import WsController
+from opmuse.wikipedia import wikipedia
 
 
 class Edit:
@@ -398,11 +399,13 @@ class Library(object):
 
         lastfm_artist = lastfm.get_artist(track.artist.name)
         lastfm_album = lastfm.get_album(track.artist.name, track.album.name)
+        wikipedia_track = wikipedia.get_track(track.artist.name, track.album.name, track.name)
 
         return {
             'track': track,
             'lastfm_album': lastfm_album,
-            'lastfm_artist': lastfm_artist
+            'lastfm_artist': lastfm_artist,
+            'wikipedia_track': wikipedia_track
         }
 
     @cherrypy.expose
@@ -421,6 +424,7 @@ class Library(object):
 
         # TODO just take first artist when querying for album...
         lastfm_album = lastfm.get_album(album.artists[0].name, album.name)
+        wikipedia_album = wikipedia.get_album(album.artists[0].name, album.name)
 
         dirs = {}
 
@@ -455,6 +459,7 @@ class Library(object):
             'album': album,
             'dirs': dirs,
             'lastfm_album': lastfm_album,
+            'wikipedia_album': wikipedia_album,
             'lastfm_artists': lastfm_artists,
             'colspan': colspan,
             'disc': disc
@@ -566,6 +571,7 @@ class Library(object):
             raise cherrypy.NotFound()
 
         lastfm_artist = lastfm.get_artist(artist.name)
+        wikipedia_artist = wikipedia.get_artist(artist.name)
 
         namesakes = set()
 
@@ -580,6 +586,7 @@ class Library(object):
         return {
             'lastfm_artist': lastfm_artist,
             'artist': artist,
+            'wikipedia_artist': wikipedia_artist,
             'namesakes': namesakes
         }
 
