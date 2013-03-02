@@ -1,13 +1,11 @@
 import json
 import re
-from functools import lru_cache
 from urllib import request, parse
 
 
 class Wikipedia():
     BASE_URL = 'http://en.wikipedia.org/w/api.php'
 
-    @lru_cache(maxsize=None)
     def get_track(self, artist_name, album_name, track_name):
         extract = self.find_extract(track_name, ['song'])
 
@@ -18,7 +16,6 @@ class Wikipedia():
             'summary': extract
         }
 
-    @lru_cache(maxsize=None)
     def get_album(self, artist_name, album_name):
 
         if re.sub('[^a-z]+', '', album_name.lower()) == 'selftitled':
@@ -36,7 +33,6 @@ class Wikipedia():
             'summary': extract
         }
 
-    @lru_cache(maxsize=None)
     def get_artist(self, artist_name):
 
         extract = self.find_extract(artist_name, ['band', 'musician', 'singer'])

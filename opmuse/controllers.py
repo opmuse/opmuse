@@ -24,11 +24,11 @@ from opmuse.library import Artist, Album, Track, TrackPath, library_dao, Library
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
-from opmuse.database import get_session
 from opmuse.image import image as image_service
 from opmuse.search import search
 from opmuse.ws import WsController
 from opmuse.wikipedia import wikipedia
+from opmuse.remotes import remotes
 
 
 class Edit:
@@ -397,15 +397,17 @@ class Library(object):
         if track is None:
             raise cherrypy.NotFound()
 
-        lastfm_artist = lastfm.get_artist(track.artist.name)
-        lastfm_album = lastfm.get_album(track.artist.name, track.album.name)
-        wikipedia_track = wikipedia.get_track(track.artist.name, track.album.name, track.name)
+        remotes.update_track(track)
+
+        remotes_artist = remotes.get_artist(track.artist)
+        remotes_album = remotes.get_album(track.album)
+        remotes_track = remotes.get_track(track)
 
         return {
             'track': track,
-            'lastfm_album': lastfm_album,
-            'lastfm_artist': lastfm_artist,
-            'wikipedia_track': wikipedia_track
+            'remotes_artist': remotes_artist,
+            'remotes_album': remotes_album,
+            'remotes_track': remotes_track,
         }
 
     @cherrypy.expose
@@ -417,14 +419,18 @@ class Library(object):
         if album is None:
             raise cherrypy.NotFound()
 
-        lastfm_artists = []
+        remotes.update_album(album)
+
+        remotes_artists = []
 
         for artist in album.artists:
-            lastfm_artists.append(lastfm.get_artist(artist.name))
+            remotes.update_artist(artist)
+            remotes_artists.append(remotes.get_artist(artist))
 
-        # TODO just take first artist when querying for album...
-        lastfm_album = lastfm.get_album(album.artists[0].name, album.name)
-        wikipedia_album = wikipedia.get_album(album.artists[0].name, album.name)
+        for track in album.tracks:
+            remotes.update_track(track)
+
+        remotes_album = remotes.get_album(album)
 
         dirs = {}
 
@@ -458,9 +464,8 @@ class Library(object):
         return {
             'album': album,
             'dirs': dirs,
-            'lastfm_album': lastfm_album,
-            'wikipedia_album': wikipedia_album,
-            'lastfm_artists': lastfm_artists,
+            'remotes_artists': remotes_artists,
+            'remotes_album': remotes_album,
             'colspan': colspan,
             'disc': disc
         }
@@ -518,6 +523,12 @@ class Library(object):
         else:
             artists = library_dao.get_invalid_artists(page_size, offset)
 
+        for artist in artists:
+            remotes.update_artist(artist)
+
+            for album in artist.albums:
+                remotes.update_album(album)
+
         return {'artists': artists, 'page': page, 'view': view}
 
     @cherrypy.expose
@@ -559,6 +570,12 @@ class Library(object):
         else:
             albums = library_dao.get_invalid_albums(page_size, offset)
 
+        for album in albums:
+            remotes.update_album(album)
+
+            for artist in album.artists:
+                remotes.update_artist(artist)
+
         return {'albums': albums, 'page': page, 'view': view}
 
     @cherrypy.expose
@@ -570,8 +587,12 @@ class Library(object):
         if artist is None:
             raise cherrypy.NotFound()
 
-        lastfm_artist = lastfm.get_artist(artist.name)
-        wikipedia_artist = wikipedia.get_artist(artist.name)
+        remotes.update_artist(artist)
+
+        for album in artist.albums:
+            remotes.update_album(album)
+
+        remotes_artist = remotes.get_artist(artist)
 
         namesakes = set()
 
@@ -584,9 +605,8 @@ class Library(object):
                             break
 
         return {
-            'lastfm_artist': lastfm_artist,
             'artist': artist,
-            'wikipedia_artist': wikipedia_artist,
+            'remotes_artist': remotes_artist,
             'namesakes': namesakes
         }
 
@@ -827,7 +847,6 @@ class Root(object):
             raise cherrypy.NotFound()
 
         if entity.cover_path is not None:
-
             if entity.cover is None:
                 cover_ext = os.path.splitext(entity.cover_path)[1].decode('utf8')
                 temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
@@ -848,15 +867,11 @@ class Root(object):
         mimetype = mimetypes.guess_type(entity.cover_path.decode('utf8', 'replace'))
         return mimetype[0] if mimetype is not None else 'image/jpeg'
 
-    def fetch_album_cover(self, album_id):
-
-        database = get_session()
-
-        album = (database.query(Album).filter_by(id=album_id).one())
+    def fetch_album_cover(self, album_id, _database):
+        album = _database.query(Album).filter_by(id=album_id).one()
 
         artist = album.artists[0]
 
-        lastfm_artist = lastfm.get_artist(artist.name)
         lastfm_album = lastfm.get_album(artist.name, album.name)
 
         if lastfm_album is None or lastfm_album['cover'] is None:
@@ -887,7 +902,7 @@ class Root(object):
         album.cover = resize_cover
         album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
 
-        database.commit()
+        _database.commit()
 
     def retrieve_and_resize(self, image_url):
         image_ext = os.path.splitext(image_url)[1]
@@ -918,11 +933,8 @@ class Root(object):
 
         return image, resize_image, image_ext
 
-    def fetch_artist_cover(self, artist_id):
-
-        database = get_session()
-
-        artist = (database.query(Artist).filter_by(id=artist_id).one())
+    def fetch_artist_cover(self, artist_id, _database):
+        artist = (_database.query(Artist).filter_by(id=artist_id).one())
 
         lastfm_artist = lastfm.get_artist(artist.name)
 
@@ -956,7 +968,7 @@ class Root(object):
         artist.cover = resize_cover
         artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
 
-        database.commit()
+        _database.commit()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

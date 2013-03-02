@@ -51,14 +51,14 @@
                 {{ print_artists(artists, false) }}
             </h3>
             {% endif %}
-            {% if wikipedia_artist %}
-                {{ wikipedia_artist.summary }}
+            {% if remotes_artist %}
+                {{ remotes_artist.wikipedia.summary }}
             {% endif %}
-            {% if wikipedia_album %}
-                {{ wikipedia_album.summary }}
+            {% if remotes_album %}
+                {{ remotes_album.wikipedia.summary }}
             {% endif %}
-            {% if wikipedia_track %}
-                {{ wikipedia_track.summary }}
+            {% if remotes_track %}
+                {{ remotes_track.wikipedia.summary }}
             {% endif %}
         </li>
         <li class="span4">

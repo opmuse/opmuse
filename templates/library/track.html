@@ -6,9 +6,9 @@
 
 {% block right %}
     {% set album = track.album %}
-    {% set lastfm_artists = [lastfm_artist] %}
+    {% set remotes_artists = [remotes_artist] %}
     {% set artists = [track.artist] %}
-    {% include 'partials/artist-nav.html' %}
+    {% include "partials/artist-nav.html" %}
 {% endblock %}
 
 {% block content %}
@@ -17,6 +17,8 @@
 
     {% set album = track.album %}
     {% set artists = [track.artist] %}
+    {% set remotes_artist = None %}
+    {% set remotes_album = None %}
     {% include "partials/artist-head.html" %}
 
     <hr>

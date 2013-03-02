@@ -4,7 +4,7 @@ from sqlalchemy.orm import deferred
 from sqlalchemy import Column, Integer, String, BLOB, BigInteger, func
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm.exc import NoResultFound
-from opmuse.database import Base, get_session
+from opmuse.database import Base
 
 
 class CacheObject(Base):
@@ -18,26 +18,23 @@ class CacheObject(Base):
 
 
 class Cache:
-    def __init__(self, session):
-        self.session = session
-
-    def needs_update(self, key, age = 3600):
+    def needs_update(self, key, age, database):
         now = int(time.time())
 
-        count = (self.session.query(func.count(CacheObject.id))
+        count = (database.query(func.count(CacheObject.id))
                  .filter(CacheObject.key == key).scalar())
 
         if count > 0:
-            count = (self.session.query(func.count(CacheObject.id))
+            count = (database.query(func.count(CacheObject.id))
                      .filter(CacheObject.key == key).filter("(%d - updated) > %d" % (now, age)).scalar())
 
             return count > 0
         else:
             return True
 
-    def get(self, key):
+    def get(self, key, database):
         try:
-            object = self.session.query(CacheObject).filter(CacheObject.key == key).one()
+            object = database.query(CacheObject).filter(CacheObject.key == key).one()
 
             if object.type == 'str':
                 return object.value.decode()
@@ -48,11 +45,11 @@ class Cache:
         except NoResultFound:
             pass
 
-    def set(self, key, value):
-        if not isinstance(value, (str, bytes, dict, list)):
+    def set(self, key, value, database):
+        if value is not None and not isinstance(value, (str, bytes, dict, list)):
             raise ValueError("Unsupported value type.")
 
-        count = (self.session.query(func.count(CacheObject.id))
+        count = (database.query(func.count(CacheObject.id))
                  .filter(CacheObject.key == key).scalar())
 
         updated = int(time.time())
@@ -65,11 +62,14 @@ class Cache:
             value = json.dumps(value).encode()
 
         if count > 0:
-            (self.session.query(CacheObject)
+            (database.query(CacheObject)
                 .filter(CacheObject.key == key)
                 .update({'value': value, 'updated': updated, 'type': value_type}))
         else:
-            self.session.execute(CacheObject.__table__.insert(),
+            database.execute(CacheObject.__table__.insert(),
                                  {'key': key, 'value': value, 'updated': updated, 'type': value_type})
 
-        self.session.commit()
+        database.commit()
+
+
+cache = Cache()

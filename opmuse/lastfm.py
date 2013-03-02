@@ -4,13 +4,12 @@ import calendar
 import datetime
 import math
 from cherrypy.process.plugins import Monitor
-from functools import lru_cache
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError, MalformedResponseError
 from pylast import PERIOD_OVERALL
 from opmuse.security import User
 from opmuse.database import get_session
-from opmuse.cache import Cache
+from opmuse.cache import cache
 
 User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
@@ -270,7 +269,6 @@ class Lastfm:
 
         return ret
 
-    @lru_cache(maxsize=None)
     def get_album(self, artist_name, album_name):
         try:
             network = self.get_network()
@@ -288,7 +286,6 @@ class Lastfm:
                 error
             ))
 
-    @lru_cache(maxsize=None)
     def get_artist(self, artist_name):
         try:
             network = self.get_network()
@@ -342,17 +339,17 @@ class Users:
     AGE = 3600 * 2
     KEY_FORMAT = "lastfm_user_%d"
 
-    def __init__(self, session):
-        self._cache = Cache(session)
+    def __init__(self, database):
+        self._database = database
 
     def needs_update(self, user):
-        return self._cache.needs_update(Users.KEY_FORMAT % user.id, Users.AGE)
+        return self._cache.needs_update(Users.KEY_FORMAT % user.id, Users.AGE, database = self._database)
 
     def get(self, user):
-        return self._cache.get(Users.KEY_FORMAT % user.id)
+        return self._cache.get(Users.KEY_FORMAT % user.id, database = self._database)
 
     def set(self, user, lastfm_user):
-        self._cache.set(Users.KEY_FORMAT % user.id, lastfm_user)
+        self._cache.set(Users.KEY_FORMAT % user.id, lastfm_user, database = self._database)
 
 
 class LastfmMonitor(Monitor):
@@ -362,11 +359,11 @@ class LastfmMonitor(Monitor):
         Monitor.__init__(self, bus, self.run, LastfmMonitor.FREQUENCY, *args, **kwargs)
 
     def run(self):
-        session = get_session()
+        database = get_session()
 
-        users = Users(session)
+        users = Users(database)
 
-        for user in session.query(User).filter("lastfm_user is not null").all():
+        for user in database.query(User).filter("lastfm_user is not null").all():
             if users.needs_update(user):
                 lastfm_user = lastfm.get_user(user.lastfm_user, user.lastfm_session_key)
                 users.set(user, lastfm_user)
