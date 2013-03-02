@@ -10,7 +10,7 @@ define(['jquery', 'inheritance', 'bind', 'lib/bootstrap/bootstrap-alert', 'domRe
 
             var that = this;
 
-            $('body').ajaxComplete(function (event, xhr) {
+            $(document).ajaxComplete(function (event, xhr) {
                 var header = xhr.getResponseHeader('X-Opmuse-Message');
 
                 if (header !== null) {

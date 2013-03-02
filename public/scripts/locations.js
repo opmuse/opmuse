@@ -10,7 +10,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
 
             var that = this;
 
-            $('body').ajaxComplete(function (event, xhr) {
+            $(document).ajaxComplete(function (event, xhr) {
                 var header = xhr.getResponseHeader('X-Opmuse-Location');
 
                 if (header !== null) {

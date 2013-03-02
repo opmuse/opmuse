@@ -9,7 +9,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             this.active = 0;
 
-            $('body').ajaxSend(function () {
+            $(document).ajaxSend(function () {
                 if (that.active == 0) {
                     that.start();
                 }
@@ -17,7 +17,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 that.active++;
             });
 
-            $('body').ajaxComplete(function () {
+            $(document).ajaxComplete(function () {
                 that.active--;
 
                 setTimeout(function () {
@@ -133,7 +133,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             $(this.contents[0]).html(data);
         },
         setPageInDom: function (data) {
-            var html = $(data);
+            var html = $($.parseHTML(data));
 
             document.title = $.trim(html.find("#title").text());
 
