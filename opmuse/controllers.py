@@ -593,6 +593,10 @@ class Root(object):
     ws = WsController()
 
     @cherrypy.expose
+    def __profile__(self, *args, **kwargs):
+        return b'Profiler is disabled, enable it with --profile'
+
+    @cherrypy.expose
     def default(self, *args, **kwargs):
         if len(args) == 1:
             raise cherrypy.InternalRedirect('/library/artist/%s' % args[0])

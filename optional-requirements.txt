@@ -1,1 +1,2 @@
 vendor/oursql-0.9.3.zip
+repoze.profile==2.0b1

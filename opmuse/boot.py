@@ -216,6 +216,8 @@ def configure():
     if 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:
         cherrypy.log.error_log.setLevel(logging.DEBUG)
 
+    return app
+
 
 def boot():
     cherrypy.engine.start()
@@ -235,6 +237,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='opmuse')
     parser.add_argument('-d', '--daemon', action='store_true', help='Run as daemon')
+    parser.add_argument('-p', '--profile', action='store_true', help='Run repoze.profile, access it at /__profile__')
     parser.add_argument('-l', '--log', action='store', help='Log file location.')
     parser.add_argument('-le', '--errorlog', action='store', help='Log error messages in this separate file.')
     parser.add_argument('-u', '--user', action='store', help='When running as daemon, what user to run as.', default='nobody')
@@ -242,7 +245,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    configure()
+    app = configure()
 
     if args.env is not None:
         cherrypy.config.update({
@@ -270,5 +273,9 @@ if __name__ == '__main__':
         from cherrypy.process.plugins import Daemonizer, DropPrivileges
         Daemonizer(cherrypy.engine).subscribe()
         DropPrivileges(cherrypy.engine, uid=args.user, umask=0o022).subscribe()
+
+    if args.profile:
+        from opmuse.utils import profile_pipeline
+        app.wsgiapp.pipeline.append(('profile', profile_pipeline))
 
     boot()
