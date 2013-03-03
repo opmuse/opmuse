@@ -3,6 +3,7 @@ from opmuse.cache import cache
 from opmuse.wikipedia import wikipedia
 from opmuse.lastfm import lastfm
 
+
 class Remotes:
     ARTIST_KEY_FORMAT = "remotes_artist_%d"
     ALBUM_KEY_FORMAT = "remotes_album_%d"

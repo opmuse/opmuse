@@ -79,5 +79,3 @@ class BackgroundTaskQueue(SimplePlugin):
 
     def put(self, func, *args, **kwargs):
         self.tasks.put((func, args, kwargs))
-
-

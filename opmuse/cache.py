@@ -67,7 +67,7 @@ class Cache:
                 .update({'value': value, 'updated': updated, 'type': value_type}))
         else:
             database.execute(CacheObject.__table__.insert(),
-                                 {'key': key, 'value': value, 'updated': updated, 'type': value_type})
+                             {'key': key, 'value': value, 'updated': updated, 'type': value_type})
 
         database.commit()
 
