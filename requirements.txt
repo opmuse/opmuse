@@ -10,3 +10,4 @@ vendor/mutagen-py3.tar.bz2
 rarfile==2.5
 ws4py==0.2.4
 Unidecode==0.04.12
+vendor/discogs_client.tar.bz2

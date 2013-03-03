@@ -2,6 +2,7 @@ import cherrypy
 from opmuse.cache import cache
 from opmuse.wikipedia import wikipedia
 from opmuse.lastfm import lastfm
+from opmuse.discogs import discogs
 
 
 class Remotes:
@@ -112,7 +113,8 @@ class Remotes:
 
         artist = {
             'wikipedia': wikipedia.get_artist(name),
-            'lastfm': lastfm.get_artist(name)
+            'lastfm': lastfm.get_artist(name),
+            'discogs': discogs.get_artist(name)
         }
 
         cache.set(key, artist, database = _database)

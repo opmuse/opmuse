@@ -64,6 +64,16 @@
                     {% endfor %}
                 {% endif %}
                 </li>
+                <li class="nav-header">Discogs aliases</li>
+                <li>
+                {% if remotes_artist %}
+                    {% for alias in remotes_artist.discogs.aliases %}
+                        <span class="badge badge-inverse">
+                            <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
+                        </span>
+                    {% endfor %}
+                {% endif %}
+                </li>
                 <li class="nav-header">Namesakes</li>
                 <li>
                 {% for artist in namesakes %}

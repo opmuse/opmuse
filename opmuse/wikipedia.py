@@ -17,14 +17,16 @@ class Wikipedia():
         }
 
     def get_album(self, artist_name, album_name):
+        extract = None
 
-        if re.sub('[^a-z]+', '', album_name.lower()) == 'selftitled':
+        if album_name is not None and re.sub('[^a-z]+', '', album_name.lower()) == 'selftitled':
             album_name = artist_name
 
-        extract = self.find_extract(album_name, ['album', 'soundtrack'])
+        if album_name is None:
+            extract = self.find_extract(album_name, ['album', 'soundtrack'])
 
-        if extract is None:
-            extract = self.find_extract('%s - %s' % (artist_name, album_name), ['album'])
+            if extract is None:
+                extract = self.find_extract('%s - %s' % (artist_name, album_name), ['album'])
 
         if extract is None:
             extract = ''
