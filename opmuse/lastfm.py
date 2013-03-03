@@ -335,47 +335,4 @@ class SessionKey:
         return key
 
 
-class Users:
-    AGE = 3600 * 2
-    KEY_FORMAT = "lastfm_user_%d"
-
-    def __init__(self, database):
-        self._database = database
-
-    def needs_update(self, user):
-        return self._cache.needs_update(Users.KEY_FORMAT % user.id, Users.AGE, database = self._database)
-
-    def get(self, user):
-        return self._cache.get(Users.KEY_FORMAT % user.id, database = self._database)
-
-    def set(self, user, lastfm_user):
-        self._cache.set(Users.KEY_FORMAT % user.id, lastfm_user, database = self._database)
-
-
-class LastfmMonitor(Monitor):
-    FREQUENCY = 120
-
-    def __init__(self, bus, *args, **kwargs):
-        Monitor.__init__(self, bus, self.run, LastfmMonitor.FREQUENCY, *args, **kwargs)
-
-    def run(self):
-        database = get_session()
-
-        users = Users(database)
-
-        for user in database.query(User).filter("lastfm_user is not null").all():
-            if users.needs_update(user):
-                lastfm_user = lastfm.get_user(user.lastfm_user, user.lastfm_session_key)
-                users.set(user, lastfm_user)
-                log("Updated user %s." % user.login)
-
-
-class LastfmTool(cherrypy.Tool):
-    def __init__(self):
-        cherrypy.Tool.__init__(self, 'on_start_resource',
-                               self.bind_session, priority=20)
-
-    def bind_session(self):
-        cherrypy.request.lastfm_users = Users(cherrypy.request.database)
-
 lastfm = Lastfm()

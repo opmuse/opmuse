@@ -6,11 +6,11 @@
 
 {% block right %}
 <div class="artist-nav well sidebar-nav">
-    {% if lastfm_user %}
+    {% if remotes_user.lastfm %}
     <ul class="nav nav-list">
         <li class="nav-header">External pages</li>
         <li>
-            <a href="{{ lastfm_user.url }}">Go to Lastfm user page</a>
+            <a href="{{ remotes_user.lastfm.url }}">Go to Lastfm user page</a>
         </li>
     </ul>
     {% endif %}
@@ -35,12 +35,12 @@
 
     <ul class="row-fluid">
         <li class="span5">
-            {% if lastfm_user.top_artists_overall %}
+            {% if remotes_user.lastfm.top_artists_overall %}
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th colspan="3">Lastfm Top Artists</th>
                     </tr>
-                    {% for artist in lastfm_user.top_artists_overall %}
+                    {% for artist in remotes_user.lastfm.top_artists_overall %}
                     <tr>
                         <td>{{ artist.index }}</td>
                         <td><a href="/search/{{ artist.name }}/artist">{{ artist.name|show_ws }}</a></td>
@@ -51,12 +51,12 @@
             {% endif %}
         </li>
         <li class="span6">
-            {% if lastfm_user %}
+            {% if remotes_user.lastfm %}
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th colspan="2">Lastfm Recent Tracks</th>
                     </tr>
-                    {% for track in lastfm_user.recent_tracks %}
+                    {% for track in remotes_user.lastfm.recent_tracks %}
                     {% if not last_track or last_track.artist != track.artist %}
                     <tr>
                         <th colspan="2"><a href="/search/{{ track.artist }}/artist">{{ track.artist }}</a></th>

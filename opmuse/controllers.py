@@ -313,6 +313,9 @@ class Users:
 
         users = (cherrypy.request.database.query(User).order_by(User.login).all())
 
+        for user in users:
+            remotes.update_user(user)
+
         return {'users': users}
 
     @cherrypy.expose
@@ -326,11 +329,12 @@ class Users:
         except NoResultFound:
             raise cherrypy.NotFound()
 
-        lastfm_user = cherrypy.request.lastfm_users.get(user)
+        remotes.update_user(user)
+        remotes_user = remotes.get_user(user)
 
         return {
             'user': user,
-            'lastfm_user': lastfm_user
+            'remotes_user': remotes_user
         }
 
 
@@ -508,12 +512,12 @@ class Library(object):
         elif view == "yours":
             artists = []
 
-            lastfm_user = cherrypy.request.lastfm_users.get(cherrypy.request.user)
+            remotes_user = remotes.get_user(cherrypy.request.user)
 
-            if lastfm_user is not None:
+            if remotes_user is not None:
                 index = 0
 
-                for artist in lastfm_user['top_artists_overall']:
+                for artist in remotes_user['lastfm']['top_artists_overall']:
                     artist_results = search.query_artist(artist['name'])
 
                     if len(artist_results) > 0:
@@ -555,12 +559,12 @@ class Library(object):
         elif view == "yours":
             albums = []
 
-            lastfm_user = cherrypy.request.lastfm_users.get(cherrypy.request.user)
+            remotes_user = remotes.get_user(cherrypy.request.user)
 
-            if lastfm_user is not None:
+            if remotes_user is not None:
                 index = 0
 
-                for album in lastfm_user['top_albums_overall']:
+                for album in remotes_user['lastfm']['top_albums_overall']:
                     album_results = search.query_album(album['name'])
 
                     if len(album_results) > 0:
@@ -764,15 +768,17 @@ class Root(object):
                  .order_by(User.login).limit(8).all())
 
         for user in users:
+            remotes.update_user(user)
+
             if user.lastfm_user is None:
                 continue
 
-            lastfm_user = cherrypy.request.lastfm_users.get(user)
+            remotes_user = remotes.get_user(user)
 
-            if lastfm_user is None:
+            if remotes_user is None:
                 continue
 
-            for recent_track in lastfm_user['recent_tracks']:
+            for recent_track in remotes_user['lastfm']['recent_tracks']:
                 artist_names.add(recent_track['artist'])
 
         artist_names = list(artist_names)
@@ -1004,9 +1010,11 @@ class Root(object):
     @cherrypy.config(**{'response.stream': True})
     def stream(self, **kwargs):
 
-        user_id = cherrypy.request.user.id
+        user = cherrypy.request.user
 
-        queue = queue_dao.get_next(user_id)
+        remotes.update_user(user)
+
+        queue = queue_dao.get_next(user.id)
 
         if queue is None:
             raise cherrypy.HTTPError(status=409)
@@ -1021,7 +1029,7 @@ class Root(object):
 
         cherrypy.log(
             '%s is streaming "%s" in %s (original was %s) with "%s"' %
-            (cherrypy.request.user.login, queue.track, format, queue.track.format, user_agent)
+            (user.login, queue.track, format, queue.track.format, user_agent)
         )
 
         cherrypy.response.headers['Content-Type'] = format

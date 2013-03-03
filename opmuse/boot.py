@@ -14,7 +14,6 @@ from opmuse.jinja import Jinja, JinjaGlobalsTool, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
-from opmuse.lastfm import LastfmMonitor, LastfmTool
 from opmuse.bgtask import BackgroundTaskQueue
 import opmuse.cache
 
@@ -47,7 +46,6 @@ def configure():
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
     cherrypy.tools.cgitb_log_err = cherrypy.Tool('before_error_response', cgitb_log_err)
-    cherrypy.tools.lastfm = LastfmTool()
     cherrypy.tools.websocket = WebSocketTool()
     import opmuse.controllers
 
@@ -63,7 +61,6 @@ def configure():
             'tools.jinjaglobals.on': True,
             'tools.library.on': True,
             'tools.jinjaenv.on': True,
-            'tools.lastfm.on': True,
             'tools.sessions.storage_type': "file",
             'tools.sessions.storage_path': join(abspath(dirname(__file__)), '..', 'cache', 'session'),
             'tools.sessions.locking': "explicit",
@@ -141,8 +138,6 @@ def configure():
         ssl_server.subscribe()
 
     WebSocketPlugin(cherrypy.engine).subscribe()
-
-    LastfmMonitor(cherrypy.engine).subscribe()
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
     cherrypy.engine.database.subscribe()
