@@ -9,6 +9,9 @@
     {% include "partials/library-nav.html" %}
 
     <form method="post" action="/library/edit/submit">
+        <button class="btn" name="yes" type="submit" value="yes">Edit and move files.</button>
+        <button class="btn" name="no" type="submit" value="no">Only edit.</button>
+
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -36,46 +39,47 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
             {% for track in tracks %}
-                <tr class="track-info">
-                    <td colspan="6">
-                        <span class="title">Files:</span>
-                        {% for path in track.paths %}
-                        {{ path.pretty_path }}
-                        {% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="hidden" name="ids" value="{{ track.id }}" />
-                        <input autocomplete="off" type="text" class="artist"
-                            name="artists" value="{{ track.artist.name|e }}" />
-                    </td>
-                    <td>
-                        <input autocomplete="off" type="text" class="album"
-                            name="albums" value="{{ track.album.name|e }}" />
-                    </td>
-                    <td>
-                        <input autocomplete="off" type="text" class="track"
-                            name="tracks" value="{{ track.name|e }}" />
-                    </td>
-                    <td>
-                        <input autocomplete="off" type="text" class="date"
-                            name="dates" value="{{ track.album.date|e if track.album.date else '' }}" />
-                    </td>
-                    <td>
-                        <input autocomplete="off" type="text" class="number"
-                            name="numbers" value="{{ track.number|e if track.number else '' }}" />
-                    </td>
-                    <td>
-                        <input autocomplete="off" type="text" class="disc"
-                            name="discs" value="{{ track.disc|e if track.disc else '' }}" />
-                    </td>
-                </tr>
-                {% endfor %}
-            <tbody>
+                <tbody>
+                    <tr class="track-info">
+                        <td colspan="6">
+                            <span class="title">Files:</span>
+                            {% for path in track.paths %}
+                            {{ path.pretty_path }}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="hidden" name="ids" value="{{ track.id }}" />
+                            <input autocomplete="off" type="text" class="artist"
+                                name="artists" value="{{ track.artist.name|e }}" />
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" class="album"
+                                name="albums" value="{{ track.album.name|e }}" />
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" class="track"
+                                name="tracks" value="{{ track.name|e }}" />
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" class="date"
+                                name="dates" value="{{ track.album.date|e if track.album.date else '' }}" />
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" class="number"
+                                name="numbers" value="{{ track.number|e if track.number else '' }}" />
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" class="disc"
+                                name="discs" value="{{ track.disc|e if track.disc else '' }}" />
+                        </td>
+                    </tr>
+                <tbody>
+            {% endfor %}
         </table>
+
         <button class="btn" name="yes" type="submit" value="yes">Edit and move files.</button>
         <button class="btn" name="no" type="submit" value="no">Only edit.</button>
     </form>
