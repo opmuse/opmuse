@@ -11,8 +11,8 @@ def debug(msg):
     cherrypy.log.error(msg, context='bgtask', severity=logging.DEBUG)
 
 
-def log(msg):
-    cherrypy.log(msg, context='bgtask')
+def log(msg, traceback=False):
+    cherrypy.log(msg, context='bgtask', traceback=traceback)
 
 
 class BackgroundTaskQueue(SimplePlugin):
@@ -75,7 +75,7 @@ class BackgroundTaskQueue(SimplePlugin):
 
                     self.tasks.task_done()
             except:
-                log("Error in bgtask thread #%d %r." % (number, self), level=40, traceback=True)
+                log("Error in bgtask thread #%d %r." % (number, self), traceback=True)
 
     def put(self, func, *args, **kwargs):
         self.tasks.put((func, args, kwargs))
