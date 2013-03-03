@@ -233,6 +233,11 @@ class Upload:
 
         shutil.rmtree(tempdir)
 
+        for track in tracks:
+            remotes.update_album(track.album)
+            remotes.update_artist(track.artist)
+            remotes.update_track(track)
+
         return {'tracks': tracks, 'messages': messages}
 
 
@@ -696,6 +701,15 @@ class Root(object):
 
         if tracks is None:
             tracks = search.query_track(query)
+
+        for artist in artists:
+            remotes.update_artist(artist)
+
+        for album in albums:
+            remotes.update_album(album)
+
+        for track in tracks:
+            remotes.update_track(track)
 
         if len(artists) + len(albums) + len(tracks) == 1:
             for artist in artists:
