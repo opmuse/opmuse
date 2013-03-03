@@ -757,7 +757,26 @@ class Root(object):
                 'entity': track
             }
 
-        return {'results': results}
+        artist_tracks = []
+
+        for key, result_artist in results.items():
+            for album in result_artist['entity'].albums:
+                for track in album.tracks:
+                    artist_tracks.append(track)
+
+        album_tracks = []
+
+        for key, result_artist in results.items():
+            for key, result_album in result_artist['albums'].items():
+                for track in result_album['entity'].tracks:
+                    album_tracks.append(track)
+
+        return {
+            'results': results,
+            'track_tracks': tracks,
+            'album_tracks': album_tracks,
+            'artist_tracks': artist_tracks
+        }
 
     @cherrypy.expose
     def index(self, came_from = None):

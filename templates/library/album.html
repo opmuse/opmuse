@@ -38,9 +38,7 @@
         </a>
     </div>
 
-    <div class="btn-group edit-btn">
-        {{ edit_dropdown.dropdown(album.tracks) }}
-    </div>
+    {{ edit_dropdown.dropdown(album.tracks) }}
 
     <div class="clear"></div>
 
@@ -64,9 +62,7 @@
                                 <i class="icon-headphones"></i>
                             </a>
                         </span>
-                        <span class="btn-group edit-btn">
-                            {{ edit_dropdown.dropdown(tracks) }}
-                        </span>
+                        {{ edit_dropdown.dropdown(tracks) }}
                     </th>
                 </tr>
                 {% for track in tracks %}

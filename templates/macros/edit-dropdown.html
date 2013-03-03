@@ -1,10 +1,11 @@
-{% macro dropdown(tracks) %}
+{% macro dropdown(tracks, title="Tracks") %}
+    <div class="btn-group edit-btn">
         {% set modalId = "removeAlbumModal" + rand_id() %}
 
-        {{ remove_modal(modalId, "Remove Tracks", tracks) }}
+        {{ remove_modal(modalId, "Remove " + title, tracks) }}
 
         <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-            Tracks
+            {{ title }}
             <span class="icon-caret-down"></span>
         </a>
         <ul class="dropdown-menu">
@@ -44,6 +45,7 @@
                 </a>
             </li>
         </ul>
+    </div>
 {% endmacro %}
 
 {% macro remove_modal(modalId, modalLabel, tracks) %}

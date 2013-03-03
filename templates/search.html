@@ -5,20 +5,37 @@
 {% endblock %}
 
 {% block content %}
+
 {% import "macros/artist-media.html" as artist_media %}
 {% import "macros/album-media.html" as album_media %}
-<div id="search">
-    <h1>Search</h1>
+{% import "macros/edit-dropdown.html" as edit_dropdown %}
 
-    {% for key, result_artist in results.items() %}
-        {% call(album) artist_media.artist_media(result_artist.entity, result_artist.albums.items()) %}
-            {% call(track) album_media.album_media(album[1].entity, album[1].tracks.items()) %}
-                {% set track = track[1].entity %}
-                <div class="track">
-                    {% include "partials/track.html" %}
-                </div>
+<div id="search">
+    {% if artist_tracks %}
+        {{ edit_dropdown.dropdown(artist_tracks, "Artists") }}
+    {% endif %}
+    {% if album_tracks %}
+        {{ edit_dropdown.dropdown(album_tracks, "Albums") }}
+    {% endif %}
+    {% if track_tracks %}
+        {{ edit_dropdown.dropdown(track_tracks, "Tracks") }}
+    {% endif %}
+
+    <div class="clear"></div>
+
+    <hr />
+
+    <div class="results">
+        {% for key, result_artist in results.items() %}
+            {% call(album) artist_media.artist_media(result_artist.entity, result_artist.albums.items()) %}
+                {% call(track) album_media.album_media(album[1].entity, album[1].tracks.items()) %}
+                    {% set track = track[1].entity %}
+                    <div class="track">
+                        {% include "partials/track.html" %}
+                    </div>
+                {% endcall %}
             {% endcall %}
-        {% endcall %}
-    {% endfor %}
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
