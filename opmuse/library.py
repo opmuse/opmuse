@@ -1153,6 +1153,7 @@ class LibraryDao:
 
     def update_tracks_tags(self, tracks, move = False):
         filenames = []
+        messages = []
 
         for track in tracks:
             id = track['id']
@@ -1167,9 +1168,14 @@ class LibraryDao:
                      .filter_by(id=id).one())
 
             for path in track.paths:
+                try:
+                    tag = reader.get_mutagen_tag(path.path)
+                except Exception as e:
+                    messages.append("Failed to get tag for %s (%s)." % (path.path.decode('utf8', 'replace'), e))
+                    break
+
                 filenames.append(path.path)
 
-                tag = reader.get_mutagen_tag(path.path)
                 tag['artist'] = artist_name
                 tag['album'] = album_name
                 tag['title'] = track_name
@@ -1184,10 +1190,12 @@ class LibraryDao:
                     tag['discnumber'] = disc
 
                 tag.save()
+            else:
+                self.delete_track(track)
 
-            self.delete_track(track)
+        tracks, add_files_messages = self.add_files(filenames, move)
 
-        return self.add_files(filenames, move)
+        return tracks, messages + add_files_messages
 
     def get_invalid_track_count(self):
         return cherrypy.request.database.query(func.count(Track.id)).filter("invalid is not null").scalar()
