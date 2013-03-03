@@ -3,7 +3,7 @@ import cherrypy
 from cherrypy.process.plugins import Monitor
 import whoosh.index
 import whoosh.fields
-from whoosh.writing import BufferedWriter
+from whoosh.writing import BufferedWriter, IndexingError
 from whoosh.analysis import SimpleAnalyzer
 from whoosh.qparser import MultifieldParser
 import opmuse.library
@@ -39,7 +39,13 @@ class WriteHandler:
 
             while len(self._deletes) > 0:
                 id = self._deletes.pop()
-                writer.delete_document(id)
+
+                try:
+                    writer.delete_document(id)
+                except IndexingError as e:
+                    log("Error while deleting %d in %s (%s)." % (id, self.name, e))
+                    continue
+
                 deletes += 1
 
         if updates > 0 or deletes > 0:
