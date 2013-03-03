@@ -20,27 +20,37 @@ class BackgroundTaskQueue(SimplePlugin):
         SimplePlugin.__init__(self, bus)
 
         self.tasks = queue.Queue()
-        self.thread = None
+        self.threads = None
+        self.start_threads = 4
 
     def start(self):
         self.running = True
 
-        if not self.thread:
-            self.thread = threading.Thread(target=self.run)
-            self.thread.start()
+        if not self.threads:
+            self.threads = []
+
+            for number in range(0, self.start_threads):
+                debug("Starting bgtask thread #%d" % number)
+
+                thread = threading.Thread(target=self.run, args=(number, ))
+                thread.start()
+
+                self.threads.append(thread)
 
     start.priority = 90
 
     def stop(self):
-        self.running = "draining"
+        self.running = "drain"
 
-        if self.thread:
-            self.thread.join()
-            self.thread = None
+        if self.threads:
+            for thread in self.threads:
+                thread.join()
+
+            self.theads = None
 
         self.running = False
 
-    def run(self):
+    def run(self, number):
         database = get_session()
 
         while self.running:
@@ -48,12 +58,13 @@ class BackgroundTaskQueue(SimplePlugin):
                 try:
                     func, args, kwargs = self.tasks.get(block=True, timeout=2)
                 except queue.Empty:
-                    if self.running == "draining":
+                    if self.running == "drain":
                         return
 
                     continue
                 else:
-                    debug("Running bgtask %r with args %r and kwargs %r." % (func, args, kwargs))
+                    debug("Running bgtask in thread #%d %r with args %r and kwargs %r." %
+                          (number, func, args, kwargs))
 
                     argspec = inspect.getfullargspec(func)
 
@@ -64,7 +75,7 @@ class BackgroundTaskQueue(SimplePlugin):
 
                     self.tasks.task_done()
             except:
-                log("Error in bgtask %r." % self, level=40, traceback=True)
+                log("Error in bgtask thread #%d %r." % (number, self), level=40, traceback=True)
 
     def put(self, func, *args, **kwargs):
         self.tasks.put((func, args, kwargs))
