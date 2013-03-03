@@ -204,12 +204,3 @@ class JinjaEnvTool(cherrypy.Tool):
     def bind_jinja(self):
         binds = cherrypy.engine.publish('bind_jinja')
         cherrypy.request.jinja = binds[0]
-
-
-class JinjaGlobalsTool(cherrypy.Tool):
-    def __init__(self):
-        cherrypy.Tool.__init__(self, 'before_handler',
-                               self.start, priority=20)
-
-    def start(self):
-        cherrypy.request.jinja.globals['server_name'] = cherrypy.request.app.config['opmuse']['server_name']

@@ -10,7 +10,7 @@ from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
-from opmuse.jinja import Jinja, JinjaGlobalsTool, JinjaEnvTool, JinjaPlugin
+from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
@@ -40,7 +40,6 @@ def configure():
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
-    cherrypy.tools.jinjaglobals = JinjaGlobalsTool()
     cherrypy.tools.library = LibraryTool()
     cherrypy.tools.jinjaenv = JinjaEnvTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
@@ -58,7 +57,6 @@ def configure():
             'tools.encode.on': False,
             'tools.database.on': True,
             'tools.jinjaauthenticated.on': True,
-            'tools.jinjaglobals.on': True,
             'tools.library.on': True,
             'tools.jinjaenv.on': True,
             'tools.sessions.storage_type': "file",
