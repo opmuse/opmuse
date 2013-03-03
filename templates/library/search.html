@@ -1,0 +1,83 @@
+{% extends "body.html" %}
+
+{% block title  %}
+    Search
+{% endblock %}
+
+{% block content %}
+
+{% import "macros/artist-media.html" as artist_media %}
+{% import "macros/album-media.html" as album_media %}
+{% import "macros/edit-dropdown.html" as edit_dropdown %}
+
+<div id="search" data-query="{{ query }}">
+    {% include "partials/library-nav.html" %}
+
+    <div class="row-fluid">
+        <div class="span7">
+            <p class="result-text">
+                {% if query %}
+                    Showing matches for <strong>{{ query }}</strong> on artists, albums and tracks
+                    presented with their full hierarchy. Use buttons on the right to perform various actions on tracks related to
+                    these results.
+                {% else %}
+                    No query specified.
+                {% endif %}
+            </p>
+        </div>
+        <div class="span5">
+            <div class="edit-buttons">
+                {% if artist_tracks %}
+                    {{ edit_dropdown.dropdown(artist_tracks, "Tracks in Artists") }}
+                {% endif %}
+                {% if album_tracks %}
+                    {{ edit_dropdown.dropdown(album_tracks, "Tracks in Albums") }}
+                {% endif %}
+                {% if track_tracks %}
+                    {{ edit_dropdown.dropdown(track_tracks, "Tracks") }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="clear"></div>
+
+    <hr />
+
+    <div class="row-fluid">
+        <div class="span7">
+            <div class="results">
+                {% for key, result_artist in results.items() %}
+                    {% call(album) artist_media.artist_media(result_artist.entity, result_artist.albums.items()) %}
+                        {% call(track) album_media.album_media(album[1].entity, album[1].tracks.items()) %}
+                            {% set track = track[1].entity %}
+                            <div class="track">
+                                {% include "partials/track.html" %}
+                            </div>
+                        {% endcall %}
+                    {% endcall %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="span5">
+            <div class="result-stats well well-small sidebar-nav">
+                <ul class="nav nav-list">
+                    <li class="nav-header">Statistics</li>
+                    <li>
+                        <dl class="dl-horizontal">
+                            <dt>Artists</dt>
+                            <dd>{{ artists|length|format_number }}</dd>
+                            <dt>Albums</dt>
+                            <dd>{{ albums|length|format_number }}</dd>
+                            <dt>Tracks</dt>
+                            <dd>{{ tracks|length|format_number }}</dd>
+                            <dt>Total</dt>
+                            <dd>{{ (tracks|length + artists|length + albums|length)|format_number }}</dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

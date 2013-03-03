@@ -140,6 +140,112 @@ class Remove:
             raise HTTPRedirect('/library/albums/new')
 
 
+class Search:
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='library/search.html')
+    def default(self, query = None, type = None):
+        artists = []
+        albums = []
+        tracks = []
+
+        artist_tracks = []
+        album_tracks = []
+
+        results = OrderedDict({})
+
+        if query is not None:
+            artists = search.query_artist(query)
+
+            albums = None
+            tracks = None
+
+            # only search for artists
+            if type == 'artist':
+                albums = []
+                tracks = []
+
+            if albums is None:
+                albums = search.query_album(query)
+
+            if tracks is None:
+                tracks = search.query_track(query)
+
+            for artist in artists:
+                remotes.update_artist(artist)
+
+            for album in albums:
+                remotes.update_album(album)
+
+            for track in tracks:
+                remotes.update_track(track)
+
+            if len(artists) + len(albums) + len(tracks) == 1:
+                for artist in artists:
+                    raise HTTPRedirect('/%s' % artist.slug)
+                for album in albums:
+                    raise HTTPRedirect('/%s/%s' % (album.artists[0].slug, album.slug))
+                for track in tracks:
+                    raise HTTPRedirect('/library/track/%s' % track.slug)
+
+            for artist in artists:
+                results[artist.id] = {
+                    'entity': artist,
+                    'albums': {}
+                }
+
+            for album in albums:
+                for artist in album.artists:
+                    if artist.id not in results:
+                        results[artist.id] = {
+                            'entity': artist,
+                            'albums': {}
+                        }
+
+                    results[artist.id]['albums'][album.id] = {
+                        'entity': album,
+                        'tracks': {}
+                    }
+
+            for track in tracks:
+                if track.artist.id not in results:
+                    results[track.artist.id] = {
+                        'entity': track.artist,
+                        'albums': {}
+                    }
+
+                if track.album.id not in results[track.artist.id]['albums']:
+                    results[track.artist.id]['albums'][track.album.id] = {
+                        'entity': track.album,
+                        'tracks': {}
+                    }
+
+                results[track.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
+                    'entity': track
+                }
+
+            for key, result_artist in results.items():
+                for album in result_artist['entity'].albums:
+                    for track in album.tracks:
+                        artist_tracks.append(track)
+
+            for key, result_artist in results.items():
+                for key, result_album in result_artist['albums'].items():
+                    for track in result_album['entity'].tracks:
+                        album_tracks.append(track)
+
+        return {
+            'query': query,
+            'results': results,
+            'tracks': tracks,
+            'albums': albums,
+            'artists': artists,
+            'track_tracks': tracks,
+            'album_tracks': album_tracks,
+            'artist_tracks': artist_tracks
+        }
+
+
 class Upload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload.html')
@@ -394,6 +500,7 @@ class Styles(object):
 
 
 class Library(object):
+    search = Search()
     upload = Upload()
     edit = Edit()
 
@@ -635,6 +742,15 @@ class Root(object):
         return b'Profiler is disabled, enable it with --profile'
 
     @cherrypy.expose
+    def search(self, *args, **kwargs):
+        if len(args) > 1:
+            raise cherrypy.InternalRedirect('/library/search/%s/%s' % (args[0], args[1]))
+        elif len(args) > 0:
+            raise cherrypy.InternalRedirect('/library/search/%s' % args[0])
+        else:
+            raise cherrypy.InternalRedirect('/library/search')
+
+    @cherrypy.expose
     def default(self, *args, **kwargs):
         if len(args) == 1:
             raise cherrypy.InternalRedirect('/library/artist/%s' % args[0])
@@ -681,102 +797,6 @@ class Root(object):
                     raise HTTPRedirect('/')
 
         return {}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='search.html')
-    def search(self, query, type = None):
-
-        artists = search.query_artist(query)
-        albums = None
-        tracks = None
-
-        # only search for artists
-        if type == 'artist':
-            albums = []
-            tracks = []
-
-        if albums is None:
-            albums = search.query_album(query)
-
-        if tracks is None:
-            tracks = search.query_track(query)
-
-        for artist in artists:
-            remotes.update_artist(artist)
-
-        for album in albums:
-            remotes.update_album(album)
-
-        for track in tracks:
-            remotes.update_track(track)
-
-        if len(artists) + len(albums) + len(tracks) == 1:
-            for artist in artists:
-                raise HTTPRedirect('/%s' % artist.slug)
-            for album in albums:
-                raise HTTPRedirect('/%s/%s' % (album.artists[0].slug, album.slug))
-            for track in tracks:
-                raise HTTPRedirect('/library/track/%s' % track.slug)
-
-        results = OrderedDict({})
-
-        for artist in artists:
-            results[artist.id] = {
-                'entity': artist,
-                'albums': {}
-            }
-
-        for album in albums:
-            for artist in album.artists:
-                if artist.id not in results:
-                    results[artist.id] = {
-                        'entity': artist,
-                        'albums': {}
-                    }
-
-                results[artist.id]['albums'][album.id] = {
-                    'entity': album,
-                    'tracks': {}
-                }
-
-        for track in tracks:
-            if track.artist.id not in results:
-                results[track.artist.id] = {
-                    'entity': track.artist,
-                    'albums': {}
-                }
-
-            if track.album.id not in results[track.artist.id]['albums']:
-                results[track.artist.id]['albums'][track.album.id] = {
-                    'entity': track.album,
-                    'tracks': {}
-                }
-
-            results[track.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
-                'entity': track
-            }
-
-        artist_tracks = []
-
-        for key, result_artist in results.items():
-            for album in result_artist['entity'].albums:
-                for track in album.tracks:
-                    artist_tracks.append(track)
-
-        album_tracks = []
-
-        for key, result_artist in results.items():
-            for key, result_album in result_artist['albums'].items():
-                for track in result_album['entity'].tracks:
-                    album_tracks.append(track)
-
-        return {
-            'results': results,
-            'track_tracks': tracks,
-            'album_tracks': album_tracks,
-            'artist_tracks': artist_tracks
-        }
 
     @cherrypy.expose
     def index(self, came_from = None):

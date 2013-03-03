@@ -21,11 +21,17 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
             that.internalInit();
         },
         internalInit: function () {
+            var query = $("#search").data("query");
+
+            if (typeof query == 'undefined' || query === null || query == '') {
+                query = 'Search';
+            }
+
             $('.search-query').bind('keyup', function (event) {
                 if (event.keyCode == 13) {
                     ajaxify.setPage('/search/' + $(this).val());
                 }
-            });
+            }).attr('placeholder', query);
         }
     });
 

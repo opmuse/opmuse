@@ -1,5 +1,7 @@
 <span class="text">
-    <span class="track-number">{{ track.number }}</span>
+    {% if track.number %}
+        <span class="track-number">{{ track.number }}</span>
+    {% endif %}
     <span class="artist-name">
         <a href="/{{ track.artist.slug|urlencode }}">
             {{ track.artist.name|show_ws }}

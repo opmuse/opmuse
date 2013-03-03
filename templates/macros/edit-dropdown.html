@@ -1,9 +1,7 @@
 {% macro dropdown(tracks, title="Tracks") %}
+    {% set modalId = "removeAlbumModal" + rand_id() %}
+    {{ remove_modal(modalId, "Remove " + title, tracks) }}
     <div class="btn-group edit-btn">
-        {% set modalId = "removeAlbumModal" + rand_id() %}
-
-        {{ remove_modal(modalId, "Remove " + title, tracks) }}
-
         <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
             {{ title }}
             <span class="icon-caret-down"></span>
@@ -55,7 +53,14 @@
             <h3 id="removeModalLabel">{{ modalLabel }}</h3>
         </div>
         <div class="modal-body">
-            <p>This will remove all tracks from opmuse and all files from <strong>the filesystem</strong>.</p>
+            <p>This will remove all these tracks/files from opmuse and all files from <strong>the filesystem</strong>.</p>
+            <ul>
+                {% for track in tracks %}
+                    {% for path in track.paths %}
+                        <li>{{ path.pretty_path }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
         </div>
         <div class="modal-footer">
             <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>

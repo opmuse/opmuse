@@ -11,6 +11,9 @@
     <li class="{{ "active" if request.path_info|startswith("/library/upload") }}">
         <a href="/library/upload">Upload</a>
     </li>
+    <li class="{{ "active" if request.path_info|startswith("/library/search") }}">
+        <a href="/library/search">Search</a>
+    </li>
     <li class="{{ "active" if request.path_info|startswith("/library/edit") }}">
         <a href="/library/edit">Edit</a>
     </li>
