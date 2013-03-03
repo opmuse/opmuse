@@ -15,6 +15,16 @@
         <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a>
     {%- endfor %}.
 {% endmacro %}
+
+{% macro print_wikipedia(wikipedia) %}
+    {% if wikipedia.summary %}
+        <p class="wikipedia-content">{{ wikipedia.summary }}</p>
+        <p class="wikipedia-footer">
+            ... continue reading at <a href="{{ wikipedia.url }}">{{ wikipedia.title }}</a>.
+        </p>
+    {% endif %}
+{% endmacro %}
+
 <div class="artist-head">
     <ul class="row-fluid">
         <li class="span8">
@@ -52,13 +62,13 @@
             </h3>
             {% endif %}
             {% if remotes_artist %}
-                {{ remotes_artist.wikipedia.summary }}
+                {{ print_wikipedia(remotes_artist.wikipedia) }}
             {% endif %}
             {% if remotes_album %}
-                {{ remotes_album.wikipedia.summary }}
+                {{ print_wikipedia(remotes_album.wikipedia) }}
             {% endif %}
             {% if remotes_track %}
-                {{ remotes_track.wikipedia.summary }}
+                {{ print_wikipedia(remotes_track.wikipedia) }}
             {% endif %}
         </li>
         <li class="span4">

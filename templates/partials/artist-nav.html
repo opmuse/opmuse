@@ -17,14 +17,16 @@
             <ul class="nav nav-list">
                 <li class="nav-header">{{ artist.name }}</li>
                 {% if remotes_artist %}
-                    <li>
-                        <a href="{{ remotes_artist.lastfm.url }}">Artist on Lastfm</a>
-                    </li>
-                {% endif %}
-                {% if remotes_album %}
-                <li>
-                    <a href="{{ remotes_album.lastfm.url }}">Album Lastfm</a>
-                </li>
+                    {% if remotes_artist.lastfm.url %}
+                        <li>
+                            <a href="{{ remotes_artist.lastfm.url }}">Artist on Lastfm</a>
+                        </li>
+                    {% endif %}
+                    {% if remotes_artist.wikipedia.url %}
+                        <li>
+                            <a href="{{ remotes_artist.wikipedia.url }}">Artist on Wikipedia</a>
+                        </li>
+                    {% endif %}
                 {% endif %}
                 <li>
                     <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
@@ -32,6 +34,19 @@
                     </a>
                 </li>
                 {% if album %}
+                    <li class="nav-header">{{ album.name }}</li>
+                    {% if remotes_album %}
+                        {% if remotes_album.lastfm.url %}
+                            <li>
+                                <a href="{{ remotes_album.lastfm.url }}">Album on Lastfm</a>
+                            </li>
+                        {% endif %}
+                        {% if remotes_album.wikipedia.url %}
+                            <li>
+                                <a href="{{ remotes_album.wikipedia.url }}">Album on Wikipedia</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
                     <li>
                         <a href="http://www.discogs.com/search?q={{ "artist:'" ~ artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
                             Album on Discogs
