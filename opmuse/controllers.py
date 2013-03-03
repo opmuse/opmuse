@@ -402,6 +402,8 @@ class Library(object):
             raise cherrypy.NotFound()
 
         remotes.update_track(track)
+        remotes.update_album(track.album)
+        remotes.update_artist(track.artist)
 
         remotes_artist = remotes.get_artist(track.artist)
         remotes_album = remotes.get_album(track.album)
