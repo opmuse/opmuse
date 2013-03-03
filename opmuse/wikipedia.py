@@ -22,7 +22,7 @@ class Wikipedia():
         if album_name is not None and re.sub('[^a-z]+', '', album_name.lower()) == 'selftitled':
             album_name = artist_name
 
-        if album_name is None:
+        if album_name is not None and artist_name is not None:
             extract = self.find_extract(album_name, ['album', 'soundtrack'])
 
             if extract is None:
