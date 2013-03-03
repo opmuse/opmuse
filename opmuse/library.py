@@ -1203,7 +1203,14 @@ class LibraryDao:
 
     def get_tracks_by_ids(self, ids):
         return (cherrypy.request.database.query(Track)
-                .filter(Track.id.in_(ids)).order_by(Track.disc).order_by(Track.number).order_by(Track.name).all())
+                .join(Album, Album.id == Track.album_id)
+                .join(Artist, Artist.id == Track.artist_id)
+                .filter(Track.id.in_(ids))
+                .order_by(Artist.name)
+                .order_by(Album.name)
+                .order_by(Track.disc)
+                .order_by(Track.number)
+                .order_by(Track.name).all())
 
     def add_files(self, filenames, move = False, remove_dirs = True, artist_name = None):
 
