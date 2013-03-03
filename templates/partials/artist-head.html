@@ -45,16 +45,18 @@
                 </p>
             {% elif album %}
                 <h3 class="album-head">
-                    <a href="/{{ artist_slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name|show_ws }}</a>
+                    <a href="/{{ artist_slug|urlencode }}/{{ album.slug|urlencode }}">
+                        {{ album.name|show_ws }}
+                        {% if album.date %}
+                            <span class="date">{{ album.date }}</span>
+                        {% endif %}
+                    </a>
                     <small>
                         {{ print_artists(artists, true) }}
                     </small>
                 </h3>
                 <p class="album-subline">
-                    {% if album.date %}
-                        {{ album.date }},
-                    {% endif %}
-                    {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}.
+                    {{ album.tracks|length }} tracks, {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}.
                 </p>
             {% else %}
             <h3>
