@@ -25,12 +25,24 @@
 
     {{ edit_dropdown.dropdown(artist.tracks) }}
 
-    <h3>Albums</h3>
+    <h3>Albums by date</h3>
 
     <ul class="albums">
         {% for album in artist.albums %}
         <li>
-            {% if not album.is_va %}
+            {% if not album.is_va and album.date %}
+                {% include "partials/album.html" %}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Albums without date</h2>
+
+    <ul class="albums">
+        {% for album in artist.albums %}
+        <li>
+            {% if not album.is_va and not album.date %}
                 {% include "partials/album.html" %}
             {% endif %}
         </li>
