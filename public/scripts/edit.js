@@ -84,7 +84,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                     }
                 );
 
-                $("#edit input").click(function (event) {
+                $("#edit input").unbind('focus.marker').bind('focus.marker', function (event) {
                     $("#edit tr").removeClass("info");
                     $(this).closest("tbody").find("tr").addClass("info");
                 });
