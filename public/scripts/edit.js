@@ -83,6 +83,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                         return false;
                     }
                 );
+
+                $("#edit input").click(function (event) {
+                    $("#edit tr").removeClass("info");
+                    $(this).closest("tbody").find("tr").addClass("info");
+                });
         }
     });
 
