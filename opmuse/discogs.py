@@ -3,6 +3,7 @@ from discogs_client import HTTPError
 
 discogs_client.user_agent = 'opmuse/DEV'
 
+
 class Discogs:
     def get_artist(self, name):
         artist = {
