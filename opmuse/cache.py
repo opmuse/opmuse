@@ -17,6 +17,10 @@ class CacheObject(Base):
     value = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
 
 
+class Keep:
+    pass
+
+
 class Cache:
     def needs_update(self, key, age, database):
         now = int(time.time())
@@ -45,8 +49,16 @@ class Cache:
         except NoResultFound:
             pass
 
+    def keep(self, key, database):
+        """
+            Updates the timestamp of the objects and creates it if it doesn't exist
+            but keeps the value if there is one.
+        """
+
+        self.set(key, Keep, database)
+
     def set(self, key, value, database):
-        if value is not None and not isinstance(value, (str, bytes, dict, list)):
+        if value is not None and value is not Keep and not isinstance(value, (str, bytes, dict, list)):
             raise ValueError("Unsupported value type.")
 
         count = (database.query(func.count(CacheObject.id))
@@ -62,12 +74,20 @@ class Cache:
             value = json.dumps(value).encode()
 
         if count > 0:
-            (database.query(CacheObject)
-                .filter(CacheObject.key == key)
-                .update({'value': value, 'updated': updated, 'type': value_type}))
+            parameters = {'updated': updated}
+
+            if value is not Keep:
+                parameters['value'] = value
+                parameters['type'] = value_type
+
+            database.query(CacheObject).filter(CacheObject.key == key).update(parameters)
         else:
-            database.execute(CacheObject.__table__.insert(),
-                             {'key': key, 'value': value, 'updated': updated, 'type': value_type})
+            if value is Keep:
+                value = None
+                value_type = type(value).__name__
+
+            parameters = {'key': key, 'value': value, 'updated': updated, 'type': value_type}
+            database.execute(CacheObject.__table__.insert(), parameters)
 
         database.commit()
 
