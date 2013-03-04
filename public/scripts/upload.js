@@ -10,7 +10,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
 
             var that = this;
 
-            that.parallelUploads = 2;
+            that.parallelUploads = 4;
             that.activeUploads = 0;
             that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
 
