@@ -33,45 +33,47 @@
         </li>
     </ul>
 
-    <ul class="row-fluid">
-        <li class="span5">
-            {% if remotes_user.lastfm.top_artists_overall %}
-                <table class="table table-striped table-bordered">
-                    <tr>
-                        <th colspan="3">Lastfm Top Artists</th>
-                    </tr>
-                    {% for artist in remotes_user.lastfm.top_artists_overall %}
-                    <tr>
-                        <td>{{ artist.index }}</td>
-                        <td><a href="/search/{{ artist.name }}/artist">{{ artist.name|show_ws }}</a></td>
-                        <td>{{ artist.weight|format_number }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            {% endif %}
-        </li>
-        <li class="span6">
-            {% if remotes_user.lastfm %}
-                <table class="table table-striped table-bordered">
-                    <tr>
-                        <th colspan="2">Lastfm Recent Tracks</th>
-                    </tr>
-                    {% for track in remotes_user.lastfm.recent_tracks %}
-                    {% if not last_track or last_track.artist != track.artist %}
-                    <tr>
-                        <th colspan="2"><a href="/search/{{ track.artist }}/artist">{{ track.artist }}</a></th>
-                    </tr>
-                    {% endif %}
-                    <tr>
-                        <td>{{ track.timestamp|pretty_date }}</td>
-                        <td><a href="/search/{{ track.name }}">{{ track.name|show_ws }}</a></td>
-                    </tr>
-                    {% set last_track = track %}
-                    {% endfor %}
-                </table>
-            {% endif %}
-        </li>
-    </ul>
+    {% if remotes_user %}
+        <ul class="row-fluid">
+            <li class="span5">
+                {% if remotes_user.lastfm.top_artists_overall %}
+                    <table class="table table-striped table-bordered">
+                        <tr>
+                            <th colspan="3">Lastfm Top Artists</th>
+                        </tr>
+                        {% for artist in remotes_user.lastfm.top_artists_overall %}
+                        <tr>
+                            <td>{{ artist.index }}</td>
+                            <td><a href="/search/{{ artist.name }}/artist">{{ artist.name|show_ws }}</a></td>
+                            <td>{{ artist.weight|format_number }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+            </li>
+            <li class="span6">
+                {% if remotes_user.lastfm %}
+                    <table class="table table-striped table-bordered">
+                        <tr>
+                            <th colspan="2">Lastfm Recent Tracks</th>
+                        </tr>
+                        {% for track in remotes_user.lastfm.recent_tracks %}
+                        {% if not last_track or last_track.artist != track.artist %}
+                        <tr>
+                            <th colspan="2"><a href="/search/{{ track.artist }}/artist">{{ track.artist }}</a></th>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>{{ track.timestamp|pretty_date }}</td>
+                            <td><a href="/search/{{ track.name }}">{{ track.name|show_ws }}</a></td>
+                        </tr>
+                        {% set last_track = track %}
+                        {% endfor %}
+                    </table>
+                {% endif %}
+            </li>
+        </ul>
+    {% endif %}
 </div>
 {% endblock %}
 
