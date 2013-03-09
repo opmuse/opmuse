@@ -4,6 +4,7 @@ import cherrypy
 import base64
 import mmh3
 import tempfile
+from opmuse.ws import ws
 from opmuse.image import image as image_service
 from opmuse.library import library_dao
 from opmuse.library import Artist, Album
@@ -25,11 +26,17 @@ class Covers:
             entity = library_dao.get_artist_by_slug(slug)
 
         if entity is not None:
+            if entity.cover_path is not None and os.path.exists(entity.cover_path):
+                os.remove(entity.cover_path)
+
             entity.cover_path = None
             entity.cover_hash = None
             entity.cover = None
 
-            self.get_cover(type, slug)
+        if type == "album":
+            ws.emit_all('covers.album.update', entity.id)
+        elif type == "artist":
+            ws.emit_all('covers.artist.update', entity.id)
 
     def get_cover(self, type, slug):
         if type not in ['album', 'artist']:
@@ -120,6 +127,10 @@ class Covers:
         album.cover = resize_cover
         album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
 
+        _database.commit()
+
+        ws.emit_all('covers.album.update', album.id)
+
     def fetch_artist_cover(self, artist_id, _database):
         artist = _database.query(Artist).filter_by(id=artist_id).one()
 
@@ -153,6 +164,10 @@ class Covers:
 
         artist.cover = resize_cover
         artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
+
+        _database.commit()
+
+        ws.emit_all('covers.artist.update', artist.id)
 
     def retrieve_and_resize(self, image_url):
         image_ext = os.path.splitext(image_url)[1]

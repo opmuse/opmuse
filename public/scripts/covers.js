@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inheritance, ws) {
 
     var instance = null;
 
@@ -15,30 +15,43 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             });
 
             that.internalInit();
+
+            ws.on('covers.artist.update', function (id) {
+                that.refresh($("#artist_cover_" + id));
+            });
+
+            ws.on('covers.album.update', function (id) {
+                that.refresh($("#album_cover_" + id));
+            });
         },
         internalInit: function () {
             var that = this;
 
             $("a.remove-cover").unbind('click.ajaxify').unbind('click.covers')
                 .bind('click.covers', function (event) {
-                    var href = $(this).attr('href');
-                    var img = $(this).closest('.cover-container').find('img');
-                    $.ajax(href, {
-                        success: function (data, textStatus, xhr) {
-                            that.refreshImg(img);
-
-                            setTimeout(function () {
-                                that.refreshImg(img);
-                            }, 1000 * 5);
-                        },
-                        error: function (xhr) {
-                        },
-                    });
+                    $.ajax($(this).attr('href'));
 
                     return false;
             });
-        }, refreshImg: function (img) {
-            img.attr('src', img.attr('src') + "&refresh=" + Math.random());
+        }, refresh: function (container) {
+            var img = container.find("img");
+
+            if (img.length == 2) {
+                $(img.get(0)).remove();
+                img = $(img.get(1));
+            } else {
+                img = $(img.get(0));
+            }
+
+            img.removeClass("cover-overlay");
+
+            var overlay = img.clone().removeClass("cover-hide")
+                .attr("src", img.attr("src") + "&refresh=" + Math.random())
+                .addClass("cover-overlay");
+
+            container.append(overlay)
+
+            img.addClass("cover-hide");
         }
     });
 

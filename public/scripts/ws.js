@@ -10,6 +10,8 @@ define(['jquery', 'inheritance', 'sprintf', 'bind', 'domReady!'], function($, in
 
             var that = this;
 
+            that.events = {};
+
             if (!opmuseGlobals.authenticated) {
                 return;
             }
@@ -33,8 +35,6 @@ define(['jquery', 'inheritance', 'sprintf', 'bind', 'domReady!'], function($, in
             that.unloaded = false;
 
             that.url = scheme + '://' + host + '/ws';
-
-            that.events = {};
 
             that.internalInit();
         },

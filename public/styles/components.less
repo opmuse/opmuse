@@ -118,6 +118,7 @@
 }
 
 .cover-container {
+    display: block;
     position: relative;
     width: 220px;
     height: 220px;
@@ -126,8 +127,24 @@
         position: absolute;
         right: -6px;
         top: -6px;
+        z-index: 99;
     }
 
+    img {
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        .transition(.7s);
+
+        &.cover-hide {
+            opacity: 0;
+        }
+    }
+
+    .cover-overlay {
+        z-index: -99;
+    }
 }
 
 .media {
