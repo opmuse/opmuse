@@ -70,7 +70,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             setTimeout(function () {
                 $(window).bind('popstate', function (event) {
 
-                    href = document.location.pathname;
+                    href = document.location.pathname + document.location.search;
 
                     if (that.activeRequest !== null) {
                         that.activeRequest.abort();
