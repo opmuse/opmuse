@@ -157,6 +157,10 @@ class TrackPath(Base):
         return self.path.decode('utf8', 'replace')[len(library_path) + 1:]
 
     @hybrid_property
+    def dir(self):
+        return os.path.dirname(self.path)
+
+    @hybrid_property
     def pretty_dir(self):
         pretty_path = self.pretty_path
         return "%s/" % os.path.dirname(pretty_path)
@@ -760,7 +764,7 @@ class Library:
 
         for path, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                if os.path.splitext(filename)[1].lower()[1:] in self.SUPPORTED:
+                if Library.is_supported(filename):
 
                     index += 1
 
@@ -831,6 +835,10 @@ class Library:
         self.scanning = False
 
         log("Done updating library.")
+
+    @staticmethod
+    def is_supported(filename):
+        return os.path.splitext(filename)[1].lower()[1:] in Library.SUPPORTED
 
 
 class LibraryProcess:
@@ -1175,6 +1183,16 @@ class LibraryDao:
         if library_path[-1] != "/":
             library_path += "/"
         return library_path
+
+    def get_track_by_path(self, path):
+        try:
+            return (cherrypy.request.database.query(Track)
+                    .join(TrackPath, Track.id == TrackPath.track_id)
+                    .filter(TrackPath.path == path)
+                    .group_by(Track.id).one())
+
+        except NoResultFound:
+            return
 
     def update_tracks_tags(self, tracks, move = False):
         filenames = []

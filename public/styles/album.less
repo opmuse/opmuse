@@ -16,8 +16,9 @@
         }
 
         tfoot td,
-        .dir-info td,
-        .dir-info th {
+        .dir-info td, th,
+        .other-files-header td, th,
+        .other-files td, th {
             font-size: 0.8em;
             line-height: 0.8em;
 
@@ -27,13 +28,68 @@
 
         .indent {
             width: 12px;
-            padding: 0;
+            padding: 0 !important;
             background-color: @bodyBackground;
             border-color: @bodyBackground;
         }
 
-        tbody tr:nth-child(2) .indent {
+        tbody:not(.other-files) tr:nth-child(2) .indent {
             border-top-color: @tableBorder;
+        }
+
+        .other-files-header {
+            a {
+                float: right;
+                margin-top: 4px;
+
+                .in, .out {
+                    display: none;
+                }
+
+                &:not(.collapsed) .out {
+                    display: inline;
+                }
+
+                &.collapsed .in {
+                    display: inline;
+                }
+            }
+        }
+
+        .other-files-header,
+        .other-files {
+            &.collapse {
+                &:not(.in) {
+                    display: none;
+                }
+            }
+
+            .album-name,
+            .artist-name {
+                display: inline;
+
+                &:after {
+                    content: " - ";
+                }
+            }
+
+            .track-number,
+            .track-duration {
+                display: none;
+            }
+
+            .track-file {
+                float: right;
+            }
+
+            .file-size,
+            .file-modified {
+                float: right;
+            }
+
+            .file-size:before {
+                content: ', ';
+            }
         }
     }
 

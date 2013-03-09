@@ -16,7 +16,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import TrackPath, library_dao
+from opmuse.library import TrackPath, library_dao, Library as LibraryService
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
@@ -549,10 +549,54 @@ class Library(object):
         dirs = {}
 
         for track in album.tracks:
-            if track.paths[0].pretty_dir not in dirs:
-                dirs[track.paths[0].pretty_dir] = []
+            dir = track.paths[0].dir
 
-            dirs[track.paths[0].pretty_dir].append(track)
+            if dir not in dirs:
+                dirs[dir] = {
+                    'tracks': [],
+                    'pretty_dir': track.paths[0].pretty_dir,
+                    'files': [],
+                    'paths': []
+                }
+
+            dirs[dir]['paths'].append(track.paths[0].path)
+            dirs[dir]['tracks'].append(track)
+
+        for dir, item in dirs.items():
+            for file in os.listdir(dir):
+                file = os.path.join(dir, file)
+
+                if file not in item['paths']:
+                    isdir = os.path.isdir(file)
+
+                    if not isdir and LibraryService.is_supported(file):
+                        track = library_dao.get_track_by_path(file)
+                    else:
+                        track = None
+
+                    pretty_file = file[(len(dir) + 1):].decode("utf8", "replace")
+
+                    if isdir:
+                        pretty_file = "%s/" % pretty_file
+
+                    if not isdir:
+                        stat = os.stat(file)
+                        modified = datetime.datetime.fromtimestamp(stat.st_mtime)
+                        size = stat.st_size
+                    else:
+                        size = modified = None
+
+                    dirs[dir]['files'].append({
+                        "file": file,
+                        "modified": modified,
+                        "size": size,
+                        "track": track,
+                        "isdir": isdir,
+                        "pretty_file": pretty_file
+                    })
+
+            dirs[dir]['files'] = sorted(dirs[dir]['files'],
+                                        key = lambda item: "%d%s" % (not item["isdir"], item["file"]))
 
         dirs = sorted(dirs.items(), key = lambda d: d[0])
 
