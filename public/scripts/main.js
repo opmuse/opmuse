@@ -5,7 +5,7 @@ require(['jquery'], function($) {
     });
 
     require([
-        'bootstrap/bootstrap-collapse',
+        'collapse',
         'layout',
         'button',
         'ajaxify',
