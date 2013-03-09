@@ -444,27 +444,31 @@ class PathParser(TagParser):
         for file in os.listdir(track_dir):
             track_dir_files.append(os.path.join(track_dir, file))
 
-        album_cover_path = self.match_in_dir([
+        album_cover_match = []
+
+        if metadata is not None and metadata.album_name is not None:
+            album_slug = LibraryProcess.slugify(metadata.album_name)[1]
+            album_cover_match.append(
+                ('.*%s.*\.(jpg|png|gif)$' % re.escape(album_slug)).encode("utf8")
+            )
+
+        album_cover_match += [
             b'.*(cover|front|folder).*\.(jpg|png|gif)$',
             b'.*\.(jpg|png|gif)$'
-        ], track_dir_files)
-
-        artist_cover_match = [
-            b'.*(artist).*\.(jpg|png|gif)$',
         ]
 
+        album_cover_path = self.match_in_dir(album_cover_match, track_dir_files)
+
+        artist_cover_path = None
+
         if metadata is not None and metadata.artist_name is not None:
-            artist_re = re.sub(r'[^A-Za-z0-9]', '.?', metadata.artist_name.strip())
+            artist_slug = LibraryProcess.slugify(metadata.artist_name)[1]
 
-            artist_cover_match.append(
-                ('%s\.(jpg|png|gif)$' % artist_re).encode('utf8')
-            )
+            artist_cover_match = [
+                ('.*%s.*\.(jpg|png|gif)$' % re.escape(artist_slug)).encode("utf8")
+            ]
 
-            artist_cover_match.append(
-                ('.*(%s).*\.(jpg|png|gif)$' % artist_re).encode('utf8')
-            )
-
-        artist_cover_path = self.match_in_dir(artist_cover_match, track_dir_files)
+            artist_cover_path = self.match_in_dir(artist_cover_match, track_dir_files)
 
         match = re.search('([0-9]+)', track_name)
         if match is not None:
@@ -892,15 +896,7 @@ class LibraryProcess:
                 name=metadata.artist_name
             ).one()
         except NoResultFound:
-            index = 0
-            while True:
-                index, artist_slug = LibraryProcess.slugify(metadata.artist_name, index)
-                try:
-                    self._database.query(Artist).filter_by(slug=artist_slug).one()
-                except NoResultFound:
-                    break
-                index += 1
-
+            artist_slug = self.get_artist_slug(metadata)
             artist = Artist(metadata.artist_name, artist_slug)
             self._database.add(artist)
 
@@ -925,18 +921,8 @@ class LibraryProcess:
                 name=metadata.album_name, date=metadata.date
             ).one()
         except NoResultFound:
-            index = 0
-            while True:
-                index, album_slug = LibraryProcess.slugify(metadata.album_name, index)
-
-                try:
-                    self._database.query(Album).filter_by(slug=album_slug).one()
-                except NoResultFound:
-                    break
-                index += 1
-
+            album_slug = self.get_album_slug(metadata)
             album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
-
             self._database.add(album)
 
         try:
@@ -981,16 +967,7 @@ class LibraryProcess:
 
         added = metadata.added
 
-        index = 0
-        while True:
-            index, track_slug = LibraryProcess.slugify(
-                "%s_%s_%s" % (metadata.artist_name, metadata.album_name, metadata.track_name), index
-            )
-            try:
-                self._database.query(Track).filter_by(slug=track_slug).one()
-            except NoResultFound:
-                break
-            index += 1
+        track_slug = self.get_track_slug(metadata)
 
         track.slug = track_slug
         track.name = metadata.track_name
@@ -1052,8 +1029,56 @@ class LibraryProcess:
 
         return number
 
+    def get_track_slug(self, metadata):
+        index = 0
+        track_slug = None
+
+        while True:
+            index, track_slug = LibraryProcess.slugify(
+                "%s_%s_%s" % (metadata.artist_name, metadata.album_name, metadata.track_name), index
+            )
+
+            try:
+                self._database.query(Track).filter_by(slug=track_slug).one()
+            except NoResultFound:
+                break
+
+            index += 1
+
+        return track_slug
+
+    def get_album_slug(self, metadata):
+        index = 0
+        album_slug = None
+
+        while True:
+            index, album_slug = LibraryProcess.slugify(metadata.album_name, index)
+
+            try:
+                self._database.query(Album).filter_by(slug=album_slug).one()
+            except NoResultFound:
+                break
+
+            index += 1
+
+        return album_slug
+
+    def get_artist_slug(self, metadata):
+        index = 0
+        artist_slug = None
+
+        while True:
+            index, artist_slug = LibraryProcess.slugify(metadata.artist_name, index)
+            try:
+                self._database.query(Artist).filter_by(slug=artist_slug).one()
+            except NoResultFound:
+                break
+            index += 1
+
+        return artist_slug
+
     @staticmethod
-    def slugify(string, index):
+    def slugify(string, index = 0):
         if string is None:
             string = ""
 

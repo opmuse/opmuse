@@ -5,11 +5,7 @@ import cherrypy
 import tempfile
 import shutil
 import rarfile
-import mimetypes
-import base64
-import mmh3
 import random
-from urllib.request import urlretrieve
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
@@ -20,15 +16,15 @@ from sqlalchemy.orm.exc import NoResultFound
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import Artist, Album, Track, TrackPath, library_dao, LibraryProcess
+from opmuse.library import TrackPath, library_dao
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
-from opmuse.image import image as image_service
 from opmuse.search import search
 from opmuse.ws import WsController
 from opmuse.wikipedia import wikipedia
 from opmuse.remotes import remotes
+from opmuse.covers import covers
 
 
 class Edit:
@@ -861,7 +857,10 @@ class Root(object):
     @cherrypy.tools.authenticated()
     def cover(self, type, slug, hash = None):
 
-        cover = self.get_cover(type, slug)
+        try:
+            mime, cover = covers.get_cover(type, slug)
+        except ValueError:
+            raise cherrypy.NotFound()
 
         if cover is None:
             cherrypy.response.headers['Content-Type'] = 'image/png'
@@ -871,165 +870,9 @@ class Root(object):
                 '..', 'public', 'images', 'cover_placeholder.png'
             ))
         else:
+            cherrypy.response.headers['Content-Type'] = mime
+
             return cover
-
-    def get_cover(self, type, slug):
-        entity = None
-
-        if type == "album":
-            entity = library_dao.get_album_by_slug(slug)
-
-            if entity is None:
-                raise cherrypy.NotFound()
-
-            for artist in entity.artists:
-                if artist.cover_path is None:
-                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, artist.id)
-
-            if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                entity.cover_path = None
-                cherrypy.engine.bgtask.put(self.fetch_album_cover, entity.id)
-                for artist in entity.artists:
-                    if artist.cover is not None:
-                        cherrypy.response.headers['Content-Type'] = self.guess_mime(artist)
-                        return artist.cover
-
-        elif type == "artist":
-            entity = library_dao.get_artist_by_slug(slug)
-
-            if entity is None:
-                raise cherrypy.NotFound()
-
-            if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                entity.cover_path = None
-                cherrypy.engine.bgtask.put(self.fetch_artist_cover, entity.id)
-
-        if entity is None:
-            raise cherrypy.NotFound()
-
-        if entity.cover_path is not None:
-            if entity.cover is None:
-                cover_ext = os.path.splitext(entity.cover_path)[1].decode('utf8')
-                temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
-
-                if image_service.resize(entity.cover_path, temp_cover, 220):
-
-                    with open(temp_cover, 'rb') as file:
-                        entity.cover = file.read()
-                        entity.cover_hash = base64.b64encode(mmh3.hash_bytes(entity.cover))
-
-                    os.remove(temp_cover)
-
-            cherrypy.response.headers['Content-Type'] = self.guess_mime(entity)
-
-            return entity.cover
-
-    def guess_mime(self, entity):
-        mimetype = mimetypes.guess_type(entity.cover_path.decode('utf8', 'replace'))
-        return mimetype[0] if mimetype is not None else 'image/jpeg'
-
-    def fetch_album_cover(self, album_id, _database):
-        album = _database.query(Album).filter_by(id=album_id).one()
-
-        artist = album.artists[0]
-
-        lastfm_album = lastfm.get_album(artist.name, album.name)
-
-        if lastfm_album is None or lastfm_album['cover'] is None:
-            return
-
-        cover, resize_cover, cover_ext = self.retrieve_and_resize(lastfm_album['cover'])
-
-        track_dirs = set()
-
-        for track in album.tracks:
-            for path in track.paths:
-                track_dirs.add(os.path.dirname(path.path))
-
-        for track_dir in track_dirs:
-            if not os.path.exists(track_dir):
-                os.makedirs(track_dir)
-
-            cover_dest = os.path.join(
-                track_dir, ('%s%s' % (album.slug, cover_ext)).encode('utf8')
-            )
-
-            if not os.path.exists(cover_dest):
-                with open(cover_dest, 'wb') as file:
-                    file.write(cover)
-
-            album.cover_path = cover_dest
-
-        album.cover = resize_cover
-        album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
-
-        _database.commit()
-
-    def retrieve_and_resize(self, image_url):
-        image_ext = os.path.splitext(image_url)[1]
-
-        album_dirs = set()
-
-        temp_image = tempfile.mktemp(image_ext).encode('utf8')
-        resize_temp_image = tempfile.mktemp(image_ext).encode('utf8')
-        urlretrieve(image_url, temp_image)
-
-        if not image_service.resize(temp_image, resize_temp_image, 220):
-            os.remove(temp_image)
-            os.remove(resize_temp_image)
-            return None
-
-        resize_image = None
-        image = None
-
-        with open(resize_temp_image, 'rb') as file:
-            resize_image = file.read()
-
-        os.remove(resize_temp_image)
-
-        with open(temp_image, 'rb') as file:
-            image = file.read()
-
-        os.remove(temp_image)
-
-        return image, resize_image, image_ext
-
-    def fetch_artist_cover(self, artist_id, _database):
-        artist = (_database.query(Artist).filter_by(id=artist_id).one())
-
-        lastfm_artist = lastfm.get_artist(artist.name)
-
-        if lastfm_artist is None or lastfm_artist['cover'] is None:
-            return
-
-        cover, resize_cover, cover_ext = self.retrieve_and_resize(lastfm_artist['cover'])
-
-        track_dirs = set()
-
-        for album in artist.albums:
-            for track in album.tracks:
-                for path in track.paths:
-                    track_dirs.add(os.path.dirname(path.path))
-
-        for track_dir in track_dirs:
-
-            if not os.path.exists(track_dir):
-                os.makedirs(track_dir)
-
-            cover_dest = os.path.join(
-                track_dir, ('%s%s' % (artist.slug, cover_ext)).encode('utf8')
-            )
-
-            if not os.path.exists(cover_dest):
-                with open(cover_dest, 'wb') as file:
-                    file.write(cover)
-
-            artist.cover_path = cover_dest
-
-        artist.cover = resize_cover
-        artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
-
-        _database.commit()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
