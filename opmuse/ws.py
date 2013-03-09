@@ -53,6 +53,7 @@ class WsUser:
 
 class Ws:
     def __init__(self):
+        self._all_handlers = []
         self._ws_users = {}
         self._events = {}
 
@@ -75,16 +76,26 @@ class Ws:
         ws_user = self.get_ws_user_by_handler(handler)
         ws_user.add_handler(handler)
 
+        self._all_handlers.append(handler)
+
     def cleanup(self, handler):
         if handler.user['id'] in self._ws_users:
             self._ws_users[handler.user['id']].remove_handler(handler)
 
+        self._all_handlers.remove(handler)
+
     def emit(self, event, *args, handler = None, ws_user = None):
         if handler is not None:
-            WsUser.send({
-                'event': event,
-                'args': args
-            }, handler)
+            if not isinstance(handler, list):
+                handlers = [handler]
+            else:
+                handlers = handler
+
+            for handler in handlers:
+                WsUser.send({
+                    'event': event,
+                    'args': args
+                }, handler)
         else:
             if ws_user is None:
                 user = cherrypy.request.user
@@ -97,6 +108,9 @@ class Ws:
                     'event': event,
                     'args': args
                 })
+
+    def emit_all(self, event, *args):
+        self.emit(event, *args, handler = self._all_handlers)
 
     def receive(self, event, args, handler):
         ws_user = self.get_ws_user_by_handler(handler)
