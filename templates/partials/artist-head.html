@@ -67,7 +67,11 @@
                 {{ print_wikipedia(remotes_artist.wikipedia) }}
             {% endif %}
             {% if remotes_album %}
-                {{ print_wikipedia(remotes_album.wikipedia) }}
+                {% if remotes_album.wikipedia.summary %}
+                    {{ print_wikipedia(remotes_album.wikipedia) }}
+                {% elif remotes_artists|length == 1 %}
+                    {{ print_wikipedia(remotes_artists[0].wikipedia) }}
+                {% endif %}
             {% endif %}
             {% if remotes_track %}
                 {{ print_wikipedia(remotes_track.wikipedia) }}
