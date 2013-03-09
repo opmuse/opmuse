@@ -51,6 +51,7 @@
             .artist-badges,
             .album-badges,
             .add-album {
+                z-index: 99;
                 position: absolute;
                 display: block;
             }
@@ -116,10 +117,17 @@
     float: left;
 }
 
-.album-cover,
-.artist-cover {
+.cover-container {
+    position: relative;
     width: 220px;
     height: 220px;
+
+    .remove-cover {
+        position: absolute;
+        right: -6px;
+        top: -6px;
+    }
+
 }
 
 .media {

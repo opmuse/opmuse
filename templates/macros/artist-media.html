@@ -1,9 +1,9 @@
 {% macro artist_media(artist, children = []) %}
+    {% import "macros/covers.html" as covers %}
+
     <div class="media artist">
         <a href="/{{ artist.slug|urlencode }}">
-            {% set cover_class = "img-rounded media-object pull-left" %}
-            {% set cover_size = 80 %}
-            {% include "partials/artist-cover.html" %}
+            {{ covers.artist(artist, 80, "img-rounded media-object pull-left") }}
         </a>
         <div class="media-body">
             <h4 class="media-heading">

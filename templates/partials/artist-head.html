@@ -25,6 +25,8 @@
     {% endif %}
 {% endmacro %}
 
+{% import "macros/covers.html" as covers %}
+
 <div class="artist-head">
     <ul class="row-fluid">
         <li class="span8">
@@ -79,9 +81,9 @@
         </li>
         <li class="span4">
             {% if album %}
-                {% include "partials/album-cover.html" %}
+                {{ covers.album(album, remove = True) }}
             {% else %}
-                {% include "partials/artist-cover.html" %}
+                {{ covers.artist(artist, remove = True) }}
             {% endif %}
         </li>
     </ul>

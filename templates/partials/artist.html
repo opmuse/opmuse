@@ -1,7 +1,9 @@
+{% import "macros/covers.html" as covers %}
+
 <div class="artist-container">
     <div class="artist {{ 'invalid' if artist.invalid else '' }}">
     <a href="/{{ artist.slug|urlencode }}">
-        {% include "partials/artist-cover.html" %}
+        {{ covers.artist(artist) }}
     </a>
     <div class="artist-badges">
         <p class="artist-album-count badge badge-inverse">{{ artist.albums|count }} albums</p>

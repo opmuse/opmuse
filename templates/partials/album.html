@@ -18,6 +18,8 @@
     {%- endif -%}
 {% endmacro %}
 
+{% import "macros/covers.html" as covers %}
+
 <div class="album-container">
     <div class="album {{ 'invalid' if album.invalid else '' }}">
         <div class="album-badges">
@@ -58,7 +60,7 @@
                                 "/" + album.slug|urlencode %}
         {% endif %}
         <a href="/{{ album_url }}">
-            {% include "partials/album-cover.html" %}
+            {{ covers.album(album) }}
         </a>
         <div class="album-desc">
             <h3 class="album-name">

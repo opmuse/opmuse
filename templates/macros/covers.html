@@ -1,0 +1,39 @@
+{% macro album(album, cover_size = 220, cover_class = "img-polaroid", remove = False) %}
+    <span class="cover-container">
+        {% if remove %}
+            <a class="remove-cover btn btn-small btn-danger"
+                href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                <i class="icon-refresh"></i>
+            </a>
+        {% endif %}
+
+        <img width="{{ cover_size }}" height="{{ cover_size }}"
+            src="/cover/album/{{ album.slug|urlencode }}
+                {%- if album.cover_hash -%}
+                    {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
+                {%- else -%}
+                    {{ "?hash=%s" % ('invalid' if album.invalid else 'valid') }}
+                {%- endif -%}"
+            alt="Album cover" class="album-cover {{ cover_class }}" />
+    </span>
+{% endmacro %}
+
+{% macro artist(artist, cover_size = 220, cover_class = "img-polaroid", remove = False) %}
+    <span class="cover-container">
+        {% if remove %}
+            <a class="remove-cover btn btn-small btn-danger"
+                href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
+                <i class="icon-refresh"></i>
+            </a>
+        {% endif %}
+
+        <img width="{{ cover_size }}" height="{{ cover_size }}"
+            src="/cover/artist/{{ artist.slug|urlencode }}
+            {%- if artist.cover_hash -%}
+                {{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode }}
+            {%- else -%}
+                {{ "?hash=%s" % ('invalid' if artist.invalid else 'valid') }}
+            {%- endif -%}"
+            alt="Artist cover" class="artist-cover {{ cover_class }}" />
+    </span>
+{% endmacro %}

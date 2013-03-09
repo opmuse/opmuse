@@ -899,8 +899,17 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
-    def cover(self, type, slug, hash = None):
+    def cover_refresh(self, type, slug):
+        try:
+            covers.refresh(type, slug)
+        except ValueError:
+            raise cherrypy.NotFound()
 
+        return b''
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    def cover(self, type, slug, hash = None, refresh = None):
         try:
             mime, cover = covers.get_cover(type, slug)
         except ValueError:

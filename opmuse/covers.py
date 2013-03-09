@@ -13,6 +13,24 @@ from urllib.request import urlretrieve
 class Covers:
     SIZE = 220
 
+    def refresh(self, type, slug):
+        if type not in ['album', 'artist']:
+            raise ValueError('Invalid type %s supplied' % type)
+
+        entity = None
+
+        if type == "album":
+            entity = library_dao.get_album_by_slug(slug)
+        elif type == "artist":
+            entity = library_dao.get_artist_by_slug(slug)
+
+        if entity is not None:
+            entity.cover_path = None
+            entity.cover_hash = None
+            entity.cover = None
+
+            self.get_cover(type, slug)
+
     def get_cover(self, type, slug):
         if type not in ['album', 'artist']:
             raise ValueError('Invalid type %s supplied' % type)

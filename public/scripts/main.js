@@ -22,7 +22,8 @@ require(['jquery'], function($) {
         'popover',
         'tooltip',
         'locations',
-        'you'
+        'you',
+        'covers',
     ], function () {
         $("#overlay").remove();
         $('body').trigger('loadFinish');
