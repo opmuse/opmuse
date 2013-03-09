@@ -11,6 +11,7 @@ from opmuse.library import Artist, Album
 from opmuse.lastfm import lastfm
 from urllib.request import urlretrieve
 
+
 class Covers:
     SIZE = 220
 
@@ -112,7 +113,6 @@ class Covers:
         for track_dir in track_dirs:
             if not os.path.exists(track_dir):
                 os.makedirs(track_dir)
-
 
             cover_dest = os.path.join(
                 track_dir, ('%s%s' % (album.slug, cover_ext)).encode('utf8')
