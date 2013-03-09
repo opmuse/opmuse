@@ -51,8 +51,6 @@ class BackgroundTaskQueue(SimplePlugin):
         self.running = False
 
     def run(self, number):
-        database = get_session()
-
         while self.running:
             try:
                 try:
@@ -68,10 +66,22 @@ class BackgroundTaskQueue(SimplePlugin):
 
                     argspec = inspect.getfullargspec(func)
 
+                    database = None
+
                     if '_database' in argspec.args:
+                        database = get_session()
                         kwargs['_database'] = database
 
                     func(*args, **kwargs)
+
+                    if database is not None:
+                        try:
+                            database.commit()
+                        except:
+                            database.rollback()
+                            raise
+                        finally:
+                            database.remove()
 
                     self.tasks.task_done()
             except:
