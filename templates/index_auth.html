@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-{% import "macros/artist-media.html" as artist_media %}
+{% import "macros/media.html" as media %}
 <div id="index">
     <ul class="row-fluid">
         <li class="span7">
@@ -13,12 +13,12 @@
             <ul class="row-fluid artists">
                 <li class="span6">
                     {% for artist in artists[0:8] %}
-                        {{ artist_media.artist_media(artist) }}
+                        {{ media.artist_media(artist) }}
                     {% endfor %}
                 </li>
                 <li class="span6">
                     {% for artist in artists[8:] %}
-                        {{ artist_media.artist_media(artist) }}
+                        {{ media.artist_media(artist) }}
                     {% endfor %}
                 </li>
             </ul>

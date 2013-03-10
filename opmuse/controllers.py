@@ -40,7 +40,7 @@ class Edit:
         return {'tracks': tracks}
 
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='library/edit_submit.html')
+    @cherrypy.tools.jinja(filename='library/edit_result.html')
     @cherrypy.tools.authenticated()
     def submit(self, ids, artists, albums, tracks, dates, numbers, discs, yes = False, no = False):
 
@@ -85,9 +85,14 @@ class Edit:
 
         tracks, messages = library_dao.update_tracks_tags(update_tracks, move)
 
-        return {'tracks': tracks, 'messages': messages}
+        tracks = Edit._sort_tracks(tracks)
+
+        hierarchy = Library._produce_track_hierarchy([], [], tracks)
+
+        return {'hierarchy': hierarchy, 'messages': messages}
 
     @cherrypy.expose
+    @cherrypy.tools.jinja(filename='library/edit_result.html')
     @cherrypy.tools.authenticated()
     def move(self, ids, where = None):
 
@@ -116,10 +121,15 @@ class Edit:
             filenames, move = True, remove_dirs = True, artist_name = artist_name
         )
 
-        if len(tracks) > 0:
-            raise HTTPRedirect('/%s/%s' % (tracks[0].artist.slug, tracks[0].album.slug))
-        else:
-            raise HTTPRedirect('/library/albums/new')
+        tracks = Edit._sort_tracks(tracks)
+
+        hierarchy = Library._produce_track_hierarchy([], [], tracks)
+
+        return {'hierarchy': hierarchy, 'messages': messages}
+
+    @staticmethod
+    def _sort_tracks(tracks):
+        return sorted(tracks, key = lambda track: (track.artist.name, track.album.name, track.number, track.name))
 
 
 class Remove:
@@ -153,8 +163,6 @@ class Search:
 
         artist_tracks = []
         album_tracks = []
-
-        results = OrderedDict({})
 
         if query is not None:
             artists = search.query_artist(query)
@@ -190,55 +198,21 @@ class Search:
                 for track in tracks:
                     raise HTTPRedirect('/library/track/%s' % track.slug)
 
-            for artist in artists:
-                results[artist.id] = {
-                    'entity': artist,
-                    'albums': {}
-                }
+            hierarchy = Library._produce_track_hierarchy(artists, albums, tracks)
 
-            for album in albums:
-                for artist in album.artists:
-                    if artist.id not in results:
-                        results[artist.id] = {
-                            'entity': artist,
-                            'albums': {}
-                        }
-
-                    results[artist.id]['albums'][album.id] = {
-                        'entity': album,
-                        'tracks': {}
-                    }
-
-            for track in tracks:
-                if track.artist.id not in results:
-                    results[track.artist.id] = {
-                        'entity': track.artist,
-                        'albums': {}
-                    }
-
-                if track.album.id not in results[track.artist.id]['albums']:
-                    results[track.artist.id]['albums'][track.album.id] = {
-                        'entity': track.album,
-                        'tracks': {}
-                    }
-
-                results[track.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
-                    'entity': track
-                }
-
-            for key, result_artist in results.items():
+            for key, result_artist in hierarchy.items():
                 for album in result_artist['entity'].albums:
                     for track in album.tracks:
                         artist_tracks.append(track)
 
-            for key, result_artist in results.items():
+            for key, result_artist in hierarchy.items():
                 for key, result_album in result_artist['albums'].items():
                     for track in result_album['entity'].tracks:
                         album_tracks.append(track)
 
         return {
             'query': query,
-            'results': results,
+            'hierarchy': hierarchy,
             'tracks': tracks,
             'albums': albums,
             'artists': artists,
@@ -246,7 +220,6 @@ class Search:
             'album_tracks': album_tracks,
             'artist_tracks': artist_tracks
         }
-
 
 class Upload:
     @cherrypy.expose
@@ -773,6 +746,48 @@ class Library(object):
             'remotes_artist': remotes_artist,
             'namesakes': namesakes
         }
+
+    @staticmethod
+    def _produce_track_hierarchy(artists, albums, tracks):
+        hierarchy = OrderedDict({})
+
+        for artist in artists:
+            hierarchy[artist.id] = {
+                'entity': artist,
+                'albums': {}
+            }
+
+        for album in albums:
+            for artist in album.artists:
+                if artist.id not in hierarchy:
+                    hierarchy[artist.id] = {
+                        'entity': artist,
+                        'albums': {}
+                    }
+
+                hierarchy[artist.id]['albums'][album.id] = {
+                    'entity': album,
+                    'tracks': {}
+                }
+
+        for track in tracks:
+            if track.artist.id not in hierarchy:
+                hierarchy[track.artist.id] = {
+                    'entity': track.artist,
+                    'albums': {}
+                }
+
+            if track.album.id not in hierarchy[track.artist.id]['albums']:
+                hierarchy[track.artist.id]['albums'][track.album.id] = {
+                    'entity': track.album,
+                    'tracks': {}
+                }
+
+            hierarchy[track.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
+                'entity': track
+            }
+
+        return hierarchy
 
 
 class Root(object):

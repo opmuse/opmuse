@@ -6,8 +6,7 @@
 
 {% block content %}
 
-{% import "macros/artist-media.html" as artist_media %}
-{% import "macros/album-media.html" as album_media %}
+{% import "macros/media.html" as media %}
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
 
 <div id="search" data-query="{{ query }}">
@@ -47,16 +46,7 @@
     <div class="row-fluid">
         <div class="span7">
             <div class="results">
-                {% for key, result_artist in results.items() %}
-                    {% call(album) artist_media.artist_media(result_artist.entity, result_artist.albums.items()) %}
-                        {% call(track) album_media.album_media(album[1].entity, album[1].tracks.items()) %}
-                            {% set track = track[1].entity %}
-                            <div class="track">
-                                {% include "partials/track.html" %}
-                            </div>
-                        {% endcall %}
-                    {% endcall %}
-                {% endfor %}
+                {{ media.hierarchy(hierarchy) }}
             </div>
         </div>
         <div class="span5">

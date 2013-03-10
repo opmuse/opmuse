@@ -162,6 +162,21 @@
     }
 }
 
+.media-hierarchy {
+    .media.album > .media-body {
+        &> p {
+            display: none;
+        }
+
+        .track {
+            .album-name,
+            .artist-name {
+                display: none;
+            }
+        }
+    }
+}
+
 .artist-nav {
     .badge {
         a {

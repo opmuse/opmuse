@@ -1,0 +1,59 @@
+{% macro hierarchy(hierarchy) %}
+    <div class="media-hierarchy">
+        {% for key, artist in hierarchy.items() %}
+            {% call(album) artist_media(artist.entity, artist.albums.items()) %}
+                {% call(track) album_media(album[1].entity, album[1].tracks.items()) %}
+                    {% set track = track[1].entity %}
+                    <div class="track">
+                        {% include "partials/track.html" %}
+                    </div>
+                {% endcall %}
+            {% endcall %}
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro album_media(album, children = []) %}
+    {% import "macros/covers.html" as covers %}
+
+    <div class="media album">
+        <a href="/{{ album.artists[0].slug|urlencode }}/{{ album.slug|urlencode }}">
+            {{ covers.album(album, 80, "img-rounded media-object pull-left") }}
+        </a>
+        <div class="media-body">
+            <h4 class="media-heading">{{ album.name|show_ws }}
+                {% if album.date %}
+                    <small>({{ album.date }})</small>
+                {% endif %}
+            </h4>
+            <p>by {{ album.artists[0].name|show_ws }}</p>
+            {% if caller %}
+                {% for child in children %}
+                    {{ caller(child) }}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro artist_media(artist, children = []) %}
+    {% import "macros/covers.html" as covers %}
+
+    <div class="media artist">
+        <a href="/{{ artist.slug|urlencode }}">
+            {{ covers.artist(artist, 80, "img-rounded media-object pull-left") }}
+        </a>
+        <div class="media-body">
+            <h4 class="media-heading">
+                <a href="/{{ artist.slug|urlencode }}">
+                    {{ artist.name|show_ws }}
+                </a>
+            </h4>
+            {% if caller %}
+                {% for child in children %}
+                    {{ caller(child) }}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}

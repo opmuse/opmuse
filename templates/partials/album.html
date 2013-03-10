@@ -23,9 +23,6 @@
 <div class="album-container">
     <div class="album {{ 'invalid' if album.invalid else '' }}">
         <div class="album-badges">
-            {% if album.date %}
-            <p class="album-date badge badge-inverse">{{ album.date }}</p>
-            {% endif %}
             <p class="album-track-count badge badge-inverse">{{ album.tracks|count }} tracks</p>
             <p class="album-track-count badge badge-inverse">{{ album.duration|format_seconds }}</p>
             <p class="album-track-count badge badge-inverse">{{ album.added|pretty_date }}</p>
@@ -63,9 +60,12 @@
             {{ covers.album(album) }}
         </a>
         <div class="album-desc">
-            <h3 class="album-name">
+            <h3 class="album-name" title="{{ album.name }} {% if album.date %}({{ album.date }}){% endif %}">
                 <a href="/{{ album_url }}">
                     {{ album.name|show_ws }}
+                    {% if album.date %}
+                        <small>({{ album.date }})</small>
+                    {% endif %}
                 </a>
             </h3>
             <p title="{{ album_desc(album, false)|e }}">

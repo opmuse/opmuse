@@ -1,0 +1,29 @@
+{% extends "body.html" %}
+
+{% block title  %}
+    Tag
+{% endblock %}
+
+{% import "macros/media.html" as media %}
+
+{% block content %}
+<div id="tag">
+    {% include "partials/library-nav.html" %}
+
+    <ul class="row-fluid">
+        <li class="span8">
+            {{ media.hierarchy(hierarchy) }}
+        </li>
+        <li class="span4">
+            <div class="result-stats well well-small sidebar-nav">
+                <ul class="nav nav-list">
+                    <li class="nav-header">Messages</li>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+{% endblock %}
