@@ -148,8 +148,11 @@
 }
 
 .media {
-    .album-cover,
-    .artist-cover {
+    &> a {
+        float: left;
+    }
+
+    .cover-container {
         width: 80px;
         height: 80px;
     }
