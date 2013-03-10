@@ -16,6 +16,7 @@ Library - Albums -
 {% endblock %}
 
 {% block content %}
+{% import "macros/album.html" as album_macros %}
 <div id="library">
     {% include "partials/library-nav.html" %}
 
@@ -39,7 +40,7 @@ Library - Albums -
 
     <div class="albums">
         {% for album in albums %}
-            {% include "partials/album.html" %}
+            {{ album_macros.album(None, album) }}
         {% endfor %}
     </div>
 

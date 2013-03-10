@@ -13,6 +13,7 @@
 {% block content %}
 
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
+{% import "macros/album.html" as album_macros %}
 
 <div id="artist">
 
@@ -30,7 +31,7 @@
     <div class="albums">
         {% for album in artist.albums %}
             {% if not album.is_va and album.date %}
-                {% include "partials/album.html" %}
+                {{ album_macros.album(artist, album) }}
             {% endif %}
         {% endfor %}
     </div>
@@ -40,7 +41,7 @@
     <div class="albums">
         {% for album in artist.albums %}
             {% if not album.is_va and not album.date %}
-                {% include "partials/album.html" %}
+                {{ album_macros.album(artist, album) }}
             {% endif %}
         {% endfor %}
     </div>
@@ -50,7 +51,7 @@
     <div class="albums">
         {% for album in artist.albums %}
             {% if album.is_va %}
-                {% include "partials/album.html" %}
+                {{ album_macros.album(artist, album) }}
             {% endif %}
         {% endfor %}
     </div>
