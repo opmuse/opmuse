@@ -25,6 +25,7 @@ from opmuse.ws import WsController
 from opmuse.wikipedia import wikipedia
 from opmuse.remotes import remotes
 from opmuse.covers import covers
+from opmuse.jinja import render_template
 
 
 class Edit:
@@ -775,6 +776,15 @@ class Library(object):
 
 
 class Root(object):
+    @staticmethod
+    def handle_error(status, message, traceback, version):
+        return render_template("error.html", {
+            'status': status,
+            'message': message,
+            'traceback': traceback,
+            'version': version
+        })
+
     styles = Styles()
     queue = Queue()
     remove = Remove()

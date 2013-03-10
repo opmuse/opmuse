@@ -122,15 +122,12 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 },
                 error: function (xhr) {
                     if (xhr.statusText != 'abort') {
-                        that.setErrorPageInDom(xhr.responseText);
+                        that.setPageInDom(xhr.responseText);
                     }
                     that.enableElements(contents);
                     that.activeRequest = null;
                 },
             });
-        },
-        setErrorPageInDom: function (data) {
-            $(this.contents[0]).html(data);
         },
         setPageInDom: function (data) {
             var html = $($.parseHTML(data));

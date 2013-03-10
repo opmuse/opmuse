@@ -102,6 +102,8 @@ def configure():
     config['server.max_request_body_size'] = 1024 ** 3 * 5
     config['engine.timeout_monitor.frequency'] = 60 * 5
 
+    config['error_page.default'] = opmuse.controllers.Root.handle_error
+
     cherrypy.config.update(config)
 
     cherrypy._cpconfig.environments['production']['jinja.auto_reload'] = False

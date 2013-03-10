@@ -162,6 +162,20 @@ class JinjaPlugin(SimplePlugin):
         self.env = None
 
 
+def render_template(filename, dictionary):
+    template = cherrypy.request.jinja.get_template(filename)
+
+    template.globals['request'] = cherrypy.request
+    template.globals['xhr'] = cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    template.globals['current_url'] = cherrypy.url()
+
+    # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
+    if cherrypy.request.user is not None:
+        template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
+
+    return template.render(dictionary)
+
+
 class Jinja(HandlerWrapperTool):
 
     def __init__(self):
@@ -177,23 +191,12 @@ class Jinja(HandlerWrapperTool):
         if 'filename' not in conf:
             raise Exception('No template filename specified!')
 
-        template = cherrypy.request.jinja.get_template(conf['filename'])
-
-        template.globals['request'] = cherrypy.request
-        template.globals['xhr'] = cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        template.globals['current_url'] = cherrypy.url()
-
-        # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
-        if cherrypy.request.user is not None:
-            template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
-
-        html = template.render(response_dict)
-        html = html.encode('utf8', 'replace')
+        html = render_template(conf['filename'], response_dict)
 
         if 'text/html' == cherrypy.response.headers['Content-Type']:
             cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf8'
 
-        return html
+        return html.encode('utf8', 'replace')
 
 
 class JinjaEnvTool(cherrypy.Tool):
