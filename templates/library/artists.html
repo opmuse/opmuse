@@ -30,13 +30,11 @@
         </li>
     </ul>
 
-    <ul class="artists">
-    {% for artist in artists %}
-        <li>
+    <div class="artists">
+        {% for artist in artists %}
             {% include "partials/artist.html" %}
-        </li>
-    {% endfor %}
-    </ul>
+        {% endfor %}
+    </div>
 
     {% if page %}
         <div class="pagination pagination-centered">

@@ -1,4 +1,3 @@
-/* album used on artist and library main page */
 @album-width: 220px;
 
 .artists,
@@ -14,8 +13,8 @@
 
     .artist-container,
     .album-container {
-        margin: 8px 22px;
-        float: left;
+        margin: 8px 0 8px 5%;
+        display: inline-block;
 
         .artist,
         .album {
@@ -26,7 +25,7 @@
 
             .artist-desc,
             .album-desc {
-                width: @album-width;
+                width: @album-width + 10;
 
                 h3 {
                     line-height: 26px;
@@ -120,8 +119,8 @@
 .cover-container {
     display: block;
     position: relative;
-    width: 220px;
-    height: 220px;
+    width: @album-width + 10;
+    height: @album-width + 10;
 
     .remove-cover {
         position: absolute;

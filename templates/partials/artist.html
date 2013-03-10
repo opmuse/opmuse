@@ -2,23 +2,24 @@
 
 <div class="artist-container">
     <div class="artist {{ 'invalid' if artist.invalid else '' }}">
-    <a href="/{{ artist.slug|urlencode }}">
-        {{ covers.artist(artist) }}
-    </a>
-    <div class="artist-badges">
-        <p class="artist-album-count badge badge-inverse">{{ artist.albums|count }} albums</p>
-    </div>
-    <div class="artist-badges bottom">
-        {% if artist.invalid %}
-        <p class="artist-invalid badge badge-important" title="This artist has invalid tracks.">
-            <i class="icon-warning-sign"></i>
-        </p>
-        {% endif %}
-    </div>
-    <div class="artist-desc">
-        <h3 class="artist-name">
-            {{ artist.name|show_ws }}
-        </h3>
+        <a href="/{{ artist.slug|urlencode }}">
+            {{ covers.artist(artist) }}
+        </a>
+        <div class="artist-badges">
+            <p class="artist-album-count badge badge-inverse">{{ artist.albums|count }} albums</p>
+        </div>
+        <div class="artist-badges bottom">
+            {% if artist.invalid %}
+            <p class="artist-invalid badge badge-important" title="This artist has invalid tracks.">
+                <i class="icon-warning-sign"></i>
+            </p>
+            {% endif %}
+        </div>
+        <div class="artist-desc">
+            <h3 class="artist-name">
+                {{ artist.name|show_ws }}
+            </h3>
+        </div>
     </div>
 </div>
 

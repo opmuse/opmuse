@@ -29,7 +29,7 @@
 
 <div class="artist-head">
     <ul class="row-fluid">
-        <li class="span8">
+        <li class="span7">
             {% if artists|length > 1 %}
                 {% set artist_slug = "va" %}
             {% else %}
@@ -79,7 +79,7 @@
                 {{ print_wikipedia(remotes_track.wikipedia) }}
             {% endif %}
         </li>
-        <li class="span4">
+        <li class="span5">
             {% if album %}
                 {{ covers.album(album, remove = True) }}
             {% else %}

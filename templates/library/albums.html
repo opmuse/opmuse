@@ -37,13 +37,11 @@ Library - Albums -
         </li>
     </ul>
 
-    <ul class="albums">
+    <div class="albums">
         {% for album in albums %}
-            <li>
-                {% include "partials/album.html" %}
-            </li>
+            {% include "partials/album.html" %}
         {% endfor %}
-    </ul>
+    </div>
 
     {% if page %}
         <div class="pagination pagination-centered">
