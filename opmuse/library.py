@@ -1303,7 +1303,15 @@ class LibraryDao:
                         )
                         continue
                 else:
-                    os.makedirs(dirname)
+                    try:
+                        os.makedirs(dirname)
+                    except OSError as e:
+                        if e.errno == 17: # "File exists"
+                            # if another thread in a paralell upload scenario already
+                            # created it, we just ignore this error
+                            pass
+                        else:
+                            raise e
 
                 path = os.path.join(dirname, os.path.basename(filename))
 
