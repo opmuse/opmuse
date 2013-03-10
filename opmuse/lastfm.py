@@ -30,14 +30,14 @@ class Lastfm:
 
     def transcoding_start(self, track):
         session_key = cherrypy.request.user.lastfm_session_key
-        cherrypy.engine.bgtask.put(self.update_now_playing, session_key, **self.track_to_args(track))
+        cherrypy.engine.bgtask.put(self.update_now_playing, 30, session_key, **self.track_to_args(track))
 
     def transcoding_end(self, track):
         if hasattr(cherrypy.request, 'lastfm_progress') and cherrypy.request.lastfm_progress is not None:
             seconds = cherrypy.request.lastfm_progress
             session_key = cherrypy.request.user.lastfm_session_key
             user = cherrypy.request.user.login
-            cherrypy.engine.bgtask.put(self.scrobble, user, session_key, seconds, **self.track_to_args(track))
+            cherrypy.engine.bgtask.put(self.scrobble, 30, user, session_key, seconds, **self.track_to_args(track))
 
     def get_network(self, session_key = ''):
         config = cherrypy.tree.apps[''].config['opmuse']

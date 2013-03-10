@@ -3,6 +3,7 @@ import threading
 import cherrypy
 import logging
 import inspect
+from functools import total_ordering
 from cherrypy.process.plugins import SimplePlugin
 from opmuse.database import get_session
 
@@ -15,13 +16,31 @@ def log(msg, traceback=False):
     cherrypy.log(msg, context='bgtask', traceback=traceback)
 
 
+@total_ordering
+class QueueItem:
+    def __init__(self, priority, func, args, kwargs):
+        self.priority = priority
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def values(self):
+        return self.priority, self.func, self.args, self.kwargs
+
+    def __eq__(self, other):
+        return other.priority == self.priority
+
+    def __lt__(self, other):
+        return other.priority < self.priority
+
+
 class BackgroundTaskQueue(SimplePlugin):
     def __init__(self, bus):
         SimplePlugin.__init__(self, bus)
 
-        self.tasks = queue.Queue()
+        self.queue = queue.PriorityQueue()
         self.threads = None
-        self.start_threads = 4
+        self.start_threads = 6
 
     def start(self):
         self.running = True
@@ -54,15 +73,15 @@ class BackgroundTaskQueue(SimplePlugin):
         while self.running:
             try:
                 try:
-                    func, args, kwargs = self.tasks.get(block=True, timeout=2)
+                    priority, func, args, kwargs = self.queue.get(block=True, timeout=2).values()
                 except queue.Empty:
                     if self.running == "drain":
                         return
 
                     continue
                 else:
-                    debug("Running bgtask in thread #%d %r with args %r and kwargs %r." %
-                          (number, func, args, kwargs))
+                    debug("Running bgtask in thread #%d %r with priority %d, args %r and kwargs %r." %
+                          (number, func, priority, args, kwargs))
 
                     argspec = inspect.getfullargspec(func)
 
@@ -83,9 +102,12 @@ class BackgroundTaskQueue(SimplePlugin):
                         finally:
                             database.remove()
 
-                    self.tasks.task_done()
+                    self.queue.task_done()
             except:
                 log("Error in bgtask thread #%d %r." % (number, self), traceback=True)
 
-    def put(self, func, *args, **kwargs):
-        self.tasks.put((func, args, kwargs))
+    def put(self, func, priority, *args, **kwargs):
+        """
+            Add task to queue, higher priority means it will run before those with lower.
+        """
+        self.queue.put(QueueItem(priority, func, args, kwargs))
