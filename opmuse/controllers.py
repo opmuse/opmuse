@@ -92,7 +92,9 @@ class Edit:
 
         filenames = []
 
-        for id in ids.split(','):
+        ids = ids.split(',')
+
+        for id in ids:
             if id == "":
                 continue
 
@@ -113,7 +115,10 @@ class Edit:
             filenames, move = True, remove_dirs = True, artist_name = artist_name
         )
 
-        raise HTTPRedirect('/%s/%s' % (tracks[0].artist.slug, tracks[0].album.slug))
+        if len(tracks) > 0:
+            raise HTTPRedirect('/%s/%s' % (tracks[0].artist.slug, tracks[0].album.slug))
+        else:
+            raise HTTPRedirect('/library/albums/new')
 
 
 class Remove:

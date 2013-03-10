@@ -17,6 +17,7 @@ from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINA
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import validates
 from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_type
@@ -144,6 +145,7 @@ class TrackPath(Base):
 
     id = Column(Integer, primary_key=True)
     path = Column(BLOB)
+    dir = Column(BLOB)
     track_id = Column(Integer, ForeignKey('tracks.id'))
 
     track = relationship("Track", backref=backref('paths', cascade="all,delete", order_by=id))
@@ -151,14 +153,15 @@ class TrackPath(Base):
     def __init__(self, path):
         self.path = path
 
+    @validates('path')
+    def _set_path(self, key, value):
+        self.dir = os.path.dirname(value)
+        return value
+
     @hybrid_property
     def pretty_path(self):
         library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
         return self.path.decode('utf8', 'replace')[len(library_path) + 1:]
-
-    @hybrid_property
-    def dir(self):
-        return os.path.dirname(self.path)
 
     @hybrid_property
     def pretty_dir(self):
@@ -1264,7 +1267,6 @@ class LibraryDao:
                 .order_by(Track.name).all())
 
     def add_files(self, filenames, move = False, remove_dirs = True, artist_name = None):
-
         paths = []
 
         messages = []
@@ -1324,26 +1326,25 @@ class LibraryDao:
 
         tracks = []
 
+        LibraryProcess(self.get_library_path(), paths, cherrypy.request.database, 0, tracks)
+
         # move non-track files with folder if there's no tracks left in folder
         # i.e. album covers and such
         for from_dir, to_dir in moved_dirs:
-            found = False
-
-            for path in paths:
-                if path.startswith(from_dir):
-                    found = True
-                    break
-
-            if found:
-                continue
-
-            tracks_left = cherrypy.request.database.query(TrackPath).filter(TrackPath.path.like(from_dir + b'%')).count()
+            tracks_left = cherrypy.request.database.query(TrackPath).filter(TrackPath.dir == from_dir).count()
 
             if tracks_left == 0:
-                for from_path in os.listdir(from_dir):
-                    shutil.move(os.path.join(from_dir, from_path), os.path.join(to_dir, from_path))
+                for from_file in os.listdir(from_dir):
+                    from_path = os.path.join(from_dir, from_file)
+                    to_path = os.path.join(to_dir, from_file)
 
-        LibraryProcess(self.get_library_path(), paths, cherrypy.request.database, 0, tracks)
+                    if from_path == to_dir:
+                        continue
+
+                    if os.path.exists(to_path):
+                        messages.append('The file "%s" already exists.' % to_path.decode('utf8', 'replace'))
+                    else:
+                        shutil.move(from_path, to_path)
 
         if remove_dirs:
             self.remove_empty_dirs(old_dirs)
