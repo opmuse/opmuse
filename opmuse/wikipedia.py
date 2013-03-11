@@ -55,7 +55,7 @@ class Wikipedia():
 
     def get_artist(self, artist_name):
 
-        extract = self.find_extract(artist_name, ['band', 'musician', 'singer'])
+        extract = self.find_extract(artist_name, ['band', 'musician', 'singer', 'artist'])
 
         if extract is None:
             summary = ''
