@@ -225,6 +225,7 @@ class Search:
             'artist_tracks': artist_tracks
         }
 
+
 class Upload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload.html')
