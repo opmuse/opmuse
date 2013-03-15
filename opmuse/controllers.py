@@ -132,7 +132,7 @@ class Edit:
         return sorted(tracks, key = lambda track: (
                       track.artist.name,
                       track.album.name,
-                      track.number if track.number is not None else 0,
+                      track.number if track.number is not None else '0',
                       track.name))
 
 
