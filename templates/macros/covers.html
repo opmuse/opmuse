@@ -1,7 +1,7 @@
 {% macro album(album, cover_size = 220, cover_class = "img-polaroid", remove = False) %}
     <span class="cover-container" id="album_cover_{{ album.id }}">
         {% if remove %}
-            <a class="remove-cover btn btn-small btn-danger"
+            <a class="remove-cover btn btn-small btn-inverse"
                 href="/cover_refresh/album/{{ album.slug|urlencode }}">
                 <i class="icon-refresh"></i>
             </a>
@@ -21,7 +21,7 @@
 {% macro artist(artist, cover_size = 220, cover_class = "img-polaroid", remove = False) %}
     <span class="cover-container" id="artist_cover_{{ artist.id }}">
         {% if remove %}
-            <a class="remove-cover btn btn-small btn-danger"
+            <a class="remove-cover btn btn-small btn-inverse"
                 href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
                 <i class="icon-refresh"></i>
             </a>

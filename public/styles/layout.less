@@ -30,7 +30,7 @@ body {
 }
 
 #right {
-    padding-top: 60px;
+    padding: 55px 0 40px 0;
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
@@ -42,7 +42,7 @@ body {
 }
 
 #content {
-    padding: 60px 25px 60px 10px;
+    padding: 60px 10px 55px 5px;
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
@@ -83,11 +83,11 @@ body {
         #panel-container {
             padding-top: 0;
             top: 0;
-        }
-    }
 
-    hr {
-        margin:  0 30px 10px 30px;
+            #panel-handle {
+                top: -15px;
+            }
+        }
     }
 
     color: @white;
@@ -98,26 +98,25 @@ body {
 
     #panel-container {
         position: absolute;
-        top: -40px;
+        top: -36px;
         width: 100%;
         height: 100%;
 
         padding-top: 20px;
 
         background-color: @black;
-        background-image: url('/images/debut_dark.png');
-        border: 1px solid #222;
-        border-left: 0;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-        .box-shadow(0 0 10px rgba(0, 0, 0, .6));
+        background-image: url('/images/black_linen_v2.png');
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        .box-shadow(0 0 6px rgba(0, 0, 0, .8));
         z-index: 1000;
 
         #panel-handle {
+            .box-shadow(0 0 6px rgba(0, 0, 0, .8));
             padding: 0 20px;
             background-color: #000;
             position: absolute;
-            top: -10px;
+            top: -8px;
             right: 10px;
             z-index: 1001;
             color: @white;
@@ -141,15 +140,7 @@ body {
     display: none;
 }
 
-.breadcrumb {
-    background-color: @wellBackground;
-    .active {
-        color: lighten(desaturate(@linkColor, 40%), 10%)
-    }
-}
-
 .navbar {
-
     .navbar-inner {
         .box-shadow(0 1px 4px rgba(0, 0, 0, .6));
     }

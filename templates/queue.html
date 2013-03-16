@@ -29,67 +29,69 @@
 
 <div class="clear"></div>
 
-<ol class="tracks">
-    {% for queue in queues %}
-        {% set q = queue[0] %}
-        <li>
-        <span class="album-header" title="{{ q.track.artist.name|show_ws }} - {{ q.track.album.name|show_ws }}
-                {%- if q.track.disc -%}
-                    - Disc {{ q.track.disc }}
-                {%- endif -%}">
-                <a href="/{{ q.track.artist.slug|urlencode }}">
-                    {{ q.track.artist.name|show_ws }}
-                </a> -
-                <a href="/{{ q.track.artist.slug|urlencode }}/{{ q.track.album.slug|urlencode }}">
-                    {{ q.track.album.name|show_ws }}
-                </a>
-                {% if q.track.disc %}
-                    - Disc {{ q.track.disc }}
-                {% endif %}
-            </span>
-            <span class="album-info">
-                <a
-                    class="remove"
-                    href="/queue/remove/
-                    {%- for q in queue -%}
-                        {{ q.track.id }},
-                    {%- endfor -%}
-                    ">
-                    <span class="icon-remove-sign"></span>
-                </a>
-            </span>
-        </li>
-        {% for q in queue %}
-            <li class="track {{ "current active" if q.current }} {{ "played" if q.played }}">
-                <span class="text">
-                    <span class="track-icon">
-                        <i class="noplay-icon icon-check-empty"></i>
-                        <i class="current-icon icon-music"></i>
-                        <i class="played-icon icon-check"></i>
-                    </span>
-                    <span class="track-number">
-                        {% if q.track.number %}
-                            {{ q.track.number }}
-                        {% endif %}
-                    </span>
-                    <span class="track-name" title="{{ q.track.name|show_ws }}">
-                        <a href="/library/track/{{ q.track.slug|urlencode }}">
-                            {{ q.track.name|show_ws }}
-                        </a>
-                    </span>
+<div class="tracks-wrapper nano">
+    <ol class="tracks content">
+        {% for queue in queues %}
+            {% set q = queue[0] %}
+            <li>
+            <span class="album-header" title="{{ q.track.artist.name|show_ws }} - {{ q.track.album.name|show_ws }}
+                    {%- if q.track.disc -%}
+                        - Disc {{ q.track.disc }}
+                    {%- endif -%}">
+                    <a href="/{{ q.track.artist.slug|urlencode }}">
+                        {{ q.track.artist.name|show_ws }}
+                    </a> -
+                    <a href="/{{ q.track.artist.slug|urlencode }}/{{ q.track.album.slug|urlencode }}">
+                        {{ q.track.album.name|show_ws }}
+                    </a>
+                    {% if q.track.disc %}
+                        - Disc {{ q.track.disc }}
+                    {% endif %}
                 </span>
-                <span class="track-info">
-                    <span class="track-duration">
-                        {{ q.track.duration|format_seconds }}
-                    </span>
+                <span class="album-info">
                     <a
                         class="remove"
-                        href="/queue/remove/{{ q.track.id }}">
+                        href="/queue/remove/
+                        {%- for q in queue -%}
+                            {{ q.track.id }},
+                        {%- endfor -%}
+                        ">
                         <span class="icon-remove-sign"></span>
                     </a>
                 </span>
-                <div class="clear"></div>
             </li>
+            {% for q in queue %}
+                <li class="track {{ "current active" if q.current }} {{ "played" if q.played }}">
+                    <span class="text">
+                        <span class="track-icon">
+                            <i class="noplay-icon icon-check-empty"></i>
+                            <i class="current-icon icon-music"></i>
+                            <i class="played-icon icon-check"></i>
+                        </span>
+                        <span class="track-number">
+                            {% if q.track.number %}
+                                {{ q.track.number }}
+                            {% endif %}
+                        </span>
+                        <span class="track-name" title="{{ q.track.name|show_ws }}">
+                            <a href="/library/track/{{ q.track.slug|urlencode }}">
+                                {{ q.track.name|show_ws }}
+                            </a>
+                        </span>
+                    </span>
+                    <span class="track-info">
+                        <span class="track-duration">
+                            {{ q.track.duration|format_seconds }}
+                        </span>
+                        <a
+                            class="remove"
+                            href="/queue/remove/{{ q.track.id }}">
+                            <span class="icon-remove-sign"></span>
+                        </a>
+                    </span>
+                    <div class="clear"></div>
+                </li>
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
-</ol>
+    </ol>
+</div>

@@ -2,6 +2,7 @@ require.config({
     baseUrl: "/scripts/",
     urlArgs: "version=" + window.opmuseGlobals.version,
     paths: {
+        'jquery.nanoscroller': 'lib/jquery.nanoscroller',
         'jquery.fileupload': 'lib/jquery.fileupload',
         'jquery.ui.widget': 'lib/jquery.ui.widget',
         'jquery': 'lib/jquery',
@@ -12,7 +13,8 @@ require.config({
     },
     shim: {
         'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip'],
-        'bootstrap/bootstrap-button': ['bootstrap/bootstrap-dropdown']
+        'bootstrap/bootstrap-button': ['bootstrap/bootstrap-dropdown'],
+        'jquery.nanoscroller': ['jquery']
     },
     waitSeconds: 30
 });

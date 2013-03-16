@@ -22,3 +22,6 @@
 [submodule "vendor/momentjs"]
 	path = vendor/momentjs
 	url = git://github.com/timrwood/moment.git
+[submodule "vendor/nanoScrollerJS"]
+	path = vendor/nanoScrollerJS
+	url = https://github.com/jamesflorentino/nanoScrollerJS.git

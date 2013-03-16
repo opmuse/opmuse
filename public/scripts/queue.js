@@ -1,4 +1,5 @@
-define(['jquery', 'inheritance', 'ajaxify', 'ws', 'bind', 'domReady!'], function($, inheritance, ajaxify, ws) {
+define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.nanoscroller', 'bind', 'domReady!'],
+    function($, inheritance, ajaxify, ws) {
 
     var instance = null;
 
@@ -20,10 +21,20 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'bind', 'domReady!'], function
                 that.internalInit();
             });
 
+            $('#queue').bind('ajaxifyInit', function (event) {
+                that.initNanoScroller();
+            });
+
             that.internalInit();
+            that.initNanoScroller();
 
             ws.on('queue.update', function () {
                 that.reload();
+            });
+        },
+        initNanoScroller: function () {
+            $("#queue .nano").nanoScroller({
+                alwaysVisible: true
             });
         },
         internalInit: function () {
