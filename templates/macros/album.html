@@ -29,6 +29,9 @@
                 <p class="album-track-count badge badge-inverse">{{ album.added|pretty_date }}</p>
             </div>
             <div class="album-badges bottom">
+                {% if album.is_va %}
+                    <p class="album-va badge badge-success">VA</p>
+                {% endif %}
                 {% if album.low_quality %}
                     <p class="album-low-quality badge badge-warning"
                         title="Album has tracks of low quality, consider replacing them.">
@@ -37,11 +40,19 @@
                 {% endif %}
                 {% if album.invalid %}
                 <p class="album-invalid badge badge-important" title="This album containts invalid tracks.">
-                    <i class="icon-warning-sign"></i>
+                    {% if "dir" in album.invalid %}
+                        <i class="icon-folder-open"></i>
+                    {% endif %}
+                    {% if "incomplete_tags" in album.invalid %}
+                        <i class="icon-tag"></i>
+                    {% endif %}
+                    {% if "broken_tags" in album.invalid %}
+                        <i class="icon-tags"></i>
+                    {% endif %}
+                    {% if "missing_tags" in album.invalid %}
+                        <i class="icon-circle-blank"></i>
+                    {% endif %}
                 </p>
-                {% endif %}
-                {% if album.is_va %}
-                    <p class="album-va badge badge-success">VA</p>
                 {% endif %}
             </div>
             <a class="queue add add-album btn btn-small btn-inverse"

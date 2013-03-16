@@ -3,8 +3,8 @@
     title="Folder doesn't match tags."
     data-trigger="hover"
     data-html="true"
-    data-content="This track should be located <strong>{{ track|track_path|e }}</strong>. Do note that these names are case
-    sensitive. <em>This does not affect the playability of this track!</em>">
+    data-content="This track should be located <em>{{ track|track_path|e }}</em>. Do note that these names are case
+    sensitive. <strong>This does not affect the playability of this track!</strong>">
 </a>
 {% elif track.invalid == "incomplete_tags" %}
 <a href="#" class="invalid-track invalid-incomplete icon-tag" rel="popover"
@@ -12,7 +12,8 @@
     data-trigger="hover"
     data-html="true"
     data-content="This track is missing valid tags (ID3, Ogg tags etc) for artist, album and/or title. Use edit to set
-    these properly. <em>This does not affect the playability of this track!</em>">
+    these properly. <strong>This does not affect the playability of this track!</strong>
+    ">
 </a>
 {% elif track.invalid == "broken_tags" %}
 {# TODO find a better icon :/ #}
@@ -20,9 +21,15 @@
     title="Tags are broken."
     data-trigger="hover"
     data-html="true"
-    data-content="This track has broken tags. These most likely needs to be fixed manually. <em>This probably does not
-        affect the playability of this track!</em>">
+    data-content="<p>This track has broken tags. These most likely needs to be fixed manually.
+        <strong>This doesn't necessarily affect the playability of this track!</strong></p>
+        {% if track.invalid_msg %}
+        <p><em>{{ track.invalid_msg }}</em></p>
+        {% endif %}
+    ">
 </a>
+{% elif track.invalid == "missing_tags" %}
+    <i title="Tags are missing." class="invalid-track icon-circle-blank"></i>
 {% else %}
     {{ track.invalid }}
 {% endif %}

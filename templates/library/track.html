@@ -40,7 +40,16 @@
     <table class="table table-striped table-bordered">
         <tr>
             <th>Invalid</th>
-            <td>{{ track.invalid }}</td>
+            <td>
+                {% if track.invalid %}
+                    {{ track.invalid }}
+                    {% if track.invalid_msg %}
+                        (<em>{{ track.invalid_msg }}</em>)
+                    {% endif %}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Artist</th>
