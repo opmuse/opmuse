@@ -76,7 +76,12 @@ def format_bytes(bytes, precision=2):
 
 def track_path(track, artist = None):
     track_structure = TrackStructureParser(track, data_override = {'artist': artist})
-    return track_structure.get_path().decode('utf8')
+    path = track_structure.get_path()
+
+    if path is not None:
+        return path.decode('utf8')
+    else:
+        return ''
 
 
 def startswith(value, start):
@@ -113,7 +118,10 @@ def format_seconds(seconds):
 # TODO this has been added in master
 #       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
 def urlencode(value):
-    return quote(value)
+    if value is not None:
+        return quote(value)
+    else:
+        return ''
 
 
 class JinjaPlugin(SimplePlugin):
