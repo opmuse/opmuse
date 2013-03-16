@@ -1,10 +1,23 @@
 .ajaxify-disabled {
     * {
         .no-user-select;
-        color: rgba(0, 0, 0, 0.4) !important;
     }
 
-    img {
+    h1, h2, h3, h4, h5, h6, p, a, th, td {
+        &:not(.badge) {
+            color: @grayLight !important;
+        }
+
+        small, span {
+            color: @grayLight !important;
+        }
+    }
+
+    .badge > a {
+        color: @white !important;
+    }
+
+    .badge, img {
         opacity: .7;
     }
 }

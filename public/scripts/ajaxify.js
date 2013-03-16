@@ -147,6 +147,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             $(element).addClass('ajaxify-disabled');
 
             $(element).find("input, textarea, select").attr("disabled", "disabled");
+            $(element).find('.btn, a, input').addClass('disabled');
 
             $(element).find("*").bind(
                 'click.ajaxify_disabled ' +
@@ -161,6 +162,8 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             $(element).removeClass('ajaxify-disabled');
 
             $(element).find("input, textarea, select").removeAttr("disabled");
+
+            $(element).find('.btn, a, input').removeClass('disabled');
 
             $(element).find("*").unbind(
                 'click.ajaxify_disabled ' +
