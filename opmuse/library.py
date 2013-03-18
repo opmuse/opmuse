@@ -1436,7 +1436,7 @@ class LibraryDao:
 
     def get_tracks_without_album(self, limit, offset):
         return (cherrypy.request.database.query(Track)
-                .filter(Track.album_id==None)
+                .filter("album_id is null")
                 .order_by(Track.added)
                 .limit(limit)
                 .offset(offset)
@@ -1444,7 +1444,7 @@ class LibraryDao:
 
     def get_tracks_without_artist(self, limit, offset):
         return (cherrypy.request.database.query(Track)
-                .filter(Track.artist_id==None)
+                .filter("artist_id is null")
                 .order_by(Track.added)
                 .limit(limit)
                 .offset(offset)
