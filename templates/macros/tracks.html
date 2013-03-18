@@ -1,0 +1,60 @@
+{% macro table(tracks, show_album = True, show_artist = True) %}
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                {% if show_album %}
+                    <th>Album</th>
+                {% endif %}
+                {% if show_artist %}
+                    <th>Artist</th>
+                {% endif %}
+                <th>Duration</th>
+                <th>Added</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+                <tr>
+                    <td>
+                        <a class="queue add btn btn-mini btn-inverse" href="/queue/add/{{ track.id }}">
+                            <i class="icon-headphones"></i>
+                        </a>
+                        <a href="/library/track/{{ track.slug|urlencode }}">
+                            {{ track.name|show_ws }}
+                        </a>
+                    </td>
+                    {% if show_album %}
+                        <td>
+                            {% if track.album %}
+                                {% if track.artist %}
+                                    {% set artist_slug = track.artist.slug|urlencode %}
+                                {% else %}
+                                    {% set artist_slug = "unknown" %}
+                                {% endif %}
+                                <a href="/{{ artist_slug }}/{{ track.album.slug|urlencode }}">
+                                    {{ track.album.name|show_ws }}
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    {% if show_artist %}
+                        <td>
+                            {% if track.artist %}
+                                <a href="/{{ track.artist.slug|urlencode }}">
+                                    {{ track.artist.name|show_ws }}
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    <td>
+                        {{ track.duration|format_seconds }}
+                    </td>
+                    <td>
+                        {{ track.added|pretty_date }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endmacro %}

@@ -30,7 +30,9 @@
 <div class="artist-head">
     <ul class="row-fluid">
         <li class="span7">
-            {% if artists|length > 1 %}
+            {% if not artists %}
+                {% set artist_slug = "unknown" %}
+            {% elif artists|length > 1 %}
                 {% set artist_slug = "va" %}
             {% else %}
                 {% set artist_slug = artists[0].slug %}
@@ -38,13 +40,17 @@
             {% if track %}
                 <h3 class="track-head">
                     <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
-                    <small>
-                        on <a href="/{{ artist_slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name|show_ws }}</a>
-                    </small>
+                    {% if album %}
+                        <small>
+                            on <a href="/{{ artist_slug|urlencode }}/{{ album.slug|urlencode }}">{{ album.name|show_ws }}</a>
+                        </small>
+                    {% endif %}
                 </h3>
-                <p class="track-subline">
-                    {{ print_artists(artists, true) }}
-                </p>
+                {% if artists and artists|length > 0 %}
+                    <p class="track-subline">
+                        {{ print_artists(artists, true) }}
+                    </p>
+                {% endif %}
             {% elif album %}
                 <h3 class="album-head">
                     <a href="/{{ artist_slug|urlencode }}/{{ album.slug|urlencode }}">
@@ -53,9 +59,11 @@
                             <span class="date">{{ album.date }}</span>
                         {% endif %}
                     </a>
-                    <small>
-                        {{ print_artists(artists, true) }}
-                    </small>
+                    {% if artists and artists|length > 0 %}
+                        <small>
+                            {{ print_artists(artists, true) }}
+                        </small>
+                    {% endif %}
                 </h3>
                 <p class="album-subline">
                     {{ album.tracks|length }} tracks, {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}.
@@ -82,8 +90,8 @@
         <li class="span5">
             {% if album %}
                 {{ covers.album(album, remove = True) }}
-            {% else %}
-                {{ covers.artist(artist, remove = True) }}
+            {% elif artists %}
+                {{ covers.artist(artists[0], remove = True) }}
             {% endif %}
         </li>
     </ul>

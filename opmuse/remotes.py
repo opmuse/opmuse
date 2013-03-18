@@ -52,8 +52,9 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.TRACK_AGE, database = database):
             cache.keep(key, database = database)
-            cherrypy.engine.bgtask.put(self._fetch_track, 10, track.id, track.name,
-                                       track.album.name, track.artist.name)
+            album_name = track.album.name if track.album is not None else None
+            artist_name = track.artist.name if track.artist is not None else None
+            cherrypy.engine.bgtask.put(self._fetch_track, 10, track.id, track.name, album_name, artist_name)
 
     def _fetch_track(self, id, name, album_name, artist_name, _database):
         key = Remotes.TRACK_KEY_FORMAT % id
@@ -78,9 +79,15 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.ALBUM_AGE, database = database):
             cache.keep(key, database = database)
+
+            # TODO just take first artist when querying for album...
+            if len(album.artists) > 0:
+                artist_name = album.artists[0].name
+            else:
+                artist_name = None
+
             cherrypy.engine.bgtask.put(self._fetch_album, 10, album.id, album.name,
-                                       # TODO just take first artist when querying for album...
-                                       album.artists[0].name)
+                                       artist_name)
 
     def _fetch_album(self, id, name, artist_name, _database):
         key = Remotes.ALBUM_KEY_FORMAT % id

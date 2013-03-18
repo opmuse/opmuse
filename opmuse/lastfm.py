@@ -117,9 +117,9 @@ class Lastfm:
             track_number = None
 
         return {
-            'artist': track.artist.name,
+            'artist': track.artist.name if track.artist is not None else None,
             'title': track.name,
-            'album': track.album.name,
+            'album': track.album.name if track.album is not None else None,
             'album_artist': None,
             'duration': track.duration,
             'track_number': track_number

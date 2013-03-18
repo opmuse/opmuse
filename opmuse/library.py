@@ -134,6 +134,10 @@ class Artist(Base):
     albums = relationship("Album", secondary='tracks',
                           order_by=(Album.date.desc(), Album.name))
 
+    no_album_tracks = relationship("Track",
+                                   primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)",
+                                   backref="artists")
+
     def __init__(self, name, slug):
         self.name = name
         self.slug = slug
@@ -197,10 +201,10 @@ class Track(Base):
     invalid_msg = Column(String(255))
     disc = Column(String(64))
 
-    album = relationship("Album", lazy='joined', innerjoin=True,
+    album = relationship("Album", lazy='joined', innerjoin=False,
                          backref=backref('tracks', order_by=(disc, number, name)))
 
-    artist = relationship("Artist", lazy='joined', innerjoin=True,
+    artist = relationship("Artist", lazy='joined', innerjoin=False,
                           backref=backref('tracks', order_by=name))
 
     def __init__(self, hash):
@@ -223,7 +227,14 @@ class Track(Base):
         return False
 
     def __str__(self):
-        return "%s - %s - %s" % (self.artist.name, self.album.name, self.name)
+        if self.artist is None and self.album is None:
+            return "%s" % self.name
+        elif self.artist is None:
+            return "%s - %s" % (self.album.name, self.name)
+        elif self.album is None:
+            return "%s - %s" % (self.artist.name, self.name)
+        else:
+            return "%s - %s - %s" % (self.artist.name, self.album.name, self.name)
 
 
 class FileMetadata:
@@ -440,14 +451,14 @@ class PathParser(TagParser):
 
         path_comp = os.path.split(os.path.dirname(filename)[len(path) + 1:])
 
+        artist = album = None
+
         if len(path_comp[0]) > 0 and len(path_comp[1]) > 0:
             album = path_comp[1]
             path_comp = os.path.split(path_comp[0])
             artist = path_comp[1]
         elif len(path_comp[0]) == 0 and len(path_comp[1]) > 0:
-            artist = album = path_comp[1]
-        else:
-            artist = album = None
+            artist = path_comp[1]
 
         stat = os.stat(bfilename)
         added = datetime.datetime.fromtimestamp(stat.st_mtime)
@@ -488,7 +499,10 @@ class PathParser(TagParser):
 
             artist_cover_path = self.match_in_dir(artist_cover_match, track_dir_files)
 
+        orig_track_name = track_name
+
         match = re.search('([0-9]+)', track_name)
+
         if match is not None:
             number = match.group(0)
             start = match.start(0)
@@ -504,6 +518,9 @@ class PathParser(TagParser):
 
         track_name = track_name.strip('\n -').split("-")[-1].strip()
 
+        if len(track_name) == 0:
+            track_name = orig_track_name
+
         disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]{1,2})', track_dir, flags = re.IGNORECASE)
 
         if disc_match:
@@ -511,7 +528,7 @@ class PathParser(TagParser):
         else:
             disc = None
 
-        if metadata is None or metadata.artist_name is None or metadata.album_name is None or metadata.track_name is None:
+        if metadata is None or metadata.artist_name is None or metadata.album_name is None:
             invalid = ['missing_tags']
         else:
             invalid = []
@@ -716,10 +733,10 @@ class TrackStructureParser(StructureParser):
 
     def get_data(self):
         return {
-            'artist': self._track.artist.name,
-            'album': self._track.album.name,
+            'artist': self._track.artist.name if self._track.artist is not None else None,
+            'album': self._track.album.name if self._track.album is not None else None,
             'disc': self._track.disc,
-            'date': self._track.album.date,
+            'date': self._track.album.date if self._track.album is not None else None,
         }
 
 
@@ -839,9 +856,9 @@ class Library:
             if len(album.tracks) == 0:
                 library_dao.delete_album(album, self._database)
 
-        # remove artists without albums
+        # remove artists without tracks
         for artist in self._database.query(Artist).all():
-            if len(artist.albums) == 0:
+            if len(artist.tracks) == 0:
                 library_dao.delete_artist(artist, self._database)
 
         self._database.remove()
@@ -913,58 +930,58 @@ class LibraryProcess:
         artist = None
         album = None
 
-        try:
-            artist = self._database.query(Artist).filter_by(
-                name=metadata.artist_name
-            ).one()
-        except NoResultFound:
-            artist_slug = self.get_artist_slug(metadata)
-            artist = Artist(metadata.artist_name, artist_slug)
-            self._database.add(artist)
-
-        try:
-            self._database.commit()
-        except IntegrityError:
-            # we get an IntegrityError if the unique constraint kicks in
-            # in which case the artist already exists so fetch it instead.
-            self._database.rollback()
-            artist = self._database.query(Artist).filter_by(
-                name=metadata.artist_name
-            ).one()
-
         if metadata.artist_name is not None:
+            try:
+                artist = self._database.query(Artist).filter_by(
+                    name=metadata.artist_name
+                ).one()
+            except NoResultFound:
+                artist_slug = self.get_artist_slug(metadata)
+                artist = Artist(metadata.artist_name, artist_slug)
+                self._database.add(artist)
+
+            try:
+                self._database.commit()
+            except IntegrityError:
+                # we get an IntegrityError if the unique constraint kicks in
+                # in which case the artist already exists so fetch it instead.
+                self._database.rollback()
+                artist = self._database.query(Artist).filter_by(
+                    name=metadata.artist_name
+                ).one()
+
             artist.name = metadata.artist_name
 
-        if artist.cover_path is None:
-            artist.cover_path = metadata.artist_cover_path
-
-        try:
-            album = self._database.query(Album).filter_by(
-                name=metadata.album_name, date=metadata.date
-            ).one()
-        except NoResultFound:
-            album_slug = self.get_album_slug(metadata)
-            album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
-            self._database.add(album)
-
-        try:
-            self._database.commit()
-        except IntegrityError:
-            # we get an IntegrityError if the unique constraint kicks in
-            # in which case the album already exists so fetch it instead.
-            self._database.rollback()
-            album = self._database.query(Album).filter_by(
-                name=metadata.album_name, date=metadata.date
-            ).one()
+            if artist.cover_path is None:
+                artist.cover_path = metadata.artist_cover_path
 
         if metadata.album_name is not None:
+            try:
+                album = self._database.query(Album).filter_by(
+                    name=metadata.album_name, date=metadata.date
+                ).one()
+            except NoResultFound:
+                album_slug = self.get_album_slug(metadata)
+                album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
+                self._database.add(album)
+
+            try:
+                self._database.commit()
+            except IntegrityError:
+                # we get an IntegrityError if the unique constraint kicks in
+                # in which case the album already exists so fetch it instead.
+                self._database.rollback()
+                album = self._database.query(Album).filter_by(
+                    name=metadata.album_name, date=metadata.date
+                ).one()
+
             album.name = metadata.album_name
 
-        if album.date is None:
-            album.date = metadata.date
+            if album.date is None:
+                album.date = metadata.date
 
-        if album.cover_path is None:
-            album.cover_path = metadata.cover_path
+            if album.cover_path is None:
+                album.cover_path = metadata.cover_path
 
         ext = os.path.splitext(filename)[1].lower()
 
@@ -1016,13 +1033,20 @@ class LibraryProcess:
 
         track.paths.append(TrackPath(filename))
 
-        album.tracks.append(track)
-        artist.tracks.append(track)
+        if album is not None:
+            album.tracks.append(track)
+
+        if artist is not None:
+            artist.tracks.append(track)
 
         self._database.commit()
 
-        search.add_artist(artist)
-        search.add_album(album)
+        if artist is not None:
+            search.add_artist(artist)
+
+        if album is not None:
+            search.add_album(album)
+
         search.add_track(track)
 
         return track
@@ -1057,8 +1081,17 @@ class LibraryProcess:
         track_slug = None
 
         while True:
+            if metadata.artist_name is None and metadata.album_name is None:
+                slug = metadata.track_name
+            elif metadata.artist_name is None:
+                slug = "%s_%s" % (metadata.album_name, metadata.track_name)
+            elif metadata.album_name is None:
+                slug = "%s_%s" % (metadata.artist_name, metadata.track_name)
+            else:
+                slug = "%s_%s_%s" % (metadata.artist_name, metadata.album_name, metadata.track_name)
+
             index, track_slug = LibraryProcess.slugify(
-                "%s_%s_%s" % (metadata.artist_name, metadata.album_name, metadata.track_name), index
+                slug, index
             )
 
             try:
@@ -1115,7 +1148,8 @@ class LibraryProcess:
 
         # Disallow certain slug values that will conflict with urls.
         # Would be nice if this was automatic (search through controllers for all top-level url components).
-        if string in ('library', 'users', 'upload', 'logout', 'login', 'search', 'queue', 'cover', 'font', 'va'):
+        if string in ('library', 'users', 'upload', 'logout', 'login', 'search',
+                      'queue', 'cover', 'font', 'va', 'unknown'):
             index += 1
             return LibraryProcess.slugify(string, index)
 
@@ -1399,6 +1433,29 @@ class LibraryDao:
             return cherrypy.request.database.query(Track).filter_by(slug=slug).one()
         except NoResultFound:
             pass
+
+    def get_tracks_without_album(self, limit, offset):
+        return (cherrypy.request.database.query(Track)
+                .filter(Track.album_id==None)
+                .order_by(Track.added)
+                .limit(limit)
+                .offset(offset)
+                .all())
+
+    def get_tracks_without_artist(self, limit, offset):
+        return (cherrypy.request.database.query(Track)
+                .filter(Track.artist_id==None)
+                .order_by(Track.added)
+                .limit(limit)
+                .offset(offset)
+                .all())
+
+    def get_tracks(self, limit, offset):
+        return (cherrypy.request.database.query(Track)
+                .order_by(Track.added)
+                .limit(limit)
+                .offset(offset)
+                .all())
 
     def get_artists(self, limit, offset):
         return (cherrypy.request.database.query(Artist)

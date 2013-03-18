@@ -11,93 +11,95 @@
             </ul>
         </div>
     {% endif %}
-    {% for artist in artists %}
-        {% set remotes_artist = remotes_artists[loop.index0] %}
-        <div class="sidebar-nav well well-small">
-            <ul class="nav nav-list">
-                <li class="nav-header">{{ artist.name }}</li>
-                {% if remotes_artist %}
-                    {% if remotes_artist.lastfm.url %}
-                        <li>
-                            <a href="{{ remotes_artist.lastfm.url }}">Artist on Lastfm</a>
-                        </li>
-                    {% endif %}
-                    {% if remotes_artist.wikipedia.url %}
-                        <li>
-                            <a href="{{ remotes_artist.wikipedia.url }}">Artist on Wikipedia</a>
-                        </li>
-                    {% endif %}
-                {% endif %}
-                <li>
-                    <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
-                        Artist on Discogs
-                    </a>
-                </li>
-                {% if album %}
-                    <li class="nav-header">{{ album.name }}</li>
-                    {% if remotes_album %}
-                        {% if remotes_album.lastfm.url %}
+    {% if artists %}
+        {% for artist in artists %}
+            {% set remotes_artist = remotes_artists[loop.index0] %}
+            <div class="sidebar-nav well well-small">
+                <ul class="nav nav-list">
+                    <li class="nav-header">{{ artist.name }}</li>
+                    {% if remotes_artist %}
+                        {% if remotes_artist.lastfm.url %}
                             <li>
-                                <a href="{{ remotes_album.lastfm.url }}">Album on Lastfm</a>
+                                <a href="{{ remotes_artist.lastfm.url }}">Artist on Lastfm</a>
                             </li>
                         {% endif %}
-                        {% if remotes_album.wikipedia.url %}
+                        {% if remotes_artist.wikipedia.url %}
                             <li>
-                                <a href="{{ remotes_album.wikipedia.url }}">Album on Wikipedia</a>
+                                <a href="{{ remotes_artist.wikipedia.url }}">Artist on Wikipedia</a>
                             </li>
                         {% endif %}
                     {% endif %}
                     <li>
-                        <a href="http://www.discogs.com/search?q={{ "artist:'" ~ artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
-                            Album on Discogs
+                        <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
+                            Artist on Discogs
                         </a>
                     </li>
-                {% endif %}
-                <li class="nav-header">Lastfm Stats</li>
-                <li>
-                    {% if remotes_artist %}
-                        {% if remotes_artist.lastfm.listeners %}
-                            {{ remotes_artist.lastfm.listeners|format_number }} Listeners
+                    {% if album %}
+                        <li class="nav-header">{{ album.name }}</li>
+                        {% if remotes_album %}
+                            {% if remotes_album.lastfm.url %}
+                                <li>
+                                    <a href="{{ remotes_album.lastfm.url }}">Album on Lastfm</a>
+                                </li>
+                            {% endif %}
+                            {% if remotes_album.wikipedia.url %}
+                                <li>
+                                    <a href="{{ remotes_album.wikipedia.url }}">Album on Wikipedia</a>
+                                </li>
+                            {% endif %}
                         {% endif %}
+                        <li>
+                            <a href="http://www.discogs.com/search?q={{ "artist:'" ~ artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
+                                Album on Discogs
+                            </a>
+                        </li>
                     {% endif %}
-                </li>
-                <li class="nav-header">Lastfm Genres</li>
-                <li>
+                    <li class="nav-header">Lastfm Stats</li>
+                    <li>
+                        {% if remotes_artist %}
+                            {% if remotes_artist.lastfm.listeners %}
+                                {{ remotes_artist.lastfm.listeners|format_number }} Listeners
+                            {% endif %}
+                        {% endif %}
+                    </li>
+                    <li class="nav-header">Lastfm Genres</li>
+                    <li>
+                        {% if remotes_artist %}
+                            {% for tag in remotes_artist.lastfm.tags %}
+                                <span class="tag badge badge-inverse">{{ tag }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </li>
+                    <li class="nav-header">Lastfm Similar</li>
+                    <li>
                     {% if remotes_artist %}
-                        {% for tag in remotes_artist.lastfm.tags %}
-                            <span class="tag badge badge-inverse">{{ tag }}</span>
+                        {% for similar in remotes_artist.lastfm.similar %}
+                            <span class="badge badge-inverse">
+                                <a href="/search/{{ similar.name|urlencode }}/artist">{{ similar.name }}</a>
+                            </span>
                         {% endfor %}
                     {% endif %}
-                </li>
-                <li class="nav-header">Lastfm Similar</li>
-                <li>
-                {% if remotes_artist %}
-                    {% for similar in remotes_artist.lastfm.similar %}
+                    </li>
+                    <li class="nav-header">Discogs aliases</li>
+                    <li>
+                    {% if remotes_artist %}
+                        {% for alias in remotes_artist.discogs.aliases %}
+                            <span class="badge badge-inverse">
+                                <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
+                            </span>
+                        {% endfor %}
+                    {% endif %}
+                    </li>
+                    <li class="nav-header">Namesakes</li>
+                    <li>
+                    {% for artist in namesakes %}
                         <span class="badge badge-inverse">
-                            <a href="/search/{{ similar.name|urlencode }}/artist">{{ similar.name }}</a>
+                            <a href="/{{ artist.slug }}">{{ artist.name|show_ws }}</a>
                         </span>
                     {% endfor %}
-                {% endif %}
-                </li>
-                <li class="nav-header">Discogs aliases</li>
-                <li>
-                {% if remotes_artist %}
-                    {% for alias in remotes_artist.discogs.aliases %}
-                        <span class="badge badge-inverse">
-                            <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
-                        </span>
-                    {% endfor %}
-                {% endif %}
-                </li>
-                <li class="nav-header">Namesakes</li>
-                <li>
-                {% for artist in namesakes %}
-                    <span class="badge badge-inverse">
-                        <a href="/{{ artist.slug }}">{{ artist.name|show_ws }}</a>
-                    </span>
-                {% endfor %}
-                </li>
-            </ul>
-        </div>
-    {% endfor %}
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+    {% endif %}
 </div>

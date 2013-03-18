@@ -1,23 +1,49 @@
 {% macro hierarchy(hierarchy) %}
     <div class="media-hierarchy">
-        {% for key, artist in hierarchy.items() %}
+        {% for key, artist in hierarchy.artists.items() %}
             {% call(album) artist_media(artist.entity, artist.albums.items()) %}
-                {% call(track) album_media(album[1].entity, album[1].tracks.items()) %}
-                    {% set track = track[1].entity %}
-                    <div class="track">
-                        {% include "partials/track.html" %}
-                    </div>
-                {% endcall %}
+                {{ album_hierarchy(album[1].entity, album[1].tracks) }}
             {% endcall %}
+
+            {# TODO this should be located within the artist media body... #}
+            {% for key, track in artist.tracks.items() %}
+                {% set track = track.entity %}
+                <div class="track">
+                    {% include "partials/track.html" %}
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% for key, album in hierarchy.albums.items() %}
+            {{ album_hierarchy(album.entity, album.tracks) }}
+        {% endfor %}
+        {% for key, track in hierarchy.tracks.items() %}
+            {% set track = track.entity %}
+            <div class="track">
+                {% include "partials/track.html" %}
+            </div>
         {% endfor %}
     </div>
+{% endmacro %}
+
+{% macro album_hierarchy(album_entity, album_tracks) %}
+    {% call(track) album_media(album_entity, album_tracks.items()) %}
+        {% set track = track[1].entity %}
+        <div class="track">
+            {% include "partials/track.html" %}
+        </div>
+    {% endcall %}
 {% endmacro %}
 
 {% macro album_media(album, children = []) %}
     {% import "macros/covers.html" as covers %}
 
     <div class="media album">
-        <a href="/{{ album.artists[0].slug|urlencode }}/{{ album.slug|urlencode }}">
+        {% if album.artists|length == 0 %}
+            {% set artist_slug = "unknown" %}
+        {% else %}
+            {% set artist_slug = album.artists[0].slug|urlencode %}
+        {% endif %}
+        <a href="/{{ artist_slug }}/{{ album.slug|urlencode }}">
             {{ covers.album(album, 80, "img-rounded media-object pull-left") }}
         </a>
         <div class="media-body">
@@ -26,7 +52,11 @@
                     <small>({{ album.date }})</small>
                 {% endif %}
             </h4>
-            <p>by {{ album.artists[0].name|show_ws }}</p>
+            {% if album.artists|length == 0 %}
+                <p>by Unknown artist</p>
+            {% else %}
+                <p>by {{ album.artists[0].name|show_ws }}</p>
+            {% endif %}
             {% if caller %}
                 {% for child in children %}
                     {{ caller(child) }}

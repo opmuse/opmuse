@@ -1,13 +1,27 @@
 {% extends "body_twocol.html" %}
 
 {% block title  %}
-    {{ track.artist.name|show_ws }} - {{ track.album.name|show_ws }} - {{ track.name|show_ws }}
+    {% if track.artist %}
+        {{ track.artist.name|show_ws }} -
+    {% endif %}
+    {% if track.album %}
+        {{ track.album.name|show_ws }} -
+    {% endif %}
+    {{ track.name|show_ws }}
 {% endblock %}
 
 {% block right %}
     {% set album = track.album %}
-    {% set remotes_artists = [remotes_artist] %}
-    {% set artists = [track.artist] %}
+    {% if remotes_artist %}
+        {% set remotes_artists = [remotes_artist] %}
+    {% else %}
+        {% set remotes_artists = None %}
+    {% endif %}
+    {% if track.artist %}
+        {% set artists = [track.artist] %}
+    {% else %}
+        {% set artists = None %}
+    {% endif %}
     {% include "partials/artist-nav.html" %}
 {% endblock %}
 
@@ -17,7 +31,11 @@
     {% include "partials/library-nav.html" %}
 
     {% set album = track.album %}
-    {% set artists = [track.artist] %}
+    {% if track.artist %}
+        {% set artists = [track.artist] %}
+    {% else %}
+        {% set artists = None %}
+    {% endif %}
     {% set remotes_artist = None %}
     {% set remotes_album = None %}
     {% include "partials/artist-head.html" %}
@@ -53,11 +71,23 @@
         </tr>
         <tr>
             <th>Artist</th>
-            <td>{{ track.artist.name|show_ws }}</td>
+            <td>
+                {% if track.artist %}
+                    {{ track.artist.name|show_ws }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Album</th>
-            <td>{{ track.album.name|show_ws }}</td>
+            <td>
+                {% if track.album %}
+                    {{ track.album.name|show_ws }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Track</th>
@@ -65,15 +95,29 @@
         </tr>
         <tr>
             <th>Number</th>
-            <td>{{ track.number }}</td>
+            <td>
+                {% if track.number %}
+                    {{ track.number }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Disc</th>
-            <td>{{ track.disc }}</td>
+            <td>
+                {% if track.disc %}
+                    {{ track.disc }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Duration</th>
-            <td>{{ track.duration|format_seconds }}</td>
+            <td>
+                {{ track.duration|format_seconds }}
+            </td>
         </tr>
         <tr>
             <th>Format</th>

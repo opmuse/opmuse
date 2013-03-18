@@ -1,7 +1,7 @@
 {% extends "body_twocol.html" %}
 
 {% block title  %}
-    {% if album.artists|length == 0 %}
+    {% if album.artists|length > 0 %}
         {{ album.artists[0].name|show_ws }} -
     {% endif %}
     {{ album.name|show_ws }}

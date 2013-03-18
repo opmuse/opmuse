@@ -34,16 +34,40 @@
         {% for queue in queues %}
             {% set q = queue[0] %}
             <li>
-            <span class="album-header" title="{{ q.track.artist.name|show_ws }} - {{ q.track.album.name|show_ws }}
+            <span class="album-header" title="
+                    {% if q.track.artist %}
+                        {{ q.track.artist.name|show_ws }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                    -
+                    {% if q.track.album %}
+                        {{ q.track.album.name|show_ws }}
+                    {% else %}
+                        N/A
+                    {% endif %}
                     {%- if q.track.disc -%}
                         - Disc {{ q.track.disc }}
                     {%- endif -%}">
-                    <a href="/{{ q.track.artist.slug|urlencode }}">
-                        {{ q.track.artist.name|show_ws }}
-                    </a> -
-                    <a href="/{{ q.track.artist.slug|urlencode }}/{{ q.track.album.slug|urlencode }}">
-                        {{ q.track.album.name|show_ws }}
-                    </a>
+                    {% if q.track.artist %}
+                        <a href="/{{ q.track.artist.slug|urlencode }}">
+                            {{ q.track.artist.name|show_ws }}
+                        </a>
+                    {% else %}
+                        N/A
+                    {% endif %} -
+                    {% if q.track.album %}
+                        {% if q.track.artist %}
+                            {% set artist_slug = q.track.artist.slug|urlencode %}
+                        {% else %}
+                            {% set artist_slug = "unknown" %}
+                        {% endif %}
+                        <a href="/{{ artist_slug }}/{{ q.track.album.slug|urlencode }}">
+                            {{ q.track.album.name|show_ws }}
+                        </a>
+                    {% else %}
+                        N/A
+                    {% endif %}
                     {% if q.track.disc %}
                         - Disc {{ q.track.disc }}
                     {% endif %}

@@ -6,6 +6,31 @@
 
 {% block content %}
 <div id="library">
+    {% import "macros/tracks.html" as tracks_macros %}
     {% include "partials/library-nav.html" %}
+    <ul class="tracks-nav nav nav-pills">
+        <li class="{{ "active" if request.path_info == "/library/tracks/new" }}">
+            <a href="/library/tracks/new">New</a>
+        </li>
+        <li class="{{ "active" if request.path_info == "/library/tracks/noartist" }}">
+            <a href="/library/tracks/noartist">Without Artist</a>
+        </li>
+        <li class="{{ "active" if request.path_info == "/library/tracks/noalbum" }}">
+            <a href="/library/tracks/noalbum">Without Album</a>
+        </li>
+    </ul>
+
+    <div class="tracks">
+        {{ tracks_macros.table(tracks) }}
+    </div>
+
+    <div class="pagination pagination-centered">
+        <ul>
+            {% if page > 1 %}
+            <li><a href="{{ request.path_info }}?page={{ page - 2 }}">Previous</a></li>
+            {% endif %}
+            <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
+        </ul>
+    </div>
 </div>
 {% endblock %}

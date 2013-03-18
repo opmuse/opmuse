@@ -68,8 +68,8 @@ class FFMPEGTranscoder(Transcoder):
 
         ext = os.path.splitext(os.path.basename(self.filename))[1].lower()[1:]
 
-        artist = self.track.artist.name
-        album = self.track.album.name
+        artist = self.track.artist.name if self.track.artist is not None else ''
+        album = self.track.album.name if self.track.album is not None else ''
         title = self.track.name
         track_number = self.track.number if self.track.number is not None else 0
 

@@ -14,6 +14,7 @@
 
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
 {% import "macros/album.html" as album_macros %}
+{% import "macros/tracks.html" as tracks %}
 
 <div id="artist">
 
@@ -26,34 +27,23 @@
 
     {{ edit_dropdown.dropdown(artist.tracks) }}
 
-    <h3>Albums by date</h3>
+    {% for album_group in album_groups.values() %}
+        {% if album_group.albums|length > 0 %}
+            <h3>{{ album_group.title }}</h2>
+            <div class="albums">
+                {% for album in album_group.albums %}
+                    {{ album_macros.album(artist, album) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endfor %}
 
-    <div class="albums">
-        {% for album in artist.albums %}
-            {% if not album.is_va and album.date %}
-                {{ album_macros.album(artist, album) }}
-            {% endif %}
-        {% endfor %}
-    </div>
+    {% if artist.no_album_tracks %}
+        <h3>Tracks without albums</h2>
 
-    <h3>Albums without date</h2>
-
-    <div class="albums">
-        {% for album in artist.albums %}
-            {% if not album.is_va and not album.date %}
-                {{ album_macros.album(artist, album) }}
-            {% endif %}
-        {% endfor %}
-    </div>
-
-    <h3>Various Artists</h2>
-
-    <div class="albums">
-        {% for album in artist.albums %}
-            {% if album.is_va %}
-                {{ album_macros.album(artist, album) }}
-            {% endif %}
-        {% endfor %}
-    </div>
+        <div class="tracks">
+            {{ tracks.table(artist.no_album_tracks, false, false) }}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

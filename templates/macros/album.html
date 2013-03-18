@@ -8,13 +8,15 @@
                 {{ artist.name|show_ws }}
             {%- endif -%}
         {%- endfor -%}.
-    {%- else -%}
+    {%- elif album.artists|length == 1 -%}
         by {% if href -%}
             <a href="/{{ album.artists[0].slug|urlencode }}">{{ album.artists[0].name|show_ws }}</a>
         {%- else -%}
             {{ album.artists[0].name|show_ws }}
         {%- endif -%}
         .
+    {%- else -%}
+        by Unknown Artist.
     {%- endif -%}
 {% endmacro %}
 
@@ -65,8 +67,14 @@
             {% if album.is_va %}
                 {% set album_url =  "va/" + album.slug|urlencode %}
             {% else %}
-                {% set album_url = (album.artists[0].slug|urlencode if not artist else artist.slug|urlencode) +
-                                    "/" + album.slug|urlencode %}
+                {% if not artist and album.artists|length == 0 %}
+                    {% set artist_slug = "unknown" %}
+                {% elif album.artists|length > 0 %}
+                    {% set artist_slug = album.artists[0].slug|urlencode %}
+                {% else %}
+                    {% set artist_slug = artist.slug|urlencode %}
+                {% endif %}
+                {% set album_url = artist_slug + "/" + album.slug|urlencode %}
             {% endif %}
             <a href="/{{ album_url }}">
                 {{ covers.album(album) }}

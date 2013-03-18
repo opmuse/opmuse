@@ -204,12 +204,12 @@ class Search:
 
             hierarchy = Library._produce_track_hierarchy(artists, albums, tracks)
 
-            for key, result_artist in hierarchy.items():
+            for key, result_artist in hierarchy['artists'].items():
                 for album in result_artist['entity'].albums:
                     for track in album.tracks:
                         artist_tracks.append(track)
 
-            for key, result_artist in hierarchy.items():
+            for key, result_artist in hierarchy['artists'].items():
                 for key, result_album in result_artist['albums'].items():
                     for track in result_album['entity'].tracks:
                         album_tracks.append(track)
@@ -494,11 +494,17 @@ class Library(object):
             raise cherrypy.NotFound()
 
         remotes.update_track(track)
-        remotes.update_album(track.album)
-        remotes.update_artist(track.artist)
 
-        remotes_artist = remotes.get_artist(track.artist)
-        remotes_album = remotes.get_album(track.album)
+        remotes_album = remotes_artist = None
+
+        if track.album is not None:
+            remotes.update_album(track.album)
+            remotes_album = remotes.get_album(track.album)
+
+        if track.artist is not None:
+            remotes.update_artist(track.artist)
+            remotes_artist = remotes.get_artist(track.artist)
+
         remotes_track = remotes.get_track(track)
 
         return {
@@ -621,11 +627,16 @@ class Library(object):
 
         page = int(page)
 
-        page_size = 18
+        page_size = 50
 
         offset = page_size * (page - 1)
 
-        tracks = []
+        if view == "new":
+            tracks = library_dao.get_tracks(page_size, offset)
+        elif view == "noalbum":
+            tracks = library_dao.get_tracks_without_album(page_size, offset)
+        elif view == "noartist":
+            tracks = library_dao.get_tracks_without_artist(page_size, offset)
 
         return {'tracks': tracks, 'page': page, 'view': view}
 
@@ -729,9 +740,36 @@ class Library(object):
         if artist is None:
             raise cherrypy.NotFound()
 
+        album_groups = {}
+
         remotes.update_artist(artist)
 
         for album in artist.albums:
+            if album.is_va:
+                if 'va' not in album_groups:
+                    album_groups['va'] = {
+                        'title': 'Various Artists',
+                        'albums': []
+                    }
+
+                album_groups['va']['albums'].append(album)
+            elif album.date is not None:
+                if 'by_date' not in album_groups:
+                    album_groups['by_date'] = {
+                        'title': 'Albums by Date',
+                        'albums': []
+                    }
+
+                album_groups['by_date']['albums'].append(album)
+            else:
+                if 'no_date' not in album_groups:
+                    album_groups['no_date'] = {
+                        'title': 'Albums without Date',
+                        'albums': []
+                    }
+
+                album_groups['no_date']['albums'].append(album)
+
             remotes.update_album(album)
 
         remotes_artist = remotes.get_artist(artist)
@@ -748,49 +786,82 @@ class Library(object):
 
         return {
             'artist': artist,
+            'album_groups': album_groups,
             'remotes_artist': remotes_artist,
             'namesakes': namesakes
         }
 
     @staticmethod
     def _produce_track_hierarchy(artists, albums, tracks):
-        hierarchy = OrderedDict({})
+        hierarchy = {
+            'artists': OrderedDict({}),
+            'albums': OrderedDict({}),
+            'tracks': OrderedDict({})
+        }
 
         for artist in artists:
-            hierarchy[artist.id] = {
+            hierarchy['artists'][artist.id] = {
                 'entity': artist,
-                'albums': {}
+                'albums': OrderedDict({}),
+                'tracks': OrderedDict({})
             }
 
         for album in albums:
-            for artist in album.artists:
-                if artist.id not in hierarchy:
-                    hierarchy[artist.id] = {
-                        'entity': artist,
-                        'albums': {}
+            if len(album.artists) == 0:
+                hierarchy['albums'][album.id] = {
+                    'entity': album,
+                    'tracks': OrderedDict({})
+                }
+            else:
+                for artist in album.artists:
+                    if artist.id not in hierarchy['artists']:
+                        hierarchy['artists'][artist.id] = {
+                            'entity': artist,
+                            'albums': OrderedDict({}),
+                            'tracks': OrderedDict({})
+                        }
+
+                    hierarchy['artists'][artist.id]['albums'][album.id] = {
+                        'entity': album,
+                        'tracks': OrderedDict({})
                     }
 
-                hierarchy[artist.id]['albums'][album.id] = {
-                    'entity': album,
-                    'tracks': {}
-                }
-
         for track in tracks:
-            if track.artist.id not in hierarchy:
-                hierarchy[track.artist.id] = {
+            if track.artist is not None and track.artist.id not in hierarchy['artists']:
+                hierarchy['artists'][track.artist.id] = {
                     'entity': track.artist,
-                    'albums': {}
+                    'albums': OrderedDict({}),
+                    'tracks': OrderedDict({})
                 }
 
-            if track.album.id not in hierarchy[track.artist.id]['albums']:
-                hierarchy[track.artist.id]['albums'][track.album.id] = {
-                    'entity': track.album,
-                    'tracks': {}
-                }
+            if track.artist is not None and track.album is not None:
+                if track.album.id not in hierarchy['artists'][track.artist.id]['albums']:
+                    hierarchy['artists'][track.artist.id]['albums'][track.album.id] = {
+                        'entity': track.album,
+                        'tracks': OrderedDict({})
+                    }
 
-            hierarchy[track.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
-                'entity': track
-            }
+                hierarchy['artists'][track.artist.id]['albums'][track.album.id]['tracks'][track.id] = {
+                    'entity': track
+                }
+            elif track.artist is not None:
+                hierarchy['artists'][track.artist.id]['tracks'][track.id] = {
+                    'entity': track
+                }
+            elif track.album is not None:
+                if track.album.id not in hierarchy['albums']:
+                    hierarchy['albums'][track.album.id] = {
+                        'entity': track.album,
+                        'tracks': OrderedDict({})
+                    }
+
+                hierarchy['albums'][track.album.id]['tracks'][track.id] = {
+                    'entity': track
+                }
+            else:
+                hierarchy['tracks'][track.id] = {
+                    'entity': track
+                }
 
         return hierarchy
 

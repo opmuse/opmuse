@@ -98,10 +98,10 @@ class QueueEvents:
     def serialize_track(self, track):
         return {
             'album': {
-                'name': track.album.name
+                'name': track.album.name if track.album is not None else None
             },
             'artist': {
-                'name': track.artist.name,
+                'name': track.artist.name if track.artist is not None else None,
             },
             'name': track.name,
             'duration': track.duration,
@@ -167,9 +167,10 @@ class QueueDao:
         current_queues = []
 
         for queue in cherrypy.request.database.query(Queue).filter_by(user_id=user_id).order_by(Queue.weight).all():
-
-            if (album is not None and album.id != queue.track.album.id or
-                artist is not None and artist.id != queue.track.artist.id or
+            if (queue.track.album is None and album is not None or
+                queue.track.artist is None and artist is not None or
+                queue.track.album is None and album is not None and album.id != queue.track.album.id or
+                queue.track.artist is None and artist is not None and artist.id != queue.track.artist.id or
                 track is not None and track.disc != queue.track.disc):
                 queues.append(current_queues)
                 current_queues = []
