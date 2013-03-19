@@ -169,15 +169,16 @@ class Search:
         album_tracks = []
 
         if query is not None:
-            artists = search.query_artist(query)
-
             albums = None
             tracks = None
 
             # only search for artists
             if type == 'artist':
+                artists = search.query_artist(query, exact=True)
                 albums = []
                 tracks = []
+            else:
+                artists = search.query_artist(query)
 
             if albums is None:
                 albums = search.query_album(query)
@@ -667,7 +668,7 @@ class Library(object):
                 index = 0
 
                 for artist in remotes_user['lastfm']['top_artists_overall']:
-                    artist_results = search.query_artist(artist['name'])
+                    artist_results = search.query_artist(artist['name'], exact=True)
 
                     if len(artist_results) > 0:
                         artists.append(artist_results[0])
@@ -1000,7 +1001,7 @@ class Root(object):
         index = 0
 
         for artist_name in artist_names:
-            results = search.query_artist(artist_name)
+            results = search.query_artist(artist_name, exact=True)
 
             if len(results) > 0:
                 artists.append(results[0])
