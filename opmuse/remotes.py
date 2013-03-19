@@ -86,7 +86,7 @@ class Remotes:
             else:
                 artist_name = None
 
-            cherrypy.engine.bgtask.put(self._fetch_album, 10, album.id, album.name,
+            cherrypy.engine.bgtask.put(self._fetch_album, 11, album.id, album.name,
                                        artist_name)
 
     def _fetch_album(self, id, name, artist_name, _database):
@@ -113,7 +113,7 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.ARTIST_AGE, database = database):
             cache.keep(key, database = database)
-            cherrypy.engine.bgtask.put(self._fetch_artist, 10, artist.id, artist.name)
+            cherrypy.engine.bgtask.put(self._fetch_artist, 12, artist.id, artist.name)
 
     def _fetch_artist(self, id, name, _database):
         key = Remotes.ARTIST_KEY_FORMAT % id
