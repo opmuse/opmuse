@@ -17,16 +17,14 @@ class Remotes:
     USER_AGE = 3600
 
     def update_user(self, user):
-        database = cherrypy.request.database
-
         key = Remotes.USER_KEY_FORMAT % user.id
 
-        if cache.needs_update(key, age = Remotes.USER_AGE, database = database):
-            cache.keep(key, database = database)
+        if cache.needs_update(key, age = Remotes.USER_AGE):
+            cache.keep(key)
             cherrypy.engine.bgtask.put(self._fetch_user, 10, user.id, user.lastfm_user,
                                        user.lastfm_session_key)
 
-    def _fetch_user(self, id, lastfm_user, lastfm_session_key, _database):
+    def _fetch_user(self, id, lastfm_user, lastfm_session_key):
         key = Remotes.USER_KEY_FORMAT % id
 
         user = {}
@@ -36,49 +34,41 @@ class Remotes:
         else:
             user['lastfm'] = None
 
-        cache.set(key, user, database = _database)
+        cache.set(key, user)
 
     def get_user(self, user):
-        database = cherrypy.request.database
-
         key = Remotes.USER_KEY_FORMAT % user.id
 
-        return cache.get(key, database = database)
+        return cache.get(key)
 
     def update_track(self, track):
-        database = cherrypy.request.database
-
         key = Remotes.TRACK_KEY_FORMAT % track.id
 
-        if cache.needs_update(key, age = Remotes.TRACK_AGE, database = database):
-            cache.keep(key, database = database)
+        if cache.needs_update(key, age = Remotes.TRACK_AGE):
+            cache.keep(key)
             album_name = track.album.name if track.album is not None else None
             artist_name = track.artist.name if track.artist is not None else None
             cherrypy.engine.bgtask.put(self._fetch_track, 10, track.id, track.name, album_name, artist_name)
 
-    def _fetch_track(self, id, name, album_name, artist_name, _database):
+    def _fetch_track(self, id, name, album_name, artist_name):
         key = Remotes.TRACK_KEY_FORMAT % id
 
         track = {
             'wikipedia': wikipedia.get_track(artist_name, album_name, name)
         }
 
-        cache.set(key, track, database = _database)
+        cache.set(key, track)
 
     def get_track(self, track):
-        database = cherrypy.request.database
-
         key = Remotes.TRACK_KEY_FORMAT % track.id
 
-        return cache.get(key, database = database)
+        return cache.get(key)
 
     def update_album(self, album):
-        database = cherrypy.request.database
-
         key = Remotes.ALBUM_KEY_FORMAT % album.id
 
-        if cache.needs_update(key, age = Remotes.ALBUM_AGE, database = database):
-            cache.keep(key, database = database)
+        if cache.needs_update(key, age = Remotes.ALBUM_AGE):
+            cache.keep(key)
 
             # TODO just take first artist when querying for album...
             if len(album.artists) > 0:
@@ -89,7 +79,7 @@ class Remotes:
             cherrypy.engine.bgtask.put(self._fetch_album, 11, album.id, album.name,
                                        artist_name)
 
-    def _fetch_album(self, id, name, artist_name, _database):
+    def _fetch_album(self, id, name, artist_name):
         key = Remotes.ALBUM_KEY_FORMAT % id
 
         album = {
@@ -97,41 +87,35 @@ class Remotes:
             'lastfm': lastfm.get_album(artist_name, name)
         }
 
-        cache.set(key, album, database = _database)
+        cache.set(key, album)
 
     def get_album(self, album):
-        database = cherrypy.request.database
-
         key = Remotes.ALBUM_KEY_FORMAT % album.id
 
-        return cache.get(key, database = database)
+        return cache.get(key)
 
     def update_artist(self, artist):
-        database = cherrypy.request.database
-
         key = Remotes.ARTIST_KEY_FORMAT % artist.id
 
-        if cache.needs_update(key, age = Remotes.ARTIST_AGE, database = database):
-            cache.keep(key, database = database)
+        if cache.needs_update(key, age = Remotes.ARTIST_AGE):
+            cache.keep(key)
             cherrypy.engine.bgtask.put(self._fetch_artist, 12, artist.id, artist.name)
 
-    def _fetch_artist(self, id, name, _database):
+    def _fetch_artist(self, id, name):
         key = Remotes.ARTIST_KEY_FORMAT % id
 
         artist = {
             'wikipedia': wikipedia.get_artist(name),
-            'lastfm': lastfm.get_artist(name, _database),
+            'lastfm': lastfm.get_artist(name),
             'discogs': discogs.get_artist(name)
         }
 
-        cache.set(key, artist, database = _database)
+        cache.set(key, artist)
 
     def get_artist(self, artist):
-        database = cherrypy.request.database
-
         key = Remotes.ARTIST_KEY_FORMAT % artist.id
 
-        return cache.get(key, database = database)
+        return cache.get(key)
 
 
 remotes = Remotes()

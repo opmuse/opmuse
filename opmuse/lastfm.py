@@ -287,7 +287,7 @@ class Lastfm:
                 error
             ))
 
-    def get_artist(self, artist_name, _database = None):
+    def get_artist(self, artist_name):
         try:
             network = self.get_network()
             artist = network.get_artist(artist_name)
@@ -299,7 +299,7 @@ class Lastfm:
             for similar in artist.get_similar(100):
                 name = similar.item.get_name()
 
-                results = search.query_artist(name, exact=True, _database=_database)
+                results = search.query_artist(name, exact=True)
 
                 if len(results) > 0:
                     similars.append({

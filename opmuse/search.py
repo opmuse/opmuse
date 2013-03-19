@@ -7,6 +7,7 @@ from whoosh.writing import BufferedWriter, IndexingError
 from whoosh.analysis import SimpleAnalyzer
 from whoosh.qparser import MultifieldParser
 from whoosh.query import Term
+from opmuse.database import get_database
 import opmuse.library
 
 index_names = ['Artist', 'Album', 'Track']
@@ -79,25 +80,22 @@ class Search:
         write_handler = write_handlers["Artist"]
         write_handler.update_document(str(artist.id), name = artist.name)
 
-    def query_track(self, query, exact = False, _database = None):
+    def query_track(self, query, exact = False):
         results = self._query("Track", query, exact)
-        return self._fetch_by_keys(opmuse.library.Track, results, _database)
+        return self._fetch_by_keys(opmuse.library.Track, results)
 
-    def query_album(self, query, exact = False, _database = None):
+    def query_album(self, query, exact = False):
         results = self._query("Album", query, exact)
-        return self._fetch_by_keys(opmuse.library.Album, results, _database)
+        return self._fetch_by_keys(opmuse.library.Album, results)
 
-    def query_artist(self, query, exact = False, _database = None):
+    def query_artist(self, query, exact = False):
         results = self._query("Artist", query, exact)
-        return self._fetch_by_keys(opmuse.library.Artist, results, _database)
+        return self._fetch_by_keys(opmuse.library.Artist, results)
 
-    def _fetch_by_keys(self, entity, results, _database = None):
+    def _fetch_by_keys(self, entity, results):
         ids = [result[0] for result in results]
 
-        if _database is None:
-            _database = cherrypy.request.database
-
-        entities = _database.query(entity).filter(entity.id.in_(ids)).all()
+        entities = get_database().query(entity).filter(entity.id.in_(ids)).all()
 
         return self._sort_by_score(entities, results)
 

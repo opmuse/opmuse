@@ -20,7 +20,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from multiprocessing import cpu_count
 from threading import Thread
-from opmuse.database import Base, get_session, get_type
+from opmuse.database import Base, get_session, get_type, get_database
 from opmuse.image import image
 from opmuse.search import search
 from unidecode import unidecode
@@ -1192,7 +1192,7 @@ class LibraryDao:
 
     def delete_track(self, track, database = None):
         if database is None:
-            database = cherrypy.request.database
+            database = get_database()
 
         album = track.album
         artist = track.artist
@@ -1210,7 +1210,7 @@ class LibraryDao:
 
     def delete_album(self, album, database = None):
         if database is None:
-            database = cherrypy.request.database
+            database = get_database()
 
         database.delete(album)
         database.commit()
@@ -1219,7 +1219,7 @@ class LibraryDao:
 
     def delete_artist(self, artist, database = None):
         if database is None:
-            database = cherrypy.request.database
+            database = get_database()
 
         database.delete(artist)
         database.commit()
@@ -1235,7 +1235,7 @@ class LibraryDao:
 
     def get_track_by_path(self, path):
         try:
-            return (cherrypy.request.database.query(Track)
+            return (get_database().query(Track)
                     .join(TrackPath, Track.id == TrackPath.track_id)
                     .filter(TrackPath.path == path)
                     .group_by(Track.id).one())
@@ -1256,7 +1256,7 @@ class LibraryDao:
             number = track['number']
             disc = track['disc']
 
-            track = (cherrypy.request.database.query(Track)
+            track = (get_database().query(Track)
                      .filter_by(id=id).one())
 
             for path in track.paths:
@@ -1290,19 +1290,19 @@ class LibraryDao:
         return tracks, messages + add_files_messages
 
     def get_invalid_track_count(self):
-        return cherrypy.request.database.query(func.count(Track.id)).filter("invalid is not null").scalar()
+        return get_database().query(func.count(Track.id)).filter("invalid is not null").scalar()
 
     def get_album_count(self):
-        return cherrypy.request.database.query(func.count(Album.id)).scalar()
+        return get_database().query(func.count(Album.id)).scalar()
 
     def get_artist_count(self):
-        return cherrypy.request.database.query(func.count(Artist.id)).scalar()
+        return get_database().query(func.count(Artist.id)).scalar()
 
     def get_track_count(self):
-        return cherrypy.request.database.query(func.count(Track.id)).scalar()
+        return get_database().query(func.count(Track.id)).scalar()
 
     def get_tracks_by_ids(self, ids):
-        return (cherrypy.request.database.query(Track)
+        return (get_database().query(Track)
                 .join(Album, Album.id == Track.album_id)
                 .join(Artist, Artist.id == Track.artist_id)
                 .filter(Track.id.in_(ids))
@@ -1380,12 +1380,12 @@ class LibraryDao:
 
         tracks = []
 
-        LibraryProcess(self.get_library_path(), paths, cherrypy.request.database, 0, tracks)
+        LibraryProcess(self.get_library_path(), paths, get_database(), 0, tracks)
 
         # move non-track files with folder if there's no tracks left in folder
         # i.e. album covers and such
         for from_dir, to_dir in moved_dirs:
-            tracks_left = cherrypy.request.database.query(TrackPath).filter(TrackPath.dir == from_dir).count()
+            tracks_left = get_database().query(TrackPath).filter(TrackPath.dir == from_dir).count()
 
             if tracks_left == 0:
                 for from_file in os.listdir(from_dir):
@@ -1418,24 +1418,24 @@ class LibraryDao:
 
     def get_album_by_slug(self, slug):
         try:
-            return cherrypy.request.database.query(Album).filter_by(slug=slug).one()
+            return get_database().query(Album).filter_by(slug=slug).one()
         except NoResultFound:
             pass
 
     def get_artist_by_slug(self, slug):
         try:
-            return cherrypy.request.database.query(Artist).filter_by(slug=slug).one()
+            return get_database().query(Artist).filter_by(slug=slug).one()
         except NoResultFound:
             pass
 
     def get_track_by_slug(self, slug):
         try:
-            return cherrypy.request.database.query(Track).filter_by(slug=slug).one()
+            return get_database().query(Track).filter_by(slug=slug).one()
         except NoResultFound:
             pass
 
     def get_tracks_without_album(self, limit, offset):
-        return (cherrypy.request.database.query(Track)
+        return (get_database().query(Track)
                 .filter("album_id is null")
                 .order_by(Track.added)
                 .limit(limit)
@@ -1443,7 +1443,7 @@ class LibraryDao:
                 .all())
 
     def get_tracks_without_artist(self, limit, offset):
-        return (cherrypy.request.database.query(Track)
+        return (get_database().query(Track)
                 .filter("artist_id is null")
                 .order_by(Track.added)
                 .limit(limit)
@@ -1451,14 +1451,14 @@ class LibraryDao:
                 .all())
 
     def get_tracks(self, limit, offset):
-        return (cherrypy.request.database.query(Track)
+        return (get_database().query(Track)
                 .order_by(Track.added)
                 .limit(limit)
                 .offset(offset)
                 .all())
 
     def get_artists(self, limit, offset):
-        return (cherrypy.request.database.query(Artist)
+        return (get_database().query(Artist)
                 .join(Track, Track.artist_id == Artist.id)
                 .group_by(Artist.id)
                 .order_by(func.max(Track.added).desc())
@@ -1467,7 +1467,7 @@ class LibraryDao:
                 .all())
 
     def remove(self, id):
-        track = cherrypy.request.database.query(Track).filter_by(id=id).one()
+        track = get_database().query(Track).filter_by(id=id).one()
 
         dirs = set()
 
@@ -1497,14 +1497,14 @@ class LibraryDao:
         return self._get_random_entity(Album, limit)
 
     def _get_random_entity(self, Entity, limit):
-        max_id = cherrypy.request.database.query(func.max(Entity.id)).one()[0]
+        max_id = get_database().query(func.max(Entity.id)).one()[0]
 
         ids = []
 
         for i in range(0, limit * 10):
             ids.append(random.randrange(1, max_id))
 
-        entities = (cherrypy.request.database
+        entities = (get_database()
                     .query(Entity)
                     .filter(Entity.id.in_(ids))
                     .order_by(func.rand())
@@ -1517,7 +1517,7 @@ class LibraryDao:
         return entities
 
     def get_invalid_artists(self, limit, offset):
-        return (cherrypy.request.database
+        return (get_database()
                 .query(Artist)
                 .join(Track, Artist.id == Track.artist_id)
                 .group_by(Artist.id)
@@ -1528,7 +1528,7 @@ class LibraryDao:
                 .all())
 
     def get_invalid_albums(self, limit, offset):
-        return (cherrypy.request.database
+        return (get_database()
                 .query(Album)
                 .join(Track, Album.id == Track.album_id)
                 .group_by(Album.id)
@@ -1539,7 +1539,7 @@ class LibraryDao:
                 .all())
 
     def get_va_albums(self, limit, offset):
-        return (cherrypy.request.database
+        return (get_database()
                 .query(Album)
                 .join(Track, Album.id == Track.album_id)
                 .join(Artist, Artist.id == Track.artist_id)
@@ -1551,7 +1551,7 @@ class LibraryDao:
                 .all())
 
     def get_new_albums(self, limit, offset):
-        return (cherrypy.request.database
+        return (get_database()
                 .query(Album)
                 .join(Track, Album.id == Track.album_id)
                 .group_by(Album.id)

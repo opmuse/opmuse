@@ -26,6 +26,7 @@ from opmuse.wikipedia import wikipedia
 from opmuse.remotes import remotes
 from opmuse.covers import covers
 from opmuse.jinja import render_template
+from opmuse.database import get_database
 
 
 class Edit:
@@ -104,13 +105,13 @@ class Edit:
             if id == "":
                 continue
 
-            track_paths = cherrypy.request.database.query(TrackPath).filter_by(track_id=id).all()
+            track_paths = get_database().query(TrackPath).filter_by(track_id=id).all()
 
             for track_path in track_paths:
                 filenames.append(track_path.path)
-                cherrypy.request.database.delete(track_path.track)
+                get_database().delete(track_path.track)
 
-        cherrypy.request.database.commit()
+        get_database().commit()
 
         if where == "va":
             artist_name = 'Various Artists'
@@ -403,7 +404,7 @@ class Users:
     @cherrypy.tools.jinja(filename='users/users.html')
     def users(self):
 
-        users = (cherrypy.request.database.query(User).order_by(User.login).all())
+        users = (get_database().query(User).order_by(User.login).all())
 
         for user in users:
             remotes.update_user(user)
@@ -415,7 +416,7 @@ class Users:
     @cherrypy.tools.jinja(filename='users/user.html')
     def user(self, login):
         try:
-            user = (cherrypy.request.database.query(User)
+            user = (get_database().query(User)
                     .filter_by(login=login)
                     .order_by(User.login).one())
         except NoResultFound:
@@ -975,7 +976,7 @@ class Root(object):
 
         artist_names = set()
 
-        users = (cherrypy.request.database.query(User)
+        users = (get_database().query(User)
                  .order_by(User.login).limit(8).all())
 
         for user in users:

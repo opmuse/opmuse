@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
-from opmuse.database import Base
+from opmuse.database import Base, get_database
 from opmuse.security import User
 from opmuse.library import Track, Artist, Album, library_dao
 from opmuse.ws import ws
@@ -110,14 +110,14 @@ class QueueEvents:
 
 class QueueDao:
     def get_queue(self, id):
-        return cherrypy.request.database.query(Queue).filter_by(id=id).one()
+        return get_database().query(Queue).filter_by(id=id).one()
 
     def update_queue(self, id, **kwargs):
-        cherrypy.request.database.query(Queue).filter_by(id=id).update(kwargs)
-        cherrypy.request.database.commit()
+        get_database().query(Queue).filter_by(id=id).update(kwargs)
+        get_database().commit()
 
     def get_next(self, user_id):
-        database = cherrypy.request.database
+        database = get_database()
         current_queue = next_queue = None
 
         try:
@@ -166,7 +166,7 @@ class QueueDao:
 
         current_queues = []
 
-        for queue in cherrypy.request.database.query(Queue).filter_by(user_id=user_id).order_by(Queue.weight).all():
+        for queue in get_database().query(Queue).filter_by(user_id=user_id).order_by(Queue.weight).all():
             if (queue.track.album is not None and album is not None and album.id != queue.track.album.id or
                 queue.track.artist is not None and artist is not None and artist.id != queue.track.artist.id or
                 queue.track.album is None and album is not None or
@@ -188,25 +188,25 @@ class QueueDao:
 
     def clear(self):
         user_id = cherrypy.request.user.id
-        cherrypy.request.database.query(Queue).filter_by(user_id=user_id).delete()
-        cherrypy.request.database.commit()
+        get_database().query(Queue).filter_by(user_id=user_id).delete()
+        get_database().commit()
         ws.emit('queue.update')
 
     def clear_played(self):
         user_id = cherrypy.request.user.id
-        cherrypy.request.database.query(Queue).filter_by(user_id=user_id, played=True).delete()
-        cherrypy.request.database.commit()
+        get_database().query(Queue).filter_by(user_id=user_id, played=True).delete()
+        get_database().commit()
         ws.emit('queue.update')
 
     def add_tracks(self, ids):
         user_id = cherrypy.request.user.id
-        user = cherrypy.request.database.query(User).filter_by(id=user_id).one()
+        user = get_database().query(User).filter_by(id=user_id).one()
 
         for id in ids:
             if id == "":
                 continue
 
-            track = cherrypy.request.database.query(Track).filter_by(id=id).one()
+            track = get_database().query(Track).filter_by(id=id).one()
 
             weight = self.get_new_pos(user_id)
 
@@ -214,9 +214,9 @@ class QueueDao:
             queue.track = track
             queue.user = user
 
-            cherrypy.request.database.add(queue)
+            get_database().add(queue)
 
-        cherrypy.request.database.commit()
+        get_database().commit()
 
         ws.emit('queue.update')
 
@@ -227,14 +227,14 @@ class QueueDao:
             if id == "":
                 continue
 
-            cherrypy.request.database.query(Queue).filter_by(user_id=user_id, track_id = id).delete()
+            get_database().query(Queue).filter_by(user_id=user_id, track_id = id).delete()
 
-        cherrypy.request.database.commit()
+        get_database().commit()
 
         ws.emit('queue.update')
 
     def get_new_pos(self, user_id):
-        weight = cherrypy.request.database.query(func.max(Queue.weight)).filter_by(user_id=user_id).scalar()
+        weight = get_database().query(func.max(Queue.weight)).filter_by(user_id=user_id).scalar()
 
         if weight is None:
             weight = 0

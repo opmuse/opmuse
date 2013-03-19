@@ -12,7 +12,7 @@ from repoze.who.plugins.redirector import RedirectorPlugin
 from repoze.who.classifiers import default_request_classifier
 from repoze.who.classifiers import default_challenge_decider
 from repoze.who._compat import get_cookies
-from opmuse.database import Base, get_session
+from opmuse.database import Base, get_session, get_database
 
 
 class User(Base):
@@ -83,7 +83,7 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
 
             login = identity['repoze.who.plugins.auth_tkt.userid']
 
-            user = cherrypy.request.database.query(User).filter_by(login=login).one()
+            user = get_database().query(User).filter_by(login=login).one()
 
             cherrypy.request.jinja.globals['user'] = cherrypy.request.user = user
 
@@ -98,7 +98,7 @@ class DatabaseAuthenticator(object):
             return None
 
         try:
-            user = cherrypy.request.database.query(User).filter_by(login=login).one()
+            user = get_database().query(User).filter_by(login=login).one()
 
             hashed = hash_password(password, user.salt)
 
@@ -177,6 +177,7 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
         else:
             login = identity['login']
 
+        # TODO fix, this is because it happens before database is initialized..?
         database = get_session()
 
         salt = ''

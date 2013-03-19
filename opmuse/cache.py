@@ -4,7 +4,7 @@ from sqlalchemy.orm import deferred
 from sqlalchemy import Column, Integer, String, BLOB, BigInteger, func
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm.exc import NoResultFound
-from opmuse.database import Base
+from opmuse.database import Base, get_database
 
 
 class CacheObject(Base):
@@ -22,23 +22,23 @@ class Keep:
 
 
 class Cache:
-    def needs_update(self, key, age, database):
+    def needs_update(self, key, age):
         now = int(time.time())
 
-        count = (database.query(func.count(CacheObject.id))
+        count = (get_database().query(func.count(CacheObject.id))
                  .filter(CacheObject.key == key).scalar())
 
         if count > 0:
-            count = (database.query(func.count(CacheObject.id))
+            count = (get_database().query(func.count(CacheObject.id))
                      .filter(CacheObject.key == key).filter("(%d - updated) > %d" % (now, age)).scalar())
 
             return count > 0
         else:
             return True
 
-    def get(self, key, database):
+    def get(self, key):
         try:
-            object = database.query(CacheObject).filter(CacheObject.key == key).one()
+            object = get_database().query(CacheObject).filter(CacheObject.key == key).one()
 
             if object.type == 'str':
                 return object.value.decode()
@@ -49,19 +49,19 @@ class Cache:
         except NoResultFound:
             pass
 
-    def keep(self, key, database):
+    def keep(self, key):
         """
             Updates the timestamp of the objects and creates it if it doesn't exist
             but keeps the value if there is one.
         """
 
-        self.set(key, Keep, database)
+        self.set(key, Keep)
 
-    def set(self, key, value, database):
+    def set(self, key, value):
         if value is not None and value is not Keep and not isinstance(value, (str, bytes, dict, list)):
             raise ValueError("Unsupported value type.")
 
-        count = (database.query(func.count(CacheObject.id))
+        count = (get_database().query(func.count(CacheObject.id))
                  .filter(CacheObject.key == key).scalar())
 
         updated = int(time.time())
@@ -80,16 +80,16 @@ class Cache:
                 parameters['value'] = value
                 parameters['type'] = value_type
 
-            database.query(CacheObject).filter(CacheObject.key == key).update(parameters)
+            get_database().query(CacheObject).filter(CacheObject.key == key).update(parameters)
         else:
             if value is Keep:
                 value = None
                 value_type = type(value).__name__
 
             parameters = {'key': key, 'value': value, 'updated': updated, 'type': value_type}
-            database.execute(CacheObject.__table__.insert(), parameters)
+            get_database().execute(CacheObject.__table__.insert(), parameters)
 
-        database.commit()
+        get_database().commit()
 
 
 cache = Cache()

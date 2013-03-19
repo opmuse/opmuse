@@ -9,6 +9,7 @@ from opmuse.image import image as image_service
 from opmuse.library import library_dao
 from opmuse.library import Artist, Album
 from opmuse.lastfm import lastfm
+from opmuse.database import get_database
 from urllib.request import urlretrieve
 
 
@@ -86,14 +87,14 @@ class Covers:
 
                     os.remove(temp_cover)
 
-                    cherrypy.request.database.commit()
+                    get_database().commit()
 
             return self.guess_mime(entity), entity.cover
 
         return None, None
 
-    def fetch_album_cover(self, album_id, _database):
-        album = _database.query(Album).filter_by(id=album_id).one()
+    def fetch_album_cover(self, album_id):
+        album = get_database().query(Album).filter_by(id=album_id).one()
 
         artist = album.artists[0]
 
@@ -127,12 +128,12 @@ class Covers:
         album.cover = resize_cover
         album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
 
-        _database.commit()
+        get_database().commit()
 
         ws.emit_all('covers.album.update', album.id)
 
-    def fetch_artist_cover(self, artist_id, _database):
-        artist = _database.query(Artist).filter_by(id=artist_id).one()
+    def fetch_artist_cover(self, artist_id):
+        artist = get_database().query(Artist).filter_by(id=artist_id).one()
 
         lastfm_artist = lastfm.get_artist(artist.name)
 
@@ -165,7 +166,7 @@ class Covers:
         artist.cover = resize_cover
         artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
 
-        _database.commit()
+        get_database().commit()
 
         ws.emit_all('covers.artist.update', artist.id)
 

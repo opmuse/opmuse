@@ -9,6 +9,16 @@ Base = declarative_base()
 Base.__table_args__ = ({'mysql_charset': 'utf8', 'mysql_engine': 'InnoDB'}, )
 
 
+def get_database():
+    if hasattr(cherrypy.request, 'database'):
+        return cherrypy.request.database
+    else:
+        from opmuse.bgtask import bgtask_data
+
+        if hasattr(bgtask_data, 'database'):
+            return bgtask_data.database
+
+
 def get_type():
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']

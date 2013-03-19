@@ -16,6 +16,9 @@ def log(msg, traceback=False):
     cherrypy.log(msg, context='bgtask', traceback=traceback)
 
 
+bgtask_data = threading.local()
+
+
 @total_ordering
 class QueueItem:
     def __init__(self, priority, func, args, kwargs):
@@ -83,24 +86,18 @@ class BackgroundTaskQueue(SimplePlugin):
                     debug("Running bgtask in thread #%d %r with priority %d, args %r and kwargs %r." %
                           (number, func, priority, args, kwargs))
 
-                    argspec = inspect.getfullargspec(func)
-
-                    database = None
-
-                    if '_database' in argspec.args:
-                        database = get_session()
-                        kwargs['_database'] = database
+                    bgtask_data.database = get_session()
 
                     func(*args, **kwargs)
 
-                    if database is not None:
-                        try:
-                            database.commit()
-                        except:
-                            database.rollback()
-                            raise
-                        finally:
-                            database.remove()
+                    try:
+                        bgtask_data.database.commit()
+                    except:
+                        bgtask_data.database.rollback()
+                        raise
+                    finally:
+                        bgtask_data.database.remove()
+                        bgtask_data.database = None
 
                     self.queue.task_done()
             except:
