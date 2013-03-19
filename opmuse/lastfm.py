@@ -10,6 +10,7 @@ from pylast import PERIOD_OVERALL
 from opmuse.security import User
 from opmuse.database import get_session
 from opmuse.cache import cache
+from opmuse.search import search
 
 User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
@@ -286,17 +287,30 @@ class Lastfm:
                 error
             ))
 
-    def get_artist(self, artist_name):
+    def get_artist(self, artist_name, _database = None):
         try:
             network = self.get_network()
             artist = network.get_artist(artist_name)
 
             similars = []
 
-            for similar in artist.get_similar(10):
-                similars.append({
-                    'name': similar.item.get_name()
-                })
+            count = 0
+
+            for similar in artist.get_similar(100):
+                name = similar.item.get_name()
+
+                results = search.query_artist(name, exact=True, _database=_database)
+
+                if len(results) > 0:
+                    similars.append({
+                        'name': results[0].name,
+                        'slug': results[0].slug,
+                    })
+
+                    count += 1
+
+                if count >= 15:
+                    break
 
             tags = [str(topItem.item) for topItem in artist.get_top_tags(10)]
 

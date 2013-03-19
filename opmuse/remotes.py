@@ -120,7 +120,7 @@ class Remotes:
 
         artist = {
             'wikipedia': wikipedia.get_artist(name),
-            'lastfm': lastfm.get_artist(name),
+            'lastfm': lastfm.get_artist(name, _database),
             'discogs': discogs.get_artist(name)
         }
 

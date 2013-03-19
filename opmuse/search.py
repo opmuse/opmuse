@@ -79,21 +79,26 @@ class Search:
         write_handler = write_handlers["Artist"]
         write_handler.update_document(str(artist.id), name = artist.name)
 
-    def query_track(self, query, exact = False):
+    def query_track(self, query, exact = False, _database = None):
         results = self._query("Track", query, exact)
-        return self._fetch_by_keys(opmuse.library.Track, results)
+        return self._fetch_by_keys(opmuse.library.Track, results, _database)
 
-    def query_album(self, query, exact = False):
+    def query_album(self, query, exact = False, _database = None):
         results = self._query("Album", query, exact)
-        return self._fetch_by_keys(opmuse.library.Album, results)
+        return self._fetch_by_keys(opmuse.library.Album, results, _database)
 
-    def query_artist(self, query, exact = False):
+    def query_artist(self, query, exact = False, _database = None):
         results = self._query("Artist", query, exact)
-        return self._fetch_by_keys(opmuse.library.Artist, results)
+        return self._fetch_by_keys(opmuse.library.Artist, results, _database)
 
-    def _fetch_by_keys(self, entity, results):
+    def _fetch_by_keys(self, entity, results, _database = None):
         ids = [result[0] for result in results]
-        entities = cherrypy.request.database.query(entity).filter(entity.id.in_(ids)).all()
+
+        if _database is None:
+            _database = cherrypy.request.database
+
+        entities = _database.query(entity).filter(entity.id.in_(ids)).all()
+
         return self._sort_by_score(entities, results)
 
     def _sort_by_score(self, entities, results):

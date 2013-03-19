@@ -75,7 +75,7 @@
                     {% if remotes_artist %}
                         {% for similar in remotes_artist.lastfm.similar %}
                             <span class="badge badge-inverse">
-                                <a href="/search/{{ similar.name|urlencode }}/artist">{{ similar.name }}</a>
+                                <a href="/{{ similar.slug|urlencode }}">{{ similar.name }}</a>
                             </span>
                         {% endfor %}
                     {% endif %}
