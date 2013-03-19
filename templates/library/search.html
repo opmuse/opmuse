@@ -9,7 +9,7 @@
 {% import "macros/media.html" as media %}
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
 
-<div id="search" data-query="{{ query }}">
+<div id="search" data-query="{{ query|e }}">
     {% include "partials/library-nav.html" %}
 
     <div class="row-fluid">
