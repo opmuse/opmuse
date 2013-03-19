@@ -6,6 +6,7 @@ import whoosh.fields
 from whoosh.writing import BufferedWriter, IndexingError
 from whoosh.analysis import SimpleAnalyzer
 from whoosh.qparser import MultifieldParser
+from whoosh.query import Term
 import opmuse.library
 
 index_names = ['Artist', 'Album', 'Track']
@@ -26,15 +27,15 @@ class WriteHandler:
     def delete_document(self, id):
         self._deletes.append(id)
 
-    def update_document(self, id, **kwargs):
-        self._updates[id] = kwargs
+    def update_document(self, id, name):
+        self._updates[id] = name
 
     def commit(self):
         updates = deletes = 0
         with self.index.writer() as writer:
             while len(self._updates) > 0:
-                id, kwargs = self._updates.popitem()
-                writer.add_document(id = id, **kwargs)
+                id, name = self._updates.popitem()
+                writer.add_document(id = id, name=name, exact=name.lower())
                 updates += 1
 
             while len(self._deletes) > 0:
@@ -78,16 +79,16 @@ class Search:
         write_handler = write_handlers["Artist"]
         write_handler.update_document(str(artist.id), name = artist.name)
 
-    def query_track(self, query):
-        results = self._query("Track", query)
+    def query_track(self, query, exact = False):
+        results = self._query("Track", query, exact)
         return self._fetch_by_keys(opmuse.library.Track, results)
 
-    def query_album(self, query):
-        results = self._query("Album", query)
+    def query_album(self, query, exact = False):
+        results = self._query("Album", query, exact)
         return self._fetch_by_keys(opmuse.library.Album, results)
 
-    def query_artist(self, query):
-        results = self._query("Artist", query)
+    def query_artist(self, query, exact = False):
+        results = self._query("Artist", query, exact)
         return self._fetch_by_keys(opmuse.library.Artist, results)
 
     def _fetch_by_keys(self, entity, results):
@@ -103,10 +104,17 @@ class Search:
 
         return sorted(entities, key=lambda entity: indexed_results[entity.id])
 
-    def _query(self, index_name, query):
+    def _query(self, index_name, query, exact = False):
         write_handler = write_handlers[index_name]
-        parser = MultifieldParser(list(write_handler.index.schema._fields.keys()), write_handler.index.schema)
-        results = write_handler.index.searcher().search(parser.parse(query))
+
+        if exact:
+            whoosh_query = Term('exact', query.lower())
+        else:
+            parser = MultifieldParser(list(write_handler.index.schema._fields.keys()), write_handler.index.schema)
+            whoosh_query = parser.parse(query)
+
+        results = write_handler.index.searcher().search(whoosh_query)
+
         return set([(int(result['id']), result.score) for result in results])
 
 
@@ -142,7 +150,8 @@ class WhooshPlugin(Monitor):
 
                 schema = whoosh.fields.Schema(
                     id = whoosh.fields.ID(stored=True, unique=True),
-                    name = whoosh.fields.TEXT(analyzer=SimpleAnalyzer())
+                    name = whoosh.fields.TEXT(analyzer=SimpleAnalyzer()),
+                    exact = whoosh.fields.ID()
                 )
 
                 index = whoosh.index.create_in(index_path, schema)
