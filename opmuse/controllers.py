@@ -531,7 +531,10 @@ class Library(object):
 
         for artist in album.artists:
             remotes.update_artist(artist)
-            remotes_artists.append(remotes.get_artist(artist))
+            remotes_artist = remotes.get_artist(artist)
+
+            if remotes_artist is not None:
+                remotes_artists.append(remotes_artist)
 
         for track in album.tracks:
             remotes.update_track(track)
