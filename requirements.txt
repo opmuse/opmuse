@@ -3,7 +3,7 @@ Jinja2==2.6
 ply==3.4
 SQLAlchemy==0.7.10
 mmh3==2.0
-repoze.who==2.1b1
+repoze.who==2.1
 pylast==0.5.11
 Whoosh==2.4.1
 vendor/mutagen-py3.tar.bz2
