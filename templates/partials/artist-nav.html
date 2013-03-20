@@ -67,7 +67,7 @@
                         <li>
                             {% if remotes_artist %}
                                 {% for tag in remotes_artist.lastfm.tags %}
-                                    <span class="tag badge badge-inverse">{{ tag }}</span>
+                                    <span class="tag badge badge-inverse" title="{{ tag }}">{{ tag }}</span>
                                 {% endfor %}
                             {% endif %}
                         </li>
@@ -75,7 +75,7 @@
                         <li>
                         {% if remotes_artist %}
                             {% for similar in remotes_artist.lastfm.similar %}
-                                <span class="badge badge-inverse">
+                                <span class="badge badge-inverse" title="{{ similar.name }}">
                                     <a href="/{{ similar.slug|urlencode }}">{{ similar.name }}</a>
                                 </span>
                             {% endfor %}
@@ -85,7 +85,7 @@
                         <li>
                         {% if remotes_artist %}
                             {% for alias in remotes_artist.discogs.aliases %}
-                                <span class="badge badge-inverse">
+                                <span class="badge badge-inverse" title="{{ alias }}">
                                     <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
                                 </span>
                             {% endfor %}
@@ -94,7 +94,7 @@
                         <li class="nav-header">Namesakes</li>
                         <li>
                         {% for artist in namesakes %}
-                            <span class="badge badge-inverse">
+                            <span class="badge badge-inverse" title="{{ artist.name|show_ws }}">
                                 <a href="/{{ artist.slug }}">{{ artist.name|show_ws }}</a>
                             </span>
                         {% endfor %}
