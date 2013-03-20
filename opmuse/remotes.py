@@ -2,6 +2,7 @@ import cherrypy
 from opmuse.cache import cache
 from opmuse.wikipedia import wikipedia
 from opmuse.lastfm import lastfm
+from opmuse.ws import ws
 from opmuse.discogs import discogs
 
 
@@ -36,6 +37,8 @@ class Remotes:
 
         cache.set(key, user)
 
+        ws.emit_all('remotes.user.fetched', user.id)
+
     def get_user(self, user):
         key = Remotes.USER_KEY_FORMAT % user.id
 
@@ -58,6 +61,8 @@ class Remotes:
         }
 
         cache.set(key, track)
+
+        ws.emit_all('remotes.track.fetched', id)
 
     def get_track(self, track):
         key = Remotes.TRACK_KEY_FORMAT % track.id
@@ -89,6 +94,8 @@ class Remotes:
 
         cache.set(key, album)
 
+        ws.emit_all('remotes.album.fetched', id)
+
     def get_album(self, album):
         key = Remotes.ALBUM_KEY_FORMAT % album.id
 
@@ -111,6 +118,8 @@ class Remotes:
         }
 
         cache.set(key, artist)
+
+        ws.emit_all('remotes.artist.fetched', id)
 
     def get_artist(self, artist):
         key = Remotes.ARTIST_KEY_FORMAT % artist.id

@@ -24,6 +24,7 @@ require(['jquery'], function($) {
         'locations',
         'you',
         'covers',
+        'remotes',
     ], function () {
         $("#overlay").remove();
         $('body').trigger('loadFinish');
