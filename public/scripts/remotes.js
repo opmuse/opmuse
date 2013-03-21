@@ -45,7 +45,8 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function
                             (function (selector) {
                                 var element = $(selector);
 
-                                element.addClass('remotes-hide').one('transitionend', function (event) {
+                                // TODO remove fucking browser prefix shit whenever....
+                                element.addClass('remotes-hide').one('webkitTransitionEnd transitionend', function (event) {
                                     element.children().remove();
                                     element.append(page.find(selector).children());
 
