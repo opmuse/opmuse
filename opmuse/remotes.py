@@ -37,7 +37,7 @@ class Remotes:
 
         cache.set(key, user)
 
-        ws.emit_all('remotes.user.fetched', user.id)
+        ws.emit_all('remotes.user.fetched', id)
 
     def get_user(self, user):
         key = Remotes.USER_KEY_FORMAT % user.id
