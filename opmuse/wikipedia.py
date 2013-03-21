@@ -104,7 +104,6 @@ class Wikipedia():
             if extract is not None:
                 return extract
 
-
     def opensearch(self, query, language):
         response = self._request({
             "action": "opensearch",
