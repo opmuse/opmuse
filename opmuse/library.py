@@ -1452,7 +1452,7 @@ class LibraryDao:
 
     def get_tracks(self, limit, offset):
         return (get_database().query(Track)
-                .order_by(Track.added)
+                .order_by(Track.added.desc())
                 .limit(limit)
                 .offset(offset)
                 .all())
