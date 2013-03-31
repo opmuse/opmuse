@@ -61,9 +61,9 @@ class QueueEvents:
         cherrypy.request.queue_progress = progress
 
     def transcoding_start(self, track):
-        if hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None:
-            queue_current = cherrypy.request.queue_current
-            queue_dao.update_queue(queue_current.id, current_seconds = None)
+        if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
+            queue_current_id = cherrypy.request.queue_current_id
+            queue_dao.update_queue(queue_current_id, current_seconds = None)
 
         track = self.serialize_track(track)
 
@@ -73,13 +73,13 @@ class QueueEvents:
         ws.emit('queue.start', track)
 
     def transcoding_done(self, track):
-        if hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None:
-            queue_current = cherrypy.request.queue_current
+        if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
+            queue_current_id = cherrypy.request.queue_current_id
 
-            queue_dao.update_queue(queue_current.id, played = True)
+            queue_dao.update_queue(queue_current_id, played = True)
 
             # this is to avoid transcoding_end from firing
-            cherrypy.request.queue_current = None
+            cherrypy.request.queue_current_id = None
 
             ws_user = ws.get_ws_user()
             ws_user.set('queue.current_track', None)
@@ -87,10 +87,10 @@ class QueueEvents:
 
     def transcoding_end(self, track):
         if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
-            hasattr(cherrypy.request, 'queue_current') and cherrypy.request.queue_current is not None):
-            queue_current = queue_dao.get_queue(cherrypy.request.queue_current.id)
+            hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None):
+            queue_current = queue_dao.get_queue(cherrypy.request.queue_current_id)
 
-            if queue_current.current:
+            if queue_current is not None and queue_current.current:
                 progress = cherrypy.request.queue_progress
                 current_seconds = math.floor(progress['seconds'] - progress['seconds_ahead'])
                 queue_dao.update_queue(queue_current.id, current_seconds = current_seconds)
@@ -110,7 +110,10 @@ class QueueEvents:
 
 class QueueDao:
     def get_queue(self, id):
-        return get_database().query(Queue).filter_by(id=id).one()
+        try:
+            return get_database().query(Queue).filter_by(id=id).one()
+        except NoResultFound:
+            return None
 
     def update_queue(self, id, **kwargs):
         get_database().query(Queue).filter_by(id=id).update(kwargs)
@@ -151,7 +154,7 @@ class QueueDao:
 
         database.commit()
 
-        cherrypy.request.queue_current = next_queue
+        cherrypy.request.queue_current_id = next_queue.id
 
         cherrypy.engine.publish('queue.next', next=next_queue)
 
