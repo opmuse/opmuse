@@ -4,6 +4,10 @@ from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
 
 
+def log(msg):
+    cherrypy.log(msg, context='ws')
+
+
 class WebSocketHandler(WebSocket):
     def auth_user(self, user):
         self.user = {
@@ -48,7 +52,10 @@ class WsUser:
 
     @staticmethod
     def send(message, handler):
-        handler.send(json.dumps(message))
+        try:
+            handler.send(json.dumps(message))
+        except Exception as error:
+            log('Error occured while sending: %s' % error)
 
 
 class Ws:
