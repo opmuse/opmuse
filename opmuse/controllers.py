@@ -1061,7 +1061,9 @@ class Root(object):
         # TODO use "cookie_name" prop from authtkt plugin...
         auth_tkt = cookies.get('auth_tkt').value
 
-        if cherrypy.request.app.config.get('opmuse').get('stream.ssl') is False:
+        stream_ssl = cherrypy.request.app.config.get('opmuse').get('stream.ssl')
+
+        if stream_ssl is False:
             scheme = 'http'
         else:
             scheme = cherrypy.request.scheme
@@ -1072,6 +1074,12 @@ class Root(object):
             host = forwarded_host.split(",")[0].strip()
         else:
             host = cherrypy.request.headers.get('host')
+
+        if stream_ssl is False:
+            if ':' in host:
+                host = host[:host.index(':')]
+
+            host = '%s:%s' % (host, cherrypy.config['server.socket_port'])
 
         url = "%s://%s/stream?auth_tkt=%s" % (scheme, host, auth_tkt)
 
