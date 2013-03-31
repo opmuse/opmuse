@@ -1202,10 +1202,10 @@ class LibraryDao:
 
         search.delete_track(track)
 
-        if len(album.tracks) == 0:
+        if album is not None and len(album.tracks) == 0:
             self.delete_album(album, database)
 
-        if len(artist.albums) == 0:
+        if artist is not None and len(artist.albums) == 0:
             self.delete_artist(artist, database)
 
     def delete_album(self, album, database = None):
@@ -1482,10 +1482,10 @@ class LibraryDao:
 
         self.remove_empty_dirs(dirs)
 
-        if len(album.tracks) == 0:
+        if album is not None and len(album.tracks) == 0:
             album = None
 
-        if len(artist.albums) == 0:
+        if artist is not None and len(artist.albums) == 0:
             artist = None
 
         return artist, album

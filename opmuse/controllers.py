@@ -322,8 +322,12 @@ class Upload:
         shutil.rmtree(tempdir)
 
         for track in tracks:
-            remotes.update_album(track.album)
-            remotes.update_artist(track.artist)
+            if track.album is not None:
+                remotes.update_album(track.album)
+
+            if track.artist is not None:
+                remotes.update_artist(track.artist)
+
             remotes.update_track(track)
 
         return {'tracks': tracks, 'messages': messages}
