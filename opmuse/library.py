@@ -449,7 +449,7 @@ class PathParser(TagParser):
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
 
-        path_comp = os.path.split(os.path.dirname(filename)[len(path) + 1:])
+        path_comp = os.path.split(os.path.dirname(filename)[len(path) + (0 if path[-1] == os.sep else 1):])
 
         artist = album = None
 
@@ -647,7 +647,9 @@ class StructureParser:
         path_parts = self.split(self._fs_structure, ':')
 
         for name, value in data.items():
-            if value is None:
+            if name == 'artist' and value is None:
+                value = 'Unknown Artist'
+            elif value is None:
                 value = ''
 
             if name in self._data_override and self._data_override[name] is not None:
