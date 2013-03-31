@@ -1,5 +1,6 @@
 import time
 import json
+import pickle
 from sqlalchemy.orm import deferred
 from sqlalchemy import Column, Integer, String, BLOB, BigInteger, func
 from sqlalchemy.dialects import mysql
@@ -40,7 +41,9 @@ class Cache:
         try:
             object = get_database().query(CacheObject).filter(CacheObject.key == key).one()
 
-            if object.type == 'str':
+            if object.type == 'object':
+                return pickle.loads(object.value)
+            elif object.type == 'str':
                 return object.value.decode()
             elif object.type == 'dict' or object.type == 'list':
                 return json.loads(object.value.decode())
@@ -58,7 +61,7 @@ class Cache:
         self.set(key, Keep)
 
     def set(self, key, value):
-        if value is not None and value is not Keep and not isinstance(value, (str, bytes, dict, list)):
+        if value is not None and value is not Keep and not isinstance(value, (str, bytes, dict, list, object)):
             raise ValueError("Unsupported value type.")
 
         count = (get_database().query(func.count(CacheObject.id))
@@ -66,9 +69,14 @@ class Cache:
 
         updated = int(time.time())
 
-        value_type = type(value).__name__
+        if value is not Keep and isinstance(value, object):
+            value_type = 'object'
+        else:
+            value_type = type(value).__name__
 
-        if value_type == 'str':
+        if value_type == 'object':
+            value = pickle.dumps(value)
+        elif value_type == 'str':
             value = value.encode()
         elif value_type == 'dict' or value_type == 'list':
             value = json.dumps(value).encode()
