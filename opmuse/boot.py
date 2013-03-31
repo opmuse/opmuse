@@ -59,11 +59,6 @@ def configure():
             'tools.jinjaauthenticated.on': True,
             'tools.library.on': True,
             'tools.jinjaenv.on': True,
-            'tools.sessions.storage_type': "file",
-            'tools.sessions.storage_path': join(abspath(dirname(__file__)), '..', 'cache', 'session'),
-            'tools.sessions.locking': "explicit",
-            'tools.sessions.persistent': False,
-            'tools.sessions.httponly': True,
         }, '/ws': {
             'tools.websocket.on': True,
             'tools.websocket.handler_cls': WebSocketHandler
@@ -71,8 +66,6 @@ def configure():
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
                                         '..', 'public', 'scripts'),
-        }, '/users/you/lastfm': {
-            'tools.sessions.on': True,
         }, '/font': {
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),

@@ -27,6 +27,7 @@ from opmuse.remotes import remotes
 from opmuse.covers import covers
 from opmuse.jinja import render_template
 from opmuse.database import get_database
+from opmuse.cache import cache
 
 
 class Edit:
@@ -342,14 +343,17 @@ class You:
 
         auth_url = authenticated_user = new_auth = None
 
+        cache_key = 'you_lastfm_session_key_%d' % cherrypy.request.user.id
+
         if cherrypy.request.user.lastfm_session_key is None:
-            if 'lastfm_session_key' in cherrypy.session:
-                session_key = cherrypy.session['lastfm_session_key']
+            session_key = cache.get(cache_key)
+
+            if session_key is not None:
                 auth_url = session_key.get_auth_url()
                 key = session_key.get_session_key()
 
                 if key is not None:
-                    cherrypy.session.pop('lastfm_session_key')
+                    cache.set(cache_key, None)
                     cherrypy.request.user.lastfm_session_key = key
                     cherrypy.request.user.lastfm_user = lastfm.get_authenticated_user_name()
                     auth_url = None
@@ -358,7 +362,7 @@ class You:
             else:
                 session_key = SessionKey()
                 auth_url = session_key.get_auth_url()
-                cherrypy.session['lastfm_session_key'] = session_key
+                cache.set(cache_key, session_key)
 
         return {
             'auth_url': auth_url,
