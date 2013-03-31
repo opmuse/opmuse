@@ -1,4 +1,4 @@
-CherryPy==3.2.2
+CherryPy==3.2.4
 Jinja2==2.6
 ply==3.4
 SQLAlchemy==0.7.10
