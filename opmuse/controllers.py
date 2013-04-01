@@ -896,9 +896,9 @@ class Dashboard:
         users = []
 
         for user in (get_database().query(User)
-                 .order_by(User.login)
-                 .filter(User.id != cherrypy.request.user.id)
-                 .limit(8).all()):
+                    .order_by(User.login)
+                    .filter(User.id != cherrypy.request.user.id)
+                    .limit(8).all()):
 
             remotes.update_user(user)
 
