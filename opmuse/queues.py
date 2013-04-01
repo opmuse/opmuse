@@ -109,6 +109,19 @@ class QueueEvents:
 
 
 class QueueDao:
+    def get_current_track(self, user_id):
+        try:
+            return (get_database()
+                    .query(Track)
+                    .join(Queue, Track.id == Queue.track_id)
+                    .join(User, Queue.user_id == User.id)
+                    .filter(User.id == user_id, Queue.current)
+                    .group_by(Track.id)
+                    .limit(1)
+                    .one())
+        except NoResultFound:
+            return None
+
     def get_queue(self, id):
         try:
             return get_database().query(Queue).filter_by(id=id).one()

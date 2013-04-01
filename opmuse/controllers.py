@@ -888,6 +888,112 @@ class Library(object):
         return hierarchy
 
 
+class Dashboard:
+    @cherrypy.expose
+    @cherrypy.tools.authenticated()
+    @cherrypy.tools.jinja(filename='dashboard/index.html')
+    def default(self):
+        users = []
+
+        for user in (get_database().query(User)
+                 .order_by(User.login)
+                 .filter(User.id != cherrypy.request.user.id)
+                 .limit(8).all()):
+
+            remotes.update_user(user)
+
+            remotes_user = remotes.get_user(user)
+
+            users.append({
+                'remotes_user': remotes_user,
+                'user': user,
+                'current_track': queue_dao.get_current_track(user.id)
+            })
+
+        remotes.update_user(cherrypy.request.user)
+
+        remotes_user = remotes.get_user(cherrypy.request.user)
+
+        user = {
+            'user': cherrypy.request.user,
+            'current_track': queue_dao.get_current_track(cherrypy.request.user.id),
+            'remotes_user': remotes_user,
+        }
+
+        recent_tracks = []
+
+        new_albums = library_dao.get_new_albums(16, 0)
+
+        if remotes_user is not None and user['remotes_user']['lastfm'] is not None:
+            for recent_track in user['remotes_user']['lastfm']['recent_tracks']:
+                results = search.query_artist(recent_track['artist'], exact=True)
+
+                track = artist = None
+
+                if len(results) > 0:
+                    artist = results[0]
+
+                    results = search.query_track(recent_track['name'], exact=True)
+
+                    if len(results) > 0:
+                        for result in results:
+                            if result.artist.id == artist.id:
+                                track = result
+
+                recent_tracks.append({
+                    'artist': artist,
+                    'track': track,
+                    'artist_name': recent_track['artist'],
+                    'name': recent_track['name'],
+                })
+
+                if len(recent_tracks) >= 16:
+                    break
+
+        top_artists = set([])
+
+        index = 0
+
+        remotes_users = [remotes_user] + [user['remotes_user'] for user in users]
+
+        while True:
+            stop = True
+
+            for remotes_user in remotes_users:
+                if remotes_user is None or remotes_user['lastfm'] is None:
+                    continue
+
+                top = remotes_user['lastfm']['top_artists_7days']
+
+                if index < len(top):
+                    stop = False
+
+                    artist = top[index]
+
+                    results = search.query_artist(artist['name'], exact=True)
+
+                    if len(results) > 0:
+                        top_artists.add(results[0])
+
+                    if len(top_artists) >= 12:
+                        stop = True
+                        break
+            if stop:
+                break
+
+            index += 1
+
+        top_artists = list(top_artists)
+
+        return {
+            'user': user,
+            'users': users,
+            'top_artists': top_artists,
+            'recent_tracks': recent_tracks,
+            'new_albums': new_albums
+        }
+
+
 class Root(object):
     @staticmethod
     def handle_error(status, message, traceback, version):
@@ -904,6 +1010,7 @@ class Root(object):
     users = Users()
     library = Library()
     ws = WsController()
+    dashboard = Dashboard()
 
     @cherrypy.expose
     def __profile__(self, *args, **kwargs):
@@ -982,48 +1089,8 @@ class Root(object):
         return {}
 
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='index_auth.html')
     def index_auth(self):
-
-        artist_names = set()
-
-        users = (get_database().query(User)
-                 .order_by(User.login).limit(8).all())
-
-        for user in users:
-            remotes.update_user(user)
-
-            if user.lastfm_user is None:
-                continue
-
-            remotes_user = remotes.get_user(user)
-
-            if remotes_user is None:
-                continue
-
-            for recent_track in remotes_user['lastfm']['recent_tracks']:
-                artist_names.add(recent_track['artist'])
-
-        artist_names = list(artist_names)
-
-        random.shuffle(artist_names)
-
-        artists = []
-
-        index = 0
-
-        for artist_name in artist_names:
-            results = search.query_artist(artist_name, exact=True)
-
-            if len(results) > 0:
-                artists.append(results[0])
-
-                index += 1
-
-                if index >= 16:
-                    break
-
-        return {'users': users, 'artists': artists}
+        raise cherrypy.InternalRedirect('/dashboard')
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

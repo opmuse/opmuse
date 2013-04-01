@@ -1,0 +1,3 @@
+{% macro artist_url(artist) -%}
+    /{{ artist.slug|urlencode }}
+{%- endmacro %}

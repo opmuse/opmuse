@@ -20,10 +20,10 @@
                     </p>
                 {% endif %}
                     <ul class="nav">
-                        <li class="{{ "active" if request.path_info|startswith("/index") }}">
-                            <a href="/">Home</a>
-                        </li>
                         {% if authenticated %}
+                            <li class="{{ "active" if request.path_info|startswith("/dashboard") }}">
+                                <a href="/">Dashboard</a>
+                            </li>
                             <li class="{{ "active" if request.path_info|startswith("/library") }}">
                                 <a href="/library/albums/new">Library</a>
                             </li>
@@ -34,6 +34,9 @@
                                 <input accesskey="s" class="search-query" type="text" placeholder="Search" autocomplete="off" />
                             </li>
                         {% else %}
+                            <li class="{{ "active" if request.path_info|startswith("/index") }}">
+                                <a href="/">Home</a>
+                            </li>
                             <li class="{{ "active" if request.path_info == "/login" }}">
                                 <a class="login" href="/login">Login</a>
                             </li>

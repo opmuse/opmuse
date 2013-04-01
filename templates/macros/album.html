@@ -1,16 +1,17 @@
 {% macro album_desc(album, href) %}
+    {% import "macros/urls.html" as urls %}
     {%- if album.artists|length > 1 -%}
         with {% for artist in album.artists -%}
         {%- if not loop.first and not loop.last %}, {% elif loop.last %} and {% endif -%}
             {%- if href -%}
-                <a href="/{{ artist.slug|urlencode }}">{{ artist.name|show_ws }}</a>
+                <a href="{{ urls.artist_url(artist) }}">{{ artist.name|show_ws }}</a>
             {%- else -%}
                 {{ artist.name|show_ws }}
             {%- endif -%}
         {%- endfor -%}.
     {%- elif album.artists|length == 1 -%}
         by {% if href -%}
-            <a href="/{{ album.artists[0].slug|urlencode }}">{{ album.artists[0].name|show_ws }}</a>
+            <a href="{{ urls.artist_url(album.artists[0]) }}">{{ album.artists[0].name|show_ws }}</a>
         {%- else -%}
             {{ album.artists[0].name|show_ws }}
         {%- endif -%}

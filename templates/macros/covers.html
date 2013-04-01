@@ -28,12 +28,16 @@
         {% endif %}
 
         <img width="{{ cover_size }}" height="{{ cover_size }}"
+        {% if artist %}
             src="/cover/artist/{{ artist.slug|urlencode }}
             {%- if artist.cover_hash -%}
                 {{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode }}
             {%- else -%}
                 {{ "?hash=%s" % ('invalid' if artist.invalid else 'valid') }}
             {%- endif -%}"
+        {% else %}
+            src="/images/cover_placeholder.png"
+        {% endif %}
             alt="Artist cover" class="artist-cover {{ cover_class }}" />
     </span>
 {% endmacro %}

@@ -6,7 +6,7 @@ import math
 from cherrypy.process.plugins import Monitor
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError, MalformedResponseError
-from pylast import PERIOD_OVERALL
+from pylast import PERIOD_OVERALL, PERIOD_7DAYS
 from opmuse.security import User
 from opmuse.database import get_session
 from opmuse.cache import cache
@@ -141,7 +141,7 @@ class Lastfm:
 
             recent_tracks = []
 
-            for playedTrack in user.get_recent_tracks(40):
+            for playedTrack in user.get_recent_tracks(200):
                 album = playedTrack.track.get_album()
 
                 if album is None:
@@ -157,8 +157,10 @@ class Lastfm:
             return {
                 'recent_tracks': recent_tracks,
                 'url': user.get_url(),
-                'top_artists_overall': self.get_top_artists_overall(user_name, 1, 500, session_key),
-                'top_albums_overall': self.get_top_albums_overall(user_name, 1, 500, session_key)
+                'playcount': user.get_playcount(),
+                'top_artists_7days': self.get_top_artists(PERIOD_7DAYS, user_name, 1, 500, session_key),
+                'top_artists_overall': self.get_top_artists(PERIOD_OVERALL, user_name, 1, 500, session_key),
+                'top_albums_overall': self.get_top_albums(PERIOD_OVERALL, user_name, 1, 500, session_key)
             }
 
         except NetworkError:
@@ -166,7 +168,7 @@ class Lastfm:
                 user_name
             ))
 
-    def get_top_albums_overall(self, user_name, page = 1, limit = 50, session_key = None):
+    def get_top_albums(self, type, user_name, page = 1, limit = 50, session_key = None):
         if session_key is None:
             session_key = cherrypy.request.user.lastfm_session_key
 
@@ -174,13 +176,13 @@ class Lastfm:
             network = self.get_network(session_key)
             user = network.get_user(user_name)
 
-            top_albums_overall = []
+            top_albums = []
 
             index = (page - 1) * limit
             sub_index = 0
             last_weight = None
 
-            for album in self._param_call(user, 'get_top_albums', {'limit': limit, 'page': page}, [PERIOD_OVERALL]):
+            for album in self._param_call(user, 'get_top_albums', {'limit': limit, 'page': page}, [type]):
                 sub_index += 1
 
                 if last_weight is None or album.weight != last_weight:
@@ -195,7 +197,7 @@ class Lastfm:
                     # this seems to occur on some items :/
                     pass
 
-                top_albums_overall.append({
+                top_albums.append({
                     'name': album.item.get_name(),
                     'playcount': playcount,
                     'weight': int(album.weight),
@@ -204,11 +206,11 @@ class Lastfm:
 
                 last_weight = album.weight
 
-            return top_albums_overall
+            return top_albums
         except NetworkError:
             log('Network error, failed to get %s.' % user_name)
 
-    def get_top_artists_overall(self, user_name, page = 1, limit = 50, session_key = None):
+    def get_top_artists(self, type, user_name, page = 1, limit = 50, session_key = None):
         if session_key is None:
             session_key = cherrypy.request.user.lastfm_session_key
 
@@ -216,13 +218,13 @@ class Lastfm:
             network = self.get_network(session_key)
             user = network.get_user(user_name)
 
-            top_artists_overall = []
+            top_artists = []
 
             index = (page - 1) * limit
             sub_index = 0
             last_weight = None
 
-            for artist in self._param_call(user, 'get_top_artists', {'limit': limit, 'page': page}, [PERIOD_OVERALL]):
+            for artist in self._param_call(user, 'get_top_artists', {'limit': limit, 'page': page}, [type]):
                 sub_index += 1
 
                 if last_weight is None or artist.weight != last_weight:
@@ -237,7 +239,7 @@ class Lastfm:
                     # this seems to occur on some items :/
                     pass
 
-                top_artists_overall.append({
+                top_artists.append({
                     'name': artist.item.get_name(),
                     'playcount': playcount,
                     'weight': int(artist.weight),
@@ -246,7 +248,7 @@ class Lastfm:
 
                 last_weight = artist.weight
 
-            return top_artists_overall
+            return top_artists
         except NetworkError:
             log('Network error, failed to get %s.' % user_name)
 

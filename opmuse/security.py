@@ -31,8 +31,12 @@ class User(Base):
         self.salt = salt
 
     @hybrid_property
-    def gravatar_small(self):
+    def gravatar_xsmall(self):
         return self._get_gravatar(28)
+
+    @hybrid_property
+    def gravatar_small(self):
+        return self._get_gravatar(65)
 
     @hybrid_property
     def gravatar(self):
