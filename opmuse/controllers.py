@@ -950,7 +950,7 @@ class Dashboard:
                 if len(recent_tracks) >= 16:
                     break
 
-        top_artists = set([])
+        top_artists = OrderedDict({})
 
         index = 0
 
@@ -973,7 +973,7 @@ class Dashboard:
                     results = search.query_artist(artist['name'], exact=True)
 
                     if len(results) > 0:
-                        top_artists.add(results[0])
+                        top_artists[results[0]] = None
 
                     if len(top_artists) >= 12:
                         stop = True
@@ -983,7 +983,7 @@ class Dashboard:
 
             index += 1
 
-        top_artists = list(top_artists)
+        top_artists = list(top_artists.keys())
 
         return {
             'user': user,
