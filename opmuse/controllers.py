@@ -132,8 +132,8 @@ class Edit:
     @staticmethod
     def _sort_tracks(tracks):
         return sorted(tracks, key = lambda track: (
-                      track.artist.name,
-                      track.album.name,
+                      track.artist.name if track.artist is not None else '',
+                      track.album.name if track.album is not None else '',
                       track.number if track.number is not None else '0',
                       track.name))
 
