@@ -167,7 +167,8 @@ class QueueDao:
 
         database.commit()
 
-        cherrypy.request.queue_current_id = next_queue.id
+        if next_queue is not None:
+            cherrypy.request.queue_current_id = next_queue.id
 
         cherrypy.engine.publish('queue.next', next=next_queue)
 
