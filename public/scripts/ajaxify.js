@@ -136,8 +136,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             for (var index in this.contents) {
                 var content = this.contents[index];
-                $(content).children().remove();
-                $(content).append(html.find(content).children());
+                $(content).replaceWith(html.find(content));
                 $(window).scrollTop(0);
             }
 
