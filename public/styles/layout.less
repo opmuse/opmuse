@@ -30,7 +30,7 @@ body {
 }
 
 #right {
-    padding: 55px 0 40px 0;
+    padding: 95px 0 40px 0;
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
@@ -42,7 +42,7 @@ body {
 }
 
 #content {
-    padding: 60px 10px 55px 5px;
+    padding: 100px 10px 55px 5px;
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
@@ -190,6 +190,36 @@ body {
 
     .navbar-search {
         margin-left: 10px;
+    }
+
+    .navbar-main {
+        box-shadow: none;
+    }
+
+    .navbar-sub {
+        clear: both;
+        font-size: .9em;
+        min-height: 34px;
+        #gradient > .vertical(#1a1a1a, #1f1f1f);
+
+        .nav > li {
+            > a {
+                padding: 6px 10px;
+            }
+
+            &.active {
+                > a:focus,
+                > a:hover,
+                > a {
+                    background-color: #0e0e0e;
+                }
+            }
+        }
+
+        &:empty {
+            height: 0;
+            min-height: 0;
+        }
     }
 }
 

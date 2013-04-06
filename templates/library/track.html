@@ -25,11 +25,13 @@
     {% include "partials/artist-nav.html" %}
 {% endblock %}
 
+{% block navbar_sub %}
+    {% include "partials/library-nav.html" %}
+{% endblock %}
+
 {% block content %}
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
 <div id="track">
-    {% include "partials/library-nav.html" %}
-
     {% set album = track.album %}
     {% if track.artist %}
         {% set artists = [track.artist] %}

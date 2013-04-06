@@ -15,44 +15,47 @@ Library - Albums -
     {% endif %}
 {% endblock %}
 
-{% block content %}
-{% import "macros/album.html" as album_macros %}
-<div id="library">
+{% block navbar_sub %}
     {% include "partials/library-nav.html" %}
+{% endblock %}
 
-    <ul class="albums-nav nav nav-pills">
-        <li class="{{ "active" if request.path_info == "/library/albums/new" }}">
-            <a href="/library/albums/new">New</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/albums/random" }}">
-            <a href="/library/albums/random">Random</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/albums/yours" }}">
-            <a href="/library/albums/yours">Yours</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/albums/va" }}">
-            <a href="/library/albums/va">VA</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/albums/invalid" }}">
-            <a href="/library/albums/invalid">Invalid</a>
-        </li>
-    </ul>
+{% block content %}
+    {% import "macros/album.html" as album_macros %}
 
-    <div class="albums">
-        {% for album in albums %}
-            {{ album_macros.album(None, album) }}
-        {% endfor %}
-    </div>
+    <div id="library">
+        <ul class="albums-nav nav nav-pills">
+            <li class="{{ "active" if request.path_info == "/library/albums/new" }}">
+                <a href="/library/albums/new">New</a>
+            </li>
+            <li class="{{ "active" if request.path_info == "/library/albums/random" }}">
+                <a href="/library/albums/random">Random</a>
+            </li>
+            <li class="{{ "active" if request.path_info == "/library/albums/yours" }}">
+                <a href="/library/albums/yours">Yours</a>
+            </li>
+            <li class="{{ "active" if request.path_info == "/library/albums/va" }}">
+                <a href="/library/albums/va">VA</a>
+            </li>
+            <li class="{{ "active" if request.path_info == "/library/albums/invalid" }}">
+                <a href="/library/albums/invalid">Invalid</a>
+            </li>
+        </ul>
 
-    {% if page %}
-        <div class="pagination pagination-centered">
-            <ul>
-                {% if page > 1 %}
-                <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Newer</a></li>
-                {% endif %}
-                <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Older</a></li>
-            </ul>
+        <div class="albums">
+            {% for album in albums %}
+                {{ album_macros.album(None, album) }}
+            {% endfor %}
         </div>
-    {% endif %}
-</div>
+
+        {% if page %}
+            <div class="pagination pagination-centered">
+                <ul>
+                    {% if page > 1 %}
+                    <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Newer</a></li>
+                    {% endif %}
+                    <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Older</a></li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

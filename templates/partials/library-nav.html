@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs">
+<ul class="nav">
     <li class="{{ "active" if request.path_info|startswith("/library/album") }}">
         <a href="/library/albums/new">Albums</a>
     </li>
@@ -12,10 +12,10 @@
         <a href="/library/upload">Upload</a>
     </li>
     <li class="{{ "active" if request.path_info|startswith("/library/search") }}">
-        <a href="/library/search">Search</a>
+        <a href="#">Search</a>
     </li>
     <li class="{{ "active" if request.path_info|startswith("/library/edit") }}">
-        <a href="/library/edit">Edit</a>
+        <a href="#">Edit</a>
     </li>
 </ul>
 

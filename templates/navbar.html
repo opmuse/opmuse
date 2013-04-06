@@ -1,50 +1,45 @@
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-            <span class="throbber"><i class="icon-spinner icon-spin icon-2x"></i></span>
-            <span class="brand">opmuse</span>
-            <div id="top">
-                <div class="nav-collapse collapse">
+<div class="navbar-inner navbar-main">
+    <div class="container-fluid">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </a>
+        <span class="throbber"><i class="icon-spinner icon-spin icon-2x"></i></span>
+        <span class="brand">opmuse</span>
+        <div class="nav-collapse collapse">
+        {% if authenticated %}
+            <p class="navbar-text pull-right navbar-you">
+                <a class="logout btn btn-small"
+                    href="/logout?came_from={{ current_url|urlencode }}">
+                    <i class="icon-signout"></i>
+                    Sign out {{ request.user.login }}
+                </a>
+            </p>
+        {% endif %}
+            <ul class="nav">
                 {% if authenticated %}
-                    <p class="navbar-text pull-right navbar-you">
-                        <a class="logout btn btn-small"
-                            href="/logout?came_from={{ current_url|urlencode }}">
-                            <i class="icon-signout"></i>
-                            Sign out {{ request.user.login }}
-                        </a>
-                    </p>
+                    <li class="{{ "active" if request.path_info|startswith("/dashboard") }}">
+                        <a href="/">Dashboard</a>
+                    </li>
+                    <li class="{{ "active" if request.path_info|startswith("/library") }}">
+                        <a href="/library/albums/new">Library</a>
+                    </li>
+                    <li class="{{ "active" if request.path_info|startswith("/users") }}">
+                        <a href="/users/users">Users</a>
+                    </li>
+                    <li class="navbar-search">
+                        <input accesskey="s" class="search-query" type="text" placeholder="Search" autocomplete="off" />
+                    </li>
+                {% else %}
+                    <li class="{{ "active" if request.path_info|startswith("/index") }}">
+                        <a href="/">Home</a>
+                    </li>
+                    <li class="{{ "active" if request.path_info == "/login" }}">
+                        <a class="login" href="/login">Login</a>
+                    </li>
                 {% endif %}
-                    <ul class="nav">
-                        {% if authenticated %}
-                            <li class="{{ "active" if request.path_info|startswith("/dashboard") }}">
-                                <a href="/">Dashboard</a>
-                            </li>
-                            <li class="{{ "active" if request.path_info|startswith("/library") }}">
-                                <a href="/library/albums/new">Library</a>
-                            </li>
-                            <li class="{{ "active" if request.path_info|startswith("/users") }}">
-                                <a href="/users/users">Users</a>
-                            </li>
-                            <li class="navbar-search">
-                                <input accesskey="s" class="search-query" type="text" placeholder="Search" autocomplete="off" />
-                            </li>
-                        {% else %}
-                            <li class="{{ "active" if request.path_info|startswith("/index") }}">
-                                <a href="/">Home</a>
-                            </li>
-                            <li class="{{ "active" if request.path_info == "/login" }}">
-                                <a class="login" href="/login">Login</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
+            </ul>
         </div>
     </div>
 </div>
-

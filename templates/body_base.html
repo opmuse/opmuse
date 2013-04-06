@@ -7,14 +7,19 @@
 {% block body %}
     {% include "message.html" %}
 
-    {% include "navbar.html" %}
+    <div id="top" class="navbar navbar-fixed-top">
+        {% include "navbar.html" %}
+        <div class="navbar-sub navbar-inner">
+            {%- block navbar_sub %}{% endblock -%}
+        </div>
+    </div>
 
     <div class="container-fluid">
         {% block container %}
             <div class="row-fluid">
                 <div class="span12">
                     <div class="row-fluid">
-                        <div id="main">
+                        <div id="main" class="{% block main_class %}{% endblock %}">
                             {% block main %}{% endblock %}
                         </div>
                     </div>

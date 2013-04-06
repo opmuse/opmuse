@@ -11,40 +11,42 @@
     {% endif %}
 {% endblock %}
 
-{% block content %}
-<div id="library">
+{% block navbar_sub %}
     {% include "partials/library-nav.html" %}
+{% endblock %}
 
-    <ul class="artists-nav nav nav-pills">
-        <li class="{{ "active" if request.path_info == "/library/artists/new" }}">
-            <a href="/library/artists/new">New</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/artists/random" }}">
-            <a href="/library/artists/random">Random</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/artists/yours" }}">
-            <a href="/library/artists/yours">Yours</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/artists/invalid" }}">
-            <a href="/library/artists/invalid">Invalid</a>
-        </li>
-    </ul>
+{% block content %}
+    <div id="library">
+        <ul class="artists-nav nav nav-pills">
+            <li class="{{ "active" if request.path_info == "/library/artists/new" }}">
+                <a href="/library/artists/new">New</a>
+            </li>
+            <li class="{{ "active" if request.path_info == "/library/artists/random" }}">
+                <a href="/library/artists/random">Random</a>
+            </li>
+            <li class="{{ "active" if request.path_info == "/library/artists/yours" }}">
+                <a href="/library/artists/yours">Yours</a>
+            </li>
+            <li class="{{ "active" if request.path_info == "/library/artists/invalid" }}">
+                <a href="/library/artists/invalid">Invalid</a>
+            </li>
+        </ul>
 
-    <div class="artists">
-        {% for artist in artists %}
-            {% include "partials/artist.html" %}
-        {% endfor %}
-    </div>
-
-    {% if page %}
-        <div class="pagination pagination-centered">
-            <ul>
-                {% if page > 1 %}
-                <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Previous</a></li>
-                {% endif %}
-                <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
-            </ul>
+        <div class="artists">
+            {% for artist in artists %}
+                {% include "partials/artist.html" %}
+            {% endfor %}
         </div>
-    {% endif %}
-</div>
+
+        {% if page %}
+            <div class="pagination pagination-centered">
+                <ul>
+                    {% if page > 1 %}
+                    <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Previous</a></li>
+                    {% endif %}
+                    <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

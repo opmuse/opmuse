@@ -4,10 +4,12 @@
     Users - You - Settings
 {% endblock %}
 
+{% block navbar_sub %}
+    {% include "partials/users-nav.html" %}
+{% endblock %}
+
 {% block content %}
 <div id="you">
-    {% include "partials/users-nav.html" %}
-
     {% include "partials/you-nav.html" %}
 
     <form method="post" action="/users/you/settings_submit" class="form-horizontal clear">

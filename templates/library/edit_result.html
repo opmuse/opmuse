@@ -6,10 +6,12 @@
 
 {% import "macros/media.html" as media %}
 
+{% block navbar_sub %}
+    {% include "partials/library-nav.html" %}
+{% endblock %}
+
 {% block content %}
 <div id="tag">
-    {% include "partials/library-nav.html" %}
-
     <ul class="row-fluid">
         <li class="span8">
             {{ media.hierarchy(hierarchy) }}
