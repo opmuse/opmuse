@@ -694,8 +694,8 @@ class Library(object):
         offset = page_size * (page - 1)
 
         query = (get_database().query(Artist)
-            .join(Track, Artist.id == Track.artist_id)
-            .group_by(Artist.id))
+                .join(Track, Artist.id == Track.artist_id)
+                .group_by(Artist.id))
 
         if sort == "added":
             query = query.order_by(func.max(Track.added).desc())
@@ -755,8 +755,8 @@ class Library(object):
         offset = page_size * (page - 1)
 
         query = (get_database().query(Album)
-            .join(Track, Album.id == Track.album_id)
-            .group_by(Album.id))
+                .join(Track, Album.id == Track.album_id)
+                .group_by(Album.id))
 
         albums = []
 
@@ -782,9 +782,8 @@ class Library(object):
 
             query = query.filter(Album.id.in_(album_ids))
         elif filter == "va":
-            query = (query
-                .join(Artist, Artist.id == Track.artist_id)
-                .having(func.count(distinct(Artist.id)) > 1))
+            query = (query.join(Artist, Artist.id == Track.artist_id)
+                          .having(func.count(distinct(Artist.id)) > 1))
         elif filter == "invalid":
             query = query.filter("invalid is not null")
 
@@ -951,7 +950,8 @@ class Dashboard:
     def default(self):
         users = []
 
-        for user in (get_database().query(User)
+        for user in (get_database()
+                    .query(User)
                     .order_by(User.login)
                     .filter(User.id != cherrypy.request.user.id)
                     .limit(8).all()):
