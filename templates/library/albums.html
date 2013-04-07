@@ -1,18 +1,7 @@
 {% extends "body.html" %}
 
 {% block title  %}
-Library - Albums -
-    {% if view == "new" %}
-        New
-    {% elif view == "random" %}
-        Random
-    {% elif view == "va" %}
-        Various Artists
-    {% elif view == "yours" %}
-        Yours
-    {% else %}
-        Invalid
-    {% endif %}
+    Library - Albums
 {% endblock %}
 
 {% block navbar_sub %}
@@ -67,10 +56,10 @@ Library - Albums -
                             None
                         </a>
                     </li>
-                    <li class="{{ "active" if sort == "new" else "" }}">
-                        <a href="/library/albums?view={{ view }}&filter={{ filter }}&sort=new">
+                    <li class="{{ "active" if sort == "added" else "" }}">
+                        <a href="/library/albums?view={{ view }}&filter={{ filter }}&sort=added">
                             <i class="icon-asterisk"></i>
-                            New
+                            Added
                         </a>
                     </li>
                     <li class="{{ "active" if sort == "date" else "" }}">
@@ -118,13 +107,15 @@ Library - Albums -
                     {{ album_macros.album(None, album) }}
                 {% endfor %}
             {% elif view == "list" %}
-                <table class="table table-striped table-bordered album-list">
+                <table class="table table-striped table-bordered album-list table-condensed">
                     <thead>
                         <tr>
-                            <th>Cover</th>
+                            <th>&nbsp;</th>
+                            <th>&nbsp;</th>
                             <th>Name</th>
                             <th>Artist(s)</th>
                             <th>Date</th>
+                            <th>Tracks</th>
                             <th>Duration</th>
                             <th>Added</th>
                         </tr>
@@ -138,8 +129,10 @@ Library - Albums -
                                         {{ covers.album(album, 40, "img-rounded") }}
                                     </a>
                                 </td>
-                                <td>
+                                <td class="queue">
                                     {{ album_macros.album_queue_btn(album) }}
+                                </td>
+                                <td>
                                     <a href="{{ album_url }}">
                                         {{ album.name }}
                                     </a>
@@ -153,9 +146,12 @@ Library - Albums -
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {{ album.duration|format_seconds }}
+                                    {{ album.tracks|count }}
                                 </td>
                                 <td>
+                                    {{ album.duration|format_seconds }}
+                                </td>
+                                <td class="added">
                                     {{ album.added|pretty_date }}
                                 </td>
                             </tr>

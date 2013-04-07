@@ -158,7 +158,7 @@ class Remove:
         elif artist is not None:
             raise HTTPRedirect('/%s' % artist.slug)
         else:
-            raise HTTPRedirect('/library/albums/new')
+            raise HTTPRedirect('/library/albums')
 
 
 class Search:
@@ -639,7 +639,7 @@ class Library(object):
     @cherrypy.tools.jinja(filename='library/tracks.html')
     def tracks(self, sort = None, filter = None, page = None):
         if sort is None:
-            sort = "new"
+            sort = "added"
 
         if filter is None:
             filter = "none"
@@ -655,7 +655,7 @@ class Library(object):
 
         query = get_database().query(Track)
 
-        if sort == "new":
+        if sort == "added":
             query = query.order_by(Track.added.desc())
         elif sort == "random":
             query = query.order_by(func.rand())
@@ -679,7 +679,7 @@ class Library(object):
     @cherrypy.tools.jinja(filename='library/artists.html')
     def artists(self, sort = None, filter = None, page = None):
         if sort is None:
-            sort = "new"
+            sort = "added"
 
         if filter is None:
             filter = "none"
@@ -697,7 +697,7 @@ class Library(object):
             .join(Track, Artist.id == Track.artist_id)
             .group_by(Artist.id))
 
-        if sort == "new":
+        if sort == "added":
             query = query.order_by(func.max(Track.added).desc())
         elif sort == "random":
             query = query.order_by(func.rand())
@@ -740,7 +740,7 @@ class Library(object):
             view = "covers"
 
         if sort is None:
-            sort = "new"
+            sort = "added"
 
         if filter is None:
             filter = "none"
@@ -760,7 +760,7 @@ class Library(object):
 
         albums = []
 
-        if sort == "new":
+        if sort == "added":
             query = query.order_by(func.max(Track.added).desc())
         elif sort == "date":
             query = query.order_by(Album.date.desc())

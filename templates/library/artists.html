@@ -2,13 +2,6 @@
 
 {% block title  %}
     Library - Artists
-    {% if view == "new" %}
-        New
-    {% elif view == "random" %}
-        Random
-    {% elif view == "yours" %}
-        Yours
-    {% endif %}
 {% endblock %}
 
 {% block navbar_sub %}
@@ -54,10 +47,10 @@
                             None
                         </a>
                     </li>
-                    <li class="{{ "active" if sort == "new" else "" }}">
-                        <a href="/library/artists?filter={{ filter }}&sort=new">
+                    <li class="{{ "active" if sort == "added" else "" }}">
+                        <a href="/library/artists?filter={{ filter }}&sort=added">
                             <i class="icon-asterisk"></i>
-                            New
+                            Added
                         </a>
                     </li>
                     <li class="{{ "active" if sort == "random" else "" }}">
