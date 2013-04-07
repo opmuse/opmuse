@@ -21,6 +21,10 @@ a:hover {
 body {
     overflow-x: hidden;
     overflow-y: scroll;
+
+    > .container-fluid {
+        padding: 0;
+    }
 }
 
 .clear {
@@ -30,7 +34,7 @@ body {
 }
 
 #right {
-    padding: 89px 0 40px 0;
+    padding: 89px 5px 40px 0;
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
@@ -42,7 +46,7 @@ body {
 }
 
 #content {
-    padding: 94px 10px 55px 5px;
+    padding: 94px 10px 55px 10px;
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
