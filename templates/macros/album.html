@@ -1,8 +1,11 @@
-{% macro album_desc(album, href) %}
+{% macro album_desc(album, href, prefix = true) %}
     {% import "macros/urls.html" as urls %}
     {%- if album.artists|length > 1 -%}
-        with {% for artist in album.artists -%}
-        {%- if not loop.first and not loop.last %}, {% elif loop.last %} and {% endif -%}
+        {% if prefix %}
+            with
+        {% endif %}
+        {% for artist in album.artists -%}
+            {%- if not loop.first and not loop.last %}, {% elif loop.last %} and {% endif -%}
             {%- if href -%}
                 <a href="{{ urls.artist_url(artist) }}">{{ artist.name|show_ws }}</a>
             {%- else -%}
@@ -10,7 +13,10 @@
             {%- endif -%}
         {%- endfor -%}.
     {%- elif album.artists|length == 1 -%}
-        by {% if href -%}
+        {% if prefix %}
+            by
+        {% endif %}
+        {% if href -%}
             <a href="{{ urls.artist_url(album.artists[0]) }}">{{ album.artists[0].name|show_ws }}</a>
         {%- else -%}
             {{ album.artists[0].name|show_ws }}
@@ -21,7 +27,18 @@
     {%- endif -%}
 {% endmacro %}
 
+{% macro album_queue_btn(album) %}
+    <a class="queue add add-album btn btn-small btn-inverse"
+        href="/queue/add/
+            {%- for track in album.tracks -%}
+                {{ track.id }},
+            {%- endfor -%}">
+        <i class="icon-headphones"></i>
+    </a>
+{% endmacro %}
+
 {% macro album(artist, album) %}
+    {% import "macros/urls.html" as urls %}
     {% import "macros/covers.html" as covers %}
 
     <div class="album-container">
@@ -58,31 +75,14 @@
                 </p>
                 {% endif %}
             </div>
-            <a class="queue add add-album btn btn-small btn-inverse"
-                href="/queue/add/
-                    {%- for track in album.tracks -%}
-                        {{ track.id }},
-                    {%- endfor -%}">
-                <i class="icon-headphones"></i>
-            </a>
-            {% if album.is_va %}
-                {% set album_url =  "va/" + album.slug|urlencode %}
-            {% else %}
-                {% if not artist and album.artists|length == 0 %}
-                    {% set artist_slug = "unknown" %}
-                {% elif album.artists|length > 0 %}
-                    {% set artist_slug = album.artists[0].slug|urlencode %}
-                {% else %}
-                    {% set artist_slug = artist.slug|urlencode %}
-                {% endif %}
-                {% set album_url = artist_slug + "/" + album.slug|urlencode %}
-            {% endif %}
-            <a href="/{{ album_url }}">
+            {{ album_queue_btn(album) }}
+            {% set album_url = urls.album_url(album, artist) %}
+            <a href="{{ album_url }}">
                 {{ covers.album(album) }}
             </a>
             <div class="album-desc">
                 <h3 class="album-name" title="{{ album.name }} {% if album.date %}({{ album.date }}){% endif %}">
-                    <a href="/{{ album_url }}">
+                    <a href="{{ album_url }}">
                         {{ album.name|show_ws }}
                         {% if album.date %}
                             <small>({{ album.date }})</small>

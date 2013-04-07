@@ -21,7 +21,9 @@ Library - Albums -
 
 {% block content %}
     {% import "macros/album.html" as album_macros %}
+    {% import "macros/urls.html" as urls %}
     {% import "macros/pagination.html" as pagination %}
+    {% import "macros/covers.html" as covers %}
 
     <div id="library">
         <dl class="filters">
@@ -29,25 +31,25 @@ Library - Albums -
             <dd>
                 <ul>
                     <li class="{{ "active" if filter == "none" else "" }}">
-                        <a href="/library/albums?filter=none&sort={{ sort }}">
+                        <a href="/library/albums?view={{ view }}&filter=none&sort={{ sort }}">
                             <i class="icon-circle-blank"></i>
                             None
                         </a>
                     </li>
                     <li class="{{ "active" if filter == "yours" else "" }}">
-                        <a href="/library/albums?filter=yours&sort={{ sort }}">
+                        <a href="/library/albums?view={{ view }}&filter=yours&sort={{ sort }}">
                             <i class="icon-user"></i>
                             Yours
                         </a>
                     </li>
                     <li class="{{ "active" if filter == "va" else "" }}">
-                        <a href="/library/albums?filter=va&sort={{ sort }}">
+                        <a href="/library/albums?view={{ view }}&filter=va&sort={{ sort }}">
                             <i class="icon-circle"></i>
                             VA
                         </a>
                     </li>
                     <li class="{{ "active" if filter == "invalid" else "" }}">
-                        <a href="/library/albums?filter=invalid&sort={{ sort }}">
+                        <a href="/library/albums?view={{ view }}&filter=invalid&sort={{ sort }}">
                             <i class="icon-warning-sign"></i>
                             Invalid
                         </a>
@@ -60,19 +62,19 @@ Library - Albums -
             <dd>
                 <ul>
                     <li class="{{ "active" if sort == "none" else "" }}">
-                        <a href="/library/albums?filter={{ filter }}&sort=none">
+                        <a href="/library/albums?view={{ view }}&filter={{ filter }}&sort=none">
                             <i class="icon-circle-blank"></i>
                             None
                         </a>
                     </li>
                     <li class="{{ "active" if sort == "new" else "" }}">
-                        <a href="/library/albums?filter={{ filter }}&sort=new">
+                        <a href="/library/albums?view={{ view }}&filter={{ filter }}&sort=new">
                             <i class="icon-asterisk"></i>
                             New
                         </a>
                     </li>
                     <li class="{{ "active" if sort == "random" else "" }}">
-                        <a href="/library/albums?filter={{ filter }}&sort=random">
+                        <a href="/library/albums?view={{ view }}&filter={{ filter }}&sort=random">
                             <i class="icon-random"></i>
                             Random
                         </a>
@@ -80,13 +82,81 @@ Library - Albums -
                 </ul>
             </dd>
         </dl>
+        <dl class="views">
+            <dt>View</dt>
+            <dd>
+                <ul>
+                    <li class="{{ "active" if view == "covers" else "" }}">
+                        <a href="/library/albums?view=covers&filter={{ filter }}&sort={{ sort }}">
+                            <i class="icon-th-large"></i>
+                            Covers
+                        </a>
+                    </li>
+                    <li class="{{ "active" if view == "list" else "" }}">
+                        <a href="/library/albums?view=list&filter={{ filter }}&sort={{ sort }}">
+                            <i class="icon-list-ul"></i>
+                            List
+                        </a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
 
-        <hr />
+        {% if view == "covers" %}
+            <hr />
+        {% endif %}
 
         <div class="albums">
-            {% for album in albums %}
-                {{ album_macros.album(None, album) }}
-            {% endfor %}
+            {% if view == "covers" %}
+                {% for album in albums %}
+                    {{ album_macros.album(None, album) }}
+                {% endfor %}
+            {% elif view == "list" %}
+                <table class="table table-striped table-bordered album-list">
+                    <thead>
+                        <tr>
+                            <th>Cover</th>
+                            <th>Name</th>
+                            <th>Artist(s)</th>
+                            <th>Date</th>
+                            <th>Duration</th>
+                            <th>Added</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for album in albums %}
+                            {% set album_url = urls.album_url(album, artist) %}
+                            <tr>
+                                <td class="cover">
+                                    <a href="{{ album_url }}">
+                                        {{ covers.album(album, 40, "img-rounded") }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ album_macros.album_queue_btn(album) }}
+                                    <a href="{{ album_url }}">
+                                        {{ album.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ album_macros.album_desc(album, true, false) }}
+                                </td>
+                                <td>
+                                    {% if album.date %}
+                                        {{ album.date }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ album.duration|format_seconds }}
+                                </td>
+                                <td>
+                                    {{ album.added|pretty_date }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
 
         {% if page %}

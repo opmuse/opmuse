@@ -1,3 +1,18 @@
 {% macro artist_url(artist) -%}
     /{{ artist.slug|urlencode }}
 {%- endmacro %}
+
+{% macro album_url(album, artist = None) -%}
+    {%- if album.is_va -%}
+        /va/{{album.slug|urlencode }}
+    {%- else -%}
+        {%- if not artist and album.artists|length == 0 -%}
+            {% set artist_slug = "unknown" %}
+        {%- elif album.artists|length > 0 -%}
+            {% set artist_slug = album.artists[0].slug|urlencode %}
+        {%- else -%}
+            {% set artist_slug = artist.slug|urlencode %}
+        {%- endif -%}
+        /{{ artist_slug }}/{{ album.slug|urlencode }}
+    {%- endif -%}
+{%- endmacro %}

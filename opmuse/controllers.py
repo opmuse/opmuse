@@ -734,7 +734,10 @@ class Library(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library/albums.html')
-    def albums(self, sort = None, filter = None, page = None):
+    def albums(self, view = None, sort = None, filter = None, page = None):
+
+        if view is None:
+            view = "covers"
 
         if sort is None:
             sort = "new"
@@ -768,7 +771,7 @@ class Library(object):
 
             album_ids = []
 
-            if remotes_user is not None:
+            if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for album in remotes_user['lastfm']['top_albums_overall']:
                     album_results = search.query_album(album['name'], exact = True)
 
@@ -793,7 +796,7 @@ class Library(object):
             for artist in album.artists:
                 remotes.update_artist(artist)
 
-        return {'albums': albums, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages}
+        return {'albums': albums, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages, "view": view}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

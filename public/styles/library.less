@@ -11,6 +11,7 @@
         clear: both;
     }
 
+    .views,
     .filters,
     .sorts {
         float: right;
@@ -24,7 +25,7 @@
         }
 
         dd {
-            font-size: .9em;
+            font-size: .8em;
 
             ul {
                 margin: 0;
@@ -57,5 +58,22 @@
     hr {
         clear: both;
         margin: 12px 0;
+    }
+
+    .album-list {
+        .cover-container {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+        }
+
+        th, td {
+            vertical-align: middle;
+
+            &.cover {
+                padding-top: 3px;
+                padding-bottom: 3px;
+            }
+        }
     }
 }
