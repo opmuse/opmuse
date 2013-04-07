@@ -693,9 +693,10 @@ class Library(object):
 
         offset = page_size * (page - 1)
 
-        query = (get_database().query(Artist)
-                .join(Track, Artist.id == Track.artist_id)
-                .group_by(Artist.id))
+        query = (get_database()
+                 .query(Artist)
+                 .join(Track, Artist.id == Track.artist_id)
+                 .group_by(Artist.id))
 
         if sort == "added":
             query = query.order_by(func.max(Track.added).desc())
@@ -754,9 +755,10 @@ class Library(object):
 
         offset = page_size * (page - 1)
 
-        query = (get_database().query(Album)
-                .join(Track, Album.id == Track.album_id)
-                .group_by(Album.id))
+        query = (get_database()
+                 .query(Album)
+                 .join(Track, Album.id == Track.album_id)
+                 .group_by(Album.id))
 
         albums = []
 
@@ -951,10 +953,10 @@ class Dashboard:
         users = []
 
         for user in (get_database()
-                    .query(User)
-                    .order_by(User.login)
-                    .filter(User.id != cherrypy.request.user.id)
-                    .limit(8).all()):
+                     .query(User)
+                     .order_by(User.login)
+                     .filter(User.id != cherrypy.request.user.id)
+                     .limit(8).all()):
 
             remotes.update_user(user)
 
