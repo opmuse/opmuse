@@ -68,7 +68,7 @@ define(['jquery', 'inheritance', 'sprintf', 'bind', 'domReady!'], function($, in
                     // TODO implement exponential backoff algo
                     setTimeout(function () {
                         that.internalInit();
-                    }, 2000);
+                    }, 6000);
                 }
             };
         },
