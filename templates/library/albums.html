@@ -73,6 +73,12 @@ Library - Albums -
                             New
                         </a>
                     </li>
+                    <li class="{{ "active" if sort == "date" else "" }}">
+                        <a href="/library/albums?view={{ view }}&filter={{ filter }}&sort=date">
+                            <i class="icon-calendar"></i>
+                            Date
+                        </a>
+                    </li>
                     <li class="{{ "active" if sort == "random" else "" }}">
                         <a href="/library/albums?view={{ view }}&filter={{ filter }}&sort=random">
                             <i class="icon-random"></i>

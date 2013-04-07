@@ -762,6 +762,8 @@ class Library(object):
 
         if sort == "new":
             query = query.order_by(func.max(Track.added).desc())
+        elif sort == "date":
+            query = query.order_by(Album.date.desc())
         elif sort == "random":
             query = query.order_by(func.rand())
             page = None
