@@ -1159,6 +1159,7 @@ class Root(object):
         return b''
 
     @cherrypy.expose
+    @cherrypy.tools.expires(secs=3600 * 24 * 7, force=True)
     @cherrypy.tools.authenticated()
     def cover(self, type, slug, hash = None, refresh = None):
         try:
