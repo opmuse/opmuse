@@ -21,25 +21,67 @@ Library - Albums -
 
 {% block content %}
     {% import "macros/album.html" as album_macros %}
+    {% import "macros/pagination.html" as pagination %}
 
     <div id="library">
-        <ul class="albums-nav nav nav-pills">
-            <li class="{{ "active" if request.path_info == "/library/albums/new" }}">
-                <a href="/library/albums/new">New</a>
-            </li>
-            <li class="{{ "active" if request.path_info == "/library/albums/random" }}">
-                <a href="/library/albums/random">Random</a>
-            </li>
-            <li class="{{ "active" if request.path_info == "/library/albums/yours" }}">
-                <a href="/library/albums/yours">Yours</a>
-            </li>
-            <li class="{{ "active" if request.path_info == "/library/albums/va" }}">
-                <a href="/library/albums/va">VA</a>
-            </li>
-            <li class="{{ "active" if request.path_info == "/library/albums/invalid" }}">
-                <a href="/library/albums/invalid">Invalid</a>
-            </li>
-        </ul>
+        <dl class="filters">
+            <dt>Filter</dt>
+            <dd>
+                <ul>
+                    <li class="{{ "active" if filter == "none" else "" }}">
+                        <a href="/library/albums?filter=none&sort={{ sort }}">
+                            <i class="icon-circle-blank"></i>
+                            None
+                        </a>
+                    </li>
+                    <li class="{{ "active" if filter == "yours" else "" }}">
+                        <a href="/library/albums?filter=yours&sort={{ sort }}">
+                            <i class="icon-user"></i>
+                            Yours
+                        </a>
+                    </li>
+                    <li class="{{ "active" if filter == "va" else "" }}">
+                        <a href="/library/albums?filter=va&sort={{ sort }}">
+                            <i class="icon-circle"></i>
+                            VA
+                        </a>
+                    </li>
+                    <li class="{{ "active" if filter == "invalid" else "" }}">
+                        <a href="/library/albums?filter=invalid&sort={{ sort }}">
+                            <i class="icon-warning-sign"></i>
+                            Invalid
+                        </a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+        <dl class="sorts">
+            <dt>Sort</dt>
+            <dd>
+                <ul>
+                    <li class="{{ "active" if sort == "none" else "" }}">
+                        <a href="/library/albums?filter={{ filter }}&sort=none">
+                            <i class="icon-circle-blank"></i>
+                            None
+                        </a>
+                    </li>
+                    <li class="{{ "active" if sort == "new" else "" }}">
+                        <a href="/library/albums?filter={{ filter }}&sort=new">
+                            <i class="icon-asterisk"></i>
+                            New
+                        </a>
+                    </li>
+                    <li class="{{ "active" if sort == "random" else "" }}">
+                        <a href="/library/albums?filter={{ filter }}&sort=random">
+                            <i class="icon-random"></i>
+                            Random
+                        </a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+
+        <hr />
 
         <div class="albums">
             {% for album in albums %}
@@ -48,14 +90,8 @@ Library - Albums -
         </div>
 
         {% if page %}
-            <div class="pagination pagination-centered">
-                <ul>
-                    {% if page > 1 %}
-                    <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Newer</a></li>
-                    {% endif %}
-                    <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Older</a></li>
-                </ul>
-            </div>
+            {% set url = "/library/albums?sort=" + sort + "&filter=" + filter + "&page=" %}
+            {{ pagination.pagination(url, page, pages) }}
         {% endif %}
     </div>
 {% endblock %}

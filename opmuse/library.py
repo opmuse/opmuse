@@ -1436,38 +1436,6 @@ class LibraryDao:
         except NoResultFound:
             pass
 
-    def get_tracks_without_album(self, limit, offset):
-        return (get_database().query(Track)
-                .filter("album_id is null")
-                .order_by(Track.added)
-                .limit(limit)
-                .offset(offset)
-                .all())
-
-    def get_tracks_without_artist(self, limit, offset):
-        return (get_database().query(Track)
-                .filter("artist_id is null")
-                .order_by(Track.added)
-                .limit(limit)
-                .offset(offset)
-                .all())
-
-    def get_tracks(self, limit, offset):
-        return (get_database().query(Track)
-                .order_by(Track.added.desc())
-                .limit(limit)
-                .offset(offset)
-                .all())
-
-    def get_artists(self, limit, offset):
-        return (get_database().query(Artist)
-                .join(Track, Track.artist_id == Artist.id)
-                .group_by(Artist.id)
-                .order_by(func.max(Track.added).desc())
-                .limit(limit)
-                .offset(offset)
-                .all())
-
     def remove(self, id):
         track = get_database().query(Track).filter_by(id=id).one()
 
@@ -1517,40 +1485,6 @@ class LibraryDao:
             entities += self.get_random_entity(Entity, limit - len(entities))
 
         return entities
-
-    def get_invalid_artists(self, limit, offset):
-        return (get_database()
-                .query(Artist)
-                .join(Track, Artist.id == Track.artist_id)
-                .group_by(Artist.id)
-                .filter("invalid is not null")
-                .order_by(func.max(Track.added).desc())
-                .limit(limit)
-                .offset(offset)
-                .all())
-
-    def get_invalid_albums(self, limit, offset):
-        return (get_database()
-                .query(Album)
-                .join(Track, Album.id == Track.album_id)
-                .group_by(Album.id)
-                .filter("invalid is not null")
-                .order_by(func.max(Track.added).desc())
-                .limit(limit)
-                .offset(offset)
-                .all())
-
-    def get_va_albums(self, limit, offset):
-        return (get_database()
-                .query(Album)
-                .join(Track, Album.id == Track.album_id)
-                .join(Artist, Artist.id == Track.artist_id)
-                .order_by(func.max(Track.added).desc())
-                .group_by(Album.id)
-                .having(func.count(distinct(Artist.id)) > 1)
-                .limit(limit)
-                .offset(offset)
-                .all())
 
     def get_new_albums(self, limit, offset):
         return (get_database()

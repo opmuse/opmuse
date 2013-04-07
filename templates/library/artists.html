@@ -16,21 +16,59 @@
 {% endblock %}
 
 {% block content %}
+    {% import "macros/pagination.html" as pagination %}
+
     <div id="library">
-        <ul class="artists-nav nav nav-pills">
-            <li class="{{ "active" if request.path_info == "/library/artists/new" }}">
-                <a href="/library/artists/new">New</a>
-            </li>
-            <li class="{{ "active" if request.path_info == "/library/artists/random" }}">
-                <a href="/library/artists/random">Random</a>
-            </li>
-            <li class="{{ "active" if request.path_info == "/library/artists/yours" }}">
-                <a href="/library/artists/yours">Yours</a>
-            </li>
-            <li class="{{ "active" if request.path_info == "/library/artists/invalid" }}">
-                <a href="/library/artists/invalid">Invalid</a>
-            </li>
-        </ul>
+        <dl class="filters">
+            <dt>Filter</dt>
+            <dd>
+                <ul>
+                    <li class="{{ "active" if filter == "none" else "" }}">
+                        <a href="/library/artists?filter=none&sort={{ sort }}">
+                            <i class="icon-circle-blank"></i>
+                            None
+                        </a>
+                    </li>
+                    <li class="{{ "active" if filter == "yours" else "" }}">
+                        <a href="/library/artists?filter=yours&sort={{ sort }}">
+                            <i class="icon-user"></i>
+                            Yours
+                        </a>
+                    </li>
+                    <li class="{{ "active" if filter == "invalid" else "" }}">
+                        <a href="/library/artists?filter=invalid&sort={{ sort }}">
+                            <i class="icon-warning-sign"></i>
+                            Invalid
+                        </a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+        <dl class="sorts">
+            <dt>Sort</dt>
+            <dd>
+                <ul>
+                    <li class="{{ "active" if sort == "none" else "" }}">
+                        <a href="/library/artists?filter={{ filter }}&sort=none">
+                            <i class="icon-circle-blank"></i>
+                            None
+                        </a>
+                    </li>
+                    <li class="{{ "active" if sort == "new" else "" }}">
+                        <a href="/library/artists?filter={{ filter }}&sort=new">
+                            <i class="icon-asterisk"></i>
+                            New
+                        </a>
+                    </li>
+                    <li class="{{ "active" if sort == "random" else "" }}">
+                        <a href="/library/artists?filter={{ filter }}&sort=random">
+                            <i class="icon-random"></i>
+                            Random
+                        </a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
 
         <div class="artists">
             {% for artist in artists %}
@@ -39,14 +77,8 @@
         </div>
 
         {% if page %}
-            <div class="pagination pagination-centered">
-                <ul>
-                    {% if page > 1 %}
-                    <li><a href="{{ request.path_info }}?page={{ page - 1 }}">Previous</a></li>
-                    {% endif %}
-                    <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
-                </ul>
-            </div>
+            {% set url = "/library/artists?sort=" + sort + "&filter=" + filter + "&page=" %}
+            {{ pagination.pagination(url, page, pages) }}
         {% endif %}
     </div>
 {% endblock %}

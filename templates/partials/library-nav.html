@@ -1,12 +1,12 @@
 <ul class="nav">
     <li class="{{ "active" if request.path_info|startswith("/library/album") }}">
-        <a href="/library/albums/new">Albums</a>
+        <a href="/library/albums">Albums</a>
     </li>
     <li class="{{ "active" if request.path_info|startswith("/library/artist") }}">
-        <a href="/library/artists/new">Artists</a>
+        <a href="/library/artists">Artists</a>
     </li>
     <li class="{{ "active" if request.path_info|startswith("/library/track") }}">
-        <a href="/library/tracks/new">Tracks</a>
+        <a href="/library/tracks">Tracks</a>
     </li>
     <li class="{{ "active" if request.path_info|startswith("/library/upload") }}">
         <a href="/library/upload">Upload</a>

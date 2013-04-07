@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import rarfile
 import random
+import math
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
@@ -13,10 +14,12 @@ from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import func, distinct
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
-from opmuse.library import TrackPath, library_dao, Library as LibraryService
+from opmuse.library import (Album, Artist, Track, TrackPath, library_dao,
+                            Library as LibraryService)
 from opmuse.security import User, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
@@ -634,29 +637,53 @@ class Library(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library/tracks.html')
-    def tracks(self, view, page = None):
+    def tracks(self, sort = None, filter = None, page = None):
+        if sort is None:
+            sort = "new"
+
+        if filter is None:
+            filter = "none"
+
         if page is None:
             page = 1
 
         page = int(page)
 
-        page_size = 50
+        page_size = 70
 
         offset = page_size * (page - 1)
 
-        if view == "new":
-            tracks = library_dao.get_tracks(page_size, offset)
-        elif view == "noalbum":
-            tracks = library_dao.get_tracks_without_album(page_size, offset)
-        elif view == "noartist":
-            tracks = library_dao.get_tracks_without_artist(page_size, offset)
+        query = get_database().query(Track)
 
-        return {'tracks': tracks, 'page': page, 'view': view}
+        if sort == "new":
+            query = query.order_by(Track.added.desc())
+        elif sort == "random":
+            query = query.order_by(func.rand())
+            page = None
+
+        if filter == "woartist":
+            query = query.filter("artist_id is null")
+        elif filter == "woalbum":
+            query = query.filter("album_id is null")
+        elif filter == "invalid":
+            query = query.filter("invalid is not null")
+
+        pages = math.ceil(query.count() / page_size)
+
+        tracks = query.limit(page_size).offset(offset).all()
+
+        return {'tracks': tracks, 'page': page, 'pages': pages, 'sort': sort, 'filter': filter}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library/artists.html')
-    def artists(self, view, page = None):
+    def artists(self, sort = None, filter = None, page = None):
+        if sort is None:
+            sort = "new"
+
+        if filter is None:
+            filter = "none"
+
         if page is None:
             page = 1
 
@@ -666,28 +693,35 @@ class Library(object):
 
         offset = page_size * (page - 1)
 
-        if view == "new":
-            artists = library_dao.get_artists(page_size, offset)
-        elif view == "random":
-            artists = library_dao.get_random_artists(page_size)
-            page = None
-        elif view == "yours":
-            artists = []
+        query = (get_database().query(Artist)
+            .join(Track, Artist.id == Track.artist_id)
+            .group_by(Artist.id))
 
+        if sort == "new":
+            query = query.order_by(func.max(Track.added).desc())
+        elif sort == "random":
+            query = query.order_by(func.rand())
+            page = None
+
+        if filter == "yours":
             remotes_user = remotes.get_user(cherrypy.request.user)
 
-            if remotes_user is not None:
-                index = 0
+            artist_ids = []
 
+            if remotes_user is not None:
                 for artist in remotes_user['lastfm']['top_artists_overall']:
-                    artist_results = search.query_artist(artist['name'], exact=True)
+                    artist_results = search.query_artist(artist['name'], exact = True)
 
                     if len(artist_results) > 0:
-                        artists.append(artist_results[0])
+                        artist_ids.append(artist_results[0].id)
 
-            page = None
-        else:
-            artists = library_dao.get_invalid_artists(page_size, offset)
+            query = query.filter(Artist.id.in_(artist_ids))
+        elif filter == "invalid":
+            query = query.filter("invalid is not null")
+
+        pages = math.ceil(query.count() / page_size)
+
+        artists = query.limit(page_size).offset(offset).all()
 
         for artist in artists:
             remotes.update_artist(artist)
@@ -695,12 +729,18 @@ class Library(object):
             for album in artist.albums:
                 remotes.update_album(album)
 
-        return {'artists': artists, 'page': page, 'view': view}
+        return {'artists': artists, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='library/albums.html')
-    def albums(self, view, page = None):
+    def albums(self, sort = None, filter = None, page = None):
+
+        if sort is None:
+            sort = "new"
+
+        if filter is None:
+            filter = "none"
 
         if page is None:
             page = 1
@@ -711,30 +751,41 @@ class Library(object):
 
         offset = page_size * (page - 1)
 
-        if view == "new":
-            albums = library_dao.get_new_albums(page_size, offset)
-        elif view == "random":
-            albums = library_dao.get_random_albums(page_size)
-            page = None
-        elif view == "va":
-            albums = library_dao.get_va_albums(page_size, offset)
-        elif view == "yours":
-            albums = []
+        query = (get_database().query(Album)
+            .join(Track, Album.id == Track.album_id)
+            .group_by(Album.id))
 
+        albums = []
+
+        if sort == "new":
+            query = query.order_by(func.max(Track.added).desc())
+        elif sort == "random":
+            query = query.order_by(func.rand())
+            page = None
+
+        if filter == "yours":
             remotes_user = remotes.get_user(cherrypy.request.user)
 
-            if remotes_user is not None:
-                index = 0
+            album_ids = []
 
+            if remotes_user is not None:
                 for album in remotes_user['lastfm']['top_albums_overall']:
-                    album_results = search.query_album(album['name'])
+                    album_results = search.query_album(album['name'], exact = True)
 
                     if len(album_results) > 0:
-                        albums.append(album_results[0])
+                        album_ids.append(album_results[0].id)
 
-            page = None
-        else:
-            albums = library_dao.get_invalid_albums(page_size, offset)
+            query = query.filter(Album.id.in_(album_ids))
+        elif filter == "va":
+            query = (query
+                .join(Artist, Artist.id == Track.artist_id)
+                .having(func.count(distinct(Artist.id)) > 1))
+        elif filter == "invalid":
+            query = query.filter("invalid is not null")
+
+        pages = math.ceil(query.count() / page_size)
+
+        albums = query.limit(page_size).offset(offset).all()
 
         for album in albums:
             remotes.update_album(album)
@@ -742,7 +793,7 @@ class Library(object):
             for artist in album.artists:
                 remotes.update_artist(artist)
 
-        return {'albums': albums, 'page': page, 'view': view}
+        return {'albums': albums, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated()

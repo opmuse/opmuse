@@ -1,0 +1,47 @@
+{% macro pagination(url, page, pages) %}
+    <div class="pagination pagination-centered">
+        <ul>
+            {% if page > 1 %}
+                <li>
+                    <a href="{{ url }}{{ page - 1 }}">&laquo;</a>
+                </li>
+                {% if page > 2 %}
+                    <li>
+                        <a href="{{ url }}1">1</a>
+                    </li>
+                    {% if page > 3 %}
+                        <li class="disabled">
+                            <span>&hellip;</span>
+                        </li>
+                    {% endif %}
+                {% endif %}
+                <li>
+                    <a href="{{ url }}{{ page - 1 }}">{{ page - 1 }}</a>
+                </li>
+            {% endif %}
+            <li class="active">
+                <span>{{ page }}</span>
+            </li>
+            {% if pages > page %}
+                <li>
+                    <a href="{{ url }}{{ page + 1 }}">{{ page + 1 }}</a>
+                </li>
+            {% endif %}
+            {% if pages > page + 1 %}
+                {% if pages > page + 2 %}
+                    <li class="disabled">
+                        <span>&hellip;</span>
+                    </li>
+                {% endif %}
+                <li>
+                    <a href="{{ url }}{{ pages }}">{{ pages }}</a>
+                </li>
+            {% endif %}
+            {% if pages > page %}
+                <li>
+                    <a href="{{ url }}{{ page + 1 }}">&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endmacro %}

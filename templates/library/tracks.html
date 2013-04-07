@@ -11,30 +11,72 @@
 {% block content %}
 <div id="library">
     {% import "macros/tracks.html" as tracks_macros %}
+    {% import "macros/pagination.html" as pagination %}
 
-    <ul class="tracks-nav nav nav-pills">
-        <li class="{{ "active" if request.path_info == "/library/tracks/new" }}">
-            <a href="/library/tracks/new">New</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/tracks/noartist" }}">
-            <a href="/library/tracks/noartist">Without Artist</a>
-        </li>
-        <li class="{{ "active" if request.path_info == "/library/tracks/noalbum" }}">
-            <a href="/library/tracks/noalbum">Without Album</a>
-        </li>
-    </ul>
+    <dl class="filters">
+        <dt>Filter</dt>
+        <dd>
+            <ul>
+                <li class="{{ "active" if filter == "none" else "" }}">
+                    <a href="/library/tracks?filter=none&sort={{ sort }}">
+                        <i class="icon-circle-blank"></i>
+                        None
+                    </a>
+                </li>
+                <li class="{{ "active" if filter == "woartist" else "" }}">
+                    <a href="/library/tracks?filter=woartist&sort={{ sort }}">
+                        <i class="icon-music"></i>
+                        w/o Artist
+                    </a>
+                </li>
+                <li class="{{ "active" if filter == "woalbum" else "" }}">
+                    <a href="/library/tracks?filter=woalbum&sort={{ sort }}">
+                        <i class="icon-music"></i>
+                        w/o Album
+                    </a>
+                </li>
+                <li class="{{ "active" if filter == "invalid" else "" }}">
+                    <a href="/library/tracks?filter=invalid&sort={{ sort }}">
+                        <i class="icon-warning-sign"></i>
+                        Invalid
+                    </a>
+                </li>
+            </ul>
+        </dd>
+    </dl>
+    <dl class="sorts">
+        <dt>Sort</dt>
+        <dd>
+            <ul>
+                <li class="{{ "active" if sort == "none" else "" }}">
+                    <a href="/library/tracks?filter={{ filter }}&sort=none">
+                        <i class="icon-circle-blank"></i>
+                        None
+                    </a>
+                </li>
+                <li class="{{ "active" if sort == "new" else "" }}">
+                    <a href="/library/tracks?filter={{ filter }}&sort=new">
+                        <i class="icon-asterisk"></i>
+                        New
+                    </a>
+                </li>
+                <li class="{{ "active" if sort == "random" else "" }}">
+                    <a href="/library/tracks?filter={{ filter }}&sort=random">
+                        <i class="icon-random"></i>
+                        Random
+                    </a>
+                </li>
+            </ul>
+        </dd>
+    </dl>
 
     <div class="tracks">
         {{ tracks_macros.table(tracks) }}
     </div>
 
-    <div class="pagination pagination-centered">
-        <ul>
-            {% if page > 1 %}
-            <li><a href="{{ request.path_info }}?page={{ page - 2 }}">Previous</a></li>
-            {% endif %}
-            <li><a href="{{ request.path_info }}?page={{ page + 1 }}">Next</a></li>
-        </ul>
-    </div>
+    {% if page %}
+        {% set url = "/library/tracks?sort=" + sort + "&filter=" + filter + "&page=" %}
+        {{ pagination.pagination(url, page, pages) }}
+    {% endif %}
 </div>
 {% endblock %}

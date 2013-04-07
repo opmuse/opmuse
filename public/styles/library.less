@@ -10,4 +10,52 @@
     .tracks {
         clear: both;
     }
+
+    .filters,
+    .sorts {
+        float: right;
+        margin: 0 10px 10px 0;
+
+        dd,
+        dt {
+            float: left;
+            line-height: 24px;
+            padding: 4px 0;
+        }
+
+        dd {
+            font-size: .9em;
+
+            ul {
+                margin: 0;
+
+                li {
+                    line-height: 24px;
+                    margin: 0 4px;
+                    padding: 0 6px 0 4px;
+                    float: left;
+                    list-style: none;
+                    border-radius: 8px;
+                    background-color: @black;
+
+                    a {
+                        color: @white;
+                    }
+
+                    &.active {
+                        background-color: #000;
+
+                        a {
+                            color: @grayLighter;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    hr {
+        clear: both;
+        margin: 12px 0;
+    }
 }
