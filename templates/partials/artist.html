@@ -7,6 +7,7 @@
         </a>
         <div class="artist-badges">
             <p class="artist-album-count badge badge-inverse">{{ artist.albums|count }} albums</p>
+            <p class="artist-added badge badge-inverse">{{ artist.added|pretty_date }}</p>
         </div>
         <div class="artist-badges bottom">
             {% if artist.invalid %}

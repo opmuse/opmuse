@@ -28,8 +28,8 @@
         <div class="album {{ 'invalid' if album.invalid else '' }}">
             <div class="album-badges">
                 <p class="album-track-count badge badge-inverse">{{ album.tracks|count }} tracks</p>
-                <p class="album-track-count badge badge-inverse">{{ album.duration|format_seconds }}</p>
-                <p class="album-track-count badge badge-inverse">{{ album.added|pretty_date }}</p>
+                <p class="album-duration badge badge-inverse">{{ album.duration|format_seconds }}</p>
+                <p class="album-added badge badge-inverse">{{ album.added|pretty_date }}</p>
             </div>
             <div class="album-badges bottom">
                 {% if album.is_va %}

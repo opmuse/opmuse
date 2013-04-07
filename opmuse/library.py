@@ -152,6 +152,13 @@ class Artist(Base):
 
         return len(tracks) != sum(not track.invalid for track in tracks)
 
+    @hybrid_property
+    def added(self):
+        if len(self.tracks) == 0:
+            return None
+
+        return max(track.added for track in self.tracks)
+
 
 class TrackPath(Base):
     __tablename__ = 'track_paths'
