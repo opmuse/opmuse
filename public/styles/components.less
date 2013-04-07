@@ -67,7 +67,7 @@
                 &.bottom {
                     bottom: 50px;
                     top: auto;
-                    left: 135px;
+                    left: 139px;
                     width: 100px;
                     p {
                         float: right;
@@ -96,7 +96,7 @@
 
             .add-album {
                 top: -6px;
-                right: -14px;
+                right: -18px;
             }
         }
     }
@@ -123,8 +123,8 @@
 .cover-container {
     display: block;
     position: relative;
-    width: @album-width + 10;
-    height: @album-width + 10;
+    width: @album-width + 14;
+    height: @album-width + 14;
 
     .remove-cover {
         position: absolute;
@@ -134,9 +134,17 @@
     }
 
     img {
+        /* shows before real image has loaded... */
+        background-image: url(/images/cover_placeholder.png);
+        background-repeat: no-repeat;
+        background-position: 6px 6px;
+        text-indent: -9999px;
         position: absolute;
         right: 0;
         top: 0;
+
+        width: @album-width;
+        height: @album-width;
 
         .transition(.7s);
 
@@ -158,6 +166,11 @@
     .cover-container {
         width: 80px;
         height: 80px;
+
+        img {
+            width: 80px;
+            height: 80px;
+        }
     }
 
     .media-body {
@@ -190,4 +203,10 @@
             color: #FDFDFD;
         }
     }
+}
+
+.img-polaroid {
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
