@@ -1,0 +1,44 @@
+.brand {
+    .letter {
+        float: left;
+    }
+
+    &.throb {
+        .letter {
+            color: #2c2c2c;
+            animation-name: bounce_letter;
+            animation-duration: 2.1s;
+            animation-iteration-count: infinite;
+        }
+
+        #letter1 {
+            animation-delay: .3s;
+        }
+
+        #letter2 {
+            animation-delay: .6s;
+        }
+
+        #letter3 {
+            animation-delay: .9s;
+        }
+
+        #letter4 {
+            animation-delay: 1.2s;
+        }
+
+        #letter5 {
+            animation-delay: 1.5s;
+        }
+
+        #letter6 {
+            animation-delay: 1.8s;
+        }
+
+        @keyframes bounce_letter {
+            75% {
+                color: #fff;
+            }
+        }
+    }
+}

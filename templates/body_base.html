@@ -9,8 +9,10 @@
 
     <div id="top" class="navbar navbar-fixed-top">
         {% include "navbar.html" %}
-        <div class="navbar-sub navbar-inner">
-            {%- block navbar_sub %}{% endblock -%}
+        <div id="navbar-sub">
+            <div class="navbar-sub navbar-inner">
+                {%- block navbar_sub %}{% endblock -%}
+            </div>
         </div>
     </div>
 

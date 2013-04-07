@@ -1,10 +1,9 @@
 define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
 
     var Throb = Class.extend({
-        init: function (throbber, brand) {
+        init: function (brand) {
             var that = this;
 
-            this.throbber = $(throbber);
             this.brand = $(brand);
 
             this.active = 0;
@@ -24,16 +23,14 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                     if (that.active == 0) {
                         that.stop();
                     }
-                }, 500);
+                }, 700);
             });
         },
         stop: function () {
-            this.throbber.hide();
-            this.brand.show();
+            this.brand.removeClass('throb');
         },
         start: function () {
-            this.throbber.show();
-            this.brand.hide();
+            this.brand.addClass('throb');
         }
     });
 
@@ -51,15 +48,15 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             var that = this;
 
-            this.throb = new Throb('.throbber', '.brand');
+            this.throb = new Throb('.brand');
 
-            this.contents = ['#main', '#top'];
+            this.contents = ['#main', '#navbar-main', '#navbar-sub'];
 
             if ($(this.contents[0]).length == 0) {
                 return;
             }
 
-            this.selector = '#top, #queue, #main';
+            this.selector = '#navbar-main, #navbar-sub, #queue, #main';
 
             this.initialURL = document.location.href;
 
