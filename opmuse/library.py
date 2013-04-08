@@ -625,6 +625,8 @@ class TagReader:
 
             return parser.get_tag(filename)
 
+        raise ValueError('Unsupported filetype.')
+
 
 reader = TagReader()
 
