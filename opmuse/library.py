@@ -1314,8 +1314,8 @@ class LibraryDao:
 
     def get_tracks_by_ids(self, ids):
         return (get_database().query(Track)
-                .join(Album, Album.id == Track.album_id)
-                .join(Artist, Artist.id == Track.artist_id)
+                .outerjoin(Album, Album.id == Track.album_id)
+                .outerjoin(Artist, Artist.id == Track.artist_id)
                 .filter(Track.id.in_(ids))
                 .order_by(Artist.name)
                 .order_by(Album.name)
