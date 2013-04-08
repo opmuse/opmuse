@@ -3,7 +3,6 @@ import cherrypy
 import calendar
 import datetime
 import math
-from cherrypy.process.plugins import Monitor
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError, MalformedResponseError
 from pylast import PERIOD_OVERALL, PERIOD_7DAYS

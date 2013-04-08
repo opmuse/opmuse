@@ -12,7 +12,7 @@ from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAu
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
-from opmuse.utils import cgitb_log_err_tool, multi_headers_tool
+from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskQueue
 import opmuse.cache
@@ -118,6 +118,7 @@ def configure():
         ssl_server.subscribe()
 
     WebSocketPlugin(cherrypy.engine).subscribe()
+    LessReloader(cherrypy.engine).subscribe()
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
     cherrypy.engine.database.subscribe()
@@ -145,16 +146,10 @@ def boot():
     cherrypy.engine.block()
 
 
-def boot_lesswatch():
-    lesswatch = join(abspath(dirname(__file__)), '..', 'lesswatch.sh')
-    subprocess.Popen(lesswatch)
-
 if __name__ == '__main__':
     locale.setlocale(locale.LC_ALL, 'en_US.utf8')
 
     import argparse
-
-    boot_lesswatch()
 
     parser = argparse.ArgumentParser(description='opmuse')
     parser.add_argument('-d', '--daemon', action='store_true', help='Run as daemon')
