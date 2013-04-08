@@ -78,6 +78,7 @@ def profile_pipeline(app):
         unwind=False,
     )
 
+
 def multi_headers():
     if hasattr(cherrypy.response, 'multiheaders'):
         headers = []
