@@ -3,6 +3,7 @@ import logging
 import hashlib
 import cherrypy
 import urllib
+import re
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -164,6 +165,11 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
         return AuthTktCookiePlugin.remember(self, environ, identity)
 
     def identify(self, environ):
+        uri = environ['REQUEST_URI']
+
+        if re.match(b'^/(styles|scripts|font|images)', uri):
+            return
+
         self.secret = self.get_secret(environ)
         return AuthTktCookiePlugin.identify(self, environ)
 
