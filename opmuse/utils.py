@@ -39,3 +39,19 @@ def profile_pipeline(app):
         path='/__profile__',
         unwind=False,
     )
+
+def multi_headers():
+    if hasattr(cherrypy.response, 'multiheaders'):
+        headers = []
+        for header in cherrypy.response.multiheaders:
+            new_header = tuple()
+            for val in header:
+                if isinstance(val, str):
+                    val = val.encode()
+                new_header += (val, )
+            headers.append(new_header)
+        cherrypy.response.header_list.extend(headers)
+
+
+multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
+cgitb_log_err_tool = cherrypy.Tool('before_error_response', cgitb_log_err)

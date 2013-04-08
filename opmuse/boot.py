@@ -12,7 +12,7 @@ from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAu
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin
 from opmuse.search import WhooshPlugin
-from opmuse.utils import cgitb_log_err
+from opmuse.utils import cgitb_log_err_tool, multi_headers_tool
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskQueue
 import opmuse.cache
@@ -20,19 +20,6 @@ import opmuse.cache
 tempfile.tempdir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'cache', 'upload'
 ))
-
-
-def multi_headers():
-    if hasattr(cherrypy.response, 'multiheaders'):
-        headers = []
-        for header in cherrypy.response.multiheaders:
-            new_header = tuple()
-            for val in header:
-                if isinstance(val, str):
-                    val = val.encode()
-                new_header += (val, )
-            headers.append(new_header)
-        cherrypy.response.header_list.extend(headers)
 
 
 def configure():
@@ -43,8 +30,8 @@ def configure():
     cherrypy.tools.library = LibraryTool()
     cherrypy.tools.jinjaenv = JinjaEnvTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
-    cherrypy.tools.multiheaders = cherrypy.Tool('on_end_resource', multi_headers)
-    cherrypy.tools.cgitb_log_err = cherrypy.Tool('before_error_response', cgitb_log_err)
+    cherrypy.tools.multiheaders = multi_headers_tool
+    cherrypy.tools.cgitb_log_err = cgitb_log_err_tool
     cherrypy.tools.websocket = WebSocketTool()
     import opmuse.controllers
 
