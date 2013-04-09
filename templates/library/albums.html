@@ -25,6 +25,13 @@
                             None
                         </a>
                     </li>
+                    <li class="{{ "active" if filter == "6or30" else "" }}">
+                        <a href="/library/albums?view={{ view }}&filter=6or30&sort={{ sort }}"
+                            title="Albums that have more than 6 tracks or are more than 30 minutes long.">
+                            <i class="icon-music"></i>
+                            &gt;6 or &gt;30m
+                        </a>
+                    </li>
                     <li class="{{ "active" if filter == "yours" else "" }}">
                         <a href="/library/albums?view={{ view }}&filter=yours&sort={{ sort }}">
                             <i class="icon-user"></i>

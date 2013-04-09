@@ -14,7 +14,7 @@ from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import func, distinct
+from sqlalchemy import func, distinct, or_
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
@@ -783,6 +783,8 @@ class Library(object):
                         album_ids.append(album_results[0].id)
 
             query = query.filter(Album.id.in_(album_ids))
+        elif filter == "6or30":
+            query = query.having(or_(func.count(Track.id) > 6, func.sum(Track.duration) > 30 * 60))
         elif filter == "va":
             query = (query.join(Artist, Artist.id == Track.artist_id)
                           .having(func.count(distinct(Artist.id)) > 1))
