@@ -14,6 +14,10 @@ class LessReloader(Monitor):
         self._files = {}
         self._stylespath = os.path.join(os.path.dirname(__file__), '..', 'public', 'styles')
 
+    def start(self):
+        Monitor.start(self)
+        self.compile()
+
     def run(self):
         for path, dirnames, filenames in os.walk(self._stylespath):
             for filename in filenames:
