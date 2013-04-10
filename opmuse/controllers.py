@@ -1023,7 +1023,7 @@ class Dashboard:
                 if remotes_user is None or remotes_user['lastfm'] is None:
                     continue
 
-                top = remotes_user['lastfm']['top_artists_7days']
+                top = remotes_user['lastfm']['top_artists_month']
 
                 if index < len(top):
                     stop = False
@@ -1035,7 +1035,7 @@ class Dashboard:
                     if len(results) > 0:
                         top_artists[results[0]] = None
 
-                    if len(top_artists) >= 12:
+                    if len(top_artists) >= 18:
                         stop = True
                         break
             if stop:

@@ -5,7 +5,7 @@ import datetime
 import math
 from sqlalchemy import Column, String
 from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError, MalformedResponseError
-from pylast import PERIOD_OVERALL, PERIOD_7DAYS
+from pylast import PERIOD_OVERALL
 from opmuse.security import User
 from opmuse.database import get_session
 from opmuse.cache import cache
@@ -157,7 +157,7 @@ class Lastfm:
                 'recent_tracks': recent_tracks,
                 'url': user.get_url(),
                 'playcount': user.get_playcount(),
-                'top_artists_7days': self.get_top_artists(PERIOD_7DAYS, user_name, 1, 500, session_key),
+                'top_artists_month': self.get_top_artists('1month', user_name, 1, 500, session_key),
                 'top_artists_overall': self.get_top_artists(PERIOD_OVERALL, user_name, 1, 500, session_key),
                 'top_albums_overall': self.get_top_albums(PERIOD_OVERALL, user_name, 1, 500, session_key)
             }

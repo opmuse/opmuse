@@ -115,7 +115,7 @@ class QueueDao:
                     .query(Track)
                     .join(Queue, Track.id == Queue.track_id)
                     .join(User, Queue.user_id == User.id)
-                    .filter(User.id == user_id, Queue.current)
+                    .filter(and_(User.id == user_id, Queue.current))
                     .group_by(Track.id)
                     .limit(1)
                     .one())
