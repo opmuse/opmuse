@@ -81,7 +81,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                 });
 
                 if (ids.length > 0) {
-                    ajaxify.setPage('/tag/' + ids.join(','));
+                    ajaxify.setPage('/library/edit/' + ids.join(','));
                 }
 
                 return false;
