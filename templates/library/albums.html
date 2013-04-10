@@ -169,7 +169,7 @@
         </div>
 
         {% if page %}
-            {% set url = "/library/albums?sort=" + sort + "&filter=" + filter + "&page=" %}
+            {% set url = "/library/albums?view={{ view }}&sort=" + sort + "&filter=" + filter + "&page=" %}
             {{ pagination.pagination(url, page, pages) }}
         {% endif %}
     </div>
