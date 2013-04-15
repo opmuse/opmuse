@@ -1025,7 +1025,7 @@ class Dashboard:
 
                 top = remotes_user['lastfm']['top_artists_month']
 
-                if index < len(top):
+                if top is not None and index < len(top):
                     stop = False
 
                     artist = top[index]
