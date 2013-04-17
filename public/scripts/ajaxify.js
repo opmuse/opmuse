@@ -50,13 +50,13 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             this.throb = new Throb('.brand');
 
-            this.contents = ['#main', '#navbar-main', '#navbar-sub'];
+            this.contents = ['#main', '#top'];
 
             if ($(this.contents[0]).length == 0) {
                 return;
             }
 
-            this.selector = '#navbar-main, #navbar-sub, #queue, #main';
+            this.selector = '#top, #queue, #main';
 
             this.initialURL = document.location.href;
 

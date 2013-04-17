@@ -8,7 +8,7 @@
             inset 0px 11px 8px -10px rgba(0, 0, 0, 0.5),
             inset 0px -11px 8px -10px rgba(0, 0, 0, 0.8);
 
-        &> .pane {
+        > .pane {
             margin: 5px 5px 5px 0;
             background-color: #333;
 
@@ -21,7 +21,7 @@
             list-style: none;
             margin: 0;
 
-            @media (max-width: 768px) {
+            @media (max-width: @navbarCollapseWidth) {
                 overflow: hidden;
                 height: auto;
             }
@@ -33,6 +33,22 @@
             li:last-child {
                 margin-bottom: 10px;
             }
+        }
+    }
+
+    @media (max-width: @navbarCollapseWidth) {
+        .tracks-wrapper {
+            height: auto;
+            position: static;
+            overflow: auto;
+            width: auto;
+
+            .tracks {
+                position: static;
+                overflow: auto;
+                padding-bottom: 20px;
+            }
+
         }
     }
 
@@ -165,30 +181,22 @@
     }
 }
 
-.panel-open {
-    .btn-stream {
-        margin: 0 10px 8px 0;
-        float: right;
-        position: static;
-        top: auto;
-        right: auto;
+#panel {
+    &.open {
+        .btn-stream {
+            margin: 0 10px 8px 0;
+            float: right;
+            position: static;
+            top: auto;
+            right: auto;
 
-        .open-stream {
-            display: none;
+            .open-stream {
+                display: none;
 
-            &.open {
-                display: block;
+                &.open {
+                    display: block;
+                }
             }
         }
-    }
-}
-
-#panel {
-    @media (max-width: 768px) {
-        .panel-open;
-    }
-
-    &.open {
-        .panel-open;
     }
 }

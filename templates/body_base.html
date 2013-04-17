@@ -7,7 +7,7 @@
 {% block body %}
     {% include "message.html" %}
 
-    <div id="top" class="navbar navbar-fixed-top">
+    <div id="top" class="navbar navbar-fixed-top {% block main_class %}{% endblock %}">
         {% include "navbar.html" %}
         <div id="navbar-sub">
             <div class="navbar-sub navbar-inner">
@@ -21,7 +21,7 @@
             <div class="row-fluid">
                 <div class="span12">
                     <div class="row-fluid">
-                        <div id="main" class="{% block main_class %}{% endblock %}">
+                        <div id="main" class="{{ self.main_class() }}">
                             {% block main %}{% endblock %}
                         </div>
                     </div>

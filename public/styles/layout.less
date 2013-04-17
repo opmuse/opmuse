@@ -17,6 +17,7 @@ a:hover {
 body {
     overflow-x: hidden;
     overflow-y: scroll;
+    padding: 0;
 
     > .container-fluid {
         padding: 0;
@@ -29,15 +30,15 @@ body {
     display: block;
 }
 
+#top {
+    padding: 0;
+}
+
 #right {
     padding: 89px 5px 40px 0;
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
-    }
-
-    @media (max-width: 768px) {
-        display: none;
     }
 }
 
@@ -46,6 +47,7 @@ body {
 
     @media (max-width: @navbarCollapseWidth) {
         padding-top: 0;
+        padding-bottom: 10px;
     }
 }
 
@@ -58,12 +60,13 @@ body {
     bottom: 0;
     height: 420px;
 
-    @media (max-width: 768px) {
+    @media (max-width: @navbarCollapseWidth) {
         right: auto;
         bottom: auto;
         position: static;
         height: auto;
-        margin-bottom: 30px;
+        margin-bottom: 0;
+        width: 100%;
     }
 
     margin-bottom: -420px;
@@ -125,12 +128,14 @@ body {
             cursor: pointer;
             border-radius: 2px;
 
-            @media (max-width: 768px) {
+            @media (max-width: @navbarCollapseWidth) {
                 display: none;
             }
         }
 
-        @media (max-width: 769px) {
+        @media (max-width: @navbarCollapseWidth) {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
             position: static;
             top: auto;
         }
@@ -142,6 +147,10 @@ body {
 }
 
 .navbar {
+    @media (max-width: 768px) {
+        padding: 0 20px;
+    }
+
     .navbar-inner {
         .box-shadow(0 1px 4px rgba(0, 0, 0, .6));
     }
@@ -185,6 +194,7 @@ body {
         clear: both;
         font-size: .9em;
         min-height: 34px;
+        padding: 0;
         #gradient > .vertical(#1a1a1a, #1f1f1f);
 
         .nav > li {

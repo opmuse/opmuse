@@ -93,8 +93,16 @@
 }
 
 .dashboard-container {
+    &.navbar {
+        margin-bottom: 0;
+    }
+
     #content {
         background-color: #f8f8f8;
         padding-top: 60px;
+
+        @media (max-width: @navbarCollapseWidth) {
+            padding-top: 20px;
+        }
     }
 }

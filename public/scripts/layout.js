@@ -11,6 +11,11 @@ define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritanc
             this.marginBottom = this.panel.css("margin-bottom");
 
             $("#panel-handle").click(function (event) {
+                // @navbarCollapseWidth
+                if ($(window).width() <= 940) {
+                    return;
+                }
+
                 if (that.panel.hasClass("open")) {
                     that.close();
                 } else {
@@ -21,6 +26,13 @@ define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritanc
             if (panelOpen === true) {
                 that.open();
             }
+
+            $(window).resize(function () {
+                // @navbarCollapseWidth
+                if ($(window).width() <= 940) {
+                    that.open();
+                }
+            }).resize();
         },
         open: function () {
             this.panel.addClass("open");
