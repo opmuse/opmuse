@@ -10,9 +10,6 @@
 [submodule "vendor/twitter-bootstrap"]
 	path = vendor/twitter-bootstrap
 	url = https://github.com/twitter/bootstrap
-[submodule "vendor/watchr"]
-	path = vendor/watchr
-	url = https://github.com/mynyml/watchr.git
 [submodule "vendor/jQuery-File-Upload"]
 	path = vendor/jQuery-File-Upload
 	url = git://github.com/blueimp/jQuery-File-Upload.git
