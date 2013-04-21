@@ -1051,7 +1051,7 @@ class Dashboard:
                     if len(results) > 0:
                         top_artists[results[0]] = None
 
-                    if len(top_artists) >= 18:
+                    if len(top_artists) >= 24:
                         stop = True
                         break
             if stop:
