@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.nanoscroller', 'bind', 'domReady!'],
+define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscroller', 'bind', 'domReady!'],
     function($, inheritance, ajaxify, ws) {
 
     var instance = null;
@@ -16,6 +16,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.nanoscroller', 'bind',
             var that = this;
 
             this.listUrl = '/queue/list';
+            this.updateUrl = '/queue/update';
 
             $('#main').bind('ajaxifyInit', function (event) {
                 that.internalInit();
@@ -68,6 +69,38 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.nanoscroller', 'bind',
             }).unbind('click.ajaxify');
 
             $('.open-stream').unbind('click.ajaxify');
+
+            var items = null;
+
+            $('#queue .tracks-wrapper .tracks').sortable({
+                helper: 'clone',
+                placeholder: 'placeholder',
+                axis: 'y',
+                items: 'li',
+                handle: '.track-icon, .album-header-icon',
+                start: function (event, ui) {
+                    if ($(ui.item).hasClass("album")) {
+                        items = $(ui.item).nextUntil('.album', '.track');
+                    }
+                },
+                beforeStop: function (event, ui) {
+                    if (items !== null) {
+                        $(ui.item).after(items);
+                        items = null;
+                    }
+                },
+                update: function (event, ui) {
+                    $.ajax(that.updateUrl, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        method: 'POST',
+                        data: JSON.stringify({
+                            queues: $(this).sortable('toArray', {attribute: 'data-queue-id'})
+                        })
+                    });
+                }
+            });
         },
         reload: function (successCallback) {
             var that = this;

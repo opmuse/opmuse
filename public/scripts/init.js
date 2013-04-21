@@ -11,9 +11,11 @@ require.config({
         'sprintf': 'lib/sprintf',
         'moment': 'lib/moment',
         'blur': 'lib/blur',
-        'matchMedia': 'lib/matchMedia'
+        'matchMedia': 'lib/matchMedia',
+        'jquery.ui': 'lib/jquery.ui'
     },
     shim: {
+        'jquery.ui': ['jquery'],
         'blur': ['jquery'],
         'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip'],
         'bootstrap/bootstrap-button': ['bootstrap/bootstrap-dropdown'],

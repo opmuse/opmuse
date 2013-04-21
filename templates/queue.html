@@ -1,3 +1,33 @@
+{% macro album_header(q, html = true) %}
+    {%- if q.track.artist -%}
+        {%- if html -%}
+            <a href="/{{ q.track.artist.slug|urlencode }}">
+        {%- endif -%}
+                {{ q.track.artist.name|show_ws }}
+        {%- if html -%}
+            </a>
+        {%- endif -%}
+    {%- else -%}
+        N/A
+    {%- endif %} -
+    {%- if q.track.album -%}
+        {%- if q.track.artist -%}
+            {% set artist_slug = q.track.artist.slug|urlencode %}
+        {%- else -%}
+            {% set artist_slug = "unknown" %}
+        {%- endif -%}
+        {%- if html -%}
+            <a href="/{{ artist_slug }}/{{ q.track.album.slug|urlencode }}">
+        {%- endif %} {{ q.track.album.name|show_ws }}
+        {%- if html -%}
+            </a>
+        {%- endif -%}
+    {%- else -%}
+        N/A {% endif -%}
+    {%- if q.track.disc %} - Disc {{ q.track.disc }}
+    {%- endif -%}
+{% endmacro %}
+
 <div class="btn-group btn-clear">
     <a
         id="clear-queue"
@@ -33,44 +63,12 @@
     <ol class="tracks content">
         {% for queue in queues %}
             {% set q = queue[0] %}
-            <li>
-            <span class="album-header" title="
-                    {% if q.track.artist %}
-                        {{ q.track.artist.name|show_ws }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                    -
-                    {% if q.track.album %}
-                        {{ q.track.album.name|show_ws }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                    {%- if q.track.disc -%}
-                        - Disc {{ q.track.disc }}
-                    {%- endif -%}">
-                    {% if q.track.artist %}
-                        <a href="/{{ q.track.artist.slug|urlencode }}">
-                            {{ q.track.artist.name|show_ws }}
-                        </a>
-                    {% else %}
-                        N/A
-                    {% endif %} -
-                    {% if q.track.album %}
-                        {% if q.track.artist %}
-                            {% set artist_slug = q.track.artist.slug|urlencode %}
-                        {% else %}
-                            {% set artist_slug = "unknown" %}
-                        {% endif %}
-                        <a href="/{{ artist_slug }}/{{ q.track.album.slug|urlencode }}">
-                            {{ q.track.album.name|show_ws }}
-                        </a>
-                    {% else %}
-                        N/A
-                    {% endif %}
-                    {% if q.track.disc %}
-                        - Disc {{ q.track.disc }}
-                    {% endif %}
+            <li class="album">
+            <span class="album-header" title="{{ album_header(q, false)|e }}">
+                    <span class="album-header-icon">
+                        <i class="icon-sign-blank"></i>
+                    </span>
+                    {{ album_header(q) }}
                 </span>
                 <span class="album-info">
                     <a
@@ -85,11 +83,12 @@
                 </span>
             </li>
             {% for q in queue %}
-                <li class="track {{ "current active" if q.current }} {{ "played" if q.played }}">
+                <li class="track {{ "current active" if q.current }} {{ "played" if q.played }}"
+                    data-queue-id="{{ q.id }}">
                     <span class="text">
                         <span class="track-icon">
                             <i class="noplay-icon icon-check-empty"></i>
-                            <i class="current-icon icon-music"></i>
+                            <i class="current-icon icon-play"></i>
                             <i class="played-icon icon-check"></i>
                         </span>
                         <span class="track-number">

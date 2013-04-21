@@ -16,7 +16,7 @@ class Queue(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     track_id = Column(Integer, ForeignKey('tracks.id'))
-    weight = Column(Integer, index = True)
+    index = Column(Integer, index = True)
     current_seconds = Column(Integer)
     current = Column(Boolean)
     played = Column(Boolean)
@@ -24,8 +24,8 @@ class Queue(Base):
     user = relationship("User", backref=backref('users', order_by=id))
     track = relationship("Track", backref=backref('tracks', cascade="all,delete", order_by=id))
 
-    def __init__(self, weight):
-        self.weight = weight
+    def __init__(self, index):
+        self.index = index
 
 
 class QueueEvents:
@@ -128,6 +128,14 @@ class QueueDao:
         except NoResultFound:
             return None
 
+    def update_queues(self, queues):
+        for id, args in queues:
+            get_database().query(Queue).filter_by(id=id).update(args)
+
+        get_database().commit()
+
+        ws.emit('queue.update')
+
     def update_queue(self, id, **kwargs):
         get_database().query(Queue).filter_by(id=id).update(kwargs)
         get_database().commit()
@@ -139,7 +147,7 @@ class QueueDao:
         try:
             current_queue = (database.query(Queue)
                              .filter_by(user_id=user_id, current=True)
-                             .order_by(Queue.weight).one())
+                             .order_by(Queue.index).one())
 
             if current_queue.current_seconds is not None:
                 next_queue = current_queue
@@ -151,13 +159,13 @@ class QueueDao:
             if current_queue is not None:
                 next_queue = (database.query(Queue)
                               .filter_by(user_id=user_id)
-                              .filter(Queue.weight > current_queue.weight)
-                              .order_by(Queue.weight).first())
+                              .filter(Queue.index > current_queue.index)
+                              .order_by(Queue.index).first())
             else:
                 database.query(Queue).filter_by(user_id=user_id).update({'played': None})
                 next_queue = (database.query(Queue)
                               .filter_by(user_id=user_id)
-                              .order_by(Queue.weight).first())
+                              .order_by(Queue.index).first())
 
         if current_queue is not None:
             current_queue.current = False
@@ -183,7 +191,7 @@ class QueueDao:
 
         current_queues = []
 
-        for queue in get_database().query(Queue).filter_by(user_id=user_id).order_by(Queue.weight).all():
+        for queue in get_database().query(Queue).filter_by(user_id=user_id).order_by(Queue.index).all():
             if (queue.track.album is not None and album is not None and album.id != queue.track.album.id or
                 queue.track.artist is not None and artist is not None and artist.id != queue.track.artist.id or
                 queue.track.album is None and album is not None or
@@ -225,9 +233,9 @@ class QueueDao:
 
             track = get_database().query(Track).filter_by(id=id).one()
 
-            weight = self.get_new_pos(user_id)
+            index = self.get_new_pos(user_id)
 
-            queue = Queue(weight)
+            queue = Queue(index)
             queue.track = track
             queue.user = user
 
@@ -251,14 +259,14 @@ class QueueDao:
         ws.emit('queue.update')
 
     def get_new_pos(self, user_id):
-        weight = get_database().query(func.max(Queue.weight)).filter_by(user_id=user_id).scalar()
+        index = get_database().query(func.max(Queue.index)).filter_by(user_id=user_id).scalar()
 
-        if weight is None:
-            weight = 0
+        if index is None:
+            index = 0
         else:
-            weight += 1
+            index += 1
 
-        return weight
+        return index
 
 queue_dao = QueueDao()
 queue_events = QueueEvents()

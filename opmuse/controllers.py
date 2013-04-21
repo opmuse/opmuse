@@ -445,6 +445,22 @@ class Users:
 class Queue:
 
     @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    @cherrypy.tools.authenticated()
+    def update(self):
+        queues = cherrypy.request.json['queues']
+
+        updates = []
+
+        for index, queue_id in enumerate(queues):
+            updates.append((queue_id, {'index': index}))
+
+        queue_dao.update_queues(updates)
+
+        return {}
+
+    @cherrypy.expose
     @cherrypy.tools.authenticated()
     @cherrypy.tools.jinja(filename='queue.html')
     def list(self):
