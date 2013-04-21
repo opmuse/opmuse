@@ -61,7 +61,7 @@
 
 <div class="tracks-wrapper nano">
     <ol class="tracks content">
-        {% for queue in queues %}
+        {% for info, queue in queues %}
             {% set q = queue[0] %}
             <li class="album">
             <span class="album-header" title="{{ album_header(q, false)|e }}">
@@ -71,6 +71,9 @@
                     {{ album_header(q) }}
                 </span>
                 <span class="album-info">
+                    <span class="album-duration">
+                        {{ info.duration|format_seconds }}
+                    </span>
                     <a
                         class="remove"
                         href="/queue/remove/

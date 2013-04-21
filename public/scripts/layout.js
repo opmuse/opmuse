@@ -9,6 +9,10 @@ define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], 
             this.panel = $("#panel");
 
             $("#panel-full").click(function (event) {
+                if (matchMedia('all and (max-width: 940px)').matches) {
+                    return;
+                }
+
                 if ($(that.panel).hasClass("panel-fullscreen")) {
                     $(that.panel).removeClass("panel-fullscreen");
                     $("#overlay").removeClass("transparent");
