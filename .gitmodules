@@ -25,3 +25,9 @@
 [submodule "vendor/nanoScrollerJS"]
 	path = vendor/nanoScrollerJS
 	url = https://github.com/jamesflorentino/nanoScrollerJS.git
+[submodule "vendor/Blur.js-II"]
+	path = vendor/Blur.js-II
+	url = git://github.com/jakiestfu/Blur.js-II.git
+[submodule "vendor/matchMedia.js"]
+	path = vendor/matchMedia.js
+	url = git://github.com/paulirish/matchMedia.js.git

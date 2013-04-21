@@ -9,9 +9,12 @@ require.config({
         'bootstrap': 'lib/bootstrap',
         'domReady': 'lib/domReady',
         'sprintf': 'lib/sprintf',
-        'moment': 'lib/moment'
+        'moment': 'lib/moment',
+        'blur': 'lib/blur',
+        'matchMedia': 'lib/matchMedia'
     },
     shim: {
+        'blur': ['jquery'],
         'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip'],
         'bootstrap/bootstrap-button': ['bootstrap/bootstrap-dropdown'],
         'jquery.nanoscroller': ['jquery']

@@ -14,10 +14,15 @@ a:hover {
     padding: 9px 0;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     overflow-x: hidden;
     overflow-y: scroll;
     padding: 0;
+    height: 100%;
 
     > .container-fluid {
         padding: 0;
@@ -71,16 +76,56 @@ body {
 
     margin-bottom: -420px;
 
-    .panel-icon-close {
+    .panel-handle-icon-close {
+        display: none;
+    }
+
+    &.panel-fullscreen.open {
+        z-index: 9999999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 30px;
+
+        .panel-full-icon-full {
+            display: none;
+        }
+
+        .panel-full-icon-small {
+            display: inline;
+        }
+
+        #panel-container {
+            width: 100%;
+            height: 100%%;
+            margin: 0 auto;
+            position: static;
+            border-radius: 3px;
+
+            #panel-full {
+                right: 35px;
+                top: 15px;
+            }
+
+            #panel-handle {
+                display: none;
+            }
+        }
+    }
+
+    .panel-full-icon-small {
         display: none;
     }
 
     &.open {
-        .panel-icon-close {
+        margin-bottom: 0;
+
+        .panel-handle-icon-close {
             display: inline;
         }
 
-        .panel-icon-open {
+        .panel-handle-icon-open {
             display: none;
         }
 
@@ -88,6 +133,7 @@ body {
             padding-top: 0;
             top: 0;
 
+            #panel-full,
             #panel-handle {
                 top: -15px;
             }
@@ -115,13 +161,13 @@ body {
         .box-shadow(0 0 6px rgba(0, 0, 0, .8));
         z-index: 1000;
 
+        #panel-full,
         #panel-handle {
             .box-shadow(0 0 6px rgba(0, 0, 0, .8));
-            padding: 0 20px;
+            top: -8px;
+            padding: 0 16px;
             background-color: #000;
             position: absolute;
-            top: -8px;
-            right: 10px;
             z-index: 1001;
             color: @white;
             font-size: 24px;
@@ -131,6 +177,16 @@ body {
             @media (max-width: @navbarCollapseWidth) {
                 display: none;
             }
+        }
+
+        #panel-handle {
+            right: 10px;
+        }
+
+        #panel-full {
+            right: 70px;
+            padding: 0 4px;
+            font-size: 20px;
         }
 
         @media (max-width: @navbarCollapseWidth) {
@@ -240,8 +296,17 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 99999999;
-    background-color: @bodyBackground;
+    z-index: 999999;
+    background-color: #fff;
+
+    &.hide {
+        display: none;
+    }
+
+    &.transparent {
+        background-color: rgba(0, 0, 0, 0.4);
+        display: block;
+    }
 
     /* this will pose a real problem in the FUTURE when screens will be HUGE */
     width: 9999px;

@@ -26,7 +26,7 @@ require(['jquery'], function($) {
         'covers',
         'remotes',
     ], function () {
-        $("#overlay").remove();
+        $("#overlay").addClass('hide');
         $('body').trigger('loadFinish');
     });
 });

@@ -36,6 +36,10 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.nanoscroller', 'bind',
             $("#queue .nano").nanoScroller({
                 alwaysVisible: true
             });
+
+            $('#panel').unbind('panelFullscreen').bind('panelFullscreen', function (event) {
+                $("#queue .nano").nanoScroller();
+            });
         },
         internalInit: function () {
             var that = this;

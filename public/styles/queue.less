@@ -159,7 +159,7 @@
 
         position: absolute;
         top: 6px;
-        right: 75px;
+        right: 100px;
 
         .open-stream {
             &:not(.open) {
@@ -182,6 +182,26 @@
 }
 
 #panel {
+    &.panel-fullscreen {
+        #queue {
+            height: 100%;
+            position: relative;
+
+            .tracks-wrapper {
+                position: absolute;
+                border-bottom-left-radius: 3px;
+                border-bottom-right-radius: 3px;
+                height: auto;
+                margin-bottom: 55px;
+                top: 33px;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                display: block;
+            }
+        }
+    }
+
     &.open {
         .btn-stream {
             margin: 0 10px 8px 0;

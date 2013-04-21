@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritance, storage) {
+define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], function($, inheritance, storage) {
 
     var Panel = Class.extend({
         init: function () {
@@ -8,11 +8,32 @@ define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritanc
 
             this.panel = $("#panel");
 
-            this.marginBottom = this.panel.css("margin-bottom");
+            $("#panel-full").click(function (event) {
+                if ($(that.panel).hasClass("panel-fullscreen")) {
+                    $(that.panel).removeClass("panel-fullscreen");
+                    $("#overlay").removeClass("transparent");
+                    $("#main, #top").blurjs('remove');
+                } else {
+                    that.open();
+                    $(that.panel).addClass("panel-fullscreen");
+                    $("#overlay").addClass("transparent");
+                    $("#main, #top").blurjs({
+                        radius: 1
+                    });
+                }
+
+                $(that.panel).one('webkitTransitionEnd transitionend', function (event) {
+                    $(that.panel).trigger('panelFullscreen');
+                });
+            });
 
             $("#panel-handle").click(function (event) {
+                if ($(that.panel).hasClass('panel-fullscreen')) {
+                    return;
+                }
+
                 // @navbarCollapseWidth
-                if ($(window).width() <= 940) {
+                if (matchMedia('all and (max-width: 940px)').matches) {
                     return;
                 }
 
@@ -29,21 +50,17 @@ define(['jquery', 'inheritance', 'storage', 'domReady!'], function($, inheritanc
 
             $(window).resize(function () {
                 // @navbarCollapseWidth
-                if ($(window).width() <= 940) {
+                if (matchMedia('all and (max-width: 940px)').matches) {
                     that.open();
                 }
             }).resize();
         },
         open: function () {
             this.panel.addClass("open");
-            this.panel.css("margin-bottom", 0);
-
             storage.set('layout.panel.open', true);
         },
         close: function () {
             this.panel.removeClass("open");
-            this.panel.css("margin-bottom", this.marginBottom);
-
             storage.set('layout.panel.open', false);
         }
     });
