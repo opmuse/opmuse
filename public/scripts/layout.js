@@ -14,16 +14,10 @@ define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], 
                 }
 
                 if ($(that.panel).hasClass("panel-fullscreen")) {
-                    $(that.panel).removeClass("panel-fullscreen");
-                    $("#overlay").removeClass("transparent");
-                    $("#main, #top").blurjs('remove');
+                    that.closeFullscreen();
                 } else {
+                    that.openFullscreen();
                     that.open();
-                    $(that.panel).addClass("panel-fullscreen");
-                    $("#overlay").addClass("transparent");
-                    $("#main, #top").blurjs({
-                        radius: 1
-                    });
                 }
 
                 $(that.panel).one('webkitTransitionEnd transitionend', function (event) {
@@ -56,8 +50,21 @@ define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], 
                 // @navbarCollapseWidth
                 if (matchMedia('all and (max-width: 940px)').matches) {
                     that.open();
+                    that.closeFullscreen();
                 }
             }).resize();
+        },
+        openFullscreen: function () {
+            $(this.panel).addClass("panel-fullscreen");
+            $("#overlay").addClass("transparent");
+            $("#main, #top").blurjs({
+                radius: 1
+            });
+        },
+        closeFullscreen: function () {
+            $(this.panel).removeClass("panel-fullscreen");
+            $("#overlay").removeClass("transparent");
+            $("#main, #top").blurjs('remove');
         },
         open: function () {
             this.panel.addClass("open");
