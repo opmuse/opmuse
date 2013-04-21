@@ -38,7 +38,7 @@
         top: 6px;
         left: 80px;
 
-        width: 50%;
+        width: 46%;
 
         #player-track {
             position: absolute;
@@ -112,6 +112,12 @@
 }
 
 #panel {
+    &.panel-fullscreen.open {
+        #player-progress {
+            width: 85%;
+        }
+    }
+
     @media (max-width: @navbarCollapseWidth) {
         .panel-open;
     }
