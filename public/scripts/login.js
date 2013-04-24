@@ -20,6 +20,8 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
             if ($(".login").length > 0) {
                 $(".login, .home").unbind('click.ajaxify');
             }
+
+            $("input[name=login]").focus();
         }
     });
 
