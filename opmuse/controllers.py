@@ -170,8 +170,8 @@ class Search:
         albums = []
         tracks = []
 
-        artist_tracks = []
-        album_tracks = []
+        artist_tracks = set()
+        album_tracks = set()
 
         if query is not None:
             albums = None
@@ -213,12 +213,12 @@ class Search:
             for key, result_artist in hierarchy['artists'].items():
                 for album in result_artist['entity'].albums:
                     for track in album.tracks:
-                        artist_tracks.append(track)
+                        artist_tracks.add(track)
 
             for key, result_artist in hierarchy['artists'].items():
                 for key, result_album in result_artist['albums'].items():
                     for track in result_album['entity'].tracks:
-                        album_tracks.append(track)
+                        album_tracks.add(track)
 
         return {
             'query': query,
