@@ -227,8 +227,8 @@ class Search:
             'albums': albums,
             'artists': artists,
             'track_tracks': tracks,
-            'album_tracks': album_tracks,
-            'artist_tracks': artist_tracks
+            'album_tracks': list(album_tracks),
+            'artist_tracks': list(artist_tracks)
         }
 
 
