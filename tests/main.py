@@ -1,5 +1,23 @@
-import unittest
-from library import *
+import os
+import cherrypy
+from opmuse.boot import configure
+from opmuse.database import get_raw_session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-if __name__ == '__main__':
-    unittest.main()
+
+def setup(self):
+    db_path = 'opmuse.db'
+
+    if os.path.exists(db_path):
+        os.remove(db_path)
+
+    configure()
+
+    cherrypy.tree.apps[''].config['opmuse']['database.url'] = 'sqlite:///./%s' % db_path
+
+    self.session = get_raw_session(create_all = True)
+
+
+def teardown(self):
+    self.session.close()
