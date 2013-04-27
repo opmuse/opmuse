@@ -73,5 +73,3 @@ Here's opmuse
 This is a taste of what it looks like, hopefully it's not too outdated at time of viewing.
 
 ![A screenshot.](https://github.com/opmuse/opmuse/raw/master/screen1.png)
-
-[![Build Status](https://secure.travis-ci.org/opmuse/opmuse.png?branch=master)](http://travis-ci.org/opmuse/opmuse)
