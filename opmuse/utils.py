@@ -7,7 +7,6 @@ from cherrypy.process.plugins import Monitor
 
 
 class LessReloader(Monitor):
-
     def __init__(self, bus):
         Monitor.__init__(self, bus, self.run, frequency = .5)
 

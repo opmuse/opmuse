@@ -28,9 +28,7 @@ def get_type():
 def get_engine():
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']
-    echo = config['database.echo']
-    return create_engine(url, echo=echo, poolclass=NullPool,
-                         isolation_level="READ UNCOMMITTED")
+    return create_engine(url, echo=False, poolclass=NullPool, isolation_level="READ UNCOMMITTED")
 
 
 def get_raw_session(create_all = False):

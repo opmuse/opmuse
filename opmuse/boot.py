@@ -167,10 +167,21 @@ if __name__ == '__main__':
     parser.add_argument('-le', '--errorlog', action='store', help='Log error messages in this separate file.')
     parser.add_argument('-u', '--user', action='store', help='When running as daemon, what user to run as.', default='nobody')
     parser.add_argument('-e', '--env', action='store', help='cherrypy environment.')
+    parser.add_argument('-t', '--timers', action='store_true', help='log timing info for requests and queries.')
 
     args = parser.parse_args()
 
     app = configure()
+
+    if args.timers:
+        from opmuse.timers import timers_start_tool, timers_end_tool
+        cherrypy.tools.timers_start = timers_start_tool
+        cherrypy.tools.timers_end = timers_end_tool
+
+        cherrypy.config.update({
+            'tools.timers_start.on': True,
+            'tools.timers_end.on': True,
+        })
 
     if args.env is not None:
         cherrypy.config.update({
