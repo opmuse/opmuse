@@ -118,7 +118,7 @@ def multi_headers():
 
 firepy_tool = cherrypy.Tool('on_start_resource', firepy)
 firepy_start_tool = cherrypy.Tool('on_start_resource', firepy_start)
-firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end)
+firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end, priority=100)
 
 multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
 cgitb_log_err_tool = cherrypy.Tool('before_error_response', cgitb_log_err)
