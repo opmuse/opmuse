@@ -193,7 +193,6 @@ if __name__ == '__main__':
             'tools.firepy_end.on': True,
         })
 
-
     if args.env is not None:
         cherrypy.config.update({
             'environment': args.env
