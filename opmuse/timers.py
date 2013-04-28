@@ -36,10 +36,12 @@ def log(msg, include_stack=False):
     if stack_msg is not None:
         debug(stack_msg)
 
+
 @event.listens_for(Engine, "before_cursor_execute")
 def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
     context._query_start_time = time.time()
     log("start query: %s" % statement, include_stack=True)
+    log("%r" % (parameters, ))
 
 
 @event.listens_for(Engine, "after_cursor_execute")
@@ -67,7 +69,7 @@ def timers_end():
     query_time = cherrypy.request._timers_query_time
 
     log("request ended: %f query time, %d queries, %f total time." %
-          (query_time, total_queries, total_time))
+        (query_time, total_queries, total_time))
 
 
 timers_start_tool = cherrypy.Tool('on_start_resource', timers_start)
