@@ -40,9 +40,8 @@ def timers_end():
     query_time = cherrypy.request._timers_query_time
 
     debug("request ended: %f query time, %d queries, %f total time." %
-        (query_time, total_queries, total_time))
+          (query_time, total_queries, total_time))
 
 
 timers_start_tool = cherrypy.Tool('on_start_resource', timers_start)
 timers_end_tool = cherrypy.Tool('on_end_request', timers_end)
-
