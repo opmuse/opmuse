@@ -168,6 +168,7 @@ if __name__ == '__main__':
     parser.add_argument('-u', '--user', action='store', help='When running as daemon, what user to run as.', default='nobody')
     parser.add_argument('-e', '--env', action='store', help='cherrypy environment.')
     parser.add_argument('-t', '--timers', action='store_true', help='log timing info for requests and queries.')
+    parser.add_argument('-f', '--firepy', action='store_true', help='enable firephp logging through cherrypy.request.firepy().')
 
     args = parser.parse_args()
 
@@ -182,6 +183,16 @@ if __name__ == '__main__':
             'tools.timers_start.on': True,
             'tools.timers_end.on': True,
         })
+
+    if args.firepy:
+        from opmuse.utils import firepy_start_tool, firepy_end_tool
+        cherrypy.tools.firepy_start = firepy_start_tool
+        cherrypy.tools.firepy_end = firepy_end_tool
+        cherrypy.config.update({
+            'tools.firepy_start.on': True,
+            'tools.firepy_end.on': True,
+        })
+
 
     if args.env is not None:
         cherrypy.config.update({

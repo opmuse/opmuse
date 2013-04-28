@@ -82,6 +82,27 @@ def profile_pipeline(app):
     )
 
 
+def firepy(message):
+    cherrypy.request._firepy_logs.append([{"Type": 'LOG'}, message])
+
+
+def firepy_start():
+    cherrypy.request._firepy_logs = []
+    cherrypy.request.firepy = firepy
+
+
+def firepy_end():
+    from firepy.firephp import FirePHP
+
+    headers = FirePHP.base_headers()
+
+    for key, value in headers:
+        cherrypy.response.headers[key] = value
+
+    for key, value in FirePHP.generate_headers(cherrypy.request._firepy_logs):
+        cherrypy.response.headers[key] = value
+
+
 def multi_headers():
     if hasattr(cherrypy.response, 'multiheaders'):
         headers = []
@@ -94,6 +115,10 @@ def multi_headers():
             headers.append(new_header)
         cherrypy.response.header_list.extend(headers)
 
+
+firepy_tool = cherrypy.Tool('on_start_resource', firepy)
+firepy_start_tool = cherrypy.Tool('on_start_resource', firepy_start)
+firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end)
 
 multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
 cgitb_log_err_tool = cherrypy.Tool('before_error_response', cgitb_log_err)
