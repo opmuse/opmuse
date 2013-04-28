@@ -778,14 +778,6 @@ class Library(object):
 
         albums = []
 
-        if sort == "added":
-            query = query.order_by(func.max(Track.added).desc())
-        elif sort == "date":
-            query = query.order_by(Album.date.desc())
-        elif sort == "random":
-            query = query.order_by(func.rand())
-            page = None
-
         if filter == "yours":
             remotes_user = remotes.get_user(cherrypy.request.user)
 
@@ -807,7 +799,16 @@ class Library(object):
         elif filter == "invalid":
             query = query.filter("invalid is not null")
 
+        # count before adding order_by() for performance reasons..
         pages = math.ceil(query.count() / page_size)
+
+        if sort == "added":
+            query = query.order_by(func.max(Track.added).desc())
+        elif sort == "date":
+            query = query.order_by(Album.date.desc())
+        elif sort == "random":
+            query = query.order_by(func.rand())
+            page = None
 
         albums = query.limit(page_size).offset(offset).all()
 
