@@ -153,10 +153,12 @@ class Remove:
 
             artist, album = library_dao.remove(id)
 
-        if album is not None:
+        if album is not None and artist is not None:
             raise HTTPRedirect('/%s/%s' % (artist.slug, album.slug))
         elif artist is not None:
             raise HTTPRedirect('/%s' % artist.slug)
+        elif album is not None:
+            raise HTTPRedirect('/unknown/%s' % album.slug)
         else:
             raise HTTPRedirect('/library/albums')
 
