@@ -209,10 +209,10 @@ class Track(Base):
     disc = Column(String(64))
 
     album = relationship("Album", lazy='joined', innerjoin=False,
-                         backref=backref('tracks', lazy='joined', order_by=(disc, number, name)))
+                         backref=backref('tracks', order_by=(disc, number, name)))
 
     artist = relationship("Artist", lazy='joined', innerjoin=False,
-                          backref=backref('tracks', lazy='joined', order_by=name))
+                          backref=backref('tracks', order_by=name))
 
     def __init__(self, hash):
         self.hash = hash
