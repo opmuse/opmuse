@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'sprintf', 'bind', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'logger', 'sprintf', 'bind', 'domReady!'], function($, inheritance, logger) {
 
     var instance = null;
 
@@ -55,6 +55,7 @@ define(['jquery', 'inheritance', 'sprintf', 'bind', 'domReady!'], function($, in
             };
 
             that.socket.onopen = function() {
+                logger.log('ws connection opened');
                 $(that).trigger('open');
             };
 
@@ -64,6 +65,8 @@ define(['jquery', 'inheritance', 'sprintf', 'bind', 'domReady!'], function($, in
             });
 
             that.socket.onclose = function() {
+                logger.log('ws connection closed');
+
                 if (!that.unloaded) {
                     // TODO implement exponential backoff algo
                     setTimeout(function () {
