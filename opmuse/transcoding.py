@@ -184,9 +184,8 @@ class FFMPEGTranscoder(Transcoder):
                     bitrate = initial_bitrate
 
     def transcode(self):
-
         # how many seconds to stay ahead of the client
-        seconds_keep_ahead = 19
+        seconds_keep_ahead = 20
         # ... and if we fall behind more than this try to slowly adjust
         seconds_adjust = 5
 
