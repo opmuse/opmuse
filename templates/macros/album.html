@@ -83,10 +83,16 @@
             <div class="album-desc">
                 <h3 class="album-name" title="{{ album.name }} {% if album.date %}({{ album.date }}){% endif %}">
                     <a href="{{ album_url }}">
-                        {{ album.name|show_ws }}
-                        {% if album.date %}
-                            <small>({{ album.date }})</small>
-                        {% endif %}
+                        <span>
+                            {{ album.name|show_ws }}
+                        </span>
+                        <span class="album-date">
+                            {%- if album.date -%}
+                                {{ album.date }}
+                            {%- else -%}
+                                N/A
+                            {%- endif -%}
+                        </span>
                     </a>
                 </h3>
                 {% if not artist or album.artists|length > 1 %}

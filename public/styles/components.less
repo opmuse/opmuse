@@ -21,7 +21,6 @@
             margin: 0 auto;
             position: relative;
             width: @album-width;
-            text-align: center;
 
             .artist-desc,
             .album-desc {
@@ -34,12 +33,39 @@
                 h3, p {
                     margin: 4px 0 4px 8px;
                     white-space: nowrap;
+                    clear: both;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
 
                 h3 {
                     font-size: 1.2em;
+
+                    span {
+                        text-align: left;
+                        width: 79%;
+                        display: block;
+                        float: left;
+                        clear: none;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    span.album-date {
+                        text-align: right;
+                        width: 21%;
+
+                        font-size: .8em;
+                        color: @gray;
+
+                        &:after {
+                            content: ")";
+                        }
+
+                        &:before {
+                            content: "(";
+                        }
+                    }
                 }
 
                 p {
