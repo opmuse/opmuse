@@ -2,7 +2,7 @@ CherryPy==3.2.4
 Jinja2==2.6
 MarkupSafe==0.15
 ply==3.4
-SQLAlchemy==0.8.0
+SQLAlchemy==0.8.1
 mmh3==2.2
 repoze.who==2.1
 pylast==0.5.11
