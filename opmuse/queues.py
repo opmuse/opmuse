@@ -227,7 +227,7 @@ class QueueDao:
 
     def clear_played(self):
         user_id = cherrypy.request.user.id
-        get_database().query(Queue).filter_by(user_id=user_id, played=True).delete()
+        get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.played)).delete()
         get_database().commit()
         ws.emit('queue.update')
 
