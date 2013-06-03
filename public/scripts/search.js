@@ -23,15 +23,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         internalInit: function () {
             var query = $("#search").data("query");
 
-            if (typeof query == 'undefined' || query === null || query == '') {
-                query = 'Search';
-            }
-
             $('.search-query').bind('keyup', function (event) {
-                if (event.keyCode == 13) {
+
+                if (event.keyCode == 13 && $(this).val() != "") {
                     ajaxify.setPage('/search/' + encodeURIComponent($(this).val()));
                 }
-            }).attr('placeholder', query);
+
+            }).val(query);
         }
     });
 
