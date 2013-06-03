@@ -7,7 +7,7 @@ Requirements
 ------------
 
 You need *python 3.2*, *ffmpeg* (the executable), *ImageMagick* (convert and
-identify executables) and a Linux environment. This has only been tested on
+identify executables), *lessc* and a Linux environment. This has only been tested on
 Debian and Exherbo but most other Linux distros should do as well as other \*nix
 OSes. If you're on Windows you're on your own.
 
