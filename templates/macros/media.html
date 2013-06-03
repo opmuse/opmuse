@@ -47,7 +47,10 @@
             {{ covers.album(album, 80, "img-rounded media-object pull-left") }}
         </a>
         <div class="media-body">
-            <h4 class="media-heading">{{ album.name|show_ws }}
+            <h4 class="media-heading">
+                <a href="/{{ artist_slug }}/{{ album.slug|urlencode }}">
+                    {{ album.name|show_ws }}
+                </a>
                 {% if album.date %}
                     <small>({{ album.date }})</small>
                 {% endif %}
