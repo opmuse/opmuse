@@ -107,9 +107,13 @@
                             {% for new_album in new_albums %}
                             <li>
                                 {{ covers.album(new_album, 40, "img-rounded") }}
-                                <p>{{ new_album.name }}</p>
+
+                                <a href="{{ urls.album_url(new_album) }}">
+                                    <p>{{ new_album.name }}</p>
+                                </a>
                                 <p>{{ album.album_desc(new_album, True) }}</p>
                                 <div class="clear"></div>
+
                             </li>
                             {% endfor %}
                         </ul>

@@ -1,10 +1,12 @@
+{% import "macros/urls.html" as urls %}
+
 <span class="text">
     {% if track.number %}
         <span class="track-number">{{ track.number }}</span>
     {% endif %}
     <span class="artist-name">
         {% if track.artist %}
-        <a href="/{{ track.artist.slug|urlencode }}">
+        <a href="{{ urls.artist_url(track.artist) }}">
             {{ track.artist.name|show_ws }}
         </a>
         {% else %}
@@ -13,12 +15,7 @@
     </span>
     <span class="album-name">
         {% if track.album %}
-            {% if track.artist %}
-                {% set artist_slug = track.artist.slug|urlencode %}
-            {% else %}
-                {% set artist_slug = "unknown" %}
-            {% endif %}
-            <a href="/{{ artist_slug }}/{{ track.album.slug|urlencode }}">
+            <a href="{{ urls.album_url(track.album) }}">
                 {{ track.album.name|show_ws }}
             </a>
         {% else %}

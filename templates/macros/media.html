@@ -1,3 +1,5 @@
+{% import "macros/urls.html" as urls %}
+
 {% macro hierarchy(hierarchy) %}
     <div class="media-hierarchy">
         {% for key, artist in hierarchy.artists.items() %}
@@ -38,17 +40,12 @@
     {% import "macros/covers.html" as covers %}
 
     <div class="media album">
-        {% if album.artists|length == 0 %}
-            {% set artist_slug = "unknown" %}
-        {% else %}
-            {% set artist_slug = album.artists[0].slug|urlencode %}
-        {% endif %}
-        <a href="/{{ artist_slug }}/{{ album.slug|urlencode }}">
+        <a href="{{ urls.album_url(album) }}">
             {{ covers.album(album, 80, "img-rounded media-object pull-left") }}
         </a>
         <div class="media-body">
             <h4 class="media-heading">
-                <a href="/{{ artist_slug }}/{{ album.slug|urlencode }}">
+                <a href="{{ urls.album_url(album) }}">
                     {{ album.name|show_ws }}
                 </a>
                 {% if album.date %}
@@ -73,12 +70,12 @@
     {% import "macros/covers.html" as covers %}
 
     <div class="media artist">
-        <a href="/{{ artist.slug|urlencode }}">
+        <a href="{{ urls.artist_url(artist) }}">
             {{ covers.artist(artist, 80, "img-rounded media-object pull-left") }}
         </a>
         <div class="media-body">
             <h4 class="media-heading">
-                <a href="/{{ artist.slug|urlencode }}">
+                <a href="{{ urls.artist_url(artist) }}">
                     {{ artist.name|show_ws }}
                 </a>
             </h4>

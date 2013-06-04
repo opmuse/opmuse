@@ -74,7 +74,7 @@
                         <td>{{ track.number }}</td>
                         {% if album.artists|length > 1%}
                         <td>
-                            <a href="/{{ track.artist.slug|urlencode }}">{{ track.artist.name|show_ws }}</a>
+                            <a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name|show_ws }}</a>
                         </td>
                         {% endif %}
                         <td>

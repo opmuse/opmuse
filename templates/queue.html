@@ -1,7 +1,9 @@
+{% import "macros/urls.html" as urls %}
+
 {% macro album_header(q, html = true) %}
     {%- if q.track.artist -%}
         {%- if html -%}
-            <a href="/{{ q.track.artist.slug|urlencode }}">
+            <a href="{{ urls.artist_url(q.track.artist) }}">
         {%- endif -%}
                 {{ q.track.artist.name|show_ws }}
         {%- if html -%}
@@ -11,13 +13,8 @@
         N/A
     {%- endif %} -
     {%- if q.track.album -%}
-        {%- if q.track.artist -%}
-            {% set artist_slug = q.track.artist.slug|urlencode %}
-        {%- else -%}
-            {% set artist_slug = "unknown" %}
-        {%- endif -%}
         {%- if html -%}
-            <a href="/{{ artist_slug }}/{{ q.track.album.slug|urlencode }}">
+            <a href="{{ urls.album_url(q.track.album) }}">
         {%- endif %} {{ q.track.album.name|show_ws }}
         {%- if html -%}
             </a>
