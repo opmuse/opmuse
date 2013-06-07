@@ -8,14 +8,18 @@
     <li class="{{ "active" if request.path_info|startswith("/library/track") }}">
         <a href="/library/tracks">Tracks</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/library/upload") }}">
-        <a href="/library/upload">Upload</a>
-    </li>
     <li class="{{ "active" if request.path_info|startswith("/library/search") }}">
         <a href="#">Search</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/library/edit") }}">
-        <a href="#">Edit</a>
-    </li>
+    {% if is_granted('admin') %}
+        <li class="{{ "active" if request.path_info|startswith("/library/upload") }}">
+            <a href="/library/upload">Upload</a>
+        </li>
+    {% endif %}
+    {% if is_granted('admin') %}
+        <li class="{{ "active" if request.path_info|startswith("/library/edit") }}">
+            <a href="#">Edit</a>
+        </li>
+    {% endif %}
 </ul>
 

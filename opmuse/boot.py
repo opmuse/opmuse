@@ -8,9 +8,9 @@ import locale
 from os.path import join, abspath, dirname
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
-from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, JinjaAuthenticatedTool
+from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, AuthorizeTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
-from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin
+from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedTool
 from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
@@ -26,6 +26,7 @@ def configure():
     cherrypy.tools.jinja = Jinja()
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
+    cherrypy.tools.authorize = AuthorizeTool()
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
     cherrypy.tools.library = LibraryTool()
     cherrypy.tools.jinjaenv = JinjaEnvTool()
@@ -46,6 +47,7 @@ def configure():
             'tools.jinjaauthenticated.on': True,
             'tools.library.on': True,
             'tools.jinjaenv.on': True,
+            'tools.authenticated.on': True,
         }, '/ws': {
             'tools.websocket.on': True,
             'tools.websocket.handler_cls': WebSocketHandler

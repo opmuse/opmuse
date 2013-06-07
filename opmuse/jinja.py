@@ -2,17 +2,22 @@ import os
 import cherrypy
 import re
 import random
+import locale
 from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
 from jinja2 import Environment, FileSystemLoader
 from urllib.parse import quote
-import opmuse.pretty
+from opmuse.security import is_granted as _is_granted
+from opmuse.pretty import pretty_date as _pretty_date
 from opmuse.library import TrackStructureParser
-import locale
 from opmuse.queues import queue_dao
 
 VISIBLE_WS = "\u2423"
+
+
+def is_granted(role):
+    return _is_granted([role])
 
 
 def rand_id():
@@ -97,7 +102,7 @@ def format_number(number):
 
 
 def pretty_date(date):
-    return opmuse.pretty.pretty_date(date)
+    return _pretty_date(date)
 
 
 def format_seconds(seconds):
@@ -160,6 +165,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['track_path'] = track_path
 
         self.env.globals['rand_id'] = rand_id
+        self.env.globals['is_granted'] = is_granted
 
     start.priority = 130
 
@@ -215,3 +221,19 @@ class JinjaEnvTool(cherrypy.Tool):
     def bind_jinja(self):
         binds = cherrypy.engine.publish('bind_jinja')
         cherrypy.request.jinja = binds[0]
+
+
+class JinjaAuthenticatedTool(cherrypy.Tool):
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'before_handler',
+                               self.start, priority=20)
+
+    def start(self):
+        cherrypy.request.jinja.globals['authenticated'] = False
+        cherrypy.request.jinja.globals['user'] = None
+
+        if hasattr(cherrypy.request, 'user') and cherrypy.request.user is not None:
+            cherrypy.request.jinja.globals['user'] = cherrypy.request.user
+            cherrypy.request.jinja.globals['authenticated'] = True
+
+

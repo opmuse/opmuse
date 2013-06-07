@@ -1,9 +1,12 @@
 <ul class="nav">
+    <li class="{{ "active" if request.path_info|startswith("/users/you") }}">
+        <a href="/users/you/settings">You</a>
+    </li>
     <li class="{{ "active" if request.path_info|startswith("/users/user") }}">
         <a href="/users/users">Users</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/users/you") }}">
-        <a href="/users/you/settings">You</a>
+    <li class="{{ "active" if request.path_info|startswith("/users/role") }}">
+        <a href="/users/roles">Roles</a>
     </li>
 </ul>
 
