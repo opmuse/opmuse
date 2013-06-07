@@ -21,14 +21,14 @@ class Role(Base):
     __tablename__ = 'roles'
 
     users_in_roles = Table('users_in_roles', Base.metadata,
-        Column('user_id', Integer, ForeignKey('users.id')),
-        Column('role_id', Integer, ForeignKey('roles.id'))
-    )
+                           Column('user_id', Integer, ForeignKey('users.id')),
+                           Column('role_id', Integer, ForeignKey('roles.id')))
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), index=True, unique=True)
 
-    users = relationship("User", secondary=users_in_roles, backref=backref('roles', lazy='joined'))
+    users = relationship("User", secondary=users_in_roles,
+                         backref=backref('roles', lazy='joined'))
 
     def __init__(self, name):
         self.name = name

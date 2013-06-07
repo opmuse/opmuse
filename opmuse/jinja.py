@@ -235,5 +235,3 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
         if hasattr(cherrypy.request, 'user') and cherrypy.request.user is not None:
             cherrypy.request.jinja.globals['user'] = cherrypy.request.user
             cherrypy.request.jinja.globals['authenticated'] = True
-
-
