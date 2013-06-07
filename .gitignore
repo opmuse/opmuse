@@ -1,8 +1,8 @@
 /config/opmuse.ini
 /virtualenv/*
 /build/*
-/public/styles/*.css
-/public/styles/*/*.css
+/public_static/styles/*.css
+/public_static/styles/*/*.css
 /opmuse.db
 *.pyc
 /tests/opmuse.db

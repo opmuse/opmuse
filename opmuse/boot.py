@@ -49,27 +49,12 @@ def configure():
         }, '/ws': {
             'tools.websocket.on': True,
             'tools.websocket.handler_cls': WebSocketHandler
-        }, '/styles': {
-            'tools.jinjaauthenticated.on': False,
-            'tools.database.on': False,
-        }, '/scripts': {
+        }, '/static': {
             'tools.jinjaauthenticated.on': False,
             'tools.database.on': False,
             'tools.staticdir.on': True,
             'tools.staticdir.dir': join(abspath(dirname(__file__)),
-                                        '..', 'public', 'scripts'),
-        }, '/font': {
-            'tools.jinjaauthenticated.on': False,
-            'tools.database.on': False,
-            'tools.staticdir.on': True,
-            'tools.staticdir.dir': join(abspath(dirname(__file__)),
-                                        '..', 'public', 'font'),
-        }, '/images': {
-            'tools.jinjaauthenticated.on': False,
-            'tools.database.on': False,
-            'tools.staticdir.on': True,
-            'tools.staticdir.dir': join(abspath(dirname(__file__)),
-                                        '..', 'public', 'images'),
+                                        '..', 'public_static'),
         },
         '/library/upload/add': {
             'response.timeout': 3600

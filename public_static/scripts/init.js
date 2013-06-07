@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: "/scripts/",
+    baseUrl: "/static/scripts/",
     urlArgs: "version=" + window.opmuseGlobals.version,
     paths: {
         'jquery.nanoscroller': 'lib/jquery.nanoscroller',

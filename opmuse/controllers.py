@@ -496,7 +496,7 @@ class Styles(object):
 
         path = os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
-            '..', 'public', 'styles'
+            '..', 'public_static', 'styles'
         )
 
         csspath = os.path.join(path, file)
@@ -1195,7 +1195,7 @@ class Root(object):
 
             return cherrypy.lib.static.serve_file(os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
-                '..', 'public', 'images', 'cover_placeholder.png'
+                '..', 'public_static', 'images', 'cover_placeholder.png'
             ))
         else:
             cherrypy.response.headers['Content-Type'] = mime

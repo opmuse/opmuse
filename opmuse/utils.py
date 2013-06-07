@@ -11,7 +11,7 @@ class LessReloader(Monitor):
         Monitor.__init__(self, bus, self.run, frequency = .5)
 
         self._files = {}
-        self._stylespath = os.path.join(os.path.dirname(__file__), '..', 'public', 'styles')
+        self._stylespath = os.path.join(os.path.dirname(__file__), '..', 'public_static', 'styles')
 
     def start(self):
         Monitor.start(self)
