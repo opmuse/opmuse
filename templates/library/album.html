@@ -19,6 +19,7 @@
 {% block content %}
 
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
+{% import "macros/urls.html" as urls %}
 
 <div id="album">
     {% set artists = album.artists %}
@@ -59,9 +60,9 @@
                 </tr>
                 {% for track in tracks %}
                     {% if track.invalid %}
-                    <tr class="error">
+                        <tr class="error">
                     {% else %}
-                    <tr>
+                        <tr>
                     {% endif %}
                         <td class="indent">&nbsp;</td>
                         {% if disc %}
@@ -73,9 +74,9 @@
                         {% endif %}
                         <td>{{ track.number }}</td>
                         {% if album.artists|length > 1%}
-                        <td>
-                            <a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name|show_ws }}</a>
-                        </td>
+                            <td>
+                                <a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name|show_ws }}</a>
+                            </td>
                         {% endif %}
                         <td>
                             <span class="btn-group queue-btn">
