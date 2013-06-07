@@ -49,11 +49,9 @@
             {% elif album %}
                 <h3 class="album-head">
                     <a href="{{ urls.album_url(album) }}">{{ album.name|show_ws }}</a>
-                        {{ album.name|show_ws }}
-                        {% if album.date %}
-                            <span class="date">{{ album.date }}</span>
-                        {% endif %}
-                    </a>
+                    {% if album.date %}
+                        <span class="date">{{ album.date }}</span>
+                    {% endif %}
                     {% if artists and artists|length > 0 %}
                         <small>
                             {{ print_artists(artists, true) }}
