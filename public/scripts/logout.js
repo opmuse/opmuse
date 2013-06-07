@@ -10,7 +10,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
 
             var that = this;
 
-            $('#navbar-main').bind('ajaxifyInit', function (event) {
+            $('#top').bind('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 
