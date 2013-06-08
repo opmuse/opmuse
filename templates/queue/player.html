@@ -4,6 +4,10 @@
         preload="none">
     </audio>
 
+    <div id="player-cover">
+        {% include "queue/cover.html" %}
+    </div>
+
     <div id="player-controls">
         <a
             id="play-button"
@@ -37,8 +41,4 @@
     </div>
 
     <div class="clear"></div>
-</div>
-
-<div id="queue">
-    {% include "queue.html" %}
 </div>

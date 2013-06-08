@@ -69,7 +69,7 @@ class Album(Base):
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
-    artists = relationship("Artist", secondary='tracks')
+    artists = relationship("Artist", secondary='tracks', lazy='joined')
 
     def __init__(self, name, date, slug, cover, cover_path, cover_hash):
         self.name = name

@@ -1,0 +1,10 @@
+{% import "macros/covers.html" as covers %}
+
+{% if queue_current_track %}
+    {% set album = queue_current_track.album %}
+{% else %}
+    {% set album = None %}
+{% endif %}
+
+{{ covers.album(album, 40, "img-rounded") }}
+

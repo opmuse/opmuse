@@ -5,7 +5,8 @@ import cherrypy
 import urllib
 import re
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Table, ForeignKey
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
@@ -14,6 +15,23 @@ from repoze.who.classifiers import default_request_classifier
 from repoze.who.classifiers import default_challenge_decider
 from repoze.who._compat import get_cookies
 from opmuse.database import Base, get_session, get_database
+
+
+class Role(Base):
+    __tablename__ = 'roles'
+
+    users_in_roles = Table('users_in_roles', Base.metadata,
+                           Column('user_id', Integer, ForeignKey('users.id')),
+                           Column('role_id', Integer, ForeignKey('roles.id')))
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), index=True, unique=True)
+
+    users = relationship("User", secondary=users_in_roles,
+                         backref=backref('roles', lazy='joined'))
+
+    def __init__(self, name):
+        self.name = name
 
 
 class User(Base):
@@ -56,41 +74,49 @@ class User(Base):
         return '%s://www.gravatar.com/avatar/%s.png?size=%s' % (cherrypy.request.scheme, hash, size)
 
 
+def is_authenticated():
+    if ('repoze.who.identity' not in cherrypy.request.wsgi_environ or
+        not cherrypy.request.wsgi_environ.get('repoze.who.identity')):
+        raise cherrypy.HTTPError(401)
+
+
+def is_granted(roles):
+    for role in cherrypy.request.user.roles:
+        if role.name in roles:
+            break
+    else:
+        return False
+
+    return True
+
+
 class AuthenticatedTool(cherrypy.Tool):
     def __init__(self):
         cherrypy.Tool.__init__(self, 'on_start_resource',
                                self.start, priority=20)
 
-    def start(self):
-        if ('repoze.who.identity' not in cherrypy.request.wsgi_environ or
-            not cherrypy.request.wsgi_environ.get('repoze.who.identity')):
-            raise cherrypy.HTTPError(401)
-
-
-# TODO move this to AuthenticatedTool
-class JinjaAuthenticatedTool(cherrypy.Tool):
-    def __init__(self):
-        cherrypy.Tool.__init__(self, 'before_handler',
-                               self.start, priority=20)
-
-    def start(self):
-
-        cherrypy.request.jinja.globals['authenticated'] = (
-            'repoze.who.identity' in cherrypy.request.wsgi_environ and
-            cherrypy.request.wsgi_environ.get('repoze.who.identity')
-        )
+    def start(self, needs_auth=False):
+        if needs_auth:
+            is_authenticated()
 
         identity = cherrypy.request.wsgi_environ.get('repoze.who.identity')
-
-        cherrypy.request.jinja.globals['user'] = cherrypy.request.user = None
+        cherrypy.request.user = None
 
         if identity is not None:
-
             login = identity['repoze.who.plugins.auth_tkt.userid']
+            cherrypy.request.user = get_database().query(User).filter_by(login=login).one()
 
-            user = get_database().query(User).filter_by(login=login).one()
 
-            cherrypy.request.jinja.globals['user'] = cherrypy.request.user = user
+class AuthorizeTool(cherrypy.Tool):
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'on_start_resource',
+                               self.start, priority=25)
+
+    def start(self, roles=[]):
+        is_authenticated()
+
+        if not is_granted(roles):
+            raise cherrypy.HTTPError(403)
 
 
 class DatabaseAuthenticator(object):
@@ -167,7 +193,7 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
     def identify(self, environ):
         uri = environ['REQUEST_URI']
 
-        if re.match(b'^/(styles|scripts|font|images)', uri):
+        if re.match(b'^/static', uri):
             return
 
         self.secret = self.get_secret(environ)

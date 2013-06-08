@@ -16,10 +16,10 @@ class Queue(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     track_id = Column(Integer, ForeignKey('tracks.id'))
-    index = Column(Integer, index = True)
+    index = Column(Integer, index=True)
     current_seconds = Column(Integer)
-    current = Column(Boolean)
-    played = Column(Boolean)
+    current = Column(Boolean, default=False)
+    played = Column(Boolean, default=False)
 
     user = relationship("User", backref=backref('users', order_by=id))
     track = relationship("Track", backref=backref('tracks', cascade="all,delete", order_by=id))
@@ -221,13 +221,15 @@ class QueueDao:
 
     def clear(self):
         user_id = cherrypy.request.user.id
-        get_database().query(Queue).filter_by(user_id=user_id).delete()
+        get_database().query(Queue).filter(and_(Queue.user_id == user_id,
+                                           Queue.current == False)).delete(synchronize_session='fetch')
         get_database().commit()
         ws.emit('queue.update')
 
     def clear_played(self):
         user_id = cherrypy.request.user.id
-        get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.played)).delete()
+        get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.played,
+                                           Queue.current == False)).delete(synchronize_session='fetch')
         get_database().commit()
         ws.emit('queue.update')
 
@@ -256,11 +258,8 @@ class QueueDao:
     def remove_tracks(self, ids):
         user_id = cherrypy.request.user.id
 
-        for id in ids:
-            if id == "":
-                continue
-
-            get_database().query(Queue).filter_by(user_id=user_id, track_id = id).delete()
+        get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.track_id.in_(ids),
+                                           Queue.current == False)).delete(synchronize_session='fetch')
 
         get_database().commit()
 

@@ -20,7 +20,7 @@ from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import (Album, Artist, Track, TrackPath, library_dao,
                             Library as LibraryService)
-from opmuse.security import User, hash_password
+from opmuse.security import User, Role, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
 from opmuse.search import search
@@ -36,7 +36,8 @@ from opmuse.cache import cache
 class Edit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit.html')
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
     def default(self, ids = ''):
         ids = ids.split(',')
 
@@ -46,7 +47,8 @@ class Edit:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit_result.html')
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
     def submit(self, ids, artists, albums, tracks, dates, numbers, discs, yes = False, no = False):
 
         move = False
@@ -98,7 +100,8 @@ class Edit:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit_result.html')
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
     def move(self, ids, where = None):
 
         filenames = []
@@ -143,7 +146,7 @@ class Edit:
 
 class Remove:
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def default(self, ids):
         artist = album = None
 
@@ -165,7 +168,7 @@ class Remove:
 
 class Search:
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/search.html')
     def default(self, query = None, type = None):
         artists = []
@@ -237,13 +240,15 @@ class Search:
 class Upload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload.html')
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
     def default(self):
         return {}
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload_add.html')
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
     def add(self, archive_password = None):
 
         if archive_password is not None and len(archive_password) == 0:
@@ -343,7 +348,7 @@ class You:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='users/you_lastfm.html')
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def lastfm(self):
 
         auth_url = authenticated_user = new_auth = None
@@ -376,12 +381,12 @@ class You:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='users/you_settings.html')
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def settings(self):
         return {"user": cherrypy.request.user}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def settings_submit(self, login = None, mail = None, password1 = None, password2 = None):
 
         user = cherrypy.request.user
@@ -413,7 +418,15 @@ class Users:
     you = You()
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='users/roles.html')
+    def roles(self):
+        roles = (get_database().query(Role).order_by(Role.name).all())
+
+        return {'roles': roles}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='users/users.html')
     def users(self):
 
@@ -425,7 +438,7 @@ class Users:
         return {'users': users}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='users/user.html')
     def user(self, login):
         try:
@@ -449,7 +462,7 @@ class Queue:
     @cherrypy.expose
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def update(self):
         queues = cherrypy.request.json['queues']
 
@@ -463,24 +476,30 @@ class Queue:
         return {}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
-    @cherrypy.tools.jinja(filename='queue.html')
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='queue/cover.html')
+    def cover(self):
+        return {}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='queue/list.html')
     def list(self):
         # XXX queues is set in QueueTool
         return {}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def add(self, ids):
         queue_dao.add_tracks(ids.split(','))
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def remove(self, ids):
         queue_dao.remove_tracks(ids.split(','))
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def clear(self, what = None):
         if what is not None and what == 'played':
             queue_dao.clear_played()
@@ -516,7 +535,7 @@ class Library(object):
     edit = Edit()
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/track.html')
     def track(self, slug):
         track = library_dao.get_track_by_slug(slug)
@@ -546,7 +565,7 @@ class Library(object):
         }
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/album.html')
     def album(self, artist_slug, album_slug):
         album = library_dao.get_album_by_slug(album_slug)
@@ -653,7 +672,7 @@ class Library(object):
         }
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/tracks.html')
     def tracks(self, sort = None, filter = None, page = None):
         if sort is None:
@@ -693,7 +712,7 @@ class Library(object):
         return {'tracks': tracks, 'page': page, 'pages': pages, 'sort': sort, 'filter': filter}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/artists.html')
     def artists(self, sort = None, filter = None, page = None):
         if sort is None:
@@ -751,7 +770,7 @@ class Library(object):
         return {'artists': artists, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/albums.html')
     def albums(self, view = None, sort = None, filter = None, page = None):
 
@@ -823,7 +842,7 @@ class Library(object):
         return {'albums': albums, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages, "view": view}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/artist.html')
     def artist(self, slug):
         artist = library_dao.get_artist_by_slug(slug)
@@ -968,7 +987,7 @@ class Library(object):
 
 class Dashboard:
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='dashboard/index.html')
     def default(self):
         users = []
@@ -1172,7 +1191,8 @@ class Root(object):
         raise cherrypy.InternalRedirect('/dashboard')
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
     def cover_refresh(self, type, slug):
         try:
             covers.refresh(type, slug)
@@ -1183,7 +1203,7 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.expires(secs=3600 * 24 * 30, force=True)
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     def cover(self, type, slug, hash = None, refresh = None):
         try:
             mime, cover = covers.get_cover(type, slug)
@@ -1203,7 +1223,7 @@ class Root(object):
             return cover
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='play.m3u')
     def play_m3u(self):
         cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
@@ -1240,7 +1260,7 @@ class Root(object):
 
     @cherrypy.expose
     @cherrypy.tools.transcodingsubprocess()
-    @cherrypy.tools.authenticated()
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.config(**{'response.stream': True})
     def stream(self, **kwargs):
 

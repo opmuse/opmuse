@@ -1,6 +1,6 @@
 {% macro album(album, cover_size = 220, cover_class = "img-polaroid", remove = False) %}
     <span class="cover-container" id="album_cover_{{ album.id }}">
-        {% if remove %}
+        {% if is_granted('admin') and remove %}
             <a class="remove-cover btn btn-small btn-inverse"
                 href="/cover_refresh/album/{{ album.slug|urlencode }}">
                 <i class="icon-refresh"></i>
@@ -8,19 +8,23 @@
         {% endif %}
 
         <img width="{{ cover_size }}" height="{{ cover_size }}"
-            src="/cover/album/{{ album.slug|urlencode }}
-                {%- if album.cover_hash -%}
-                    {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
-                {%- else -%}
-                    {{ "?hash=%s" % ('invalid' if album.invalid else 'valid') }}
-                {%- endif -%}"
+            {% if not album %}
+                src="/static/images/cover_placeholder.png"
+            {% else %}
+                src="/cover/album/{{ album.slug|urlencode }}
+                    {%- if album.cover_hash -%}
+                        {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
+                    {%- else -%}
+                        {{ "?hash=%s" % ('invalid' if album.invalid else 'valid') }}
+                    {%- endif -%}"
+            {% endif %}
             alt="Album cover" class="album-cover {{ cover_class }}" />
     </span>
 {% endmacro %}
 
 {% macro artist(artist, cover_size = 220, cover_class = "img-polaroid", remove = False) %}
     <span class="cover-container" id="artist_cover_{{ artist.id }}">
-        {% if remove %}
+        {% if is_granted('admin') and remove %}
             <a class="remove-cover btn btn-small btn-inverse"
                 href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
                 <i class="icon-refresh"></i>
@@ -36,7 +40,7 @@
                 {{ "?hash=%s" % ('invalid' if artist.invalid else 'valid') }}
             {%- endif -%}"
         {% else %}
-            src="/images/cover_placeholder.png"
+            src="/static/images/cover_placeholder.png"
         {% endif %}
             alt="Artist cover" class="artist-cover {{ cover_class }}" />
     </span>
