@@ -23,3 +23,9 @@ require.config({
     },
     waitSeconds: 30
 });
+
+requirejs.onError = function (err) {
+    var overlay = document.getElementById("overlay");
+    overlay.className = 'error';
+    overlay.innerHTML = err;
+};
