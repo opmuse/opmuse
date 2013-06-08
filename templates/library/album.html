@@ -98,6 +98,9 @@
                                     <i class="icon-thumbs-down"></i>
                                 </span>
                             {% endif %}
+                            <p class="badge badge-info">
+                                {{ track.pretty_format }}
+                            </p>
                             <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
                         </td>
                         <td>{{ track.duration|format_seconds }}</td>

@@ -74,6 +74,9 @@
                     {% endif %}
                 </p>
                 {% endif %}
+                <p class="album-format badge badge-info">
+                    {{ album.pretty_format }}
+                </p>
             </div>
             {{ album_queue_btn(album) }}
             {% set album_url = urls.album_url(album, artist) %}

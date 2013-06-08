@@ -80,6 +80,15 @@ class Album(Base):
         self.cover_hash = cover_hash
 
     @hybrid_property
+    def format(self):
+        formats = [track.format for track in self.tracks]
+        return max(set(formats), key=formats.count)
+
+    @hybrid_property
+    def pretty_format(self):
+        return Library.pretty_format(self.format)
+
+    @hybrid_property
     def is_va(self):
         return len(self.artists) > 1
 
@@ -216,6 +225,10 @@ class Track(Base):
 
     def __init__(self, hash):
         self.hash = hash
+
+    @hybrid_property
+    def pretty_format(self):
+        return Library.pretty_format(self.format)
 
     @hybrid_property
     def has_dups(self):
@@ -775,6 +788,27 @@ class Library:
     def __init__(self, path):
         self.scanning = False
         self._path = path
+
+    @staticmethod
+    def pretty_format(format):
+        if format == "audio/flac":
+            format = "flac"
+        elif format == "audio/mp3":
+            format = "mp3"
+        elif format == 'audio/x-ms-wma':
+            format = "wma"
+        elif format == 'audio/mp4a-latm':
+            format = "mp4"
+        elif format == 'audio/ogg':
+            format = "ogg"
+        elif format == 'audio/x-ape':
+            format = "ape"
+        elif format == 'audio/x-musepack':
+            format = "mpc"
+        elif format == 'audio/wav':
+            format = "wav"
+
+        return format
 
     def start(self):
 
