@@ -1,3 +1,130 @@
+.player-container {
+    padding: 15px 10px 0 10px;
+
+    .cover-container {
+        display: none;
+    }
+
+    #player {
+        display: none;
+    }
+
+    #player-controls {
+        position: absolute;
+        top: 6px;
+        left: 10px;
+        margin-left: 0;
+
+        #next-button {
+            float: left;
+        }
+
+        #play-button, #pause-button {
+            float: left;
+            margin-left: 0;
+        }
+
+        #next-button, #play-button, #pause-button {
+            padding: 1px 8px;
+            display: block;
+            font-size: 16px;
+
+            &:hover {
+                color: #111;
+                text-decoration: none;
+            }
+        }
+    }
+
+    #player-progress {
+        border-radius: 2px;
+        position: absolute;
+        top: 6px;
+        left: 80px;
+
+        width: 46%;
+
+        #player-track {
+            position: absolute;
+            left: 0;
+            top: 0;
+            text-align: center;
+            width: 96%;
+            margin-left: 6px;
+            font-size: .9em;
+            color: @white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .progress {
+            margin-bottom: 15px;
+
+            #gradient > .vertical(lighten(@black, 25%), lighten(@black, 15%));
+
+            .bar {
+                &.seconds {
+                    #gradient > .vertical(#252525, #000000);
+                }
+                &.ahead {
+                    #gradient > .vertical(#525252, #2c2c2c);
+                }
+            }
+        }
+    }
+}
+
+.panel-open {
+    .cover-container {
+        display: block;
+        width: 60px;
+        height: 60px;
+        float: left;
+        margin-top: -4px;
+
+        &> img {
+            width: 60px;
+            height: 60px;
+        }
+    }
+
+    #player-controls {
+        margin-left: 18px;
+        margin-top: -8px;
+        width: 69%;
+        float: left;
+        position: static;
+        top: auto;
+        left: auto;
+
+        #next-button, #play-button, #pause-button {
+            margin-right: 15px;
+            margin-left: 0;
+            font-size: 32px;
+            padding: 0;
+            background-color: transparent;
+            color: @white;
+            display: block;
+        }
+
+        #play-button {
+            margin-right: 10px;
+        }
+    }
+
+    #player-progress {
+        width: 69%;
+        position: relative;
+        top: auto;
+        left: auto;
+        float: left;
+        margin-right: 10px;
+        margin-left: 16px;
+        margin-top: 2px;
+    }
+}
+
 #queue {
     padding: 1px 0 0 0;
 
@@ -150,6 +277,10 @@
         .current-icon {
             display: inline;
         }
+
+        .track-duration {
+            margin-right: 18px;
+        }
     }
 
     .album-header-icon,
@@ -200,6 +331,20 @@
 }
 
 #panel {
+    &.panel-fullscreen.open {
+        #player-progress {
+            width: 85%;
+        }
+    }
+
+    @media (max-width: @navbarCollapseWidth) {
+        .panel-open;
+    }
+
+    &.open {
+        .panel-open;
+    }
+
     &.panel-fullscreen {
         #queue {
             height: 100%;

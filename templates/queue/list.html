@@ -106,11 +106,13 @@
                         <span class="track-duration">
                             {{ q.track.duration|format_seconds }}
                         </span>
-                        <a
-                            class="remove"
-                            href="/queue/remove/{{ q.track.id }}">
-                            <span class="icon-remove-sign"></span>
-                        </a>
+                        {% if not q.current %}
+                            <a
+                                class="remove"
+                                href="/queue/remove/{{ q.track.id }}">
+                                <span class="icon-remove-sign"></span>
+                            </a>
+                        {% endif %}
                     </span>
                     <div class="clear"></div>
                 </li>

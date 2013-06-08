@@ -477,7 +477,13 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='queue.html')
+    @cherrypy.tools.jinja(filename='queue/cover.html')
+    def cover(self):
+        return {}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='queue/list.html')
     def list(self):
         # XXX queues is set in QueueTool
         return {}

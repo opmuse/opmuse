@@ -10,7 +10,6 @@ require(['jquery'], function($) {
         'button',
         'ajaxify',
         'queue',
-        'player',
         'search',
         'edit',
         'logout',

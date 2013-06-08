@@ -185,7 +185,9 @@ def render_template(filename, dictionary):
 
     # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
     if cherrypy.request.user is not None:
-        template.globals['queues'] = queue_dao.get_queues(cherrypy.request.user.id)
+        user = cherrypy.request.user
+        template.globals['queues'] = queue_dao.get_queues(user.id)
+        template.globals['queue_current_track'] = queue_dao.get_current_track(user.id)
 
     return template.render(dictionary)
 
