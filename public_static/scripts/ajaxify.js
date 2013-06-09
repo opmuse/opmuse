@@ -4,7 +4,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
         init: function (brand) {
             var that = this;
 
-            this.brand = $(brand);
+            this.brand = brand;
 
             this.active = 0;
 
@@ -27,10 +27,10 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             });
         },
         stop: function () {
-            this.brand.removeClass('throb');
+            $(this.brand).removeClass('throb');
         },
         start: function () {
-            this.brand.addClass('throb');
+            $(this.brand).addClass('throb');
         }
     });
 
