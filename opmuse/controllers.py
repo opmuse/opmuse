@@ -297,7 +297,7 @@ class Upload:
 
             if track is None:
                 messages.append("Skipping %s, couldn't find its corresponding track %s." %
-                    (filename, audio_file))
+                                (filename, audio_file))
             else:
                 track_structure = TrackStructureParser(track)
                 track_path = track_structure.get_path(absolute=True)
