@@ -2,6 +2,7 @@ import time
 import json
 import pickle
 from sqlalchemy.orm import deferred
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Column, Integer, String, BLOB, BigInteger, func
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm.exc import NoResultFound
@@ -69,6 +70,8 @@ class Cache:
 
         updated = int(time.time())
 
+        orig_value = value
+
         if value is not Keep and isinstance(value, object):
             value_type = 'object'
         else:
@@ -94,8 +97,15 @@ class Cache:
                 value = None
                 value_type = type(value).__name__
 
-            parameters = {'key': key, 'value': value, 'updated': updated, 'type': value_type}
-            get_database().execute(CacheObject.__table__.insert(), parameters)
+            try:
+                parameters = {'key': key, 'value': value, 'updated': updated, 'type': value_type}
+                get_database().execute(CacheObject.__table__.insert(), parameters)
+            except IntegrityError:
+                # when unique constraint kicks in, just try again in which case it
+                # should just run "UPDATE" instead of "INSERT"
+                get_database().rollback()
+                self.set(key, orig_value)
+                return
 
         get_database().commit()
 
