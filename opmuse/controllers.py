@@ -8,6 +8,7 @@ import rarfile
 import random
 import math
 import time
+import mimetypes
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
@@ -664,8 +665,13 @@ class Library(object):
                     else:
                         size = modified = None
 
+                    library_path = library_dao.get_library_path()
+
+                    relative_file = file[len(library_path):]
+
                     dirs[dir]['files'].append({
                         "file": file,
+                        "relative_file": relative_file.decode('utf8'),
                         "modified": modified,
                         "size": size,
                         "track": track,
@@ -1150,6 +1156,32 @@ class Root(object):
     @cherrypy.expose
     def __profile__(self, *args, **kwargs):
         return b'Profiler is disabled, enable it with --profile'
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    # TODO add some extra security to this function... maybe
+    def download(self, file):
+        library_path = library_dao.get_library_path()
+
+        ext = os.path.splitext(file)
+
+        content_type = mimetypes.types_map.get(ext[1], None)
+
+        # viewable in most browsers
+        if content_type in ('image/jpeg', "image/png", "image/gif", 'application/pdf',
+            'text/x-nfo', 'text/plain'):
+            disposition = None
+
+            if content_type in ('text/x-nfo', ):
+                content_type = 'text/plain'
+
+        # download...
+        else:
+            disposition = 'attachement'
+            content_type = None
+
+        return cherrypy.lib.static.serve_file(os.path.join(library_path, file),
+                                              content_type=content_type, disposition=disposition)
 
     @cherrypy.expose
     def search(self, *args, **kwargs):

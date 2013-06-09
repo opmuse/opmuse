@@ -5,6 +5,7 @@ require(['jquery'], function($) {
     });
 
     require([
+        'download',
         'collapse',
         'layout',
         'button',
@@ -13,7 +14,6 @@ require(['jquery'], function($) {
         'search',
         'edit',
         'logout',
-        'library',
         'login',
         'upload',
         'messages',

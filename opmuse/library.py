@@ -1200,7 +1200,7 @@ class LibraryProcess:
         # Disallow certain slug values that will conflict with urls.
         # Would be nice if this was automatic (search through controllers for all top-level url components).
         if string in ('library', 'users', 'upload', 'logout', 'login', 'search',
-                      'queue', 'cover', 'font', 'va', 'unknown'):
+                      'queue', 'cover', 'font', 'va', 'unknown', 'download'):
             index += 1
             return LibraryProcess.slugify(string, index)
 
@@ -1282,6 +1282,7 @@ class LibraryDao:
 
         if library_path[-1] != "/":
             library_path += "/"
+
         return library_path
 
     def get_track_by_filename(self, filename):
