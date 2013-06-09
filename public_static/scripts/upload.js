@@ -1,4 +1,5 @@
-define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domReady!'], function($, inheritance, ajaxify) {
+define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'bootstrap/bootstrap-typeahead',
+        'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
 
     var instance = null;
 
@@ -13,6 +14,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
             that.parallelUploads = 4;
             that.activeUploads = 0;
             that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
+            that.audio = ['audio/flac', 'audio/mp3', 'audio/x-ms-wma', 'audio/mp4a-latm',
+                'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav', 'audio/mpeg', 'audio/mp4'];
 
             this.files = [];
 
@@ -36,17 +39,54 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                 add: function (event, data) {
                     $.each(data.files, function () {
 
-                        var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl");
-                        fileDom.find('.filename').text(this.name);
+                        var file = this;
 
-                        if (that.archives.indexOf(this.type) != -1) {
+                        var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl").data('file', file);
+                        fileDom.find('.filename').text(file.name);
+
+                        if (that.archives.indexOf(file.type) != -1) {
                             fileDom.find('[name=archive_password]').show();
+                            fileDom.addClass('archive-file');
+                        } else if (that.audio.indexOf(file.type) != -1) {
+                            fileDom.addClass('audio-file');
+                            $("#fileupload .files > .other-file:visible").each(function () {
+                                var audioFile = $(this).find('[name=audio_file]');
+
+                                var value = audioFile.val();
+
+                                if (value === '') {
+                                    audioFile.val(file.name);
+                                }
+                            });
+                        } else {
+                            var audioFile = fileDom.find('[name=audio_file]');
+
+                            audioFile.show().typeahead({
+                                source: function () {
+                                    var names = [];
+
+                                    $("#fileupload .files > .audio-file:visible").each(function () {
+                                        names.push($(this).data('file').name);
+                                    });
+
+                                    return names;
+                                }
+                            });
+
+                            var prevFile = $("#fileupload .files > .audio-file:visible").eq(-1).data('file');
+
+                            if (typeof prevFile != 'undefined' && prevFile !== null) {
+                                audioFile.val(prevFile.name);
+                            }
+
+                            fileDom.addClass('other-file');
                         }
+
 
                         $("#fileupload .files").append(fileDom);
 
                         that.files.push({
-                            file: this,
+                            file: file,
                             dom: fileDom
                         });
                     });
@@ -101,8 +141,10 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'domRea
                 var file = that.files.splice(0, 1)[0];
 
                 var archivePassword = $(file.dom).find('[name=archive_password]').val();
+                var audioFile = $(file.dom).find('[name=audio_file]').val();
 
-                var url = $("#fileupload").attr("action") + "?archive_password=" + archivePassword;
+                var url = sprintf("%s?archive_password=%s&audio_file=%s",
+                        $("#fileupload").attr("action"), archivePassword, audioFile);
 
                 that.activeUploads++;
 

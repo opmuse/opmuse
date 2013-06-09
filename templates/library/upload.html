@@ -14,9 +14,15 @@
         <div class="row-fluid">
             <div class="span12">
                 <ol>
-                    <li><i class="icon-hdd"></i> <em>Add files</em> (plain media files or zip and rar archives) from your harddrive.</li>
-                    <li><i class="icon-upload-alt"></i> <em>Upload</em> them to opmuse.</li>
-                    <li>If some tracks has missing tags or incomplete tags <i class="icon-pencil"></i> <em>Edit invalid tracks</em>.</li>
+                    <li><i class="icon-hdd"></i>
+                        <em>Add files</em>, audio files (mp3, flac, ogg etc) or zip and rar archives containing audio
+                        files.<br />You can also add any other file type and they will be placed in the corresponding audio
+                        files' folder.</li>
+                    <li>Review inputs under <em>Extra</em> for other files if the wrong audio file was auto selected and
+                        for archives if a password is required.</li>
+                    <li><i class="icon-upload-alt"></i> <em>Upload</em> them and review <em>Message</em> output.</li>
+                    <li>If some tracks has missing tags or incomplete tags <i class="icon-pencil"></i>
+                        <em>Edit invalid tracks</em> (as shown by a red hue).</li>
                 </ol>
                 <div class="btn-container">
                     <div class="btn-group">
@@ -45,7 +51,7 @@
                 <table class="table table-striped table-bordered table-condensed">
                     <thead>
                         <tr>
-                            <th>
+                            <th colspan="2">
                                 File
                             </th>
                             <th>
@@ -58,7 +64,13 @@
                     </thead>
                     <tbody class="files">
                         <tr class="tmpl">
-                            <td class="filename"></td>
+                            <td class="file-icon">
+                                <i class="icon-file-alt other-file-icon"></i>
+                                <i class="icon-music audio-file-icon"></i>
+                                <i class="icon-folder-close archive-file-icon"></i>
+                            </td>
+                            <td class="filename">
+                            </td>
                             <td>
                                 <div class="progress progress-striped progress-success">
                                     <div class="bar" style="width: 0%"></div>
@@ -67,6 +79,9 @@
                             <td class="extra">
                                 <input type="text" autocomplete="off"
                                     placeholder="Archive Password" name="archive_password" />
+                                <input type="text" autocomplete="off"
+                                    placeholder="... belongs to audio file"
+                                    title="... belongs to audio file" name="audio_file" />
                             </td>
                         </tr>
                     </tbody>

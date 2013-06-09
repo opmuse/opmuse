@@ -174,6 +174,8 @@ class TrackPath(Base):
 
     id = Column(Integer, primary_key=True)
     path = Column(BLOB)
+    filename = Column(BLOB)
+    modified = Column(DateTime, index=True)
     dir = Column(BLOB)
     track_id = Column(Integer, ForeignKey('tracks.id'))
 
@@ -185,6 +187,8 @@ class TrackPath(Base):
     @validates('path')
     def _set_path(self, key, value):
         self.dir = os.path.dirname(value)
+        self.filename = os.path.basename(value)
+        self.modified = datetime.datetime.utcnow()
         return value
 
     @hybrid_property
@@ -216,6 +220,7 @@ class Track(Base):
     invalid = Column(String(32), index=True)
     invalid_msg = Column(String(255))
     disc = Column(String(64))
+    scanned = Column(Boolean, default=False)
 
     album = relationship("Album", lazy='joined', innerjoin=False,
                          backref=backref('tracks', order_by=(disc, number, name)))
@@ -1062,6 +1067,7 @@ class LibraryProcess:
         track.bitrate = metadata.bitrate
         track.size = metadata.size
         track.disc = metadata.disc
+        track.scanned = True
 
         if metadata.invalid == ['valid']:
             track.invalid = None
@@ -1278,11 +1284,24 @@ class LibraryDao:
             library_path += "/"
         return library_path
 
+    def get_track_by_filename(self, filename):
+        try:
+            return (get_database().query(Track)
+                    .join(TrackPath, Track.id == TrackPath.track_id)
+                    .filter(TrackPath.filename == filename, Track.scanned)
+                    .order_by(TrackPath.modified.desc())
+                    .group_by(Track.id)
+                    .limit(1)
+                    .one())
+
+        except NoResultFound:
+            return
+
     def get_track_by_path(self, path):
         try:
             return (get_database().query(Track)
                     .join(TrackPath, Track.id == TrackPath.track_id)
-                    .filter(TrackPath.path == path)
+                    .filter(TrackPath.path == path, Track.scanned)
                     .group_by(Track.id).one())
 
         except NoResultFound:

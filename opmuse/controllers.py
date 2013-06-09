@@ -7,6 +7,7 @@ import shutil
 import rarfile
 import random
 import math
+import time
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
@@ -19,7 +20,7 @@ from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
 from opmuse.lastfm import SessionKey, lastfm
 from opmuse.library import (Album, Artist, Track, TrackPath, library_dao,
-                            Library as LibraryService)
+                            Library as LibraryService, TrackStructureParser)
 from opmuse.security import User, Role, hash_password
 from opmuse.messages import messages
 from opmuse.utils import HTTPRedirect
@@ -249,7 +250,10 @@ class Upload:
     @cherrypy.tools.jinja(filename='library/upload_add.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def add(self, archive_password = None):
+    def add(self, archive_password = None, audio_file = None):
+
+        if audio_file is not None and len(audio_file) == 0:
+            audio_file = None
 
         if archive_password is not None and len(archive_password) == 0:
             archive_password = None
@@ -267,20 +271,49 @@ class Upload:
 
         tempdir = tempfile.mkdtemp()
 
-        filename = os.path.join(tempdir, filename)
+        path = os.path.join(tempdir, filename)
 
-        filenames = []
+        paths = []
 
         rarfile.PATH_SEP = '/'
 
         messages = []
 
-        with open(filename, 'wb') as fileobj:
+        with open(path, 'wb') as fileobj:
             fileobj.write(cherrypy.request.rfile.read())
 
-        if ext == "zip":
+        if audio_file is not None:
+            track = None
+            tries = 0
+
+            # try and sleep until we get the track.. this will almost always
+            # be needed because of the async upload.
+            while track is None and tries < 10:
+                track = library_dao.get_track_by_filename(audio_file.encode('utf8'))
+                tries += 1
+
+                if track is None:
+                    time.sleep(3)
+
+            if track is None:
+                messages.append("Skipping %s, couldn't find its corresponding track %s." %
+                    (filename, audio_file))
+            else:
+                track_structure = TrackStructureParser(track)
+                track_path = track_structure.get_path(absolute=True)
+                relative_track_path = track_structure.get_path(absolute=False).decode('utf8')
+
+                new_path = os.path.join(track_path, filename.encode('utf8'))
+
+                if os.path.exists(new_path):
+                    messages.append("Skipping %s, already exists in %s." % (filename, relative_track_path))
+                else:
+                    shutil.move(path.encode('utf8'), new_path)
+                    messages.append("Uploaded %s to %s." % (filename, relative_track_path))
+
+        elif ext == "zip":
             try:
-                zip = ZipFile(filename)
+                zip = ZipFile(path)
 
                 if archive_password is not None:
                     zip.setpassword(archive_password.encode())
@@ -292,17 +325,17 @@ class Upload:
                     if name.startswith("."):
                         continue
 
-                    filenames.append(os.path.join(tempdir, name).encode('utf8'))
+                    paths.append(os.path.join(tempdir, name).encode('utf8'))
 
             except Exception as error:
-                messages.append("%s: %s" % (os.path.basename(filename), error))
+                messages.append("%s: %s" % (os.path.basename(path), error))
 
         elif ext == "rar":
             try:
-                rar = RarFile(filename)
+                rar = RarFile(path)
 
                 if archive_password is None and rar.needs_password():
-                    messages.append("%s needs password but none provided." % os.path.basename(filename))
+                    messages.append("%s needs password but none provided." % os.path.basename(path))
                 else:
                     if archive_password is not None:
                         rar.setpassword(archive_password)
@@ -313,22 +346,24 @@ class Upload:
                         if name.startswith("."):
                             continue
 
-                        filenames.append(os.path.join(tempdir, name).encode('utf8'))
+                        paths.append(os.path.join(tempdir, name).encode('utf8'))
 
             except Exception as error:
-                messages.append("%s: %s" % (os.path.basename(filename), error))
+                messages.append("%s: %s" % (os.path.basename(path), error))
 
         else:
-            filenames.append(filename.encode('utf8'))
+            paths.append(path.encode('utf8'))
 
-        for filename in filenames:
+        for path in paths:
             # update modified time to now, we don't want the time from the zip
             # archive or whatever
-            os.utime(filename, None)
+            os.utime(path, None)
 
-        tracks, add_files_messages = library_dao.add_files(filenames, move = True, remove_dirs = False)
-
-        messages += add_files_messages
+        if len(paths) > 0:
+            tracks, add_files_messages = library_dao.add_files(paths, move = True, remove_dirs = False)
+            messages += add_files_messages
+        else:
+            tracks = []
 
         shutil.rmtree(tempdir)
 
@@ -690,7 +725,7 @@ class Library(object):
 
         offset = page_size * (page - 1)
 
-        query = get_database().query(Track)
+        query = get_database().query(Track).filter(Track.scanned)
 
         if sort == "added":
             query = query.order_by(Track.added.desc())
@@ -733,6 +768,7 @@ class Library(object):
         query = (get_database()
                  .query(Artist)
                  .join(Track, Artist.id == Track.artist_id)
+                 .filter(Track.scanned)
                  .group_by(Artist.id))
 
         if sort == "added":
@@ -795,6 +831,7 @@ class Library(object):
         query = (get_database()
                  .query(Album)
                  .join(Track, Album.id == Track.album_id)
+                 .filter(Track.scanned)
                  .group_by(Album.id))
 
         albums = []

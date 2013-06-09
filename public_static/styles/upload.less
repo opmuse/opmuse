@@ -40,8 +40,29 @@
             width: 100/3%;
         }
 
-        .extra * {
-            display: none;
+
+        .files {
+            .file-icon {
+                .other-file-icon, .archive-file-icon, .audio-file-icon {
+                    display: none;
+                }
+            }
+
+            .other-file .file-icon .other-file-icon {
+                display: inline;
+            }
+
+            .archive-file .file-icon .archive-file-icon {
+                display: inline;
+            }
+
+            .audio-file .file-icon .audio-file-icon {
+                display: inline;
+            }
+
+            .extra > input {
+                display: none;
+            }
         }
     }
 }
