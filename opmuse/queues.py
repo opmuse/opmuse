@@ -206,7 +206,7 @@ class QueueDao:
             if 'duration' not in info:
                 info['duration'] = 0
 
-            info['duration'] += queue.track.duration
+            info['duration'] += queue.track.duration if queue.track.duration is not None else 0
 
             current_queues.append(queue)
 
