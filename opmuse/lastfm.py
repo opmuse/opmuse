@@ -288,6 +288,28 @@ class Lastfm:
                 error
             ))
 
+    def get_tag(self, tag_name, limit = 50, page = 1):
+        try:
+            network = self.get_network()
+            tag = network.get_tag(tag_name)
+
+            artists = []
+
+            for artist in self._param_call(tag, 'get_top_artists', {'limit': limit, 'page': page}, []):
+                artists.append({
+                    'name': artist.item.get_name()
+                })
+
+            return {
+                'url': tag.get_url(),
+                'artists': artists
+            }
+        except (WSError, NetworkError, MalformedResponseError) as error:
+            log('Failed to get tag "%s": %s' % (
+                tag_name,
+                error
+            ))
+
     def get_artist(self, artist_name):
         try:
             network = self.get_network()

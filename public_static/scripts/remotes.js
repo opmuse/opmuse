@@ -21,6 +21,10 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function
             ws.on('remotes.track.fetched', function (id) {
                 that.load([".remotes_track_head_" + id]);
             });
+
+            ws.on('remotes.tag.fetched', function (tag_name) {
+                that.load(["[data-remotes-tag='" + tag_name + "']"]);
+            });
         },
         load: function (selectors) {
             var found = false;

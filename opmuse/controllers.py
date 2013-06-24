@@ -35,6 +35,33 @@ from opmuse.database import get_database
 from opmuse.cache import cache
 
 
+class Tag:
+    @cherrypy.expose
+    @cherrypy.tools.jinja(filename='library/tag.html')
+    @cherrypy.tools.authenticated(needs_auth=True)
+    def default(self, tag_name = None):
+        artists = []
+        remotes_tag = None
+
+        page_size = 36
+
+        if tag_name is not None:
+            remotes.update_tag(tag_name)
+            remotes_tag = remotes.get_tag(tag_name)
+
+            if remotes_tag is not None:
+                for artist in remotes_tag['lastfm']['artists']:
+                    artist_results = search.query_artist(artist['name'], exact = True)
+
+                    if len(artist_results) > 0:
+                        artists.append(artist_results[0])
+
+                        if len(artists) >= page_size:
+                            break
+
+        return {'remotes_tag': remotes_tag, 'artists': artists, 'tag_name': tag_name}
+
+
 class Edit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit.html')
@@ -569,6 +596,7 @@ class Library(object):
     search = Search()
     upload = Upload()
     edit = Edit()
+    tag = Tag()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -590,6 +618,10 @@ class Library(object):
         if track.artist is not None:
             remotes.update_artist(track.artist)
             remotes_artist = remotes.get_artist(track.artist)
+
+            if remotes_artist is not None and remotes_artist['lastfm'] is not None:
+                for tag_name in remotes_artist['lastfm']['tags']:
+                    remotes.update_tag(tag_name)
 
         remotes_track = remotes.get_track(track)
 
@@ -619,6 +651,11 @@ class Library(object):
 
             if remotes_artist is not None:
                 remotes_artists.append(remotes_artist)
+
+                if remotes_artist['lastfm'] is not None:
+                    for tag_name in remotes_artist['lastfm']['tags']:
+                        remotes.update_tag(tag_name)
+
 
         for track in album.tracks:
             remotes.update_track(track)
@@ -935,6 +972,10 @@ class Library(object):
                                    key=lambda album_group: album_group_order[album_group[0]]))
 
         remotes_artist = remotes.get_artist(artist)
+
+        if remotes_artist is not None and remotes_artist['lastfm'] is not None:
+            for tag_name in remotes_artist['lastfm']['tags']:
+                remotes.update_tag(tag_name)
 
         namesakes = set()
 

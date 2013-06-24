@@ -11,8 +11,10 @@ class Remotes:
     ALBUM_KEY_FORMAT = "remotes_album_%d"
     TRACK_KEY_FORMAT = "remotes_track_%d"
     USER_KEY_FORMAT = "remotes_user_%d"
+    TAG_KEY_FORMAT = "remotes_tag_%s"
 
     ARTIST_AGE = 3600 * 24 * 7
+    TAG_AGE = 3600 * 24 * 7
     ALBUM_AGE = 3600 * 24 * 7
     TRACK_AGE = 3600 * 24 * 7
     USER_AGE = 3600
@@ -125,6 +127,30 @@ class Remotes:
         key = Remotes.ARTIST_KEY_FORMAT % artist.id
 
         return cache.get(key)
+
+    def update_tag(self, tag_name):
+        key = Remotes.TAG_KEY_FORMAT % tag_name
+
+        if cache.needs_update(key, age = Remotes.TAG_AGE):
+            cache.keep(key)
+            cherrypy.engine.bgtask.put(self._fetch_tag, 5, tag_name)
+
+    def _fetch_tag(self, tag_name):
+        key = Remotes.TAG_KEY_FORMAT % tag_name
+
+        tag = {
+            'lastfm': lastfm.get_tag(tag_name, 1000),
+        }
+
+        cache.set(key, tag)
+
+        ws.emit_all('remotes.tag.fetched', tag_name)
+
+    def get_tag(self, tag_name):
+        key = Remotes.TAG_KEY_FORMAT % tag_name
+
+        return cache.get(key)
+
 
 
 remotes = Remotes()

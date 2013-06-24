@@ -69,7 +69,9 @@
                         <li>
                             {% if remotes_artist %}
                                 {% for tag in remotes_artist.lastfm.tags %}
-                                    <span class="tag badge badge-inverse" title="{{ tag }}">{{ tag }}</span>
+                                <span class="tag badge badge-inverse" title="{{ tag }}">
+                                    <a href="/library/tag/{{ tag|urlencode }}">{{ tag }}</a>
+                                </span>
                                 {% endfor %}
                             {% endif %}
                         </li>
