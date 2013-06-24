@@ -335,7 +335,7 @@ class Lastfm:
                 if count >= 15:
                     break
 
-            tags = [str(topItem.item) for topItem in artist.get_top_tags(10)]
+            tags = [str(topItem.item) for topItem in artist.get_top_tags(15)]
 
             return {
                 'url': artist.get_url(),
