@@ -62,6 +62,13 @@ class FFMPEGTranscoder(Transcoder):
         self.track = track
         self.skip_seconds = skip_seconds
 
+        ffmpeg_cmd = cherrypy.request.app.config.get('opmuse').get('transcoding.ffmpeg_cmd')
+
+        if ffmpeg_cmd is not None:
+            self.ffmpeg_cmd = ffmpeg_cmd
+        else:
+            self.ffmpeg_cmd = 'ffmpeg'
+
     def __enter__(self):
         self.filename = self.track.paths[0].path
         self.pretty_filename = self.track.paths[0].pretty_path
@@ -78,7 +85,7 @@ class FFMPEGTranscoder(Transcoder):
         else:
             skip_seconds_args = []
 
-        args = (['ffmpeg'] +
+        args = ([self.ffmpeg_cmd] +
                 skip_seconds_args +
                 self.ffmpeg_input_args +
                 ['-i', self.filename] +
