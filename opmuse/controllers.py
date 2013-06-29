@@ -931,7 +931,7 @@ class Library(object):
             raise cherrypy.NotFound()
 
         album_group_order = {
-            'by_date': 0,
+            'default': 0,
             'no_date': 1,
             'va': 2
         }
@@ -949,22 +949,14 @@ class Library(object):
                     }
 
                 album_groups['va']['albums'].append(album)
-            elif album.date is not None:
-                if 'by_date' not in album_groups:
-                    album_groups['by_date'] = {
-                        'title': 'Albums by Date',
-                        'albums': []
-                    }
-
-                album_groups['by_date']['albums'].append(album)
             else:
-                if 'no_date' not in album_groups:
-                    album_groups['no_date'] = {
-                        'title': 'Albums without Date',
+                if 'default' not in album_groups:
+                    album_groups['default'] = {
+                        'title': 'Albums',
                         'albums': []
                     }
 
-                album_groups['no_date']['albums'].append(album)
+                album_groups['default']['albums'].append(album)
 
             remotes.update_album(album)
 
