@@ -87,7 +87,7 @@
         </div>
 
         {% if page %}
-            {% set url = "/library/artists?sort=" + sort + "&filter=" + filter + "&page=" %}
+            {% set url = "/library/artists?sort=" + sort + "&filter=" + filter + "&filter_value=" + filter_value + "&page=" %}
             {{ pagination.pagination(url, page, pages) }}
         {% endif %}
     </div>
