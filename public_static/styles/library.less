@@ -17,40 +17,36 @@
         float: right;
         margin: 0 6px 6px 0;
 
-        dd,
         dt {
-            float: left;
-            line-height: 20px;
-            padding: 4px 0;
-            margin-left: 4px;
             font-size: .8em;
         }
 
-        dd {
-            font-family: @originalSansFontFamily;
-            font-size: .7em;
+        dd,
+        dt {
+            float: left;
+            line-height: 25px;
+            padding: 4px 0;
+            margin-left: 4px;
+        }
 
+        dd {
             ul {
                 margin: 0;
 
                 li {
-                    line-height: 20px;
                     margin: 0 2px;
-                    padding: 0 8px 0 6px;
                     float: left;
                     list-style: none;
-                    border-radius: 7px;
-                    background-color: @black;
 
                     a {
-                        color: @white;
+                        .btn;
+                        .btn-mini;
+                        .btn-inverse;
                     }
 
                     &.active {
-                        background-color: #000;
-
                         a {
-                            color: @grayLighter;
+                            .btn-primary;
                         }
                     }
                 }
