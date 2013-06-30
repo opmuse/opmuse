@@ -9,6 +9,7 @@ import random
 import math
 import time
 import mimetypes
+import string
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
@@ -452,8 +453,75 @@ class You:
         raise HTTPRedirect('/users/you/settings')
 
 
+class UsersUsers:
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.jinja(filename='users/users.html')
+    def default(self):
+
+        users = (get_database().query(User).order_by(User.login).all())
+
+        for user in users:
+            remotes.update_user(user)
+
+        return {'users': users}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    def add_submit(self, login = None, mail = None, roles = None, password1 = None, password2 = None):
+
+        if login is None or len(login) < 3:
+            messages.warning('Login must be at least 3 chars.')
+            raise cherrypy.HTTPError(status=409)
+
+        if mail is None or len(mail) < 3:
+            messages.warning('Mail must be at least 3 chars.')
+            raise cherrypy.HTTPError(status=409)
+            return
+
+        if password1 is not None and password2 is not None:
+            if password1 != password2:
+                messages.warning('The passwords do not match.')
+                raise cherrypy.HTTPError(status=409)
+
+        if roles is None:
+            roles = []
+
+        if isinstance(roles, str):
+            roles = [roles]
+
+        salt = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
+        password = hash_password(password1, salt)
+
+        user = User(login, password, mail, salt)
+
+        get_database().add(user)
+
+        get_database().commit()
+
+        for role in get_database().query(Role).filter(Role.id.in_(roles)):
+            role.users.append(user)
+
+        messages.success('User was added.')
+
+        raise HTTPRedirect('/users/users')
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='users/users_add.html')
+    def add(self):
+        roles = (get_database().query(Role).order_by(Role.name).all())
+
+        return {
+            'roles': roles
+        }
+
+
 class Users:
     you = You()
+    users = UsersUsers()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -462,18 +530,6 @@ class Users:
         roles = (get_database().query(Role).order_by(Role.name).all())
 
         return {'roles': roles}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='users/users.html')
-    def users(self):
-
-        users = (get_database().query(User).order_by(User.login).all())
-
-        for user in users:
-            remotes.update_user(user)
-
-        return {'users': users}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)

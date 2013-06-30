@@ -22,6 +22,7 @@ require(['jquery'], function($) {
         'tooltip',
         'locations',
         'you',
+        'users',
         'covers',
         'remotes',
         'filters'
