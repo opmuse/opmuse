@@ -105,14 +105,6 @@
                             {% endfor %}
                         {% endif %}
                         </li>
-                        <li class="nav-header">Namesakes</li>
-                        <li>
-                        {% for artist in namesakes %}
-                            <span class="badge badge-inverse" title="{{ artist.name|show_ws }}">
-                                <a href="{{ urls.artist_url(artist) }}">{{ artist.name|show_ws }}</a>
-                            </span>
-                        {% endfor %}
-                        </li>
                     </ul>
                 </div>
             </div>

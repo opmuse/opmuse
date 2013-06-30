@@ -29,6 +29,32 @@
 
 {% import "macros/covers.html" as covers %}
 
+{% if same_artists|length > 0 %}
+    <p class="alert alert-info">
+        {% for artist in same_artists %}
+            <a href="{{ urls.artist_url(artist) }}">{{ artist.name }}</a>
+            {%- if same_artists|length > 2 and loop.index == same_artists|length - 1 %}
+            and
+            {%- elif not loop.last -%}
+            ,
+            {% endif %}
+        {% endfor %}
+        looks like
+        {% if same_artists|length == 1 %}
+            it
+        {% else %}
+            they 
+        {% endif %}
+        might be the same artist as this one? If so, please correct
+        {% if same_artists|length == 1 %}
+            its
+        {% else %}
+            their
+        {% endif %}
+        tags.
+    </p>
+{% endif %}
+
 <div class="artist-head">
     <ul class="row-fluid">
         <li class="span7">

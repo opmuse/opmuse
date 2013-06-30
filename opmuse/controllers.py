@@ -992,21 +992,17 @@ class Library(object):
             for tag_name in remotes_artist['lastfm']['tags']:
                 remotes.update_tag(tag_name)
 
-        namesakes = set()
+        same_artists = set()
 
-        for query in artist.name.split(' '):
-            if len(re.sub("[^a-zA-Z0-9]+", '', query)) > 4:
-                for artist_result in search.query_artist(query):
-                    if artist != artist_result:
-                        namesakes.add(artist_result)
-                        if len(namesakes) >= 5:
-                            break
+        for artist_result in search.query_artist(artist.name):
+            if artist != artist_result:
+                same_artists.add(artist_result)
 
         return {
             'artist': artist,
             'album_groups': album_groups,
             'remotes_artist': remotes_artist,
-            'namesakes': namesakes
+            'same_artists': same_artists
         }
 
     @staticmethod
