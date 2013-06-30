@@ -206,9 +206,10 @@
         font-size: .8em;
     }
 
-    .artist-name,
-    .album-name {
-        display: none;
+    .artist-name {
+        &:after {
+            content: ' - ';
+        }
     }
 
     .text,

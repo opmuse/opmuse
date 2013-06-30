@@ -189,24 +189,31 @@ class QueueDao:
         artist = None
         track = None
 
-        current_queues = []
+        info = current_queues = None
 
-        info = {}
+        query = get_database().query(Queue).filter_by(user_id=user_id).order_by(Queue.index)
 
-        for queue in get_database().query(Queue).filter_by(user_id=user_id).order_by(Queue.index).all():
-            if (queue.track.album is not None and album is not None and album.id != queue.track.album.id or
-                queue.track.artist is not None and artist is not None and artist.id != queue.track.artist.id or
+        for index, queue in enumerate(query.all()):
+            if (index == 0 or
+                queue.track.album is not None and album is not None and album.id != queue.track.album.id or
                 queue.track.album is None and album is not None or
                 queue.track.artist is None and artist is not None or
                 track is not None and track.disc != queue.track.disc):
-                queues.append((info, current_queues))
-                info = {}
+
+                if info is not None and current_queues is not None:
+                    queues.append((info, current_queues))
+
+                info = {
+                    'duration': 0,
+                    'artists': set(),
+                    'album': queue.track.album,
+                    'disc': queue.track.disc,
+                }
+
                 current_queues = []
 
-            if 'duration' not in info:
-                info['duration'] = 0
-
             info['duration'] += queue.track.duration if queue.track.duration is not None else 0
+            info['artists'].add(queue.track.artist)
 
             current_queues.append(queue)
 
@@ -216,6 +223,9 @@ class QueueDao:
 
         if len(current_queues) > 0:
             queues.append((info, current_queues))
+
+        for info, queue in queues:
+            info['artists'] = list(info['artists'])
 
         return queues
 

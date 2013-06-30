@@ -1,27 +1,25 @@
 {% import "macros/urls.html" as urls %}
 
-{% macro album_header(q, html = true) %}
-    {%- if q.track.artist -%}
+{% macro album_header(info, html = true) %}
+    {%- if info.artists|length == 1 -%}
         {%- if html -%}
-            <a href="{{ urls.artist_url(q.track.artist) }}">
+            <a href="{{ urls.artist_url(info.artists[0]) }}">
         {%- endif -%}
-                {{ q.track.artist.name|show_ws }}
+            {{ info.artists[0].name|show_ws }}
         {%- if html -%}
             </a>
-        {%- endif -%}
-    {%- else -%}
-        N/A
-    {%- endif %} -
-    {%- if q.track.album -%}
+        {%- endif %} -
+    {%- endif %}
+    {%- if info.album -%}
         {%- if html -%}
-            <a href="{{ urls.album_url(q.track.album) }}">
-        {%- endif %} {{ q.track.album.name|show_ws }}
+            <a href="{{ urls.album_url(info.album) }}">
+        {%- endif %} {{ info.album.name|show_ws }}
         {%- if html -%}
             </a>
         {%- endif -%}
     {%- else -%}
         N/A {% endif -%}
-    {%- if q.track.disc %} - Disc {{ q.track.disc }}
+    {%- if info.disc %} - Disc {{ info.disc }}
     {%- endif -%}
 {% endmacro %}
 
@@ -59,13 +57,12 @@
 <div class="tracks-wrapper nano">
     <ol class="tracks content">
         {% for info, queue in queues %}
-            {% set q = queue[0] %}
             <li class="album">
-            <span class="album-header" title="{{ album_header(q, false)|e }}">
+                <span class="album-header" title="{{ album_header(info, false)|e }}">
                     <span class="album-header-icon">
                         <i class="icon-sign-blank"></i>
                     </span>
-                    {{ album_header(q) }}
+                    {{ album_header(info) }}
                 </span>
                 <span class="album-info">
                     <span class="album-duration">
@@ -96,6 +93,13 @@
                                 {{ q.track.number }}
                             {% endif %}
                         </span>
+                        {% if info.artists|length > 1 %}
+                            <span class="artist-name" title="{{ q.track.artist.name|show_ws }}">
+                                <a href="{{ urls.artist_url(q.track.artist) }}">
+                                    {{ q.track.artist.name|show_ws }}
+                                </a>
+                            </span>
+                        {% endif %}
                         <span class="track-name" title="{{ q.track.name|show_ws }}">
                             <a href="/library/track/{{ q.track.slug|urlencode }}">
                                 {{ q.track.name|show_ws }}
