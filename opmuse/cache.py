@@ -13,7 +13,7 @@ class CacheObject(Base):
     __tablename__ = 'cache_objects'
 
     id = Column(Integer, primary_key=True)
-    key = Column(String(128), index=True, unique=True)
+    key = Column(String(255), index=True, unique=True)
     type = Column(String(128))
     updated = Column(BigInteger, index=True)
     value = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
