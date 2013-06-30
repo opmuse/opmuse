@@ -17,21 +17,28 @@
             <dd>
                 <ul>
                     <li class="{{ "active" if filter == "none" else "" }}">
-                        <a href="/library/artists?filter=none&sort={{ sort }}">
+                        <a href="/library/artists?filter=none&sort={{ sort }}&filter_value={{ filter_value }}">
                             <i class="icon-circle-blank"></i>
                             None
                         </a>
                     </li>
                     <li class="{{ "active" if filter == "yours" else "" }}">
-                        <a href="/library/artists?filter=yours&sort={{ sort }}">
+                        <a href="/library/artists?filter=yours&sort={{ sort }}&filter_value={{ filter_value }}">
                             <i class="icon-user"></i>
                             Yours
                         </a>
                     </li>
                     <li class="{{ "active" if filter == "invalid" else "" }}">
-                        <a href="/library/artists?filter=invalid&sort={{ sort }}">
+                        <a href="/library/artists?filter=invalid&sort={{ sort }}&filter_value={{ filter_value }}">
                             <i class="icon-warning-sign"></i>
                             Invalid
+                        </a>
+                    </li>
+                    <li class="filter_value {{ "active" if filter == "tag" else "" }}">
+                        <a href="/library/artists?filter=tag&sort={{ sort }}">
+                            <i class="icon-tag"></i>
+                            <input autocomplete="off" type="text"
+                                placeholder="Tag" value="{{ filter_value }}" />
                         </a>
                     </li>
                 </ul>
@@ -42,19 +49,19 @@
             <dd>
                 <ul>
                     <li class="{{ "active" if sort == "none" else "" }}">
-                        <a href="/library/artists?filter={{ filter }}&sort=none">
+                        <a href="/library/artists?filter={{ filter }}&sort=none&filter_value={{ filter_value }}">
                             <i class="icon-circle-blank"></i>
                             None
                         </a>
                     </li>
                     <li class="{{ "active" if sort == "added" else "" }}">
-                        <a href="/library/artists?filter={{ filter }}&sort=added">
+                        <a href="/library/artists?filter={{ filter }}&sort=added&filter_value={{ filter_value }}">
                             <i class="icon-asterisk"></i>
                             Added
                         </a>
                     </li>
                     <li class="{{ "active" if sort == "random" else "" }}">
-                        <a href="/library/artists?filter={{ filter }}&sort=random">
+                        <a href="/library/artists?filter={{ filter }}&sort=random&filter_value={{ filter_value }}">
                             <i class="icon-random"></i>
                             Random
                         </a>
@@ -65,10 +72,18 @@
 
         <hr />
 
-        <div class="artists">
-            {% for artist in artists %}
-                {% include "partials/artist.html" %}
-            {% endfor %}
+        <div class="artists remotes" data-remotes-tag="{{ filter_value if filter == "tag" else "" }}">
+            {% if filter == "tag" and artists|length == 0 %}
+                <p class="alert alert-info">
+                    No artists found for tag <strong>{{ filter_value }}</strong>,
+                    remote tag data might be being fetched.
+                    Page will update automatically when done.
+                </p>
+            {% else %}
+                {% for artist in artists %}
+                    {% include "partials/artist.html" %}
+                {% endfor %}
+            {% endif %}
         </div>
 
         {% if page %}

@@ -35,33 +35,6 @@ from opmuse.database import get_database
 from opmuse.cache import cache
 
 
-class Tag:
-    @cherrypy.expose
-    @cherrypy.tools.jinja(filename='library/tag.html')
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def default(self, tag_name = None):
-        artists = []
-        remotes_tag = None
-
-        page_size = 36
-
-        if tag_name is not None:
-            remotes.update_tag(tag_name)
-            remotes_tag = remotes.get_tag(tag_name)
-
-            if remotes_tag is not None:
-                for artist in remotes_tag['lastfm']['artists']:
-                    artist_results = search.query_artist(artist['name'], exact = True)
-
-                    if len(artist_results) > 0:
-                        artists.append(artist_results[0])
-
-                        if len(artists) >= page_size:
-                            break
-
-        return {'remotes_tag': remotes_tag, 'artists': artists, 'tag_name': tag_name}
-
-
 class Edit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit.html')
@@ -596,7 +569,6 @@ class Library(object):
     search = Search()
     upload = Upload()
     edit = Edit()
-    tag = Tag()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -792,12 +764,15 @@ class Library(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/artists.html')
-    def artists(self, sort = None, filter = None, page = None):
+    def artists(self, sort = None, filter = None, filter_value = None, page = None):
         if sort is None:
             sort = "added"
 
         if filter is None:
             filter = "none"
+
+        if filter_value is None:
+            filter_value = ""
 
         if page is None:
             page = 1
@@ -835,6 +810,21 @@ class Library(object):
             query = query.filter(Artist.id.in_(artist_ids))
         elif filter == "invalid":
             query = query.filter("invalid is not null")
+        elif filter == "tag":
+            artist_ids = []
+
+            if filter_value != "":
+                remotes.update_tag(filter_value)
+                remotes_tag = remotes.get_tag(filter_value)
+
+                if remotes_tag is not None and remotes_tag['lastfm'] is not None:
+                    for artist in remotes_tag['lastfm']['artists']:
+                        artist_results = search.query_artist(artist['name'], exact = True)
+
+                        if len(artist_results) > 0:
+                            artist_ids.append(artist_results[0].id)
+
+            query = query.filter(Artist.id.in_(artist_ids))
 
         pages = math.ceil(query.count() / page_size)
 
@@ -846,7 +836,14 @@ class Library(object):
             for album in artist.albums:
                 remotes.update_album(album)
 
-        return {'artists': artists, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages}
+        return {
+            'artists': artists,
+            'page': page,
+            'sort': sort,
+            'filter': filter,
+            'filter_value': filter_value,
+            'pages': pages
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)

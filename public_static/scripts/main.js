@@ -24,6 +24,7 @@ require(['jquery'], function($) {
         'you',
         'covers',
         'remotes',
+        'filters'
     ], function () {
         $("#overlay").addClass('hide');
         $('body').trigger('loadFinish');
