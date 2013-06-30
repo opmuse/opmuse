@@ -22,7 +22,7 @@
                     presented with their full hierarchy. Use buttons on the right to perform various actions on tracks related to
                     these results.
                 {% else %}
-                    No query specified.
+                    No query.
                 {% endif %}
             </p>
         </div>
@@ -48,7 +48,9 @@
     <div class="row-fluid">
         <div class="span7">
             <div class="results">
-                {{ media.hierarchy(hierarchy) }}
+                {% if hierarchy %}
+                    {{ media.hierarchy(hierarchy) }}
+                {% endif %}
             </div>
         </div>
         <div class="span5">

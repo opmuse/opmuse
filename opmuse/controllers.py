@@ -177,6 +177,8 @@ class Search:
         albums = []
         tracks = []
 
+        hierarchy = None
+
         artist_tracks = set()
         album_tracks = set()
 
