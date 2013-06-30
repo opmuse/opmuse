@@ -221,7 +221,7 @@ class QueueDao:
             artist = queue.track.artist
             track = queue.track
 
-        if len(current_queues) > 0:
+        if current_queues is not None and len(current_queues) > 0:
             queues.append((info, current_queues))
 
         for info, queue in queues:
