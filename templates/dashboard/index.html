@@ -161,7 +161,7 @@
                 <p>
                     You have <strong>{{ tracks|format_number }}</strong> tracks
                     (<strong>{{ invalid|format_number }}</strong> invalid,
-                    {{ "%0.f" % ((invalid / tracks) * 100) }}%), <strong>{{ albums|format_number }}</strong>
+                    {{ "%0.f" % ((invalid / tracks if tracks > 0 else 0) * 100) }}%), <strong>{{ albums|format_number }}</strong>
                     albums and <strong>{{ artists|format_number }}</strong> artists.
                 </p>
             </div>
