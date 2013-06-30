@@ -2,15 +2,42 @@
 
 <div class="artist-nav">
     {% if album %}
-        <div class="sidebar-nav well well-small">
-            <li class="nav-header">{{ album.name }}</li>
-            <ul class="nav nav-list">
-                <li>
-                    <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
-                        Album Discogs
-                    </a>
-                </li>
-            </ul>
+        <div class="remotes remotes_album_nav_{{ album.id }}">
+            <div class="sidebar-nav well well-small">
+                <li class="nav-header">Album: {{ album.name }}</li>
+                <ul class="nav nav-list">
+                    <li>
+                        <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
+                            &hellip; on Discogs
+                        </a>
+                    </li>
+                    {% if remotes_album %}
+                        {% if remotes_album.lastfm.url %}
+                            <li>
+                                <a href="{{ remotes_album.lastfm.url }}">&hellip; on Lastfm</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                    <li class="nav-header">Stats</li>
+                    <li>
+                        {% if remotes_album %}
+                            {% if remotes_album.lastfm.listeners %}
+                                {{ remotes_album.lastfm.listeners|format_number }} Lastfm Listeners
+                            {% endif %}
+                        {% endif %}
+                    </li>
+                    <li class="nav-header">Tags</li>
+                    <li>
+                        {% if remotes_album %}
+                            {% for tag in remotes_album.lastfm.tags %}
+                            <span class="tag badge badge-inverse" title="{{ tag }}">
+                                <a href="/library/albums?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
+                            </span>
+                            {% endfor %}
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
         </div>
     {% endif %}
     {% if artists %}
@@ -19,53 +46,36 @@
                 {% set remotes_artist = remotes_artists[loop.index0] %}
                 <div class="sidebar-nav well well-small">
                     <ul class="nav nav-list">
-                        <li class="nav-header">{{ artist.name }}</li>
+                        <li class="nav-header">Artist: {{ artist.name }}</li>
                         {% if remotes_artist %}
                             {% if remotes_artist.lastfm.url %}
                                 <li>
-                                    <a href="{{ remotes_artist.lastfm.url }}">Artist on Lastfm</a>
-                                </li>
-                            {% endif %}
-                            {% if remotes_artist.wikipedia.url %}
-                                <li>
-                                    <a href="{{ remotes_artist.wikipedia.url }}">Artist on Wikipedia</a>
+                                    <a href="{{ remotes_artist.lastfm.url }}">&hellip; on Lastfm</a>
                                 </li>
                             {% endif %}
                         {% endif %}
                         <li>
                             <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
-                                Artist on Discogs
+                                &hellip; on Discogs
                             </a>
                         </li>
                         {% if album %}
-                            <li class="nav-header">{{ album.name }}</li>
-                            {% if remotes_album %}
-                                {% if remotes_album.lastfm.url %}
-                                    <li>
-                                        <a href="{{ remotes_album.lastfm.url }}">Album on Lastfm</a>
-                                    </li>
-                                {% endif %}
-                                {% if remotes_album.wikipedia.url %}
-                                    <li>
-                                        <a href="{{ remotes_album.wikipedia.url }}">Album on Wikipedia</a>
-                                    </li>
-                                {% endif %}
-                            {% endif %}
                             <li>
-                                <a href="http://www.discogs.com/search?q={{ "artist:'" ~ artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
+                                <a href="http://www.discogs.com/search?q={{ "artist:'" ~
+                                    artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
                                     Album on Discogs
                                 </a>
                             </li>
                         {% endif %}
-                        <li class="nav-header">Lastfm Stats</li>
+                        <li class="nav-header">Stats</li>
                         <li>
                             {% if remotes_artist %}
                                 {% if remotes_artist.lastfm.listeners %}
-                                    {{ remotes_artist.lastfm.listeners|format_number }} Listeners
+                                    {{ remotes_artist.lastfm.listeners|format_number }} Lastfm Listeners
                                 {% endif %}
                             {% endif %}
                         </li>
-                        <li class="nav-header">Lastfm Genres</li>
+                        <li class="nav-header">Tags</li>
                         <li>
                             {% if remotes_artist %}
                                 {% for tag in remotes_artist.lastfm.tags %}
@@ -75,7 +85,7 @@
                                 {% endfor %}
                             {% endif %}
                         </li>
-                        <li class="nav-header">Lastfm Similar</li>
+                        <li class="nav-header">Similar</li>
                         <li>
                         {% if remotes_artist %}
                             {% for similar in remotes_artist.lastfm.similar %}

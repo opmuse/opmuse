@@ -275,10 +275,15 @@ class Lastfm:
         try:
             network = self.get_network()
             album = network.get_album(artist_name, album_name)
+            tags = [str(tag) for tag in album.get_top_tags(20)]
 
             return {
                 'url': album.get_url(),
+                'date': album.get_release_date(),
+                'listeners': album.get_listener_count(),
+                'wiki': album.get_wiki_summary(),
                 'name': album.get_name(),
+                'tags': tags,
                 'cover': album.get_cover_image()
             }
         except (WSError, NetworkError, MalformedResponseError) as error:
@@ -300,9 +305,17 @@ class Lastfm:
                     'name': artist.item.get_name()
                 })
 
+            albums = []
+
+            for album in self._param_call(tag, 'get_top_albums', {'limit': limit, 'page': page}, []):
+                albums.append({
+                    'name': album.item.get_name()
+                })
+
             return {
                 'url': tag.get_url(),
-                'artists': artists
+                'artists': artists,
+                'albums': albums
             }
         except (WSError, NetworkError, MalformedResponseError) as error:
             log('Failed to get tag "%s": %s' % (
@@ -332,10 +345,10 @@ class Lastfm:
 
                     count += 1
 
-                if count >= 15:
+                if count >= 20:
                     break
 
-            tags = [str(topItem.item) for topItem in artist.get_top_tags(15)]
+            tags = [str(topItem.item) for topItem in artist.get_top_tags(20)]
 
             return {
                 'url': artist.get_url(),

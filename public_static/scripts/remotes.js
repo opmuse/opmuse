@@ -15,7 +15,7 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function
             });
 
             ws.on('remotes.album.fetched', function (id) {
-                that.load([".remotes_album_head_" + id]);
+                that.load([".remotes_album_head_" + id, ".remotes_album_nav_" + id]);
             });
 
             ws.on('remotes.track.fetched', function (id) {

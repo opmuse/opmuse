@@ -848,7 +848,7 @@ class Library(object):
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/albums.html')
-    def albums(self, view = None, sort = None, filter = None, page = None):
+    def albums(self, view = None, sort = None, filter = None, filter_value = None, page = None):
 
         if view is None:
             view = "covers"
@@ -858,6 +858,9 @@ class Library(object):
 
         if filter is None:
             filter = "none"
+
+        if filter_value is None:
+            filter_value = ""
 
         if page is None:
             page = 1
@@ -896,6 +899,21 @@ class Library(object):
                           .having(func.count(distinct(Artist.id)) > 1))
         elif filter == "invalid":
             query = query.filter("invalid is not null")
+        elif filter == "tag":
+            album_ids = []
+
+            if filter_value != "":
+                remotes.update_tag(filter_value)
+                remotes_tag = remotes.get_tag(filter_value)
+
+                if remotes_tag is not None and remotes_tag['lastfm'] is not None:
+                    for album in remotes_tag['lastfm']['albums']:
+                        album_results = search.query_album(album['name'], exact = True)
+
+                        if len(album_results) > 0:
+                            album_ids.append(album_results[0].id)
+
+            query = query.filter(Album.id.in_(album_ids))
 
         # count before adding order_by() for performance reasons..
         pages = math.ceil(query.count() / page_size)
@@ -916,7 +934,15 @@ class Library(object):
             for artist in album.artists:
                 remotes.update_artist(artist)
 
-        return {'albums': albums, 'page': page, 'sort': sort, 'filter': filter, 'pages': pages, "view": view}
+        return {
+            'albums': albums,
+            'page': page,
+            'sort': sort,
+            'filter': filter,
+            'filter_value': filter_value,
+            'pages': pages,
+            "view": view
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
