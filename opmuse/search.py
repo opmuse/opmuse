@@ -6,8 +6,8 @@ import whoosh.fields
 from whoosh.writing import BufferedWriter, IndexingError
 from whoosh.analysis import (RegexTokenizer, SpaceSeparatedTokenizer,
     LowercaseFilter, StemFilter, DoubleMetaphoneFilter)
-from whoosh.qparser import MultifieldParser
-from whoosh.query import Term
+from whoosh.qparser import QueryParser
+from whoosh.query import Term, Or
 from opmuse.database import get_database
 import opmuse.library
 
@@ -117,8 +117,15 @@ class Search:
         if exact:
             whoosh_query = Term('exact_name', query.lower())
         else:
-            parser = MultifieldParser(list(write_handler.index.schema._fields.keys()), write_handler.index.schema)
-            whoosh_query = parser.parse(query)
+            name_parser = QueryParser("name", write_handler.index.schema)
+            metaphone_parser = QueryParser("metaphone_name", write_handler.index.schema)
+            stemmed_parser = QueryParser("stemmed_name", write_handler.index.schema)
+
+            whoosh_query = Or([
+                name_parser.parse(query),
+                metaphone_parser.parse(query),
+                stemmed_parser.parse(query)
+            ])
 
         results = write_handler.index.searcher().search(whoosh_query)
 
