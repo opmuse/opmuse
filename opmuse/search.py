@@ -109,7 +109,7 @@ class Search:
         for id, score in results:
             indexed_results[id] = score
 
-        return sorted(entities, key=lambda entity: indexed_results[entity.id])
+        return sorted(entities, key=lambda entity: indexed_results[entity.id], reverse=True)
 
     def _query(self, index_name, query, exact = False):
         write_handler = write_handlers[index_name]
