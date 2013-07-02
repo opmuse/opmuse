@@ -5,7 +5,7 @@ import whoosh.index
 import whoosh.fields
 from whoosh.writing import BufferedWriter, IndexingError
 from whoosh.analysis import (RegexTokenizer, SpaceSeparatedTokenizer,
-    LowercaseFilter, StemFilter, DoubleMetaphoneFilter)
+    LowercaseFilter, StemFilter, DoubleMetaphoneFilter, IDTokenizer)
 from whoosh.qparser import QueryParser
 from whoosh.query import Term, Or
 from opmuse.database import get_database
@@ -39,7 +39,7 @@ class WriteHandler:
                 id, name = self._updates.popitem()
                 writer.add_document(
                     id = id, name=name, stemmed_name=name, metaphone_name=name,
-                    exact_name=name.lower()
+                    exact_name=name, exact_metaphone_name=name
                 )
                 updates += 1
 
@@ -115,7 +115,13 @@ class Search:
         write_handler = write_handlers[index_name]
 
         if exact:
-            whoosh_query = Term('exact_name', query.lower())
+            exact_name_parser = QueryParser("exact_name", write_handler.index.schema)
+            exact_metaphone_parser = QueryParser("exact_metaphone_name", write_handler.index.schema)
+
+            whoosh_query = Or([
+                exact_name_parser.term_query("exact_name", query, Term),
+                exact_metaphone_parser.term_query("exact_metaphone_name", query, Term)
+            ])
         else:
             name_parser = QueryParser("name", write_handler.index.schema)
             metaphone_parser = QueryParser("metaphone_name", write_handler.index.schema)
@@ -173,7 +179,12 @@ class WhooshPlugin(Monitor):
                     metaphone_name = whoosh.fields.TEXT(
                         analyzer=SpaceSeparatedTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
                     ),
-                    exact_name = whoosh.fields.ID()
+                    exact_name = whoosh.fields.TEXT(
+                        analyzer=IDTokenizer() | LowercaseFilter()
+                    ),
+                    exact_metaphone_name = whoosh.fields.TEXT(
+                        analyzer=IDTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
+                    )
                 )
 
                 index = whoosh.index.create_in(index_path, schema)
