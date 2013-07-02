@@ -1052,7 +1052,7 @@ class Library(object):
 
         same_artists = set()
 
-        for artist_result in search.query_artist(artist.name):
+        for artist_result in search.query_artist(artist.name, exact=True):
             if artist != artist_result:
                 same_artists.add(artist_result)
 
