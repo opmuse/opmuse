@@ -115,25 +115,21 @@ class Search:
         write_handler = write_handlers[index_name]
 
         if exact:
-            exact_name_parser = QueryParser("exact_name", write_handler.index.schema)
-            exact_metaphone_parser = QueryParser("exact_metaphone_name", write_handler.index.schema)
-
-            whoosh_query = Or([
-                exact_name_parser.term_query("exact_name", query, Term),
-                exact_metaphone_parser.term_query("exact_metaphone_name", query, Term)
-            ])
+            terms = [
+                (QueryParser("exact_name", write_handler.index.schema)
+                    .term_query("exact_name", query, Term)),
+                (QueryParser("exact_metaphone_name", write_handler.index.schema)
+                    .term_query("exact_metaphone_name", query, Term))
+            ]
         else:
-            name_parser = QueryParser("name", write_handler.index.schema)
-            metaphone_parser = QueryParser("metaphone_name", write_handler.index.schema)
-            stemmed_parser = QueryParser("stemmed_name", write_handler.index.schema)
+            terms = [
+                QueryParser("name", write_handler.index.schema).parse(query),
+                QueryParser("metaphone_name", write_handler.index.schema).parse(query),
+                QueryParser("stemmed_name", write_handler.index.schema).parse(query)
+            ]
 
-            whoosh_query = Or([
-                name_parser.parse(query),
-                metaphone_parser.parse(query),
-                stemmed_parser.parse(query)
-            ])
-
-        results = write_handler.index.searcher().search(whoosh_query)
+        results = (write_handler.index.searcher()
+                      .search(Or([term for term in terms if term is not None])))
 
         return set([(int(result['id']), result.score) for result in results])
 
