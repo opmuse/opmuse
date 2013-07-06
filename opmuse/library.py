@@ -152,6 +152,14 @@ class Artist(Base):
         self.slug = slug
 
     @hybrid_property
+    def va_count(self):
+        return sum(album.is_va for album in self.albums)
+
+    @hybrid_property
+    def album_count(self):
+        return sum(not album.is_va for album in self.albums)
+
+    @hybrid_property
     def invalid(self):
         tracks = []
 
