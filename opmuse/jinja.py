@@ -84,7 +84,7 @@ def track_path(track, artist = None):
     path = track_structure.get_path()
 
     if path is not None:
-        return path.decode('utf8')
+        return path.decode('utf8', 'replace')
     else:
         return ''
 

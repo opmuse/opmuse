@@ -305,7 +305,7 @@ class Upload:
             else:
                 track_structure = TrackStructureParser(track)
                 track_path = track_structure.get_path(absolute=True)
-                relative_track_path = track_structure.get_path(absolute=False).decode('utf8')
+                relative_track_path = track_structure.get_path(absolute=False).decode('utf8', 'replace')
 
                 new_path = os.path.join(track_path, filename.encode('utf8'))
 
@@ -738,7 +738,7 @@ class Library(object):
 
                     dirs[dir]['files'].append({
                         "file": file,
-                        "relative_file": relative_file.decode('utf8'),
+                        "relative_file": relative_file.decode('utf8', 'replace'),
                         "modified": modified,
                         "size": size,
                         "track": track,
