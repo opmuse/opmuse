@@ -145,25 +145,27 @@
             <th>Size</th>
             <td>{{ track.size|format_bytes }}</td>
         </tr>
+    </table>
+    {% if track.has_dups %}
+        <p class="alert alert-info">
+            Track has duplicates, you could remove all but one of them.
+        </p>
+    {% endif %}
+    <table class="table table-striped table-bordered table-condensed">
         <tr>
-            <th>Files</th>
-            <td>
-                {% if track.has_dups %}
-                    <span class="badge badge-warning"
-                        title="Track has duplicates, you could remove all but one of them.">
-                        <i class="icon-group"></i>
-                    </span>
-                {% endif %}
-                <ul>
-                    {% for path in track.paths %}
-                    {# when displaying non-utf8 filenames the names will be incorrect,
-                    don't think we can solve this, maybe aid the user in renaming the
-                    files with our metadata... #}
-                    <li>{{ path.path.decode('utf8', 'replace') }}</li>
-                    {% endfor %}
-                </ul>
-            </td>
+            <th>File</th>
+            <th>Modified</th>
         </tr>
+        {% for path in track.paths %}
+            <tr>
+                <td>
+                    {{ path.pretty_path }}
+                </td>
+                <td>
+                    {{ path.modified|pretty_date }}
+                </td>
+            </tr>
+        {% endfor %}
     </table>
 
 </div>

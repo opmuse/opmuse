@@ -209,6 +209,11 @@ class TrackPath(Base):
         pretty_path = self.pretty_path
         return "%s/" % os.path.dirname(pretty_path)
 
+    @hybrid_property
+    def modified(self):
+        stat = os.stat(self.path)
+        return datetime.datetime.fromtimestamp(stat.st_mtime)
+
 
 class Track(Base):
     __tablename__ = 'tracks'
