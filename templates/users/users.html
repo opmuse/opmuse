@@ -10,10 +10,12 @@
 
 {% block content %}
 <div id="users">
-    <a href="/users/users/add" class="btn btn-small">
-        <i class="icon-plus"></i>
-        Add User
-    </a>
+    {% if is_granted('admin') %}
+        <a href="/users/users/add" class="btn btn-small">
+            <i class="icon-plus"></i>
+            Add User
+        </a>
+    {% endif %}
 
     <hr />
 
@@ -21,6 +23,9 @@
         <tr>
             <th>Name</th>
             <th>Lastfm User</th>
+            {% if is_granted('admin') %}
+                <th>Actions</th>
+            {% endif %}
         </tr>
         {% for user in users %}
         <tr>
@@ -39,6 +44,14 @@
                     {{ user.lastfm_user }}
                 {% endif %}
             </td>
+            {% if is_granted('admin') %}
+                <td>
+                    <a href="/users/user/{{ user.login }}/edit" class="btn btn-mini">
+                        <i class="icon-pencil"></i>
+                        Edit
+                    </a>
+                </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

@@ -1,4 +1,4 @@
-{% extends "body.html" %}
+{% extends "body_twocol.html" %}
 
 {% block title %}
     User - {{ user.login }}
@@ -23,6 +23,15 @@
 
 {% block content %}
 <div id="users">
+    {% if is_granted('admin') %}
+        <a href="/users/user/{{ user.login }}/edit" class="btn btn-small">
+            <i class="icon-pencil"></i>
+            Edit User
+        </a>
+    {% endif %}
+
+    <hr />
+
     <ul class="row-fluid">
         <li class="span11">
             <div class="media">

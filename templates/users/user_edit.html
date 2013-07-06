@@ -1,0 +1,80 @@
+{% extends "body.html" %}
+
+{% block title %}
+    User - {{ user.login }}
+{% endblock %}
+
+{% block navbar_sub %}
+    {% include "partials/users-nav.html" %}
+{% endblock %}
+
+{% block content %}
+<div id="users">
+    <h2>Edit User</h2>
+
+    <hr />
+
+    <form method="post" action="/users/user_edit_submit/{{ user.id }}" class="users-add-form form-horizontal clear">
+        <div class="control-group">
+            <label class="control-label" for="login-input">Login</label>
+            <div class="controls">
+                <div class="input-prepend">
+                    <span class="add-on"><i class="icon-user"></i></span>
+                    <input autocomplete="off" type="text" name="login" id="login-input"
+                        placeholder="Login" value="{{ user.login }}" />
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="mail-input">Mail</label>
+            <div class="controls">
+                <div class="input-prepend">
+                    <span class="add-on"><i class="icon-envelope"></i></span>
+                    <input autocomplete="off" type="email" name="mail" id="mail-input"
+                        placeholder="login@example.com" value="{{ user.mail }}" />
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="mail-input">Roles</label>
+            <div class="controls">
+                <div class="input-prepend">
+                    <span class="add-on"><i class="icon-group"></i></span>
+                    <select multiple="multiple" autocomplete="off" name="roles" id="roles-input">
+                        {% for role in roles %}
+                            <option {{ "selected" if role in user.roles else "" }}
+                                value="{{ role.id }}">
+                                {{ role.name }}
+                            </options>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="password1">Password</label>
+            <div class="controls">
+                <div class="input-prepend">
+                    <span class="add-on"><i class="icon-key"></i></span>
+                    <input autocomplete="off" type="password" name="password1" id="password1"
+                        placeholder="Password" />
+                </div>
+                <div class="input-prepend">
+                    <span class="add-on"><i class="icon-key"></i></span>
+                    <input autocomplete="off" type="password" name="password2" id="password2"
+                        placeholder="Confirm Password" />
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">
+                    <i class="icon-pencil"></i>
+                    Edit
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
