@@ -16,6 +16,17 @@
         margin: 8px 0 8px 5%;
         display: inline-block;
 
+        &:hover {
+            .artist,
+            .album {
+                .artist-badges,
+                .album-badges,
+                .add-album {
+                    opacity: 1;
+                }
+            }
+        }
+
         .artist,
         .album {
             margin: 0 auto;
@@ -76,9 +87,11 @@
             .artist-badges,
             .album-badges,
             .add-album {
+                .transition(.7s);
+
+                opacity: 0.0;
                 z-index: 99;
                 position: absolute;
-                display: block;
             }
 
             .artist-badges,
@@ -153,7 +166,16 @@
     width: @album-width + 14;
     height: @album-width + 14;
 
+    &:hover {
+        .remove-cover {
+            opacity: 1;
+        }
+    }
+
     .remove-cover {
+        .transition(.7s);
+
+        opacity: 0.0;
         position: absolute;
         right: -6px;
         top: -6px;
