@@ -95,7 +95,13 @@
             {% if artist %}
                 <div class="remotes remotes_artist_head_{{ artist.id }}">
                     {% if remotes_artist %}
-                        {{ print_wikipedia(remotes_artist.wikipedia) }}
+                        {% if remotes_artist.wikipedia.summary %}
+                            {{ print_wikipedia(remotes_artist.wikipedia) }}
+                        {% else %}
+                            <p>
+                                {{ remotes_artist.lastfm.bio }}
+                            </p>
+                        {% endif %}
                     {% endif %}
                 </div>
             {% endif %}

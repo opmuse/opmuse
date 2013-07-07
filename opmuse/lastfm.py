@@ -350,8 +350,19 @@ class Lastfm:
 
             tags = [str(topItem.item) for topItem in artist.get_top_tags(20)]
 
+            bio = (artist._request("artist.getInfo", True)
+                   .getElementsByTagName("bio")[0]
+                   .getElementsByTagName('summary')[0]
+                   .firstChild)
+
+            if bio is not None:
+                bio = bio.wholeText
+            else:
+                bio = None
+
             return {
                 'url': artist.get_url(),
+                'bio': bio,
                 'cover': artist.get_cover_image(),
                 'listeners': artist.get_listener_count(),
                 'tags': tags,
