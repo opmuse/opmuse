@@ -1368,16 +1368,18 @@ class LibraryDao:
         return tracks, messages + add_files_messages
 
     def get_invalid_track_count(self):
-        return get_database().query(func.count(Track.id)).filter("invalid is not null").scalar()
+        return (get_database().query(func.count(Track.id))
+                .filter("invalid is not null", Track.scanned).scalar())
 
     def get_album_count(self):
         return get_database().query(func.count(Album.id)).scalar()
 
     def get_artist_count(self):
-        return get_database().query(func.count(Artist.id)).scalar()
+        return get_database().query(func.count(Artist.id)).filter(Track.scanned).scalar()
 
     def get_track_count(self):
-        return get_database().query(func.count(Track.id)).scalar()
+        return (get_database().query(func.count(Track.id))
+                .filter(Track.scanned).scalar())
 
     def get_tracks_by_ids(self, ids):
         return (get_database().query(Track)
