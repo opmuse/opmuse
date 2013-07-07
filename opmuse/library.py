@@ -210,7 +210,7 @@ class TrackPath(Base):
         return "%s/" % os.path.dirname(pretty_path)
 
     @hybrid_property
-    def modified(self):
+    def path_modified(self):
         stat = os.stat(self.path)
         return datetime.datetime.fromtimestamp(stat.st_mtime)
 
