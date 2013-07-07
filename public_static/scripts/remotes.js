@@ -51,8 +51,8 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function
 
                                 // TODO remove fucking browser prefix shit whenever....
                                 element.addClass('remotes-hide').one('webkitTransitionEnd transitionend', function (event) {
-                                    element.children().remove();
-                                    element.append(page.find(selector).children());
+                                    element.contents().remove();
+                                    element.append(page.find(selector).contents());
 
                                     ajaxify.load(selector);
 

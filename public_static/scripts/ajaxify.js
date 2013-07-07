@@ -135,10 +135,10 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 var content = this.contents[index];
                 var newContent = html.find(content);
 
-                $(content).children().remove();
+                $(content).contents().remove();
 
                 $(content)
-                    .append(newContent.children())
+                    .append(newContent.contents())
                     .attr('class', newContent.attr('class'));
 
                 $(window).scrollTop(0);
