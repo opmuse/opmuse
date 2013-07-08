@@ -84,16 +84,16 @@ class Search:
         write_handler = write_handlers["Artist"]
         write_handler.update_document(str(artist.id), name = artist.name)
 
-    def query_track(self, query, exact = False):
-        results = self._query("Track", query, exact)
+    def query_track(self, query, exact = False, exact_metaphone = False):
+        results = self._query("Track", query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Track, results)
 
-    def query_album(self, query, exact = False):
-        results = self._query("Album", query, exact)
+    def query_album(self, query, exact = False, exact_metaphone = False):
+        results = self._query("Album", query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Album, results)
 
-    def query_artist(self, query, exact = False):
-        results = self._query("Artist", query, exact)
+    def query_artist(self, query, exact = False, exact_metaphone = False):
+        results = self._query("Artist", query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Artist, results)
 
     def _fetch_by_keys(self, entity, results):
@@ -111,10 +111,15 @@ class Search:
 
         return sorted(entities, key=lambda entity: indexed_results[entity.id], reverse=True)
 
-    def _query(self, index_name, query, exact = False):
+    def _query(self, index_name, query, exact = False, exact_metaphone = False):
         write_handler = write_handlers[index_name]
 
         if exact:
+            terms = [
+                (QueryParser("exact_name", write_handler.index.schema)
+                    .term_query("exact_name", query, Term))
+            ]
+        elif exact_metaphone:
             terms = [
                 (QueryParser("exact_name", write_handler.index.schema)
                     .term_query("exact_name", query, Term)),
