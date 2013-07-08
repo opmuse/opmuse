@@ -358,7 +358,7 @@ class Lastfm:
             if bio is not None:
                 bio = bio.wholeText
             else:
-                bio = None
+                bio = ''
 
             return {
                 'url': artist.get_url(),
