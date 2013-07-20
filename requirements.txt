@@ -10,5 +10,5 @@ Whoosh==2.5.1
 vendor/mutagen-py3.tar.bz2
 rarfile==2.6
 ws4py==0.3.0-beta
-Unidecode==0.04.12
+Unidecode==0.04.13
 vendor/discogs_client.tar.bz2
