@@ -344,6 +344,21 @@
 
     &.open {
         .panel-open;
+        .btn-stream {
+            margin: 0 10px 8px 0;
+            float: right;
+            position: static;
+            top: auto;
+            right: auto;
+
+            .open-stream {
+                display: none;
+
+                &.open {
+                    display: block;
+                }
+            }
+        }
     }
 
     &.panel-fullscreen {
@@ -362,24 +377,6 @@
                 bottom: 0;
                 right: 0;
                 display: block;
-            }
-        }
-    }
-
-    &.open {
-        .btn-stream {
-            margin: 0 10px 8px 0;
-            float: right;
-            position: static;
-            top: auto;
-            right: auto;
-
-            .open-stream {
-                display: none;
-
-                &.open {
-                    display: block;
-                }
             }
         }
     }
