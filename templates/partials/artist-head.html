@@ -56,8 +56,8 @@
 {% endif %}
 
 <div class="artist-head">
-    <ul class="row-fluid">
-        <li class="span7">
+    <div class="row">
+        <div class="col-xs-7">
             {% if track %}
                 <h3 class="track-head">
                     <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
@@ -123,13 +123,13 @@
                     {% endif %}
                 </div>
             {% endif %}
-        </li>
-        <li class="span5">
+        </div>
+        <div class="col-xs-5">
             {% if album %}
                 {{ covers.album(album, remove = True) }}
             {% elif artists %}
                 {{ covers.artist(artists[0], remove = True) }}
             {% endif %}
-        </li>
-    </ul>
+        </div>
+    </div>
 </div>

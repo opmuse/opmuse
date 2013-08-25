@@ -12,20 +12,22 @@
 
 {% block content %}
 <div id="tag">
-    <ul class="row-fluid">
-        <li class="span8">
+    <div class="row">
+        <div class="col-xs-8">
             {{ media.hierarchy(hierarchy) }}
-        </li>
-        <li class="span4">
-            <div class="result-stats well well-small sidebar-nav">
-                <ul class="nav nav-list">
-                    <li class="nav-header">Messages</li>
+        </div>
+        <div class="col-xs-4">
+            <div class="result-stats panel panel-default sidebar-nav">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Messages</h3>
+                </div>
+                <ul class="list-group">
                     {% for message in messages %}
-                        <li>{{ message }}</li>
+                        <li class="list-group-item">{{ message }}</li>
                     {% endfor %}
                 </ul>
             </div>
-        </li>
-    </ul>
+        </div>
+    </div>
 </div>
 {% endblock %}

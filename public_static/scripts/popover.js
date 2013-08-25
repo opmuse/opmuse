@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-popover', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'bootstrap/popover', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 

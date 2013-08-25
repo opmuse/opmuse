@@ -19,8 +19,8 @@
         &:hover {
             .artist,
             .album {
-                .artist-badges,
-                .album-badges,
+                .artist-labels,
+                .album-labels,
                 .add-album {
                     opacity: 1;
                 }
@@ -84,8 +84,8 @@
                 }
             }
 
-            .artist-badges,
-            .album-badges,
+            .artist-labels,
+            .album-labels,
             .add-album {
                 .transition(.7s);
 
@@ -94,12 +94,12 @@
                 position: absolute;
             }
 
-            .artist-badges,
-            .album-badges {
+            .artist-labels,
+            .album-labels {
                 top: -6px;
                 left: -6px;
 
-                &.artist-badges.bottom {
+                &.artist-labels.bottom {
                     bottom: 13px;
                 }
 
@@ -113,7 +113,7 @@
                     }
                 }
 
-                .badge {
+                .label {
                     line-height: 12px;
                 }
             }
@@ -192,8 +192,8 @@
         right: 0;
         top: 0;
 
-        width: @album-width;
-        height: @album-width;
+        width: @album-width + 14;
+        height: @album-width + 14;
 
         .transition(.7s);
 
@@ -243,18 +243,25 @@
 }
 
 .artist-nav {
-    .badge {
-        max-width: 70px;
+    .label {
+        display: block;
+        float: left;
+        margin: 0 4px 4px 0;
+        max-width: 90px;
         overflow: hidden;
         text-overflow: ellipsis;
 
         a {
-            color: #FDFDFD;
+            color: @white;
         }
+    }
+
+    .list-group > .list-group-item {
+        overflow: hidden;
     }
 }
 
-.img-polaroid {
+.img-thumbnail {
     box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
     padding: 6px;
     border: 0 1px 3px rgba(0, 0, 0, 0.1);

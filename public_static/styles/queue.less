@@ -51,7 +51,6 @@
             text-align: center;
             width: 96%;
             margin-left: 6px;
-            font-size: .9em;
             color: @white;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -59,9 +58,10 @@
         }
 
         .progress {
+            height: 28px;
             margin-bottom: 15px;
 
-            #gradient > .vertical(lighten(@black, 25%), lighten(@black, 15%));
+            #gradient > .vertical(#7A7A7A, #606060);
 
             .bar {
                 &.seconds {
@@ -78,20 +78,22 @@
 .panel-open {
     .cover-container {
         display: block;
-        width: 60px;
-        height: 60px;
+        width: 72px;
+        height: 72px;
         float: left;
         margin-top: -4px;
 
         &> img {
-            width: 60px;
-            height: 60px;
+            border: 1px solid #000;
+            .box-shadow(0 0 4px rgba(0, 0, 0, .9));
+            width: 72px;
+            height: 72px;
         }
     }
 
     #player-controls {
         margin-left: 18px;
-        margin-top: -8px;
+        margin-top: -16px;
         width: 69%;
         float: left;
         position: static;
@@ -130,7 +132,7 @@
 
     .tracks-wrapper {
         background-image: url('/static/images/stressed_linen.png');
-        height: 303px;
+        height: 332px;
         box-shadow:
             inset 0px 11px 8px -10px rgba(0, 0, 0, 0.5),
             inset 0px -11px 8px -10px rgba(0, 0, 0, 0.8);
@@ -147,14 +149,11 @@
         .tracks {
             list-style: none;
             margin: 0;
+            padding: 0;
 
-            @media (max-width: @navbarCollapseWidth) {
+            @media (max-width: @screen-md) {
                 overflow: hidden;
                 height: auto;
-            }
-
-            li:first-child {
-                margin-top: 5px;
             }
 
             li:last-child {
@@ -163,7 +162,7 @@
         }
     }
 
-    @media (max-width: @navbarCollapseWidth) {
+    @media (max-width: @screen-md) {
         .tracks-wrapper {
             height: auto;
             position: static;
@@ -179,12 +178,6 @@
         }
     }
 
-    .track-duration,
-    .track-name,
-    .track-number {
-        font-size: .8em;
-    }
-
     li {
         padding: 0 15px 0 10px;
     }
@@ -192,7 +185,7 @@
     li,
     .text,
     .track-info {
-        height: 22px;
+        height: 28px;
         line-height: 22px;
     }
 
@@ -203,7 +196,6 @@
     .album-info {
         font-weight: bold;
         width: 24%;
-        font-size: .8em;
     }
 
     .artist-name {
@@ -230,7 +222,7 @@
         display: inline;
         font-weight: bold;
         width: 32px;
-        color: @red;
+        color: @brand-danger;
 
         &:hover {
             text-decoration: none;
@@ -265,9 +257,6 @@
     }
 
     .current {
-        margin-top: 2px;
-        padding-bottom: 5px;
-        padding-top: 2px;
         background: rgba(255, 255, 255, 0.14);
 
         .played-icon,
@@ -338,7 +327,7 @@
         }
     }
 
-    @media (max-width: @navbarCollapseWidth) {
+    @media (max-width: @screen-md) {
         .panel-open;
     }
 

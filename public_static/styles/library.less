@@ -16,22 +16,25 @@
     .sorts {
         float: right;
         margin: 0 6px 6px 0;
-
-        dt {
-            font-size: .8em;
-        }
+        font-family: @original-font-family-sans-serif;
 
         dd,
         dt {
             float: left;
-            line-height: 25px;
+            line-height: 15px;
             padding: 4px 0;
             margin-left: 4px;
+        }
+
+        dt {
+            font-size: 0.8em;
+            padding: 8px 0 2px 0;
         }
 
         dd {
             ul {
                 margin: 0;
+                padding: 0;
 
                 li {
                     margin: 0 2px;
@@ -39,17 +42,22 @@
                     list-style: none;
 
                     input {
+                        display: inline-block;
                         width: 80px;
-                        margin: 0;
+                        margin: -3px 0 0 0;
+                        font-family: @original-font-family-sans-serif;
                         font-size: 11px;
-                        height: 13px;
+                        height: 17px;
                         padding: 1px 4px;
                     }
 
                     > a {
                         .btn;
-                        .btn-mini;
-                        .btn-inverse;
+                        .btn-xs;
+                        .btn-default;
+
+                        font-family: @original-font-family-sans-serif;
+                        font-size: 0.8em;
                     }
 
                     &.active {

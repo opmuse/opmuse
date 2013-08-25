@@ -28,7 +28,7 @@
 {% endmacro %}
 
 {% macro album_queue_btn(album) %}
-    <a class="queue add add-album btn btn-small btn-inverse"
+    <a class="queue add add-album btn btn-default btn-sm"
         href="/queue/add/
             {%- for track in album.tracks -%}
                 {{ track.id }},
@@ -43,23 +43,23 @@
 
     <div class="album-container">
         <div class="album {{ 'invalid' if album.invalid else '' }}">
-            <div class="album-badges">
-                <p class="album-track-count badge badge-inverse">{{ album.tracks|count }} tracks</p>
-                <p class="album-duration badge badge-inverse">{{ album.duration|format_seconds }}</p>
-                <p class="album-added badge badge-inverse">{{ album.added|pretty_date }}</p>
+            <div class="album-labels">
+                <p class="album-track-count label label-primary">{{ album.tracks|count }} tracks</p>
+                <p class="album-duration label label-primary">{{ album.duration|format_seconds }}</p>
+                <p class="album-added label label-primary">{{ album.added|pretty_date }}</p>
             </div>
-            <div class="album-badges bottom">
+            <div class="album-labels bottom">
                 {% if album.is_va %}
-                    <p class="album-va badge badge-success">VA</p>
+                    <p class="album-va label label-success">VA</p>
                 {% endif %}
                 {% if album.low_quality %}
-                    <p class="album-low-quality badge badge-warning"
+                    <p class="album-low-quality label label-warning"
                         title="Album has tracks of low quality, consider replacing them.">
                         <i class="icon-thumbs-down"></i>
                     </p>
                 {% endif %}
                 {% if album.invalid %}
-                <p class="album-invalid badge badge-important" title="This album containts invalid tracks.">
+                <p class="album-invalid label label-danger" title="This album containts invalid tracks.">
                     {% if "dir" in album.invalid %}
                         <i class="icon-folder-open"></i>
                     {% endif %}
@@ -74,7 +74,7 @@
                     {% endif %}
                 </p>
                 {% endif %}
-                <p class="album-format badge badge-info">
+                <p class="album-format label label-info">
                     {{ album.pretty_format }}
                 </p>
             </div>

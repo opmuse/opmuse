@@ -1,62 +1,63 @@
 @import "lib/bootstrap/variables.less";
 
-@black: #3a3a3a;
-@grayDarker: #4a4a4a;
-@grayDark: #515151;
+@gray-darker: #4a4a4a;
+@gray-dark: #515151;
 @gray: #5a5a5a;
-@grayLight: #888;
-@grayLighter: #cacaca;
+@gray-light: #888;
+@gray-lighter: #cacaca;
 @white: #fdfdfd;
 
-@linkColor: #333;
-@linkColorHover: #000;
+@brand-primary: #2a2a2a;
+@brand-success: #7DB458;
+@brand-warning: #E4B147;
+@brand-danger: #A12419;
+@brand-info: #5C6D7E;
 
-@originalSansFontFamily: "Helvetica Neue", Helvetica, Arial, sans-serif;
-@sansFontFamily: "News Cycle", "Arial Narrow Bold", sans-serif;
-@serifFontFamily: Georgia, "Times New Roman", Times, serif;
-@monoFontFamily: Menlo, Monaco, Consolas, "Courier New", monospace;
+@state-info-text: darken(@brand-info, 12%);
+@state-info-bg: lighten(@brand-info, 37%);
 
-@baseFontSize: 16px;
-@baseFontFamily: @serifFontFamily;
-@baseLineHeight: 22px;
-@altFontFamily:@sansFontFamily;
+@state-danger-text: darken(@brand-danger, 20%);
+@state-danger-bg: lighten(@brand-danger, 24%);
 
-@headingsFontFamily: @sansFontFamily;
-@headingsFontWeight: bold;
-@headingsColor: @black;
+@state-success-text: darken(@brand-success, 35%);
+@state-success-bg: lighten(@brand-success, 8%);
 
-@tableBackground: #f9f9f9;
-@tableBackgroundAccent: #f6f6f6;
-@tableBackgroundHover: #f2f2f2;
-@tableBorder: #ccc;
+@state-warning-text: darken(@brand-warning, 43%);
+@state-warning-bg: lighten(@brand-warning, 10%);
+
+@link-color: #333;
+@link-hover-color: #000;
+
+@original-font-family-sans-serif:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-family-sans-serif: "News Cycle", "Arial Narrow Bold", sans-serif;
+@font-family-serif: "Vollkorn", Georgia, "Times New Roman", Times, serif;
+@font-family-base: @font-family-sans-serif;
+
+@headings-font-family: @font-family-sans-serif;
+@headings-font-weight: bold;
+
+@font-size-base: 16px;
+@font-size-large: 20px;
+@font-size-small: 14px;
+
+@screen-md: 940px;
+
+@table-bg: #f9f9f9;
+@table-bg-accent: #f6f6f6;
+@table-bg-hover: #f2f2f2;
+@table-border-color: #ccc;
 
 @navbarText: @white;
-@navbarLinkColor: @white;
-@navbarLinkColorHover: @white;
-@navbarLinkColorActive: @grayLighter;
-@navbarBackgroundHighlight: #333;
+@navbar-default-link-color: @white;
+@navbar-default-link-hover-color: @white;
+@navbar-default-link-active-color: @gray-lighter;
 
-// 1920 / 2 - 20
-@navbarCollapseWidth: 940px;
+@grid-gutter-width: 5px;
 
-@gridGutterWidth: 5px;
-@gridGutterWidth1200: 10px;
-@gridGutterWidth768: 5px;
+@btn-primary-bg: #111;
+@btn-danger-bg: #CC5E52;
+@btn-success-bg: #6BB36D;
+@btn-warning-bg: #D9C357;
 
-@btnPrimaryBackground: #111;
-@btnPrimaryBackgroundHighlight: #000;
-
-@btnDangerBackground: #CC5E52;
-@btnDangerBackgroundHighlight: darken(@btnDangerBackground, 10%);
-
-@btnSuccessBackground: #6BB36D;
-@btnSuccessBackgroundHighlight: darken(@btnSuccessBackground, 10%);
-
-@btnWarningBackground: #D9C357;
-@btnWarningBackgroundHighlight: darken(@btnWarningBackground, 10%);
-
-@iconSpritePath: "../static/images/glyphicons-halflings.png";
-@iconWhiteSpritePath: "../static/images/glyphicons-halflings-white.png";
-
-@bodyBackground: @white;
+@body-bg: @white;
 

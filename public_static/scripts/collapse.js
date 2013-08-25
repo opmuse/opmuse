@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-collapse', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'bootstrap/collapse', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 

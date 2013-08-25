@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'bootstrap/bootstrap-typeahead',
+define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeahead',
         'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
 
     var instance = null;

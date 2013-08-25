@@ -9,7 +9,7 @@
 	url = git://github.com/requirejs/domReady.git
 [submodule "vendor/twitter-bootstrap"]
 	path = vendor/twitter-bootstrap
-	url = https://github.com/twitter/bootstrap
+	url = https://github.com/twbs/bootstrap
 [submodule "vendor/jQuery-File-Upload"]
 	path = vendor/jQuery-File-Upload
 	url = git://github.com/blueimp/jQuery-File-Upload.git
@@ -28,3 +28,6 @@
 [submodule "vendor/matchMedia.js"]
 	path = vendor/matchMedia.js
 	url = git://github.com/paulirish/matchMedia.js.git
+[submodule "vendor/typeahead.js"]
+	path = vendor/typeahead.js
+	url = https://github.com/twitter/typeahead.js/

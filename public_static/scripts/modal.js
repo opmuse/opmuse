@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-modal', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'bootstrap/modal', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 

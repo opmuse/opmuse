@@ -12,13 +12,14 @@ require.config({
         'moment': 'lib/moment',
         'blur': 'lib/blur',
         'matchMedia': 'lib/matchMedia',
-        'jquery.ui': 'lib/jquery.ui'
+        'jquery.ui': 'lib/jquery.ui',
+        'typeahead': 'lib/typeahead'
     },
     shim: {
         'jquery.ui': ['jquery'],
         'blur': ['jquery'],
-        'bootstrap/bootstrap-popover': ['bootstrap/bootstrap-tooltip'],
-        'bootstrap/bootstrap-button': ['bootstrap/bootstrap-dropdown'],
+        'bootstrap/popover': ['bootstrap/tooltip'],
+        'bootstrap/button': ['bootstrap/dropdown'],
         'jquery.nanoscroller': ['jquery']
     },
     waitSeconds: 30

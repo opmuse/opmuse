@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'bootstrap/bootstrap-tooltip', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'bootstrap/tooltip', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 

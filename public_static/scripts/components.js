@@ -19,9 +19,9 @@ define(['jquery', 'inheritance', 'blur', 'domReady!'], function($, inheritance) 
         internalInit: function () {
             var that = this;
 
-            $(".album-container .album-badges, " +
+            $(".album-container .album-labels, " +
               ".album-container .add-album, " +
-              ".artist-container .artist-badges").hover(
+              ".artist-container .artist-labels").hover(
                 function (event) {
                     that.blur($(this).closest('.album-container, .artist-container'));
                 },

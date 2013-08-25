@@ -11,7 +11,7 @@
 {% block content %}
 <div id="users">
     {% if is_granted('admin') %}
-        <a href="/users/users/add" class="btn btn-small">
+        <a href="/users/users/add" class="btn btn-default btn-sm">
             <i class="icon-plus"></i>
             Add User
         </a>
@@ -46,7 +46,7 @@
             </td>
             {% if is_granted('admin') %}
                 <td>
-                    <a href="/users/user/{{ user.login }}/edit" class="btn btn-mini">
+                    <a href="/users/user/{{ user.login }}/edit" class="btn btn-default btn-xs">
                         <i class="icon-pencil"></i>
                         Edit
                     </a>

@@ -13,6 +13,10 @@
     }
 
     table {
+        .label {
+            margin-right: 4px;
+        }
+
         margin-top: 10px;
 
         .queue {
@@ -24,7 +28,8 @@
         .other-files-header td, th,
         .other-files td, th {
             font-size: 0.8em;
-            line-height: 0.8em;
+            font-family: @original-font-family-sans-serif;
+            line-height: 0.9em;
 
             padding: 0 8px;
             line-height: 32px;
@@ -33,12 +38,26 @@
         .indent {
             width: 12px;
             padding: 0 !important;
-            background-color: @bodyBackground;
-            border-color: @bodyBackground;
+            background-color: @body-bg;
+            border-top-color: @body-bg;
+            border-left-color: @body-bg;
+            border-bottom-color: @body-bg;
+        }
+
+        tfoot {
+            border: 0;
+        }
+
+        tbody {
+            border: 0;
+        }
+
+        tbody.other-files-header .indent {
+            border-bottom-color: @table-border-color;
         }
 
         tbody:not(.other-files) tr:nth-child(2) .indent {
-            border-top-color: @tableBorder;
+            border-top-color: @table-border-color;
         }
 
         .other-files-header {
@@ -98,6 +117,6 @@
     }
 
     .invalid-track {
-        color: @textColor;
+        color: @text-color;
     }
 }

@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'lib/bootstrap/bootstrap-alert', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'lib/bootstrap/alert', 'domReady!'], function($, inheritance) {
 
     var instance = null;
 

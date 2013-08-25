@@ -1,6 +1,6 @@
 {% macro pagination(url, page, pages) %}
-    <div class="pagination pagination-centered">
-        <ul>
+    <div class="pagination-container">
+        <ul class="pagination">
             {% if page > 1 %}
                 <li>
                     <a href="{{ url }}{{ page - 1 }}">&laquo;</a>

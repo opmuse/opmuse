@@ -13,41 +13,53 @@
     {% include "partials/you-nav.html" %}
 
     <form method="post" action="/users/you/settings_submit" class="form-horizontal clear">
-        <div class="control-group">
-            <label class="control-label" for="login-input">Login</label>
-            <div class="controls">
-                <div class="input-prepend">
-                    <span class="add-on"><i class="icon-user"></i></span>
-                    <input autocomplete="off" type="text" name="login" id="login-input"
-                        disabled="disabled" readonly="readonly" value="{{ user.login }}" />
+        <div class="container">
+            <div class="form-group">
+                <label class="col-xs-2 control-label" for="login-input">Login</label>
+                <div class="col-xs-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="icon-user"></i></span>
+                        <input class="form-control" autocomplete="off" type="text"
+                            name="login" id="login-input" disabled="disabled"
+                            readonly="readonly" value="{{ user.login }}" />
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="mail-input">Mail</label>
-            <div class="controls">
-                <div class="input-prepend">
-                    <span class="add-on"><i class="icon-envelope"></i></span>
-                    <input autocomplete="off" type="email" name="mail" id="mail-input" value="{{ user.mail }}" />
+            <div class="form-group">
+                <label class="col-xs-2 control-label" for="mail-input">Mail</label>
+                <div class="col-xs-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="icon-envelope"></i></span>
+                        <input class="form-control" autocomplete="off" type="email"
+                            name="mail" id="mail-input" value="{{ user.mail }}" />
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="password1">Password</label>
-            <div class="controls">
-                <div class="input-prepend">
-                    <span class="add-on"><i class="icon-key"></i></span>
-                    <input autocomplete="off" type="password" name="password1" id="password1" placeholder="New Password" />
-                </div>
-                <div class="input-prepend">
-                    <span class="add-on"><i class="icon-key"></i></span>
-                    <input autocomplete="off" type="password" name="password2" id="password2" placeholder="Confirm Password" />
+            <div class="form-group">
+                <label class="col-xs-2 control-label" for="password1">Password</label>
+                <div class="col-xs-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="icon-key"></i></span>
+                        <input class="form-control" autocomplete="off" type="password"
+                            name="password1" id="password1" placeholder="New Password" />
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="control-group">
-            <div class="controls">
-                <button type="submit" class="btn">Edit</button>
+            <div class="form-group">
+                <label class="col-xs-2 control-label" for="password2"></label>
+                <div class="col-xs-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="icon-key"></i></span>
+                        <input class="form-control" autocomplete="off" type="password"
+                            name="password2" id="password2" placeholder="Confirm Password" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-2"></div>
+                <div class="col-xs-1">
+                    <button type="submit" class="btn btn-default">Edit</button>
+                </div>
             </div>
         </div>
     </form>

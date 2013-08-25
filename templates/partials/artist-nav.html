@@ -3,34 +3,31 @@
 <div class="artist-nav">
     {% if album %}
         <div class="remotes remotes_album_nav_{{ album.id }}">
-            <div class="sidebar-nav well well-small">
-                <li class="nav-header">Album: {{ album.name }}</li>
-                <ul class="nav nav-list">
-                    <li>
+            <div class="sidebar-nav panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ album.name }}</h3>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
                         <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
-                            &hellip; on Discogs
-                        </a>
-                    </li>
-                    {% if remotes_album %}
+                            on Discogs</a>
+                    {%- if remotes_album -%}
+                        ,
                         {% if remotes_album.lastfm.url %}
-                            <li>
-                                <a href="{{ remotes_album.lastfm.url }}">&hellip; on Lastfm</a>
-                            </li>
+                            <a href="{{ remotes_album.lastfm.url }}">on Lastfm</a>
                         {% endif %}
                     {% endif %}
-                    <li class="nav-header">Stats</li>
-                    <li>
+                    <li class="list-group-item">
                         {% if remotes_album %}
                             {% if remotes_album.lastfm.listeners %}
-                                {{ remotes_album.lastfm.listeners|format_number }} Lastfm Listeners
+                                <strong>{{ remotes_album.lastfm.listeners|format_number }}</strong> Lastfm Listeners
                             {% endif %}
                         {% endif %}
                     </li>
-                    <li class="nav-header">Tags</li>
-                    <li>
+                    <li class="list-group-item">
                         {% if remotes_album %}
                             {% for tag in remotes_album.lastfm.tags %}
-                            <span class="tag badge badge-inverse" title="{{ tag }}">
+                            <span class="tag label label-primary" title="{{ tag }}">
                                 <a href="/library/albums?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
                             </span>
                             {% endfor %}
@@ -44,62 +41,56 @@
         {% for artist in artists %}
             <div class="remotes remotes_artist_nav_{{ artist.id }}">
                 {% set remotes_artist = remotes_artists[loop.index0] %}
-                <div class="sidebar-nav well well-small">
-                    <ul class="nav nav-list">
-                        <li class="nav-header">Artist: {{ artist.name }}</li>
+                <div class="sidebar-nav panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{ artist.name }}</h3>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
                         {% if remotes_artist %}
                             {% if remotes_artist.lastfm.url %}
-                                <li>
-                                    <a href="{{ remotes_artist.lastfm.url }}">&hellip; on Lastfm</a>
-                                </li>
+                                <a href="{{ remotes_artist.lastfm.url }}">on Lastfm</a>,
                             {% endif %}
                         {% endif %}
-                        <li>
-                            <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
-                                &hellip; on Discogs
+                        <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
+                            on Discogs</a>
+                        {%- if album -%}
+                            ,
+                            <a href="http://www.discogs.com/search?q={{ "artist:'" ~
+                                artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
+                                Album on Discogs
                             </a>
-                        </li>
-                        {% if album %}
-                            <li>
-                                <a href="http://www.discogs.com/search?q={{ "artist:'" ~
-                                    artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
-                                    Album on Discogs
-                                </a>
-                            </li>
                         {% endif %}
-                        <li class="nav-header">Stats</li>
-                        <li>
+                        </li>
+                        <li class="list-group-item">
                             {% if remotes_artist %}
                                 {% if remotes_artist.lastfm.listeners %}
-                                    {{ remotes_artist.lastfm.listeners|format_number }} Lastfm Listeners
+                                    <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
                                 {% endif %}
                             {% endif %}
                         </li>
-                        <li class="nav-header">Tags</li>
-                        <li>
+                        <li class="list-group-item">
                             {% if remotes_artist %}
                                 {% for tag in remotes_artist.lastfm.tags %}
-                                <span class="tag badge badge-inverse" title="{{ tag }}">
+                                <span class="tag label label-primary" title="{{ tag }}">
                                     <a href="/library/artists?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
                                 </span>
                                 {% endfor %}
                             {% endif %}
                         </li>
-                        <li class="nav-header">Similar</li>
-                        <li>
+                        <li class="list-group-item">
                         {% if remotes_artist %}
                             {% for similar in remotes_artist.lastfm.similar %}
-                                <span class="badge badge-inverse" title="{{ similar.name }}">
+                                <span class="label label-primary" title="{{ similar.name }}">
                                     <a href="/{{ similar.slug|urlencode }}">{{ similar.name }}</a>
                                 </span>
                             {% endfor %}
                         {% endif %}
                         </li>
-                        <li class="nav-header">Discogs aliases</li>
-                        <li>
+                        <li class="list-group-item">
                         {% if remotes_artist %}
                             {% for alias in remotes_artist.discogs.aliases %}
-                                <span class="badge badge-inverse" title="{{ alias }}">
+                                <span class="label label-primary" title="{{ alias }}">
                                     <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
                                 </span>
                             {% endfor %}

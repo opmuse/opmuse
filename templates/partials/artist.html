@@ -5,22 +5,22 @@
         <a href="/{{ artist.slug|urlencode }}">
             {{ covers.artist(artist) }}
         </a>
-        <div class="artist-badges">
+        <div class="artist-labels">
             {% if artist.album_count %}
-                <p class="artist-album-count badge badge-inverse">
+                <p class="artist-album-count label label-primary">
                     {{ artist.album_count }} albums
                 </p>
             {% endif %}
             {% if artist.va_count %}
-                <p class="artist-album-count badge badge-inverse">
+                <p class="artist-album-count label label-primary">
                     {{ artist.va_count }} VAs
                 </p>
             {% endif %}
-            <p class="artist-added badge badge-inverse">{{ artist.added|pretty_date }}</p>
+            <p class="artist-added label label-primary">{{ artist.added|pretty_date }}</p>
         </div>
-        <div class="artist-badges bottom">
+        <div class="artist-labels bottom">
             {% if artist.invalid %}
-            <p class="artist-invalid badge badge-important" title="This artist has invalid tracks.">
+            <p class="artist-invalid label label-danger" title="This artist has invalid tracks.">
                 <i class="icon-warning-sign"></i>
             </p>
             {% endif %}

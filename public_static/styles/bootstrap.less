@@ -1,55 +1,52 @@
-// CSS Reset
-@import "lib/bootstrap/reset.less";
-
 // Core variables and mixins
 @import "variables.less";
 @import "lib/bootstrap/mixins.less";
 
-// Grid system and page structure
-@import "lib/bootstrap/scaffolding.less";
-@import "lib/bootstrap/grid.less";
-@import "lib/bootstrap/layouts.less";
+// Reset
+@import "lib/bootstrap/normalize.less";
+@import "lib/bootstrap/print.less";
 
-// Base CSS
+// Core CSS
+@import "lib/bootstrap/scaffolding.less";
 @import "lib/bootstrap/type.less";
 @import "lib/bootstrap/code.less";
-@import "lib/bootstrap/forms.less";
+@import "lib/bootstrap/grid.less";
 @import "lib/bootstrap/tables.less";
+@import "lib/bootstrap/forms.less";
+@import "lib/bootstrap/buttons.less";
 
-// Components: common
-// @import "lib/bootstrap/sprites.less";
+// Components
+@import "lib/bootstrap/component-animations.less";
+//@import "lib/bootstrap/glyphicons.less";
 @import "font-awesome.less";
 @import "lib/bootstrap/dropdowns.less";
-@import "lib/bootstrap/wells.less";
-@import "lib/bootstrap/component-animations.less";
-@import "lib/bootstrap/close.less";
-
-// Components: Buttons & Alerts
-@import "lib/bootstrap/buttons.less";
 @import "lib/bootstrap/button-groups.less";
-@import "lib/bootstrap/alerts.less"; // Note: alerts share common CSS with buttons and thus have styles in buttons.less
-
-// Components: Nav
+@import "lib/bootstrap/input-groups.less";
 @import "lib/bootstrap/navs.less";
 @import "lib/bootstrap/navbar.less";
 @import "lib/bootstrap/breadcrumbs.less";
 @import "lib/bootstrap/pagination.less";
 @import "lib/bootstrap/pager.less";
+@import "lib/bootstrap/labels.less";
+@import "lib/bootstrap/badges.less";
+@import "lib/bootstrap/jumbotron.less";
+@import "lib/bootstrap/thumbnails.less";
+@import "lib/bootstrap/alerts.less";
+@import "lib/bootstrap/progress-bars.less";
+@import "lib/bootstrap/media.less";
+@import "lib/bootstrap/list-group.less";
+@import "lib/bootstrap/panels.less";
+@import "lib/bootstrap/wells.less";
+@import "lib/bootstrap/close.less";
 
-// Components: Popovers
+// Components w/ JavaScript
 @import "lib/bootstrap/modals.less";
 @import "lib/bootstrap/tooltip.less";
 @import "lib/bootstrap/popovers.less";
-
-// Components: Misc
-@import "lib/bootstrap/thumbnails.less";
-@import "lib/bootstrap/media.less";
-@import "lib/bootstrap/labels-badges.less";
-@import "lib/bootstrap/progress-bars.less";
-@import "lib/bootstrap/accordion.less";
 @import "lib/bootstrap/carousel.less";
-@import "lib/bootstrap/hero-unit.less";
 
 // Utility classes
-@import "lib/bootstrap/utilities.less"; // Has to be last to override when necessary
+@import "lib/bootstrap/utilities.less";
+@import "lib/bootstrap/responsive-utilities.less";
 
+@import "lib/bootstrap/theme.less";

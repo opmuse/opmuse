@@ -30,7 +30,7 @@
     <div class="btn-group queue-btn">
         <a
             accesskey="a"
-            class="queue add add-album btn-small btn btn-inverse"
+            class="queue add add-album btn-sm btn btn-default"
             title="Queue all"
             href="/queue/add/
                 {%- for track in album.tracks -%}
@@ -69,7 +69,7 @@
                             {% if track.disc %}
                                 <td>Disc {{ track.disc }}</td>
                             {% else %}
-                                <td>%nbsp;</td>
+                                <td>&nbsp;</td>
                             {% endif %}
                         {% endif %}
                         <td>{{ track.number }}</td>
@@ -81,24 +81,24 @@
                         <td>
                             <span class="btn-group queue-btn">
                                 <a
-                                    class="btn btn-mini btn-inverse queue add"
+                                    class="btn btn-default btn-xs queue add"
                                     href="/queue/add/{{ track.id }}">
                                     <i class="icon-headphones"></i>
                                 </a>
                             </span>
                             {% if track.has_dups %}
-                                <span class="badge badge-warning"
+                                <span class="label label-warning"
                                     title="Track has duplicates, you could remove all but one of them.">
                                     <i class="icon-group"></i>
                                 </span>
                             {% endif %}
                             {% if track.low_quality %}
-                                <span class="badge badge-warning"
+                                <span class="label label-warning"
                                     title="Track is of low quality, consider replacing it.">
                                     <i class="icon-thumbs-down"></i>
                                 </span>
                             {% endif %}
-                            <p class="badge badge-info">
+                            <p class="label label-info">
                                 {{ track.pretty_format }}
                             </p>
                             <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
@@ -118,7 +118,7 @@
                         <th class="indent">&nbsp;</th>
                         <th colspan="{{ colspan - 1 }}">
                             Other Files...
-                            <a class="btn btn-mini btn-inverse collapsed" data-toggle="collapse" href="#other_files_{{ index }}">
+                            <a class="btn btn-default btn-xs collapsed" data-toggle="collapse" href="#other_files_{{ index }}">
                                 <i class="icon-angle-down in"></i>
                                 <i class="icon-angle-up out"></i>
                             </a>

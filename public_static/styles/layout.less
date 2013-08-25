@@ -1,3 +1,6 @@
+.container {
+    max-width: none !important;
+}
 
 .transition(@duration: 1s) {
     -moz-transition: all @duration ease;
@@ -11,7 +14,13 @@ a:hover {
 }
 
 .sidebar-nav {
-    padding: 9px 0;
+    .list-group-item > .badge {
+        float: none;
+    }
+}
+
+.pagination-container {
+    text-align: center;
 }
 
 html {
@@ -38,7 +47,7 @@ body {
 #right {
     padding: 0 5px 40px 0;
 
-    @media (max-width: @navbarCollapseWidth) {
+    @media (max-width: @screen-md) {
         padding-top: 0;
     }
 }
@@ -46,7 +55,7 @@ body {
 #content {
     padding: 0 10px 25px 10px;
 
-    @media (max-width: @navbarCollapseWidth) {
+    @media (max-width: @screen-md) {
         padding-top: 0;
         padding-bottom: 10px;
     }
@@ -59,9 +68,9 @@ body {
     position: fixed;
     right: 20px;
     bottom: 0;
-    height: 420px;
+    height: 456px;
 
-    @media (max-width: @navbarCollapseWidth) {
+    @media (max-width: @screen-md) {
         right: auto;
         bottom: auto;
         position: static;
@@ -127,6 +136,7 @@ body {
 
         #panel-container {
             padding-top: 0;
+            margin-top: 0;
             top: 0;
 
             #panel-full,
@@ -139,19 +149,18 @@ body {
     color: @white;
 
     a:not(.btn) {
-        color: @grayLighter;
+        color: @gray-lighter;
     }
 
     #panel-container {
         position: absolute;
-        margin-top: -36px;
         padding-bottom: 36px;
         width: 100%;
         height: 100%;
 
         padding-top: 20px;
 
-        background-color: @black;
+        background-color: #3a3a3a;
         background-image: url('/static/images/black_linen_v2.png');
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
@@ -171,7 +180,7 @@ body {
             cursor: pointer;
             border-radius: 2px;
 
-            @media (max-width: @navbarCollapseWidth) {
+            @media (max-width: @screen-md) {
                 display: none;
             }
         }
@@ -186,7 +195,7 @@ body {
             font-size: 20px;
         }
 
-        @media (max-width: @navbarCollapseWidth) {
+        @media (max-width: @screen-md) {
             border-top-left-radius: 0;
             border-top-right-radius: 0;
             position: static;
@@ -200,43 +209,29 @@ body {
 }
 
 .navbar {
-    @media (max-width: 768px) {
-        padding: 0 20px;
-    }
-
-    .navbar-inner {
-        .box-shadow(0 1px 4px rgba(0, 0, 0, .6));
-    }
-
     .navbar-search {
+        margin-left: 10px;
         margin-top: 7px;
+
         .search-query {
             padding: 2px 16px;
         }
     }
 
-    .brand {
+    .navbar-brand {
+        font-size: 28px;
+        font-family: @font-family-serif;
         text-align: center;
-        width: 100px;
-        margin-left: 5px;
+        margin: 0 10px;
         padding: 0;
-        line-height: 35px;
-        height: 40px;
+        line-height: @navbar-height;
+        height: @navbar-height;
         color: @white;
     }
 
-    .brand {
-        font-size: 26px;
-    }
-
-    .navbar-you {
-        .logout {
-            margin: 0 8px 3px 0;
-        }
-    }
-
-    .navbar-search {
-        margin-left: 10px;
+    .logout {
+        float: right;
+        margin: 8px 8px 3px 0;
     }
 
     .navbar-main {
@@ -244,6 +239,8 @@ body {
     }
 
     .navbar-sub {
+        .box-shadow(0 1px 4px rgba(0, 0, 0, .6));
+
         clear: both;
         font-size: .9em;
         min-height: 34px;
@@ -273,7 +270,7 @@ body {
 
 .badge,
 .label {
-    font-family: @originalSansFontFamily;
+    font-family: @original-font-family-sans-serif;
     font-size: .7em;
 
     a {
@@ -281,18 +278,21 @@ body {
     }
 }
 
-.hero-unit {
-    background-image: url('/static/images/debut_light.png');
+.jumbotron {
+    font-family: @font-family-serif;
 }
 
+.jumbotron,
+.panel > .list-group > .list-group-item,
 .well {
+    background-color: transparent;
     background-image: url('/static/images/debut_light.png');
 }
 
 #messages {
     margin-top: 94px;
 
-    @media (max-width: @navbarCollapseWidth) {
+    @media (max-width: @screen-md) {
         margin-top: 0;
     }
 }
