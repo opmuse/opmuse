@@ -1,4 +1,4 @@
-/*! jQuery UI - v1.10.2 - 2013-04-21
+/*! jQuery UI - v1.10.3 - 2013-08-25
 * http://jqueryui.com
 * Includes: jquery.ui.core.js, jquery.ui.widget.js, jquery.ui.mouse.js, jquery.ui.sortable.js
 * Copyright 2013 jQuery Foundation and other contributors Licensed MIT */
@@ -12,7 +12,7 @@ var uuid = 0,
 $.ui = $.ui || {};
 
 $.extend( $.ui, {
-	version: "1.10.2",
+	version: "1.10.3",
 
 	keyCode: {
 		BACKSPACE: 8,
@@ -262,7 +262,7 @@ $.fn.extend({
 });
 
 $.extend( $.ui, {
-	// $.ui.plugin is deprecated.  Use the proxy pattern instead.
+	// $.ui.plugin is deprecated. Use $.widget() extensions instead.
 	plugin: {
 		add: function( module, option, set ) {
 			var i,
@@ -832,7 +832,7 @@ $( document ).mouseup( function() {
 });
 
 $.widget("ui.mouse", {
-	version: "1.10.2",
+	version: "1.10.3",
 	options: {
 		cancel: "input,textarea,button,select,option",
 		distance: 1,
@@ -993,7 +993,7 @@ function isFloating(item) {
 }
 
 $.widget("ui.sortable", $.ui.mouse, {
-	version: "1.10.2",
+	version: "1.10.3",
 	widgetEventPrefix: "sort",
 	ready: false,
 	options: {
@@ -1513,7 +1513,9 @@ $.widget("ui.sortable", $.ui.mouse, {
 			b = t + item.height,
 			dyClick = this.offset.click.top,
 			dxClick = this.offset.click.left,
-			isOverElement = (y1 + dyClick) > t && (y1 + dyClick) < b && (x1 + dxClick) > l && (x1 + dxClick) < r;
+			isOverElementHeight = ( this.options.axis === "x" ) || ( ( y1 + dyClick ) > t && ( y1 + dyClick ) < b ),
+			isOverElementWidth = ( this.options.axis === "y" ) || ( ( x1 + dxClick ) > l && ( x1 + dxClick ) < r ),
+			isOverElement = isOverElementHeight && isOverElementWidth;
 
 		if ( this.options.tolerance === "pointer" ||
 			this.options.forcePointerForContainers ||
@@ -1728,15 +1730,16 @@ $.widget("ui.sortable", $.ui.mouse, {
 				element: function() {
 
 					var nodeName = that.currentItem[0].nodeName.toLowerCase(),
-						element = $( that.document[0].createElement( nodeName ) )
+						element = $( "<" + nodeName + ">", that.document[0] )
 							.addClass(className || that.currentItem[0].className+" ui-sortable-placeholder")
 							.removeClass("ui-sortable-helper");
 
 					if ( nodeName === "tr" ) {
-						// Use a high colspan to force the td to expand the full
-						// width of the table (browsers are smart enough to
-						// handle this properly)
-						element.append( "<td colspan='99'>&#160;</td>" );
+						that.currentItem.children().each(function() {
+							$( "<td>&#160;</td>", that.document[0] )
+								.attr( "colspan", $( this ).attr( "colspan" ) || 1 )
+								.appendTo( element );
+						});
 					} else if ( nodeName === "img" ) {
 						element.attr( "src", that.currentItem.attr( "src" ) );
 					}
