@@ -1,42 +1,7 @@
 .dashboard-box {
-    margin: 0 8px 12px 0;
-    .box-shadow(1px 2px 3px rgba(0, 0, 0, .15));
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-
-    .dashboard-header {
-        #gradient > .vertical(lighten(@gray-lighter, 18%), lighten(@gray-lighter, 14%));
-        text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.15);
-        border: 1px solid lighten(@gray-light, 10%);
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-        display: block;
-        margin: 0;
-        font-size: 16pt;
-        line-height: 16pt;
-        padding: 4px 0 6px 8px;
-        color: #3a3a3a;
-        border-bottom: none;
-        clear: both;
-        overflow: hidden;
-
+    &.panel .panel-heading {
         .icon {
             float: right;
-            margin-right: 10px;
-        }
-    }
-
-    .dashboard-content {
-        background-color: #fff;
-        border: 1px solid lighten(@gray-light, 10%);
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
-        padding: 8px 0 0 0;
-
-        p {
-            padding: 2px 8px 2px 8px;
         }
     }
 
@@ -54,51 +19,31 @@
         }
     }
 
-    .users {
-        font-size: .9em;
-    }
-
     .new-albums,
     .recently-listened {
-        div {
-            margin: 2px 8px;
+        .cover-container {
+            width: 50px;
+            height: 50px;
+            float: left;
+            margin-right: 8px;
 
-            .cover-container {
-                width: 40px;
-                height: 40px;
-                float: left;
-                margin-right: 8px;
-
-                img {
-                    width: 40px;
-                    height: 40px;
-                }
+            img {
+                width: 50px;
+                height: 50px;
             }
+        }
 
-            p {
-                font-size: .9em;
-                line-height: .9em;
-                margin: 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
+        p {
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 }
 
 .dashboard-container {
-    &.navbar {
-        margin-bottom: 0;
-    }
-
-    #content {
-        margin-top: -34px;
-
-        background-color: #f8f8f8;
-
-        @media (max-width: @screen-md) {
-            padding-top: 20px;
-        }
+    &#messages {
+        margin-top: 65px;
     }
 }

@@ -9,29 +9,32 @@
 {% import "macros/urls.html" as urls %}
 
 {% macro _user(user, small_gravatar = False) %}
-    <p class="pull-left">
-        <a href="/users/user/{{ user.user.login }}">
-            <img src="{{ user.user.gravatar_small if small_gravatar else user.user.gravatar }}"
-                class="img-rounded" alt="{{ user.user.login }}'s Gravatar" />
-        </a>
-    </p>
-    <p>
-        <strong>{{ user.user.login }}</strong>.
-        {% if user.user.lastfm_user %}
-            Authenticated as <strong>{{ user.user.lastfm_user }}</strong> to lastfm.
-            {% if user.remotes_user and user.remotes_user.lastfm %}
-                Played <strong>{{ user.remotes_user.lastfm.playcount|format_number }}</strong> tracks.
-            {% endif %}
-        {% endif %}
-        {% if user.current_track %}
-            {% set track = user.current_track %}
-            Currently playing <strong>{{ track.name }}</strong>
-            {% if track.artist %}
-                by <strong><a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name }}</a></strong>
-            {% endif %}.
-        {% endif %}
-    </p>
-    <div class="clear"></div>
+    <div class="media">
+        <p class="pull-left">
+            <a href="/users/user/{{ user.user.login }}">
+                <img src="{{ user.user.gravatar_small if small_gravatar else user.user.gravatar }}"
+                    class="img-rounded media-object" alt="{{ user.user.login }}'s Gravatar" />
+            </a>
+        </p>
+        <div class="media-body">
+            <p>
+                <strong>{{ user.user.login }}</strong>.
+                {% if user.user.lastfm_user %}
+                    Authenticated as <strong>{{ user.user.lastfm_user }}</strong> to lastfm.
+                    {% if user.remotes_user and user.remotes_user.lastfm %}
+                        Played <strong>{{ user.remotes_user.lastfm.playcount|format_number }}</strong> tracks.
+                    {% endif %}
+                {% endif %}
+                {% if user.current_track %}
+                    {% set track = user.current_track %}
+                    Currently playing <strong>{{ track.name }}</strong>
+                    {% if track.artist %}
+                        by <strong><a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name }}</a></strong>
+                    {% endif %}.
+                {% endif %}
+            </p>
+        </div>
+    </div>
 {% endmacro %}
 
 {% block main_class %}dashboard-container{% endblock %}
@@ -41,39 +44,40 @@
     <div class="col-xs-7">
         <div class="row">
             <div class="col-xs-12">
-                <div class="dashboard-box">
-                    <h2 class="dashboard-header">
-                        <i class="icon icon-rocket"></i>
-                        Top Artists
-                    </h2>
-                    <div class="dashboard-content top-artists">
-                        <p>
-                            {% for top_artist in top_artists %}
-                                <a href="{{ urls.artist_url(top_artist) }}" title="{{ top_artist.name }}">
-                                    {{ covers.artist(top_artist, 80, "img-rounded") }}
-                                </a>
-                            {% endfor %}
-                        </p>
-                        <div class="clear"></div>
+                <div class="panel panel-default dashboard-box">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            Top Artists
+                            <i class="icon icon-rocket"></i>
+                        </h3>
+                    </div>
+                    <div class="top-artists panel-body">
+                        {% for top_artist in top_artists %}
+                            <a href="{{ urls.artist_url(top_artist) }}" title="{{ top_artist.name }}">
+                                {{ covers.artist(top_artist, 80, "img-rounded") }}
+                            </a>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-xs-6">
-                <div class="dashboard-box">
-                    <h2 class="dashboard-header">
-                        <i class="icon icon-headphones"></i>
-                        Recently Listened
-                    </h2>
-                    <div class="dashboard-content recently-listened">
+                <div class="dashboard-box panel panel-default">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <i class="icon icon-headphones"></i>
+                            Recently Listened
+                        </h2>
+                    </div>
+                    <ul class="list-group recently-listened">
                         {% if user.remotes_user and user.remotes_user.lastfm %}
                             {% for recent_track in recent_tracks %}
-                                <div>
+                                <li class="list-group-item">
                                     {% if recent_track.track and recent_track.track.album %}
-                                        {{ covers.album(recent_track.track.album, 40, "img-rounded") }}
+                                        {{ covers.album(recent_track.track.album, 50, "img-rounded") }}
                                     {% else %}
-                                        {{ covers.artist(recent_track.artist, 40, "img-rounded") }}
+                                        {{ covers.artist(recent_track.artist, 50, "img-rounded") }}
                                     {% endif %}
                                     <p>
                                         {% if recent_track.artist %}
@@ -88,22 +92,24 @@
                                         {{ recent_track.name }}
                                     </p>
                                     <div class="clear"></div>
-                                </div>
+                                </li>
                             {% endfor %}
                         {% endif %}
-                    </div>
+                    </ul>
                 </div>
             </div>
             <div class="col-xs-6">
-                <div class="dashboard-box">
-                    <h2 class="dashboard-header">
-                        <i class="icon icon-music"></i>
-                        New Albums
-                    </h2>
-                    <div class="dashboard-content new-albums">
+                <div class="dashboard-box panel panel-default">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <i class="icon icon-music"></i>
+                            New Albums
+                        </h2>
+                    </div>
+                    <ul class="new-albums list-group">
                         {% for new_album in new_albums %}
-                        <div>
-                            {{ covers.album(new_album, 40, "img-rounded") }}
+                        <li class="list-group-item">
+                            {{ covers.album(new_album, 50, "img-rounded") }}
 
                             <a href="{{ urls.album_url(new_album) }}">
                                 <p>{{ new_album.name }}</p>
@@ -111,40 +117,46 @@
                             <p>{{ album.album_desc(new_album, True) }}</p>
                             <div class="clear"></div>
 
-                        </div>
+                        </li>
                         {% endfor %}
-                    </div>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xs-5">
-        <div class="dashboard-box">
-            <h2 class="dashboard-header">
-                <i class="icon icon-user"></i>
-                You
-            </h2>
-            <div class="dashboard-content user">
+        <div class="dashboard-box panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon icon-user"></i>
+                    You
+                </h2>
+            </div>
+            <div class="user panel-body">
                 {{ _user(user) }}
             </div>
         </div>
-        <div class="dashboard-box">
-            <h2 class="dashboard-header">
-                <i class="icon icon-group"></i>
-                Users
-            </h2>
-            <div class="dashboard-content users">
+        <div class="dashboard-box panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon icon-group"></i>
+                    Users
+                </h2>
+            </div>
+            <div class="users panel-body">
                 {% for user in users %}
                     {{ _user(user, True) }}
                 {% endfor %}
             </div>
         </div>
-        <div class="dashboard-box">
-            <h2 class="dashboard-header">
-                <i class="icon icon-book"></i>
-                Library
-            </h2>
-            <div class="dashboard-content">
+        <div class="dashboard-box panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon icon-book"></i>
+                    Library
+                </h2>
+            </div>
+            <div class="panel-body">
                 {% set tracks = request.library_dao.get_track_count() %}
                 {% set invalid = request.library_dao.get_invalid_track_count() %}
                 {% set albums = request.library_dao.get_album_count() %}
