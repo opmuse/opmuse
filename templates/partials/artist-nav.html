@@ -27,7 +27,7 @@
                     <li class="list-group-item">
                         {% if remotes_album %}
                             {% for tag in remotes_album.lastfm.tags %}
-                            <span class="tag label label-primary" title="{{ tag }}">
+                            <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
                                 <a href="/library/albums?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
                             </span>
                             {% endfor %}
@@ -69,33 +69,33 @@
                                 {% endif %}
                             {% endif %}
                         </li>
-                        <li class="list-group-item">
-                            {% if remotes_artist %}
+                        {% if remotes_artist and remotes_artist.lastfm.tags|count > 0 %}
+                            <li class="list-group-item">
                                 {% for tag in remotes_artist.lastfm.tags %}
-                                <span class="tag label label-primary" title="{{ tag }}">
+                                <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
                                     <a href="/library/artists?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
                                 </span>
                                 {% endfor %}
-                            {% endif %}
-                        </li>
-                        <li class="list-group-item">
-                        {% if remotes_artist %}
-                            {% for similar in remotes_artist.lastfm.similar %}
-                                <span class="label label-primary" title="{{ similar.name }}">
-                                    <a href="/{{ similar.slug|urlencode }}">{{ similar.name }}</a>
-                                </span>
-                            {% endfor %}
+                            </li>
                         {% endif %}
-                        </li>
-                        <li class="list-group-item">
-                        {% if remotes_artist %}
-                            {% for alias in remotes_artist.discogs.aliases %}
-                                <span class="label label-primary" title="{{ alias }}">
-                                    <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
-                                </span>
-                            {% endfor %}
+                        {% if remotes_artist and remotes_artist.lastfm.similar|count > 0 %}
+                            <li class="list-group-item">
+                                {% for similar in remotes_artist.lastfm.similar %}
+                                    <span class="label label-primary" title="Lastfm similar, {{ similar.name }}">
+                                        <a href="/{{ similar.slug|urlencode }}">{{ similar.name }}</a>
+                                    </span>
+                                {% endfor %}
+                            </li>
                         {% endif %}
-                        </li>
+                        {% if remotes_artist and remotes_artist.discogs.aliases|count > 0 %}
+                            <li class="list-group-item">
+                                {% for alias in remotes_artist.discogs.aliases %}
+                                    <span class="label label-primary" title="Discog Alias, {{ alias }}">
+                                        <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
+                                    </span>
+                                {% endfor %}
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
