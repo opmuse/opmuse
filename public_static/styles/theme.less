@@ -1,0 +1,126 @@
+.btn-gradient(@color) {
+    #gradient > .vertical-three-colors(lighten(@color, 8%), @color, 65%, darken(@color, 6%));
+}
+
+.btn-gradient-dark(@color) {
+    #gradient > .vertical-three-colors(lighten(@color, 2%), darken(@color, 6%), 40%, darken(@color, 12%));
+}
+
+.btn-style(@color) {
+    text-shadow: 1px 1px 1px darken(@color, 15%);
+    border-color: darken(@color, 30%);
+    .btn-gradient(@color);
+}
+
+.btn-hover-style(@color) {
+    .btn-gradient-dark(@color);
+    border-color: darken(@color, 40%);
+}
+
+.panel-heading-gradient(@color) {
+    #gradient > .vertical-three-colors(lighten(@color, 8%), @color, 90%, darken(@color, 4%));
+}
+
+.alert-gradient(@color) {
+    #gradient > .vertical-three-colors(lighten(@color, 6%), @color, 80%, darken(@color, 3%));
+}
+
+.btn-default {
+    .btn-style(@btn-default-bg);
+}
+
+.btn-default:hover {
+    .btn-hover-style(@btn-default-bg);
+}
+
+.btn-primary {
+    .btn-style(@btn-primary-bg);
+}
+
+.btn-primary:hover {
+    .btn-hover-style(@btn-primary-bg);
+}
+
+.btn-info {
+    .btn-style(@btn-info-bg);
+}
+
+.btn-info:hover {
+    .btn-hover-style(@btn-info-bg);
+}
+
+.btn-success {
+    .btn-style(@btn-success-bg);
+}
+
+.btn-success:hover {
+    .btn-hover-style(@btn-success-bg);
+}
+
+.btn-danger {
+    .btn-style(@btn-danger-bg);
+}
+
+.btn-danger:hover {
+    .btn-hover-style(@btn-danger-bg);
+}
+
+.btn-warning {
+    .btn-style(@btn-warning-bg);
+}
+
+.btn-warning:hover {
+    .btn-hover-style(@btn-warning-bg);
+}
+
+.navbar-inverse {
+    .navbar-main {
+        #gradient > .vertical-three-colors(lighten(@navbar-inverse-bg, 6%), @navbar-inverse-bg, 70%, darken(@navbar-inverse-bg, 4%));
+        border-bottom: 1px solid darken(@navbar-inverse-bg, 20%);
+    }
+
+    .navbar-sub {
+        #gradient > .vertical-three-colors(darken(@navbar-inverse-bg, 9%), darken(@navbar-inverse-bg, 5%), 30%, darken(@navbar-inverse-bg, 3%));
+    }
+}
+
+.panel-default .panel-heading {
+    .panel-heading-gradient(@panel-default-heading-bg);
+}
+
+.panel-primary .panel-heading {
+    .panel-heading-gradient(@panel-primary-heading-bg);
+}
+
+.panel-info .panel-heading {
+    .panel-heading-gradient(@panel-info-heading-bg);
+}
+
+.panel-danger .panel-heading {
+    .panel-heading-gradient(@panel-danger-heading-bg);
+}
+
+.panel-warning .panel-heading {
+    .panel-heading-gradient(@panel-warning-heading-bg);
+}
+
+.panel-success .panel-heading {
+    .panel-heading-gradient(@panel-success-heading-bg);
+}
+
+.alert-info {
+    .alert-gradient(@alert-info-bg);
+}
+
+.alert-danger {
+    .alert-gradient(@alert-danger-bg);
+}
+
+.alert-warning {
+    .alert-gradient(@alert-warning-bg);
+}
+
+.alert-success {
+    .alert-gradient(@alert-success-bg);
+}
+

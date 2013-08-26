@@ -16,7 +16,7 @@
     </div>
     <div id="navbar-main" class="navbar-collapse collapse">
         {% if authenticated %}
-            <a class="logout btn btn-sm btn-primary"
+            <a class="logout btn btn-sm btn-info"
                 href="/logout?came_from={{ current_url|urlencode }}">
                 <i class="icon-signout"></i>
                 Sign out {{ request.user.login }}
