@@ -91,7 +91,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 progress: function (event, data) {
                     var progress = parseInt((data.loaded / data.total) * 100, 10);
 
-                    $(data.fileDom).find('.progress').addClass('active').find('.bar').eq(0).css(
+                    $(data.fileDom).find('.progress').addClass('active').find('.progress-bar').eq(0).css(
                         'width',
                         progress + '%'
                     );

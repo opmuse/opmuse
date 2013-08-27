@@ -138,9 +138,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 seconds_ahead_perc = (seconds_ahead / duration) * 100;
             }
 
-            that.playerProgress.find('.bar.seconds').width(seconds_perc + '%');
+            that.playerProgress.find('.progress-bar.seconds').width(seconds_perc + '%');
 
-            that.playerProgress.find('.bar.ahead').width(seconds_ahead_perc + '%');
+            that.playerProgress.find('.progress-bar.ahead').width(seconds_ahead_perc + '%');
 
             var actual_seconds = seconds - seconds_ahead;
 
