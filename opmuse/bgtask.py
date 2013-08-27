@@ -3,6 +3,7 @@ import threading
 import cherrypy
 import logging
 import inspect
+import time
 from functools import total_ordering
 from cherrypy.process.plugins import SimplePlugin
 from opmuse.database import get_session
@@ -21,14 +22,15 @@ bgtask_data = threading.local()
 
 @total_ordering
 class QueueItem:
-    def __init__(self, priority, func, args, kwargs):
+    def __init__(self, priority, delay, func, args, kwargs):
         self.priority = priority
+        self.delay = delay
         self.func = func
         self.args = args
         self.kwargs = kwargs
 
     def values(self):
-        return self.priority, self.func, self.args, self.kwargs
+        return self.priority, self.delay, self.func, self.args, self.kwargs
 
     def __eq__(self, other):
         return other.priority == self.priority
@@ -76,13 +78,19 @@ class BackgroundTaskQueue(SimplePlugin):
         while self.running:
             try:
                 try:
-                    priority, func, args, kwargs = self.queue.get(block=True, timeout=2).values()
+                    priority, delay, func, args, kwargs = self.queue.get(block=True, timeout=2).values()
                 except queue.Empty:
                     if self.running == "drain":
                         return
 
                     continue
                 else:
+                    if delay is not None:
+                        debug("Delaying bgtask for %ds in thread #%d %r with priority %d, args %r and kwargs %r." %
+                              (delay, number, func, priority, args, kwargs))
+
+                        time.sleep(delay)
+
                     debug("Running bgtask in thread #%d %r with priority %d, args %r and kwargs %r." %
                           (number, func, priority, args, kwargs))
 
@@ -107,4 +115,11 @@ class BackgroundTaskQueue(SimplePlugin):
         """
             Add task to queue, higher priority means it will run before those with lower.
         """
-        self.queue.put(QueueItem(priority, func, args, kwargs))
+        self.queue.put(QueueItem(priority, None, func, args, kwargs))
+
+    def put_delay(self, func, priority, delay, *args, **kwargs):
+        """
+            Like put() but takes an extra "delay" argument which specifies a delay in seconds
+            for this task.
+        """
+        self.queue.put(QueueItem(priority, delay, func, args, kwargs))
