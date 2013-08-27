@@ -5,7 +5,7 @@ import whoosh.index
 import whoosh.fields
 from whoosh.writing import BufferedWriter, IndexingError
 from whoosh.analysis import (RegexTokenizer, SpaceSeparatedTokenizer,
-    LowercaseFilter, StemFilter, DoubleMetaphoneFilter, IDTokenizer)
+                             LowercaseFilter, StemFilter, DoubleMetaphoneFilter, IDTokenizer)
 from whoosh.qparser import QueryParser
 from whoosh.query import Term, Or
 from opmuse.database import get_database
@@ -134,7 +134,7 @@ class Search:
             ]
 
         results = (write_handler.index.searcher()
-                      .search(Or([term for term in terms if term is not None])))
+                   .search(Or([term for term in terms if term is not None])))
 
         return set([(int(result['id']), result.score) for result in results])
 

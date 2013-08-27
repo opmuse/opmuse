@@ -585,7 +585,7 @@ class Users:
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
     def user_edit_submit(self, user_id, login = None, mail = None, roles = None,
-        password1 = None, password2 = None):
+                         password1 = None, password2 = None):
         try:
             user = (get_database().query(User)
                     .filter_by(id=user_id).one())
@@ -752,7 +752,6 @@ class Library(object):
                 if remotes_artist['lastfm'] is not None:
                     for tag_name in remotes_artist['lastfm']['tags']:
                         remotes.update_tag(tag_name)
-
 
         for track in album.tracks:
             remotes.update_track(track)
@@ -1346,7 +1345,7 @@ class Root(object):
 
         # viewable in most browsers
         if content_type in ('image/jpeg', "image/png", "image/gif", 'application/pdf',
-            'text/x-nfo', 'text/plain'):
+                            'text/x-nfo', 'text/plain'):
             disposition = None
 
             if content_type in ('text/x-nfo', ):

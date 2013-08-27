@@ -52,7 +52,7 @@ class Lastfm:
             else:
                 seconds = lastfm_progress['seconds']
                 cherrypy.engine.bgtask.put_delay(self.scrobble, 30, seconds_ahead, user, session_key, seconds,
-                                                  **self.track_to_args(track))
+                                                 **self.track_to_args(track))
 
     def transcoding_done(self, track):
         cherrypy.request.lastfm_done = True
