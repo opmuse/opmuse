@@ -89,6 +89,8 @@ class FFMPEGTranscoder(Transcoder):
                 skip_seconds_args +
                 self.ffmpeg_input_args +
                 ['-i', self.filename] +
+                # reads input at native frame rate, e.g. very handy for streaming.
+                ['-re'] +
                 # always produce stereo output
                 ['-ac', '2'] +
                 # strip any video streams
@@ -148,10 +150,12 @@ class FFMPEGTranscoder(Transcoder):
 
         events = poll.poll()
 
-        lowest_bitrate = self.lowest_bitrate()
         initial_bitrate = self.initial_bitrate()
 
         bitrate = initial_bitrate
+
+        reads_with_bitrate = 0
+        chunks_with_bitrate = 0
 
         while pollc > 0 and len(events) > 0:
             info = data = None
@@ -182,43 +186,33 @@ class FFMPEGTranscoder(Transcoder):
                 if pollc > 0:
                     events = poll.poll()
 
-            yield data, bitrate
+            if chunks_with_bitrate > 0:
+                avg_bitrate = reads_with_bitrate / chunks_with_bitrate
+            else:
+                avg_bitrate = None
+
+            yield data, bitrate, avg_bitrate
 
             if info is not None:
                 bitrate = int(float(info['bitrate'].decode()) * 1024 / 8)
-
-                if lowest_bitrate is not None and bitrate < lowest_bitrate:
-                    bitrate = initial_bitrate
+                reads_with_bitrate += bitrate
+                chunks_with_bitrate += 1
 
     def transcode(self):
-        # how many seconds to stay ahead of the client
-        seconds_keep_ahead = 20
-        # ... and if we fall behind more than this try to slowly adjust
-        seconds_adjust = 5
-
         start_time = time.time()
 
         transcoded = 0
-        chunks = 0
 
-        for data, bitrate in self.read_process():
+        for data, bitrate, avg_bitrate in self.read_process():
 
             yield data
 
             transcoded += bitrate
-            chunks += 1
 
-            # we pace the transcoding so we don't have to send more than
-            # the client can chew. this is also good for transcoding.{start,end}
-            # events that lastfm uses so it can more accurately know how much
-            # the client has actually played.
-            #
-            # what we do is try to stay seconds_keep_ahead seconds ahead of the
-            # client, no more, no less...
-
-            # we estimate how much we've sent by using the latest bitrate we
-            # received from ffmpeg...
-            seconds = transcoded / bitrate
+            if avg_bitrate is not None:
+                seconds = transcoded / avg_bitrate
+            else:
+                seconds = transcoded / bitrate
 
             wall_time = time.time() - start_time
 
@@ -228,38 +222,14 @@ class FFMPEGTranscoder(Transcoder):
 
             seconds_ahead = seconds - wall_time
 
-            # ... and then we just continue (if wait below 0) or wait until we are
-            # no more than seconds_keep_ahead ahead
-            wait = seconds_ahead - seconds_keep_ahead + 1
-
-            wait_adjust = (wait - seconds_adjust) / 10
-
-            if wait > 1:
-                wait = 1
-
-                if wait_adjust > 0:
-                    wait += wait_adjust
-
-            elif wait < 0:
-                wait = 0
-
             cherrypy.engine.publish('transcoding.progress', progress={
                 'seconds': seconds,
                 'bitrate': bitrate,
                 'seconds_ahead': seconds_ahead,
             }, track=self.track)
 
-            debug('"%s" transcoding at %d b/s, we\'re %.2fs ahead (total %ds) and waiting for %.2fs.' %
-                 (self.pretty_filename, bitrate, seconds_ahead, seconds, wait))
-
-            if wait > 0:
-                time.sleep(wait)
-
-    def lowest_bitrate(self):
-        """
-        Implement this to ignore bitrates lower than this and use the initial_bitrate instead.
-        """
-        return None
+            debug('"%s" transcoding at %d b/s, we\'re %.2fs ahead (total %ds).' %
+                 (self.pretty_filename, bitrate, seconds_ahead, seconds))
 
     def initial_bitrate(self):
         """
@@ -274,10 +244,6 @@ class CopyFFMPEGTranscoder(FFMPEGTranscoder):
 
     def outputs():
         return None
-
-    def lowest_bitrate(self):
-        if self.track.bitrate is not None and self.track.bitrate != 0:
-            return int((self.track.bitrate * .8) / 8)
 
     def initial_bitrate(self):
         if self.track.bitrate is not None and self.track.bitrate != 0:
@@ -308,9 +274,6 @@ class OggFFMPEGTranscoder(FFMPEGTranscoder):
 
     def outputs():
         return 'audio/ogg'
-
-    def lowest_bitrate(self):
-        return int(160000 / 8)
 
     def initial_bitrate(self):
         # -aq 6 is about 192kbit/s

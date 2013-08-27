@@ -23,21 +23,39 @@ class Lastfm:
     def __init__(self):
         cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
         cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
+        cherrypy.engine.subscribe('transcoding.done', self.transcoding_done)
         cherrypy.engine.subscribe('transcoding.progress', self.transcoding_progress)
 
     def transcoding_progress(self, progress, track):
-        cherrypy.request.lastfm_progress = progress['seconds'] - progress['seconds_ahead']
+        cherrypy.request.lastfm_progress = progress
 
     def transcoding_start(self, track):
+        cherrypy.request.lastfm_done = False
         session_key = cherrypy.request.user.lastfm_session_key
         cherrypy.engine.bgtask.put(self.update_now_playing, 30, session_key, **self.track_to_args(track))
 
     def transcoding_end(self, track):
         if hasattr(cherrypy.request, 'lastfm_progress') and cherrypy.request.lastfm_progress is not None:
-            seconds = cherrypy.request.lastfm_progress
+            done = cherrypy.request.lastfm_done
+            lastfm_progress = cherrypy.request.lastfm_progress
+
+            seconds_ahead = lastfm_progress['seconds_ahead']
             session_key = cherrypy.request.user.lastfm_session_key
             user = cherrypy.request.user.login
-            cherrypy.engine.bgtask.put(self.scrobble, 30, user, session_key, seconds, **self.track_to_args(track))
+
+            # if done hasn't run it means the streaming was aborted and the scrobble should run directly
+            if not done:
+                seconds = lastfm_progress['seconds'] - seconds_ahead
+                cherrypy.engine.bgtask.put(self.scrobble, 30, user, session_key, seconds, **self.track_to_args(track))
+            # if done has run it means all data was streamed to client and the scrobble should be delayed until we
+            # assume the client is done with the track...
+            else:
+                seconds = lastfm_progress['seconds']
+                cherrypy.engine.bgtask.put_delay(self.scrobble, 30, seconds_ahead, user, session_key, seconds,
+                                                  **self.track_to_args(track))
+
+    def transcoding_done(self, track):
+        cherrypy.request.lastfm_done = True
 
     def get_network(self, session_key = ''):
         config = cherrypy.tree.apps[''].config['opmuse']
