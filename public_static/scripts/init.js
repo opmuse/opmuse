@@ -16,6 +16,7 @@ require.config({
         'typeahead': 'lib/typeahead'
     },
     shim: {
+        'typeahead': ['jquery'],
         'jquery.ui': ['jquery'],
         'blur': ['jquery'],
         'bootstrap/popover': ['bootstrap/tooltip'],

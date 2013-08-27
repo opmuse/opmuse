@@ -31,3 +31,6 @@
 [submodule "vendor/typeahead.js"]
 	path = vendor/typeahead.js
 	url = https://github.com/twitter/typeahead.js/
+[submodule "vendor/typeahead.js-bootstrap.css"]
+	path = vendor/typeahead.js-bootstrap.css
+	url = https://github.com/jharding/typeahead.js-bootstrap.css.git

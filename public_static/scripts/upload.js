@@ -18,6 +18,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav', 'audio/mpeg', 'audio/mp4'];
 
             this.files = [];
+            this.names = [];
 
             $('#main').bind('ajaxifyInit', function (event) {
                 that.internalInit();
@@ -49,6 +50,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                             fileDom.addClass('archive-file');
                         } else if (that.audio.indexOf(file.type) != -1) {
                             fileDom.addClass('audio-file');
+
+                            that.names.push($(fileDom).data('file').name);
+
                             $("#fileupload .files > .other-file:visible").each(function () {
                                 var audioFile = $(this).find('[name=audio_file]');
 
@@ -57,21 +61,14 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                                 if (value === '') {
                                     audioFile.val(file.name);
                                 }
+
+                                audioFile.show().typeahead('destroy');
+                                audioFile.show().typeahead({
+                                    local: that.names
+                                });
                             });
                         } else {
                             var audioFile = fileDom.find('[name=audio_file]');
-
-                            audioFile.show().typeahead({
-                                source: function () {
-                                    var names = [];
-
-                                    $("#fileupload .files > .audio-file:visible").each(function () {
-                                        names.push($(this).data('file').name);
-                                    });
-
-                                    return names;
-                                }
-                            });
 
                             var prevFile = $("#fileupload .files > .audio-file:visible").eq(-1).data('file');
 
@@ -131,6 +128,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
             var that = this;
 
             var count = that.parallelUploads - that.activeUploads;
+
+            that.names = [];
 
             for (var index = 0; index < count; index++) {
 
