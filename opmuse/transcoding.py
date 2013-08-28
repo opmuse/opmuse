@@ -88,9 +88,9 @@ class FFMPEGTranscoder(Transcoder):
         args = ([self.ffmpeg_cmd] +
                 skip_seconds_args +
                 self.ffmpeg_input_args +
-                ['-i', self.filename] +
                 # reads input at native frame rate, e.g. very handy for streaming.
                 ['-re'] +
+                ['-i', self.filename] +
                 # always produce stereo output
                 ['-ac', '2'] +
                 # strip any video streams
