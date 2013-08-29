@@ -6,6 +6,7 @@ import cherrypy
 import fcntl
 import select
 import logging
+import signal
 
 
 def debug(msg):
@@ -34,6 +35,7 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
             cherrypy.request.ffmpegtranscoder_subprocess is not None):
 
             p = cherrypy.request.ffmpegtranscoder_subprocess
+            p.send_signal(signal.SIGTERM)
             p.stdout.read()
             p.wait()
 
@@ -153,9 +155,7 @@ class FFMPEGTranscoder(Transcoder):
         initial_bitrate = self.initial_bitrate()
 
         bitrate = initial_bitrate
-
-        reads_with_bitrate = 0
-        chunks_with_bitrate = 0
+        seconds = 0
 
         while pollc > 0 and len(events) > 0:
             info = data = None
@@ -174,7 +174,7 @@ class FFMPEGTranscoder(Transcoder):
                             chunk = self.process.stderr.read()
 
                             if len(chunk) > 0:
-                                match = re.match(b'.*bitrate=[ ]*(?P<bitrate>[0-9.]+)', chunk)
+                                match = re.match(b'.*time=[ ]*(?P<time>[0-9.:]+).*bitrate=[ ]*(?P<bitrate>[0-9.]+)', chunk)
 
                                 if match:
                                     info = match.groupdict()
@@ -186,33 +186,43 @@ class FFMPEGTranscoder(Transcoder):
                 if pollc > 0:
                     events = poll.poll()
 
-            if chunks_with_bitrate > 0:
-                avg_bitrate = reads_with_bitrate / chunks_with_bitrate
-            else:
-                avg_bitrate = None
+            # this is here for when we don't get the output from ffmpeg and we assume we've read 1 second
+            # of data seeing as we should have an approximate bitrate at least.
+            seconds += 1
 
-            yield data, bitrate, avg_bitrate
+            yield data, bitrate, seconds
 
             if info is not None:
                 bitrate = int(float(info['bitrate'].decode()) * 1024 / 8)
-                reads_with_bitrate += bitrate
-                chunks_with_bitrate += 1
+
+                match = re.match(b'(?P<hours>[0-9]+):(?P<minutes>[0-9]+):(?P<seconds>[0-9.]+)', info['time'])
+
+                if match:
+                    time_info = match.groupdict()
+
+                    if time_info is not None:
+                        hours = time_info['hours'].decode()
+                        minutes = time_info['minutes'].decode()
+                        seconds = time_info['seconds'].decode()
+                        seconds = float(hours) * 60 * 60 + float(minutes) * 60 + float(seconds)
 
     def transcode(self):
+        # we wait this long before we start streaming to the client as a way to fool ffmpeg
+        # to keep the stream a couple of seconds before the client. this way the client can
+        # buffer more than it's regular wait-before-starting-playing-cache-filling thingie.
+        # this hopefully fixes choppy play for certain tracks in certain players.
+        #
+        # it would be nice if we could do this with ffmpeg directly so we could skip this
+        # artificial wait, but i don't know how.
+        seconds_keepahead = 3
+
+        time.sleep(seconds_keepahead)
+
         start_time = time.time()
 
-        transcoded = 0
-
-        for data, bitrate, avg_bitrate in self.read_process():
+        for data, bitrate, seconds in self.read_process():
 
             yield data
-
-            transcoded += bitrate
-
-            if avg_bitrate is not None:
-                seconds = transcoded / avg_bitrate
-            else:
-                seconds = transcoded / bitrate
 
             wall_time = time.time() - start_time
 
