@@ -240,6 +240,7 @@
         float: right;
     }
 
+    .error-icon,
     .current-icon,
     .played-icon {
         display: none;
@@ -272,6 +273,26 @@
             margin-right: 18px;
         }
     }
+
+    .error {
+        background-color: @state-danger-bg;
+        color: @state-danger-text;
+
+        a {
+            color: @state-danger-text;
+        }
+
+        .played-icon,
+        .noplay-icon,
+        .current-icon {
+            display: none;
+        }
+
+        .error-icon {
+            display: inline;
+        }
+    }
+
 
     .album-header-icon,
     .track-icon {

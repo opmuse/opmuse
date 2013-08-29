@@ -80,13 +80,20 @@
                 </span>
             </li>
             {% for q in queue %}
-                <li class="track {{ "current active" if q.current }} {{ "played" if q.played }}"
+                <li class="track {{ "current active" if q.current }} {{ "played" if q.played }} {{ "error" if q.error }}"
                     data-queue-id="{{ q.id }}">
                     <span class="text">
-                        <span class="track-icon">
+                        <span class="track-icon"
+                            title="{{ q.error if q.error }}"
+                            {% if q.error %}
+                            rel="popover"
+                            data-trigger="hover"
+                            data-container="body"
+                            {% endif %}>
                             <i class="noplay-icon icon-check-empty"></i>
                             <i class="current-icon icon-play"></i>
                             <i class="played-icon icon-check"></i>
+                            <i class="error-icon icon-exclamation-sign"></i>
                         </span>
                         <span class="track-number">
                             {% if q.track.number %}

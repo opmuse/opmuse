@@ -34,7 +34,7 @@ class Lastfm:
         session_key = cherrypy.request.user.lastfm_session_key
         cherrypy.engine.bgtask.put(self.update_now_playing, 30, session_key, **self.track_to_args(track))
 
-    def transcoding_end(self, track):
+    def transcoding_end(self, track, transcoder):
         if hasattr(cherrypy.request, 'lastfm_progress') and cherrypy.request.lastfm_progress is not None:
             done = cherrypy.request.lastfm_done
             lastfm_progress = cherrypy.request.lastfm_progress

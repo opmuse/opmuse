@@ -31,10 +31,13 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
                                self.end, priority=20)
 
     def end(self):
-        if (hasattr(cherrypy.request, 'ffmpegtranscoder_subprocess') and
-            cherrypy.request.ffmpegtranscoder_subprocess is not None):
+        if (hasattr(cherrypy.request, 'transcoding_process') and
+            cherrypy.request.transcoding_process is not None):
 
-            p = cherrypy.request.ffmpegtranscoder_subprocess
+            p = cherrypy.request.transcoding_process
+
+            cherrypy.request.transcoding_process = None
+
             p.send_signal(signal.SIGTERM)
             p.stdout.read()
             p.wait()
@@ -43,8 +46,12 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
             cherrypy.request.transcoding_track is not None):
 
             track = cherrypy.request.transcoding_track
+            transcoder = cherrypy.request.transcoding_transcoder
 
-            cherrypy.engine.publish('transcoding.end', track=track)
+            cherrypy.request.transcoding_transcoder = None
+            cherrypy.request.transcoding_track = None
+
+            cherrypy.engine.publish('transcoding.end', track=track, transcoder=transcoder)
 
             debug('"%s" transcoding ended.' % track)
 
@@ -63,6 +70,9 @@ class FFMPEGTranscoder(Transcoder):
     def __init__(self, track, skip_seconds):
         self.track = track
         self.skip_seconds = skip_seconds
+        self.stderr = None
+        self.success = False
+        self.error = None
 
         ffmpeg_cmd = cherrypy.request.app.config.get('opmuse').get('transcoding.ffmpeg_cmd')
 
@@ -115,8 +125,9 @@ class FFMPEGTranscoder(Transcoder):
         self.process = subprocess.Popen(args, shell = False, stdout = subprocess.PIPE,
                                         stderr = subprocess.PIPE, stdin = None)
 
-        cherrypy.request.ffmpegtranscoder_subprocess = self.process
+        cherrypy.request.transcoding_process = self.process
         cherrypy.request.transcoding_track = self.track
+        cherrypy.request.transcoding_transcoder = self
 
         debug('transcoding with: %s' % b' '.join(args).decode('utf8', 'replace'))
 
@@ -125,10 +136,16 @@ class FFMPEGTranscoder(Transcoder):
     def __exit__(self, type, value, traceback):
         self.process.wait()
 
-        if self.process.returncode != 0:
-            raise FFMPEGError('ffmpeg returned non-zero status "%d".' % self.process.returncode)
+        cherrypy.request.transcoding_process = None
 
-        cherrypy.request.ffmpegtranscoder_subprocess = None
+        if self.process.returncode != 0:
+            stderr_lines = self.stderr.decode('utf8', 'replace').split("\n")
+            stderr_lines.remove("")
+            self.error = stderr_lines[-1]
+
+            log('ffmpeg returned non-zero status "%d" and "%s".' % (self.process.returncode, self.error))
+        else:
+            self.success = True
 
         cherrypy.engine.publish('transcoding.done', track=self.track)
 
@@ -172,6 +189,8 @@ class FFMPEGTranscoder(Transcoder):
 
                         if readx:
                             chunk = self.process.stderr.read()
+
+                            self.stderr = chunk
 
                             if len(chunk) > 0:
                                 match = re.match(b'.*time=[ ]*(?P<time>[0-9.:]+).*bitrate=[ ]*(?P<bitrate>[0-9.]+)', chunk)

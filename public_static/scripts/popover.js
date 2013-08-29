@@ -10,14 +10,14 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/popover', 'domReady!'], func
 
             var that = this;
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main, #queue').bind('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 
             that.internalInit();
         },
         internalInit: function () {
-            $("a[rel=popover]").popover();
+            $("*[rel=popover]").popover();
         }
     });
 

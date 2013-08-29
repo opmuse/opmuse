@@ -1,6 +1,6 @@
 import cherrypy
 import math
-from sqlalchemy import Column, Integer, ForeignKey, Boolean, or_, and_
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy.orm.exc import NoResultFound
@@ -20,6 +20,7 @@ class Queue(Base):
     current_seconds = Column(Integer)
     current = Column(Boolean, default=False)
     played = Column(Boolean, default=False)
+    error = Column(String(255))
 
     user = relationship("User", backref=backref('users', order_by=id))
     track = relationship("Track", backref=backref('tracks', cascade="all,delete", order_by=id))
@@ -78,22 +79,32 @@ class QueueEvents:
 
             queue_dao.update_queue(queue_current_id, played = True)
 
-            # this is to avoid transcoding_end from firing
-            cherrypy.request.queue_current_id = None
+            cherrypy.request.queues_done = True
 
             ws_user = ws.get_ws_user()
             ws_user.set('queue.current_track', None)
             ws_user.set('queue.current_progress', None)
 
-    def transcoding_end(self, track):
+    def transcoding_end(self, track, transcoder):
         if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
             hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None):
             queue_current = queue_dao.get_queue(cherrypy.request.queue_current_id)
 
             if queue_current is not None and queue_current.current:
-                progress = cherrypy.request.queue_progress
-                current_seconds = math.floor(progress['seconds'] - progress['seconds_ahead'])
-                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds)
+                if not hasattr(cherrypy.request, 'queues_done') or not cherrypy.request.queues_done:
+                    progress = cherrypy.request.queue_progress
+                    current_seconds = math.floor(progress['seconds'] - progress['seconds_ahead'])
+                else:
+                    current_seconds = None
+
+                if transcoder.success:
+                    error = None
+                else:
+                    error = transcoder.error
+
+                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds, error = error)
+
+                ws.emit('queue.update')
 
     def serialize_track(self, track):
         return {

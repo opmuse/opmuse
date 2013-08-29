@@ -62,7 +62,7 @@ body {
 }
 
 #panel {
-    z-index: 99999;
+    z-index: 900;
     .transition(.7s);
 
     position: fixed;
@@ -86,7 +86,7 @@ body {
     }
 
     &.panel-fullscreen.open {
-        z-index: 9999999;
+        z-index: 900;
         top: 0;
         left: 0;
         width: 100%;
@@ -165,7 +165,7 @@ body {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
         .box-shadow(0 0 6px rgba(0, 0, 0, .8));
-        z-index: 1000;
+        z-index: 900;
 
         #panel-full,
         #panel-handle {
@@ -174,7 +174,7 @@ body {
             padding: 0 16px;
             background-color: #000;
             position: absolute;
-            z-index: 1001;
+            z-index: 900;
             color: @white;
             font-size: 24px;
             cursor: pointer;
