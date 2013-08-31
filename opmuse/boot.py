@@ -15,7 +15,7 @@ from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskQueue
-import opmuse.cache
+from opmuse.cache import CachePlugin
 
 tempfile.tempdir = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', 'cache', 'upload'
@@ -127,6 +127,9 @@ def configure():
 
     cherrypy.engine.whoosh = WhooshPlugin(cherrypy.engine)
     cherrypy.engine.whoosh.subscribe()
+
+    cherrypy.engine.cache = CachePlugin(cherrypy.engine)
+    cherrypy.engine.cache.subscribe()
 
     cherrypy.engine.bgtask = BackgroundTaskQueue(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
