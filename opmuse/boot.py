@@ -23,13 +23,13 @@ tempfile.tempdir = os.path.abspath(os.path.join(
 
 
 def configure():
-    cherrypy.tools.jinja = Jinja()
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
-    cherrypy.tools.authorize = AuthorizeTool()
-    cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
-    cherrypy.tools.library = LibraryTool()
+    cherrypy.tools.jinja = Jinja()
     cherrypy.tools.jinjaenv = JinjaEnvTool()
+    cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
+    cherrypy.tools.authorize = AuthorizeTool()
+    cherrypy.tools.library = LibraryTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = multi_headers_tool
     cherrypy.tools.cgitb_log_err = cgitb_log_err_tool
