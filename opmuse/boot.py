@@ -134,6 +134,9 @@ def configure():
     cherrypy.engine.bgtask = BackgroundTaskQueue(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
 
+    if hasattr(cherrypy.engine, 'signal_handler'):
+        cherrypy.engine.signal_handler.subscribe()
+
     if 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:
         cherrypy.log.error_log.setLevel(logging.DEBUG)
 
