@@ -1375,7 +1375,7 @@ class LibraryDao:
         return get_database().query(func.count(Album.id)).scalar()
 
     def get_artist_count(self):
-        return get_database().query(func.count(Artist.id)).filter(Track.scanned).scalar()
+        return get_database().query(func.count(Artist.id)).scalar()
 
     def get_track_count(self):
         return (get_database().query(func.count(Track.id))
