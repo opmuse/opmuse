@@ -172,10 +172,6 @@ class CachePlugin(Monitor):
             value = item['value']
             updated = item['updated']
 
-            # we don't serialize Keep values, in case of restart they'll just try again...
-            if value is Keep:
-                continue
-
             count = (database.query(func.count(CacheObject.id))
                      .filter(CacheObject.key == key).scalar())
 
