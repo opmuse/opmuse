@@ -66,13 +66,19 @@ class BackgroundTaskQueue(SimplePlugin):
     def stop(self):
         self.running = "drain"
 
+        log("Draining bgtasks, %d items left." % self.queue.qsize())
+
         if self.threads:
             for thread in self.threads:
                 thread.join()
 
             self.theads = None
 
+        log("Done draining bgtasks.")
+
         self.running = False
+
+    stop.priority = 90
 
     def run(self, number):
         while self.running:
