@@ -15,7 +15,7 @@
             <th>Added</th>
         </tr>
         {% for track in tracks %}
-            <tr>
+            <tr class="{{ "danger" if track.invalid  }}">
                 <td>
                     <a class="queue add btn btn-default btn-xs" href="/queue/add/{{ track.id }}">
                         <i class="icon-headphones"></i>
