@@ -7,7 +7,7 @@
 {% block body %}
     {% include "message.html" %}
 
-    <div id="top" class="navbar navbar-fixed-top navbar-inverse {% block main_class %}{% endblock %}" role="navigation">
+    <div id="top" class="navbar navbar-fixed-top navbar-inverse" role="navigation">
         {% include "navbar.html" %}
         <div id="navbar-sub" class="navbar-sub">
             {%- block navbar_sub %}{% endblock -%}
@@ -19,7 +19,7 @@
             <div class="col-xs-1">
             </div>
             <div class="col-xs-10">
-                <div id="messages" class="{{ self.main_class() }}">
+                <div id="messages" class="{% block main_class %}{% endblock %}">
                 </div>
             </div>
         </div>

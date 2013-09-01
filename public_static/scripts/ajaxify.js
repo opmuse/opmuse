@@ -6,6 +6,11 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             this.brand = brand;
 
+            // animation duration as set in throbber.less
+            // we want to always run one full cycle of the animation and never
+            // stop in the middle of it...
+            this.animationDuration = 1800;
+
             this.active = 0;
 
             $(document).ajaxSend(function () {
@@ -19,17 +24,29 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             $(document).ajaxComplete(function () {
                 that.active--;
 
+                var sinceStart = new Date().getTime() - that.startTime;
+
+                var timeout = null;
+
+                if (sinceStart <= that.animationDuration) {
+                    timeout = that.animationDuration - sinceStart;
+                } else {
+                    timeout = that.animationDuration * Math.ceil(sinceStart / that.animationDuration) - sinceStart;
+                }
+
                 setTimeout(function () {
                     if (that.active == 0) {
                         that.stop();
                     }
-                }, 700);
+                }, timeout);
             });
         },
         stop: function () {
             $(this.brand).removeClass('throb');
         },
         start: function () {
+            this.startTime = new Date().getTime();
+
             $(this.brand).addClass('throb');
         }
     });
@@ -48,9 +65,9 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
             var that = this;
 
-            this.throb = new Throb('.brand');
+            this.throb = new Throb('.navbar-brand');
 
-            this.contents = ['#main', '#top', '#messages'];
+            this.contents = ['#main', '#navbar-sub', '#navbar-main', '#messages'];
 
             if ($(this.contents[0]).length == 0) {
                 return;
