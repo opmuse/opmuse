@@ -1,15 +1,15 @@
-<table class="upload_add">
-    {% for track in tracks %}
-    <tr data-track-id="{{ track.id }}"
-        data-track-invalid="{{ track.invalid|json }}"
-        class="track {{ 'invalid' if track.invalid else '' }}">
-        <td>{% include "partials/track.html" %}</td>
-    </tr>
-    {% endfor %}
+{% import "macros/media.html" as media %}
+
+<ul class="upload_add">
+    {% if hierarchy %}
+        <div class="tracks-hierarchy">
+            {{ media.hierarchy(hierarchy) }}
+        </div>
+    {% endif %}
 
     {% for message in messages %}
-    <tr class="message">
-        <td>{{ message }}</td>
-    </tr>
+        <li class="list-group-item message">
+            {{ message }}
+        </li>
     {% endfor %}
-</table>
+</ul>

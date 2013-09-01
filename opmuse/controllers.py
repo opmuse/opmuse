@@ -258,7 +258,20 @@ class Upload:
     @cherrypy.tools.jinja(filename='library/upload_add.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def add(self, archive_password = None, audio_file = None):
+    def add(self, archive_password = None, audio_file = None, start = "false", session = None):
+
+        CACHE_KEY = "UPLOAD_TRACKS_%d_%s" % (cherrypy.request.user.id, session)
+
+        all_tracks = None
+
+        if start == "true":
+            all_tracks = []
+            cache.set(CACHE_KEY, all_tracks)
+        else:
+            if not cache.has(CACHE_KEY):
+                raise cherrypy.HTTPError(status=409)
+            else:
+                all_tracks = cache.get(CACHE_KEY)
 
         if audio_file is not None and len(audio_file) == 0:
             audio_file = None
@@ -376,6 +389,8 @@ class Upload:
         shutil.rmtree(tempdir)
 
         for track in tracks:
+            all_tracks.append(track.id)
+
             if track.album is not None:
                 remotes.update_album(track.album)
 
@@ -384,7 +399,9 @@ class Upload:
 
             remotes.update_track(track)
 
-        return {'tracks': tracks, 'messages': messages}
+        hierarchy = Library._produce_track_hierarchy(library_dao.get_tracks_by_ids(all_tracks))
+
+        return {'hierarchy': hierarchy, 'messages': messages}
 
 
 class You:

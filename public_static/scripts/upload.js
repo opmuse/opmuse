@@ -11,6 +11,10 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
 
             var that = this;
 
+            // "upload session" used by backend to not cause conflicts between
+            // different tabs and such.
+            that.session = Math.floor(Math.random() * 1000);
+
             that.parallelUploads = 4;
             that.activeUploads = 0;
             that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
@@ -99,9 +103,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
             });
 
             $('#fileupload .start').click(function (event) {
-                $("#upload .uploaded .tracks .track").remove();
-                $("#upload .uploaded .messages .message").remove();
-                that.send();
+                $("#upload .uploaded .tracks").contents().remove();
+                $("#upload .uploaded .messages").contents().remove();
+
+                that.send(true);
+
                 return false;
             });
 
@@ -124,10 +130,22 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 return false;
             });
         },
-        send: function () {
+        send: function (start) {
             var that = this;
 
-            var count = that.parallelUploads - that.activeUploads;
+            var count = null;
+
+            // we start with 1 and when that's finished we use parallelUploads
+            // the reason is we need to know that the first one is done before
+            // running the subsequent ones because we do some init stuff in that
+            // one.
+            if (typeof start != 'undefined' && start) {
+                start = true;
+                count = 1;
+            } else {
+                start = false;
+                count = that.parallelUploads - that.activeUploads;
+            }
 
             that.names = [];
 
@@ -142,8 +160,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 var archivePassword = $(file.dom).find('[name=archive_password]').val();
                 var audioFile = $(file.dom).find('[name=audio_file]').val();
 
-                var url = sprintf("%s?archive_password=%s&audio_file=%s",
-                        $("#fileupload").attr("action"), archivePassword, audioFile);
+                var url = sprintf("%s?archive_password=%s&audio_file=%s&start=%s&session=%d",
+                        $("#fileupload").attr("action"), archivePassword, audioFile, start ? "true" : "false", that.session);
 
                 that.activeUploads++;
 
@@ -158,8 +176,12 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
 
                             ajaxify.load(resultDom);
 
-                            $("#upload .uploaded .tracks").append(
-                                resultDom.find('.track')
+                            var tracks = $("#upload .uploaded .tracks");
+
+                            tracks.contents().remove();
+
+                            tracks.append(
+                                resultDom.find('.tracks-hierarchy')
                             );
 
                             $("#upload .uploaded .messages").append(
