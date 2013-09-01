@@ -32,7 +32,7 @@
 {% if same_artists|length > 0 %}
     <p class="alert alert-info">
         {% for artist in same_artists %}
-            <a href="{{ urls.artist_url(artist) }}">{{ artist.name }}</a>
+            <a href="{{ urls.artist_url(artist) }}">{{ artist.name|show_ws }}</a>
             {%- if same_artists|length > 2 and loop.index == same_artists|length - 1 %}
             and
             {%- elif not loop.last -%}
