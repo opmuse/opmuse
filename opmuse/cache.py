@@ -51,6 +51,10 @@ class CacheStorage:
     def has(self, key):
         return key in self._storage
 
+    def delete(self, key):
+        if key in self._storage:
+            del self._storage[key]
+
     def values(self):
         return self._storage.items()
 
@@ -114,6 +118,12 @@ class Cache:
         updated = int(time.time())
 
         self.storage.set(key, updated, value)
+
+    def has(self, key):
+        return self.storage.has(key)
+
+    def delete(self, key):
+        self.storage.delete(key)
 
 
 class CachePlugin(Monitor):
