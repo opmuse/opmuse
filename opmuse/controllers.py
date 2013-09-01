@@ -903,7 +903,7 @@ class Library(object):
 
         page = int(page)
 
-        page_size = 36
+        page_size = 24
 
         offset = page_size * (page - 1)
 
@@ -991,7 +991,7 @@ class Library(object):
 
         page = int(page)
 
-        page_size = 36
+        page_size = 24
 
         offset = page_size * (page - 1)
 
