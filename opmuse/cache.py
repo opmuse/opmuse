@@ -134,8 +134,15 @@ class CachePlugin(Monitor):
 
     def __init__(self, bus):
         Monitor.__init__(self, bus, self.run, frequency = 20 * 60)
+        self.index = 0
 
     def run(self):
+        self.index += 1
+
+        if self.index % 72 == 0:
+            self._gc(CachePlugin.GC_AGE)
+            self.index = 0
+
         self._serialize()
 
     def start(self):
