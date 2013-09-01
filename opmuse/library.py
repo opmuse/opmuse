@@ -1334,8 +1334,10 @@ class LibraryDao:
             number = track['number']
             disc = track['disc']
 
-            track = (get_database().query(Track)
-                     .filter_by(id=id).one())
+            try:
+                track = get_database().query(Track).filter_by(id=id).one()
+            except NoResultFound:
+                continue
 
             for path in track.paths:
                 try:
