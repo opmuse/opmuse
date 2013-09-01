@@ -191,7 +191,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                             that.send();
                         }).error(function (jqXHR, textStatus, errorThrown) {
                             that.activeUploads--;
-                            ajaxify.setErrorPageInDom(jqXHR.responseText);
+                            ajaxify.setPageInDom(jqXHR.responseText);
                         });
                 })(file);
             }
