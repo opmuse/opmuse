@@ -1,35 +1,43 @@
 {% import "macros/covers.html" as covers %}
 
-<div class="artist-container">
-    <div class="artist {{ 'invalid' if artist.invalid else '' }}">
+<div class="artist">
+    <figure class="effeckt-caption" data-effeckt-type="effeckt-caption-13">
         <a href="/{{ artist.slug|urlencode }}">
             {{ covers.artist(artist) }}
         </a>
-        <div class="artist-labels">
-            {% if artist.album_count %}
-                <p class="artist-album-count label label-primary">
-                    {{ artist.album_count }} albums
-                </p>
-            {% endif %}
-            {% if artist.va_count %}
-                <p class="artist-album-count label label-primary">
-                    {{ artist.va_count }} VAs
-                </p>
-            {% endif %}
-            <p class="artist-added label label-primary">{{ artist.added|pretty_date }}</p>
-        </div>
-        <div class="artist-labels bottom">
-            {% if artist.invalid %}
-            <p class="artist-invalid label label-danger" title="This artist has invalid tracks.">
-                <i class="icon-warning-sign"></i>
-            </p>
-            {% endif %}
-        </div>
-        <div class="artist-desc">
-            <h3 class="artist-name">
-                {{ artist.name|show_ws }}
-            </h3>
-        </div>
+        <figcaption>
+            <div class="effeckt-figcaption-wrap">
+                <div class="left">
+                    <dl>
+                        <dt>Albums</dt>
+                        <dd>{{ artist.album_count }}</dd>
+                    </dl>
+                    <dl>
+                        <dt>VAs</dt>
+                        <dd>{{ artist.va_count }}</dd>
+                    </dl>
+                    <dl>
+                        <dt>Added</dt>
+                        <dd>{{ artist.added|pretty_date }}</dd>
+                    </dl>
+                </div>
+                <div class="right">
+                    {% if artist.invalid %}
+                        <div class="labels">
+                            <p class="artist-invalid label label-danger"
+                                title="This artist has invalid tracks.">
+                                <i class="icon-warning-sign"></i>
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </figcaption>
+    </figure>
+    <div class="artist-desc">
+        <h3 class="artist-name">
+            {{ artist.name|show_ws }}
+        </h3>
     </div>
 </div>
 

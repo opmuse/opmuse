@@ -41,69 +41,85 @@
     {% import "macros/urls.html" as urls %}
     {% import "macros/covers.html" as covers %}
 
-    <div class="album-container">
-        <div class="album {{ 'invalid' if album.invalid else '' }}">
-            <div class="album-labels">
-                <p class="album-track-count label label-primary">{{ album.tracks|count }} tracks</p>
-                <p class="album-duration label label-primary">{{ album.duration|format_seconds }}</p>
-                <p class="album-added label label-primary">{{ album.added|pretty_date }}</p>
-            </div>
-            <div class="album-labels bottom">
-                {% if album.is_va %}
-                    <p class="album-va label label-success">VA</p>
-                {% endif %}
-                {% if album.low_quality %}
-                    <p class="album-low-quality label label-warning"
-                        title="Album has tracks of low quality, consider replacing them.">
-                        <i class="icon-thumbs-down"></i>
-                    </p>
-                {% endif %}
-                {% if album.invalid %}
-                <p class="album-invalid label label-danger" title="This album containts invalid tracks.">
-                    {% if "dir" in album.invalid %}
-                        <i class="icon-folder-open"></i>
-                    {% endif %}
-                    {% if "incomplete_tags" in album.invalid %}
-                        <i class="icon-tag"></i>
-                    {% endif %}
-                    {% if "broken_tags" in album.invalid %}
-                        <i class="icon-tags"></i>
-                    {% endif %}
-                    {% if "missing_tags" in album.invalid %}
-                        <i class="icon-circle-blank"></i>
-                    {% endif %}
-                </p>
-                {% endif %}
-                <p class="album-format label label-info">
-                    {{ album.pretty_format }}
-                </p>
-            </div>
-            {{ album_queue_btn(album) }}
+    <div class="album {{ 'invalid' if album.invalid else '' }}">
+        <figure class="effeckt-caption" data-effeckt-type="effeckt-caption-13">
             {% set album_url = urls.album_url(album, artist) %}
             <a href="{{ album_url }}">
                 {{ covers.album(album) }}
             </a>
-            <div class="album-desc">
-                <h3 class="album-name" title="{{ album.name }} {% if album.date %}({{ album.date }}){% endif %}">
-                    <a href="{{ album_url }}">
-                        <span>
-                            {{ album.name|show_ws }}
-                        </span>
-                        <span class="album-date">
-                            {%- if album.date -%}
-                                {{ album.date }}
-                            {%- else -%}
-                                N/A
-                            {%- endif -%}
-                        </span>
-                    </a>
-                </h3>
-                {% if not artist or album.artists|length > 1 %}
-                    <p title="{{ album_desc(album, false)|e }}">
-                        {{ album_desc(album, true) }}
-                    </p>
-                {% endif %}
-            </div>
+            <figcaption>
+                <div class="effeckt-figcaption-wrap">
+                    <div class="left">
+                        <dl>
+                            <dt>Tracks</dt>
+                            <dd>{{ album.tracks|count }}</dd>
+                        </dl>
+                        <dl>
+                            <dt>Duration</dt>
+                            <dd>{{ album.duration|format_seconds }}</dd>
+                        </dl>
+                        <dl>
+                            <dt>Added</dt>
+                            <dd>{{ album.added|pretty_date }}</dd>
+                        </dl>
+                        <dl>
+                            <dt>Format</dt>
+                            <dd>{{ album.pretty_format }}</dd>
+                        </dl>
+                    </div>
+                    <div class="right">
+                        {{ album_queue_btn(album) }}
+                        <div class="labels">
+                            {% if album.is_va %}
+                                <p class="album-va label label-success">VA</p>
+                            {% endif %}
+                            {% if album.low_quality %}
+                                <p class="album-low-quality label label-warning"
+                                    title="Album has tracks of low quality, consider replacing them.">
+                                    <i class="icon-thumbs-down"></i>
+                                </p>
+                            {% endif %}
+                            {% if album.invalid %}
+                            <p class="album-invalid label label-danger" title="This album containts invalid tracks.">
+                                {% if "dir" in album.invalid %}
+                                    <i class="icon-folder-open"></i>
+                                {% endif %}
+                                {% if "incomplete_tags" in album.invalid %}
+                                    <i class="icon-tag"></i>
+                                {% endif %}
+                                {% if "broken_tags" in album.invalid %}
+                                    <i class="icon-tags"></i>
+                                {% endif %}
+                                {% if "missing_tags" in album.invalid %}
+                                    <i class="icon-circle-blank"></i>
+                                {% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </figcaption>
+        </figure>
+        <div class="album-desc">
+            <h3 class="album-name" title="{{ album.name }} {% if album.date %}({{ album.date }}){% endif %}">
+                <a href="{{ album_url }}">
+                    <span>
+                        {{ album.name|show_ws }}
+                    </span>
+                    <span class="album-date">
+                        {%- if album.date -%}
+                            {{ album.date }}
+                        {%- else -%}
+                            N/A
+                        {%- endif -%}
+                    </span>
+                </a>
+            </h3>
+            {% if not artist or album.artists|length > 1 %}
+                <p title="{{ album_desc(album, false)|e }}">
+                    {{ album_desc(album, true) }}
+                </p>
+            {% endif %}
         </div>
     </div>
 {% endmacro %}

@@ -1,5 +1,6 @@
 @album-width: 220px;
 
+.artist-head,
 .artists,
 .albums {
     clear: both;
@@ -11,132 +12,115 @@
         list-style: none;
     }
 
-    .artist-container,
-    .album-container {
+    .artist,
+    .album {
+        margin: 0 auto;
+        width: @album-width;
         margin: 8px 0 8px 5%;
         display: inline-block;
 
-        &:hover {
-            .artist,
-            .album {
-                .artist-labels,
-                .album-labels,
-                .add-album {
-                    opacity: 1;
-                }
+        .artist-desc,
+        .album-desc {
+            width: @album-width + 10;
+
+            h3 {
+                line-height: 26px;
             }
-        }
 
-        .artist,
-        .album {
-            margin: 0 auto;
-            position: relative;
-            width: @album-width;
+            h3, p {
+                margin: 4px 0 4px 8px;
+                white-space: nowrap;
+                clear: both;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
 
-            .artist-desc,
-            .album-desc {
-                width: @album-width + 10;
+            h3 {
+                font-size: 1.2em;
 
-                h3 {
-                    line-height: 26px;
-                }
-
-                h3, p {
-                    margin: 4px 0 4px 8px;
-                    white-space: nowrap;
-                    clear: both;
+                span {
+                    text-align: left;
+                    width: 79%;
+                    display: block;
+                    float: left;
+                    clear: none;
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
 
-                h3 {
-                    font-size: 1.2em;
+                span.album-date {
+                    text-align: right;
+                    width: 21%;
 
-                    span {
-                        text-align: left;
-                        width: 79%;
-                        display: block;
-                        float: left;
-                        clear: none;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
+                    font-size: .8em;
+                    color: @gray;
+
+                    &:after {
+                        content: ")";
                     }
 
-                    span.album-date {
-                        text-align: right;
-                        width: 21%;
-
-                        font-size: .8em;
-                        color: @gray;
-
-                        &:after {
-                            content: ")";
-                        }
-
-                        &:before {
-                            content: "(";
-                        }
+                    &:before {
+                        content: "(";
                     }
-                }
-
-                p {
-                    font-size: 1em;
                 }
             }
 
-            .artist-labels,
-            .album-labels,
-            .add-album {
-                .transition(.7s);
-
-                opacity: 0.0;
-                z-index: 99;
-                position: absolute;
+            p {
+                font-size: 1em;
             }
+        }
 
-            .artist-labels,
-            .album-labels {
-                top: -6px;
-                left: -6px;
+        figcaption {
+            font-family: @original-font-family-sans-serif;
 
-                &.artist-labels.bottom {
-                    bottom: 13px;
-                }
-
-                &.bottom {
-                    bottom: 50px;
-                    top: auto;
-                    left: 139px;
-                    width: 100px;
-                    p {
-                        float: right;
-                    }
-                }
-
-                .label {
-                    line-height: 12px;
-                }
-            }
-
-            .artist-album-count,
-            .artist-added,
-            .album-added,
-            .album-duration,
-            .album-format,
-            .album-low-quality,
-            .album-invalid,
-            .album-date,
-            .album-va,
-            .album-track-count {
-                display: block;
-                margin: 2px 0 0 0;
+            .left {
+                width: 134px;
                 float: left;
+                margin-left: 6px;
+            }
+
+            .right {
+                margin-top: 8px;
+                margin-right: 6px;
+                width: 87px;
+                float: right;
+            }
+
+            dl {
+                font-size: .8em;
+                margin-top: 8px;
+                margin-bottom: 0;
+
+                dt {
+                    width: 50px;
+                    text-align: left;
+                    float: left;
+                }
+
+                dd {
+                    text-align: right;
+                    float: left;
+                    width: 80px;
+                    margin-left: 0;
+                }
+            }
+
+            .remove-cover,
+            .labels,
+            .add-album {
+                float: right;
+                display: block;
                 clear: both;
             }
+        }
 
-            .add-album {
-                top: -6px;
-                right: -18px;
+        .artist-labels,
+        .album-labels {
+            top: -6px;
+            left: -6px;
+
+            .label {
+                line-height: 12px;
             }
         }
     }
@@ -188,7 +172,7 @@
         background-repeat: no-repeat;
         background-position: 6px 6px;
         text-indent: -9999px;
-        position: absolute;
+        position: absolute !important; /* !important because effeckt.css is being difficult */
         right: 0;
         top: 0;
 

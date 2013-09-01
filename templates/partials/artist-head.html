@@ -125,11 +125,40 @@
             {% endif %}
         </div>
         <div class="col-xs-5">
-            {% if album %}
-                {{ covers.album(album, remove = True) }}
-            {% elif artists %}
-                {{ covers.artist(artists[0], remove = True) }}
-            {% endif %}
+        {% if album %}
+            <div class="album">
+        {% elif artists %}
+            <div class="artist">
+        {% endif %}
+                <figure class="effeckt-caption" data-effeckt-type="effeckt-caption-13">
+                    {% if album %}
+                        {{ covers.album(album) }}
+                    {% elif artists %}
+                        {{ covers.artist(artists[0]) }}
+                    {% endif %}
+                    <figcaption>
+                        <div class="effeckt-figcaption-wrap">
+                            <div class="left">
+                            </div>
+                            <div class="right">
+                                {% if is_granted('admin') %}
+                                    {% if album %}
+                                        <a class="remove-cover btn btn-default btn-sm"
+                                            href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                                            <i class="icon-refresh"></i>
+                                        </a>
+                                    {% elif artists %}
+                                        <a class="remove-cover btn btn-default btn-sm"
+                                            href="/cover_refresh/artist/{{ artists[0].slug|urlencode }}">
+                                            <i class="icon-refresh"></i>
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </figcaption>
+                </figure>
+            </div>
         </div>
     </div>
 </div>

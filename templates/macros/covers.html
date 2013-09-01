@@ -1,12 +1,5 @@
-{% macro album(album, cover_size = 220, cover_class = "img-thumbnail", remove = False) %}
+{% macro album(album, cover_size = 220, cover_class = "img-thumbnail") %}
     <span class="cover-container" id="album_cover_{{ album.id }}">
-        {% if is_granted('admin') and remove %}
-            <a class="remove-cover btn btn-default btn-sm"
-                href="/cover_refresh/album/{{ album.slug|urlencode }}">
-                <i class="icon-refresh"></i>
-            </a>
-        {% endif %}
-
         <img width="{{ cover_size }}" height="{{ cover_size }}"
             {% if not album %}
                 src="/static/images/cover_placeholder.png"
@@ -22,15 +15,8 @@
     </span>
 {% endmacro %}
 
-{% macro artist(artist, cover_size = 220, cover_class = "img-thumbnail", remove = False) %}
+{% macro artist(artist, cover_size = 220, cover_class = "img-thumbnail") %}
     <span class="cover-container" id="artist_cover_{{ artist.id }}">
-        {% if is_granted('admin') and remove %}
-            <a class="remove-cover btn btn-default btn-sm"
-                href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
-                <i class="icon-refresh"></i>
-            </a>
-        {% endif %}
-
         <img width="{{ cover_size }}" height="{{ cover_size }}"
         {% if artist %}
             src="/cover/artist/{{ artist.slug|urlencode }}
