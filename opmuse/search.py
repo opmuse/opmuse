@@ -109,6 +109,9 @@ class Search:
         for id, score in results:
             indexed_results[id] = score
 
+        for entity in entities:
+            entity.__SEARCH_SCORE = indexed_results[entity.id]
+
         return sorted(entities, key=lambda entity: indexed_results[entity.id], reverse=True)
 
     def _query(self, index_name, query, exact = False, exact_metaphone = False):
