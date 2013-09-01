@@ -235,10 +235,15 @@ class QueueDao:
         if current_queues is not None and len(current_queues) > 0:
             queues.append((info, current_queues))
 
+        full_info = {
+            'duration': 0
+        }
+
         for info, queue in queues:
+            full_info['duration'] += info['duration']
             info['artists'] = list(info['artists'])
 
-        return queues
+        return queues, full_info
 
     def clear(self):
         user_id = cherrypy.request.user.id

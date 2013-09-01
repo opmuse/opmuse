@@ -19,6 +19,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
 
             this.playerControls = $('#player-controls');
             this.playerProgress = $('#player-progress');
+            this.trackTime = $('#track-time');
+            this.trackDuration = $('#track-duration');
+            this.queueDuration = $('#queue-duration');
             this.playButton = $('#play-button');
             this.pauseButton = $('#pause-button');
             this.nextButton = $('#next-button');
@@ -142,23 +145,26 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
 
             that.playerProgress.find('.progress-bar.ahead').width(seconds_ahead_perc + '%');
 
-            var actual_seconds = seconds - seconds_ahead;
+            var time = that.formatSeconds(seconds - seconds_ahead);
 
+            if (time !== null) {
+                that.trackTime.text(time);
+            }
+        },
+        formatSeconds: function (seconds) {
             var format = null;
 
-            if (actual_seconds >= 3600) {
+            if (seconds >= 3600) {
                 format = "HH:mm:ss";
             } else {
                 format = "mm:ss";
             }
 
-            var time = '';
-
-            if (actual_seconds > 0) {
-                time = moment().hours(0).minutes(0).seconds(actual_seconds).format(format);
+            if (seconds > 0) {
+                return moment().hours(0).minutes(0).seconds(seconds).format(format);
+            } else {
+                return null;
             }
-
-            that.playerTrack.find('.time').text(time);
         },
         internalInit: function () {
             $('#next-button, #play-button, #pause-button').unbind('click.ajaxify');
@@ -274,13 +280,21 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                     });
                 }
             });
+
+            that.player.trackDuration.text(
+                that.player.formatSeconds(($("#queue").attr('data-queue_current_track-duration')))
+            );
+
+            that.player.queueDuration.text(
+                that.player.formatSeconds(($("#queue").attr('data-queue_info-duration')))
+            );
         },
         reload: function () {
             var that = this;
 
             $.ajax(this.listUrl, {
                 success: function (data) {
-                    $("#queue").html(data);
+                    ajaxify.setInDom("#queue", data);
                     ajaxify.load('#queue');
                     that.internalInit();
                 }
@@ -288,7 +302,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
 
             $.ajax(this.coverUrl, {
                 success: function (data) {
-                    $("#player-cover").html(data);
+                    ajaxify.setInDom("#player-cover", data);
                     ajaxify.load('#player-cover');
                 }
             });

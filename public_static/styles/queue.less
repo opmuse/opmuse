@@ -1,4 +1,5 @@
 .player-container {
+    height: 106px;
     padding: 15px 10px 0 10px;
 
     .cover-container {
@@ -32,6 +33,20 @@
             &:hover {
                 color: #111;
                 text-decoration: none;
+            }
+        }
+
+        dl {
+            display: none;
+            margin: 0 14px 0 0;
+            float: right;
+
+            dt {
+                text-align: right;
+            }
+
+            #track-time:after {
+                content: ' / ';
             }
         }
     }
@@ -78,22 +93,22 @@
 .panel-open {
     .cover-container {
         display: block;
-        width: 72px;
-        height: 72px;
+        width: 82px;
+        height: 82px;
         float: left;
         margin-top: -4px;
 
         &> img {
             border: 1px solid #000;
             .box-shadow(0 0 4px rgba(0, 0, 0, .9));
-            width: 72px;
-            height: 72px;
+            width: 82px;
+            height: 82px;
         }
     }
 
     #player-controls {
-        margin-left: 18px;
-        margin-top: -16px;
+        margin: -8px 0 8px 18px;
+        padding: 0 18px 0 0;
         width: 69%;
         float: left;
         position: static;
@@ -101,9 +116,10 @@
         left: auto;
 
         #next-button, #play-button, #pause-button {
+            margin-top: -6px;
             margin-right: 15px;
             margin-left: 0;
-            font-size: 32px;
+            font-size: 36px;
             padding: 0;
             background-color: transparent;
             color: @white;
@@ -112,6 +128,10 @@
 
         #play-button {
             margin-right: 10px;
+        }
+
+        dl {
+            display: block;
         }
     }
 

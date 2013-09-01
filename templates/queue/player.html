@@ -4,9 +4,7 @@
         preload="none">
     </audio>
 
-    <div id="player-cover">
-        {% include "queue/cover.html" %}
-    </div>
+    {% include "queue/cover.html" %}
 
     <div id="player-controls">
         <a
@@ -27,13 +25,23 @@
             href="#">
             <i class="icon-step-forward"></i>
         </a>
+        <dl>
+            <dt>Queue</dt>
+            <dd id="queue-duration">{{ queue_info.duration | format_seconds }}</dd>
+        </dl>
+        <dl>
+            <dt>Current Track</dt>
+            <dd>
+                <span id="track-time">{{ 0|format_seconds }}</span>
+                <span id="track-duration">{{ queue_current_track.duration|format_seconds if queue_current_track }}</span>
+            </dd>
+        </dl>
     </div>
 
     <div id="player-progress">
         <div class="progress">
             <p id="player-track">
                 <span class="title"></span>
-                <span class="time"></span>
             </p>
             <span class="progress-bar seconds" style="width: 0%"></span>
             <span class="progress-bar ahead" style="width: 0%"></span>

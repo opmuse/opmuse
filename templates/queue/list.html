@@ -23,111 +23,115 @@
     {%- endif -%}
 {% endmacro %}
 
-<div class="btn-group btn-clear">
-    <a
-        id="clear-queue"
-        class="btn btn-xs btn-danger"
-        accesskey="t"
-        href="/queue/clear">
-        <i class="icon-remove-sign"></i>
-        All
-    </a>
-    <a
-        id="clear-played-queue"
-        accesskey="r"
-        class="btn btn-xs btn-danger"
-        href="/queue/clear/played">
-        <i class="icon-remove-sign"></i>
-        played
-    </a>
-</div>
+<div id="queue"
+    data-queue_info-duration="{{ queue_info.duration }}"
+    data-queue_current_track-duration="{{ queue_current_track.duration if queue_current_track }}">
+    <div class="btn-group btn-clear">
+        <a
+            id="clear-queue"
+            class="btn btn-xs btn-danger"
+            accesskey="t"
+            href="/queue/clear">
+            <i class="icon-remove-sign"></i>
+            All
+        </a>
+        <a
+            id="clear-played-queue"
+            accesskey="r"
+            class="btn btn-xs btn-danger"
+            href="/queue/clear/played">
+            <i class="icon-remove-sign"></i>
+            played
+        </a>
+    </div>
 
-<div class="btn-stream">
-    <a class="open-stream" target="_blank" href="/play.m3u" accesskey="d">
-        <i class="icon-download"></i>
-    </a>
-    <a class="open-stream open btn btn-default btn-xs" target="_blank" href="/play.m3u">
-        <i class="icon-download"></i>
-        Stream
-    </a>
-</div>
+    <div class="btn-stream">
+        <a class="open-stream" target="_blank" href="/play.m3u" accesskey="d">
+            <i class="icon-download"></i>
+        </a>
+        <a class="open-stream open btn btn-default btn-xs" target="_blank" href="/play.m3u">
+            <i class="icon-download"></i>
+            Stream
+        </a>
+    </div>
 
-<div class="clear"></div>
+    <div class="clear"></div>
 
-<div class="tracks-wrapper nano">
-    <ol class="tracks content">
-        {% for info, queue in queues %}
-            <li class="album">
-                <span class="album-header" title="{{ album_header(info, false)|e }}">
-                    <span class="album-header-icon">
-                        <i class="icon-sign-blank"></i>
-                    </span>
-                    {{ album_header(info) }}
-                </span>
-                <span class="album-info">
-                    <span class="album-duration">
-                        {{ info.duration|format_seconds }}
-                    </span>
-                    <a
-                        class="remove"
-                        href="/queue/remove/
-                        {%- for q in queue -%}
-                            {{ q.track.id }},
-                        {%- endfor -%}
-                        ">
-                        <span class="icon-remove-sign"></span>
-                    </a>
-                </span>
-            </li>
-            {% for q in queue %}
-                <li class="track {{ "current active" if q.current }} {{ "played" if q.played }} {{ "error" if q.error }}"
-                    data-queue-id="{{ q.id }}">
-                    <span class="text">
-                        <span class="track-icon"
-                            title="{{ q.error if q.error }}"
-                            {% if q.error %}
-                            rel="popover"
-                            data-trigger="hover"
-                            data-container="body"
-                            {% endif %}>
-                            <i class="noplay-icon icon-check-empty"></i>
-                            <i class="current-icon icon-play"></i>
-                            <i class="played-icon icon-check"></i>
-                            <i class="error-icon icon-exclamation-sign"></i>
+    <div class="tracks-wrapper nano">
+        <ol class="tracks content">
+            {% for info, queue in queues %}
+                <li class="album">
+                    <span class="album-header" title="{{ album_header(info, false)|e }}">
+                        <span class="album-header-icon">
+                            <i class="icon-sign-blank"></i>
                         </span>
-                        <span class="track-number">
-                            {% if q.track.number %}
-                                {{ q.track.number }}
+                        {{ album_header(info) }}
+                    </span>
+                    <span class="album-info">
+                        <span class="album-duration">
+                            {{ info.duration|format_seconds }}
+                        </span>
+                        <a
+                            class="remove"
+                            href="/queue/remove/
+                            {%- for q in queue -%}
+                                {{ q.track.id }},
+                            {%- endfor -%}
+                            ">
+                            <span class="icon-remove-sign"></span>
+                        </a>
+                    </span>
+                </li>
+                {% for q in queue %}
+                    <li class="track {{ "current active" if q.current }} {{ "played" if q.played }} {{ "error" if q.error }}"
+                        data-queue-id="{{ q.id }}">
+                        <span class="text">
+                            <span class="track-icon"
+                                title="{{ q.error if q.error }}"
+                                {% if q.error %}
+                                rel="popover"
+                                data-trigger="hover"
+                                data-container="body"
+                                {% endif %}>
+                                <i class="noplay-icon icon-check-empty"></i>
+                                <i class="current-icon icon-play"></i>
+                                <i class="played-icon icon-check"></i>
+                                <i class="error-icon icon-exclamation-sign"></i>
+                            </span>
+                            <span class="track-number">
+                                {% if q.track.number %}
+                                    {{ q.track.number }}
+                                {% endif %}
+                            </span>
+                            {% if info.artists|length > 1 %}
+                                <span class="artist-name" title="{{ q.track.artist.name|show_ws }}">
+                                    <a href="{{ urls.artist_url(q.track.artist) }}">
+                                        {{ q.track.artist.name|show_ws }}
+                                    </a>
+                                </span>
                             {% endif %}
-                        </span>
-                        {% if info.artists|length > 1 %}
-                            <span class="artist-name" title="{{ q.track.artist.name|show_ws }}">
-                                <a href="{{ urls.artist_url(q.track.artist) }}">
-                                    {{ q.track.artist.name|show_ws }}
+                            <span class="track-name" title="{{ q.track.name|show_ws }}">
+                                <a href="/library/track/{{ q.track.slug|urlencode }}">
+                                    {{ q.track.name|show_ws }}
                                 </a>
                             </span>
-                        {% endif %}
-                        <span class="track-name" title="{{ q.track.name|show_ws }}">
-                            <a href="/library/track/{{ q.track.slug|urlencode }}">
-                                {{ q.track.name|show_ws }}
-                            </a>
                         </span>
-                    </span>
-                    <span class="track-info">
-                        <span class="track-duration">
-                            {{ q.track.duration|format_seconds }}
+                        <span class="track-info">
+                            <span class="track-duration">
+                                {{ q.track.duration|format_seconds }}
+                            </span>
+                            {% if not q.current %}
+                                <a
+                                    class="remove"
+                                    href="/queue/remove/{{ q.track.id }}">
+                                    <span class="icon-remove-sign"></span>
+                                </a>
+                            {% endif %}
                         </span>
-                        {% if not q.current %}
-                            <a
-                                class="remove"
-                                href="/queue/remove/{{ q.track.id }}">
-                                <span class="icon-remove-sign"></span>
-                            </a>
-                        {% endif %}
-                    </span>
-                    <div class="clear"></div>
-                </li>
+                        <div class="clear"></div>
+                    </li>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </ol>
+        </ol>
+    </div>
 </div>
