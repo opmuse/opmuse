@@ -40,7 +40,11 @@
     {% endfor %}
 
     {% if artist.no_album_tracks %}
+        <hr />
+
         <h3>Tracks without albums</h2>
+
+        {{ edit_dropdown.dropdown(artist.no_album_tracks) }}
 
         <div class="tracks">
             {{ tracks.table(artist.no_album_tracks, false, false) }}
