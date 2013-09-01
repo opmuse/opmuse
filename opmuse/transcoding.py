@@ -233,7 +233,7 @@ class FFMPEGTranscoder(Transcoder):
         #
         # it would be nice if we could do this with ffmpeg directly so we could skip this
         # artificial wait, but i don't know how.
-        seconds_keepahead = 3
+        seconds_keepahead = 5
 
         time.sleep(seconds_keepahead)
 
