@@ -135,16 +135,22 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
                 var content = this.contents[index];
                 var newContent = html.find(content);
 
-                $(content).contents().remove();
-
-                $(content)
-                    .append(newContent.contents())
-                    .attr('class', newContent.attr('class'));
+                this.setInDom(content, newContent);
 
                 $(window).scrollTop(0);
             }
 
             this.internalInit();
+        },
+        setInDom: function (content, newContent) {
+            $(content).contents().remove();
+
+            $(content)
+                .append($(newContent).contents());
+
+            $.each($(newContent).get(0).attributes, function (index, attribute) {
+                $(content).attr(attribute.name, attribute.value);
+            });
         },
         disableElements: function (element) {
             $(element).addClass('ajaxify-disabled');
