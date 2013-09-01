@@ -33,7 +33,9 @@
             <dt>Current Track</dt>
             <dd>
                 <span id="track-time">{{ 0|format_seconds }}</span>
-                <span id="track-duration">{{ queue_current_track.duration|format_seconds if queue_current_track }}</span>
+                <span id="track-duration">
+                    {{ queue_current_track.duration|format_seconds if queue_current_track else 0|format_seconds }}
+                </span>
             </dd>
         </dl>
     </div>

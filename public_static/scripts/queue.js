@@ -142,16 +142,15 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             }
 
             that.playerProgress.find('.progress-bar.seconds').width(seconds_perc + '%');
-
             that.playerProgress.find('.progress-bar.ahead').width(seconds_ahead_perc + '%');
 
-            var time = that.formatSeconds(seconds - seconds_ahead);
-
-            if (time !== null) {
-                that.trackTime.text(time);
-            }
+            that.trackTime.text(that.formatSeconds(seconds - seconds_ahead));
         },
         formatSeconds: function (seconds) {
+            if (typeof seconds == 'undefined' || seconds === null) {
+                seconds = 0;
+            }
+
             var format = null;
 
             if (seconds >= 3600) {
@@ -160,11 +159,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 format = "mm:ss";
             }
 
-            if (seconds > 0) {
-                return moment().hours(0).minutes(0).seconds(seconds).format(format);
-            } else {
-                return null;
-            }
+            return moment().hours(0).minutes(0).seconds(seconds).format(format);
         },
         internalInit: function () {
             $('#next-button, #play-button, #pause-button').unbind('click.ajaxify');
