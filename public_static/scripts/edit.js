@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritance, ajaxify) {
+define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'domReady!'], function($, inheritance, ajaxify) {
     var instance = null;
 
     var Edit = Class.extend({
@@ -17,6 +17,18 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         },
         internalInit: function () {
             var that = this;
+
+            $("#edit input[name=artists]").typeahead({
+                remote: '/library/search/api/artist?query=%QUERY'
+            });
+
+            $("#edit input[name=albums]").typeahead({
+                remote: '/library/search/api/album?query=%QUERY'
+            });
+
+            $("#edit input[name=tracks]").typeahead({
+                remote: '/library/search/api/track?query=%QUERY'
+            });
 
             $("#edit form button").click(function (event) {
                 var form = $(this).closest('form');

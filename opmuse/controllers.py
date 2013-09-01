@@ -172,6 +172,21 @@ class Remove:
 class Search:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.json_out()
+    def api(self, type, query):
+        if type == "artist":
+            entities = search.query_artist(query)
+        elif type == "album":
+            entities = search.query_album(query)
+        elif type == "track":
+            entities = search.query_track(query)
+        else:
+            raise cherrypy.NotFound()
+
+        return [entity.name for entity in entities]
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/search.html')
     def default(self, query = None, type = None):
         artists = []
