@@ -127,7 +127,7 @@ class Cache:
 
 
 class CachePlugin(Monitor):
-    GC_AGE = 6 * 30 * 24 * 3600
+    GC_AGE = 3 * 30 * 24 * 3600
     """
         How old an entry has to be considered stale and removed.
     """
