@@ -54,6 +54,19 @@
             <tbody>
                 <tr class="dir-info">
                     <th colspan="{{ colspan }}">
+                        <div class="btn-group queue-btn">
+                            <a
+                                accesskey="a"
+                                class="queue add add-album btn-xs btn btn-default"
+                                title="Queue all"
+                                href="/queue/add/
+                                    {%- for track in tracks -%}
+                                        {{ track.id }},
+                                    {%- endfor -%}
+                                ">
+                                <i class="icon-headphones"></i>
+                            </a>
+                        </div>
                         {{ pretty_dir }}
                         {{ edit_dropdown.dropdown(tracks) }}
                     </th>
