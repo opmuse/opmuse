@@ -1,12 +1,24 @@
+@keyframes brand_bounce_letter_danger {
+    75% {
+        color: @state-danger-text;
+    }
+}
+
+@keyframes brand_bounce_letter {
+    75% {
+        color: #fff;
+    }
+}
+
 .navbar-brand {
     .letter {
         float: left;
     }
 
-    &.throb {
+    &.throb, &.error {
         .letter {
             color: #2c2c2c;
-            animation-name: bounce_letter;
+            animation-name: brand_bounce_letter;
             animation-duration: 2.1s;
             animation-iteration-count: infinite;
         }
@@ -35,10 +47,12 @@
             animation-delay: 1.8s;
         }
 
-        @keyframes bounce_letter {
-            75% {
-                color: #fff;
-            }
+    }
+
+    &.error {
+        .letter {
+            color: @state-danger-bg;
+            animation-name: brand_bounce_letter_danger;
         }
     }
 }

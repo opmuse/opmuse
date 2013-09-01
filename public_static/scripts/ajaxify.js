@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], function($, inheritance, popover) {
 
     var Throb = Class.extend({
         init: function (brand) {
@@ -48,6 +48,18 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             this.startTime = new Date().getTime();
 
             $(this.brand).addClass('throb');
+        },
+        setError: function (msg) {
+            $(this.brand).addClass('error').popover({
+                'content': $('<p>').text(msg).addClass('text-danger'),
+                'html': true,
+                'trigger': 'hover',
+                'container': 'body',
+                'placement': 'right bottom'
+            });
+        },
+        unsetError: function () {
+            $(this.brand).removeClass('error').popover('destroy');
         }
     });
 

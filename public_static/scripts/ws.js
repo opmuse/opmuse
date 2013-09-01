@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'logger', 'sprintf', 'bind', 'domReady!'], function($, inheritance, logger) {
+define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domReady!'], function($, inheritance, logger, ajaxify) {
 
     var instance = null;
 
@@ -43,6 +43,13 @@ define(['jquery', 'inheritance', 'logger', 'sprintf', 'bind', 'domReady!'], func
 
             that.socket = new WebSocket(that.url);
 
+            // if it takes longer that 5s to connect we assume something is wrong
+            setTimeout(function () {
+                if (that.socket.OPEN !== 1) {
+                    ajaxify.throb.setError("Couldn't establish websocket connection, might be firewall issues.");
+                }
+            }, 5000);
+
             that.socket.onmessage = function (event) {
                 var data = JSON.parse(event.data);
 
@@ -55,7 +62,10 @@ define(['jquery', 'inheritance', 'logger', 'sprintf', 'bind', 'domReady!'], func
             };
 
             that.socket.onopen = function() {
+                ajaxify.throb.unsetError();
+
                 logger.log('ws connection opened');
+
                 $(that).trigger('open');
             };
 
@@ -68,6 +78,8 @@ define(['jquery', 'inheritance', 'logger', 'sprintf', 'bind', 'domReady!'], func
                 logger.log('ws connection closed');
 
                 if (!that.unloaded) {
+                    ajaxify.throb.setError("Lost websocket connection, server is probably down.");
+
                     // TODO implement exponential backoff algo
                     setTimeout(function () {
                         that.internalInit();
