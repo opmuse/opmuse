@@ -161,7 +161,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 var audioFile = $(file.dom).find('[name=audio_file]').val();
 
                 var url = sprintf("%s?archive_password=%s&audio_file=%s&start=%s&session=%d",
-                        $("#fileupload").attr("action"), archivePassword, audioFile, start ? "true" : "false", that.session);
+                    $("#fileupload").attr("action"), encodeURIComponent(archivePassword), encodeURIComponent(audioFile),
+                    start ? "true" : "false", that.session);
 
                 that.activeUploads++;
 
