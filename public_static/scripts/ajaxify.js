@@ -145,6 +145,10 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
         setInDom: function (content, newContent) {
             $(content).contents().remove();
 
+            if ($(newContent).length == 0) {
+                return;
+            }
+
             $(content)
                 .append($(newContent).contents());
 
