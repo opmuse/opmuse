@@ -66,8 +66,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                                     audioFile.val(file.name);
                                 }
 
-                                audioFile.show().typeahead('destroy');
-                                audioFile.show().typeahead({
+                                audioFile.typeahead('destroy');
+                                audioFile.typeahead({
                                     local: that.names
                                 });
                             });
@@ -81,6 +81,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                             }
 
                             fileDom.addClass('other-file');
+
+                            audioFile.show();
+
+                            audioFile.typeahead('destroy');
+                            audioFile.typeahead({
+                                local: that.names
+                            });
                         }
 
 
