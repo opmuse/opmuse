@@ -1,5 +1,5 @@
 {% macro album(album, cover_size = 220, cover_class = "img-thumbnail") %}
-    <span class="cover-container" id="album_cover_{{ album.id }}">
+    <span class="cover-container {{ "artist_cover_" ~ album.artists[0].id if album.artists|count > 0 }}" id="album_cover_{{ album.id }}">
         <img width="{{ cover_size }}" height="{{ cover_size }}"
             {% if not album %}
                 src="/static/images/cover_placeholder.png"

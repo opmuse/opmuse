@@ -18,6 +18,7 @@ define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inherit
 
             ws.on('covers.artist.update', function (id) {
                 that.refresh($("#artist_cover_" + id));
+                that.refresh($(".artist_cover_" + id));
             });
 
             ws.on('covers.album.update', function (id) {
