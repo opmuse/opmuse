@@ -1,9 +1,9 @@
-{% macro dropdown(tracks, title="Tracks") %}
+{% macro dropdown(tracks, title="Tracks", btn_size = "btn-sm") %}
 {% if is_granted('admin') %}
     {% set modalId = "removeAlbumModal" + rand_id() %}
     {{ remove_modal(modalId, "Remove " + title, tracks) }}
     <div class="btn-group edit-btn">
-        <a class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" href="#">
+        <a class="btn btn-default {{ btn_size }} dropdown-toggle" data-toggle="dropdown" href="#">
             {{ title }}
             <span class="icon-caret-down"></span>
         </a>

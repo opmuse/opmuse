@@ -1452,10 +1452,10 @@ class Root(object):
 
         # viewable in most browsers
         if content_type in ('image/jpeg', "image/png", "image/gif", 'application/pdf',
-                            'text/x-nfo', 'text/plain'):
+                            'text/x-nfo', 'text/plain', 'text/x-sfv', 'audio/x-mpegurl'):
             disposition = None
 
-            if content_type in ('text/x-nfo', ):
+            if content_type in ('text/x-nfo', 'text/x-sfv', 'audio/x-mpegurl'):
                 content_type = 'text/plain'
 
         # download...

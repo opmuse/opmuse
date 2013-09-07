@@ -26,6 +26,7 @@ require(['jquery'], function($) {
             'covers',
             'remotes',
             'filters',
+            'album'
         ], function () {
             $("#overlay").addClass('hide');
             $('body').trigger('loadFinish');

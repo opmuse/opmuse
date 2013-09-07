@@ -45,7 +45,7 @@
 
     <div class="clear"></div>
 
-    <table class="table table-striped table-bordered accordion table-condensed">
+    <table class="table table-striped table-bordered accordion">
         {% set index = 0 %}
         {% for dir, item in dirs %}
             {% set tracks = item['tracks'] %}
@@ -68,7 +68,7 @@
                             </a>
                         </div>
                         {{ pretty_dir }}
-                        {{ edit_dropdown.dropdown(tracks) }}
+                        {{ edit_dropdown.dropdown(tracks, btn_size = "btn-xs") }}
                     </th>
                 </tr>
                 {% for track in tracks %}
@@ -129,9 +129,11 @@
                 <tbody class="other-files-header">
                     <tr>
                         <th class="indent">&nbsp;</th>
-                        <th colspan="{{ colspan - 1 }}">
-                            Other Files...
-                            <a class="btn btn-default btn-xs collapsed" data-toggle="collapse" href="#other_files_{{ index }}">
+                        <th class="other-files-header-title" colspan="{{ colspan - 2 }}">
+                            Other ({{ files|count }} Files)
+                        </th>
+                        <th>
+                            <a class="btn btn-default btn-xs collapsed other-files-toggle" data-toggle="collapse" href="#other_files_{{ index }}">
                                 <i class="icon-angle-down in"></i>
                                 <i class="icon-angle-up out"></i>
                             </a>
