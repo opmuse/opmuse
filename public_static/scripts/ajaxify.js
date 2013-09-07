@@ -108,9 +108,6 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
                 });
             });
 
-            this.internalInit();
-        },
-        internalInit: function () {
             this.load(this.selector);
         },
         load: function (element) {
@@ -131,8 +128,6 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
                 // continue propagation if the link has said attribute
                 return $(this).is("[data-ajaxify=continue]");
             });
-
-            $(element).trigger('ajaxifyInit');
         },
         loadPage: function (href) {
             var that = this;
@@ -169,7 +164,9 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
                 $(window).scrollTop(0);
             }
 
-            this.internalInit();
+            this.load(this.selector);
+
+            $(this.selector).trigger('ajaxifyInit');
         },
         setInDom: function (content, newContent) {
             $(content).contents().remove();
