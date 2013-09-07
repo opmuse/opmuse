@@ -97,6 +97,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
 
             that.pauseButton.click(function() {
                 that.player.pause();
+                that.unload();
+                that.loaded = false;
+
                 that.pauseButton.hide();
                 that.playButton.show();
 
@@ -163,6 +166,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
         },
         internalInit: function () {
             $('#next-button, #play-button, #pause-button').unbind('click.ajaxify');
+        },
+        unload: function () {
+            if (typeof this.player != 'undefined' && this.player !== null) {
+                this.player.src = '/stream?dead=true';
+            }
         },
         load: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {

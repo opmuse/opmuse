@@ -1557,6 +1557,9 @@ class Root(object):
 
         user = cherrypy.request.user
 
+        if 'dead' in kwargs and kwargs['dead'] == 'true':
+            raise cherrypy.HTTPError(status=409)
+
         remotes.update_user(user)
 
         queue = queue_dao.get_next(user.id)
