@@ -1080,7 +1080,6 @@ class LibraryProcess:
         track.bitrate = metadata.bitrate
         track.size = metadata.size
         track.disc = metadata.disc
-        track.scanned = True
 
         if metadata.invalid == ['valid']:
             track.invalid = None
@@ -1102,6 +1101,10 @@ class LibraryProcess:
 
         if artist is not None:
             artist.tracks.append(track)
+
+        self._database.commit()
+
+        track.scanned = True
 
         self._database.commit()
 
