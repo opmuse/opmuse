@@ -57,7 +57,9 @@ class QueueEvents:
         ws_user = ws.get_ws_user()
         ws_user.set('queue.current_progress', progress)
 
-        ws.emit('queue.progress', progress, self.serialize_track(track))
+        user_agent = cherrypy.request.headers['User-Agent']
+
+        ws.emit('queue.progress', progress, self.serialize_track(track), user_agent)
 
         cherrypy.request.queue_progress = progress
 
@@ -68,10 +70,12 @@ class QueueEvents:
 
         track = self.serialize_track(track)
 
+        user_agent = cherrypy.request.headers['User-Agent']
+
         ws_user = ws.get_ws_user()
         ws_user.set('queue.current_track', track)
 
-        ws.emit('queue.start', track)
+        ws.emit('queue.start', track, user_agent)
 
     def transcoding_done(self, track):
         if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
@@ -105,6 +109,12 @@ class QueueEvents:
                 queue_dao.update_queue(queue_current.id, current_seconds = current_seconds, error = error)
 
                 ws.emit('queue.update')
+
+        track = self.serialize_track(track)
+
+        user_agent = cherrypy.request.headers['User-Agent']
+
+        ws.emit('queue.end', track, user_agent)
 
     def serialize_track(self, track):
         return {

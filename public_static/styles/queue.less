@@ -34,6 +34,15 @@
                 color: #111;
                 text-decoration: none;
             }
+
+            &.disabled {
+                color: @gray-lighter !important;
+                opacity: 0.4;
+
+                &:hover {
+                    cursor: not-allowed;
+                }
+            }
         }
 
         dl {
@@ -47,6 +56,13 @@
 
             #track-time:after {
                 content: ' / ';
+            }
+
+            #track-user-agent {
+                max-width: 50px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
     }

@@ -1356,6 +1356,66 @@ class Dashboard:
             'new_albums': new_albums
         }
 
+class Stream:
+
+    CACHE_KEY = "STREAM_PLAYING_%d"
+
+    def __init__(self):
+        cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
+        cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
+
+    def transcoding_start(self, track):
+        cache_key = Stream.CACHE_KEY % cherrypy.request.user.id
+        cache.set(cache_key, True)
+
+    def transcoding_end(self, track, transcoder):
+        cache_key = Stream.CACHE_KEY % cherrypy.request.user.id
+        cache.set(cache_key, False)
+
+    @cherrypy.expose
+    @cherrypy.tools.transcodingsubprocess()
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.config(**{'response.stream': True})
+    def default(self, **kwargs):
+
+        user = cherrypy.request.user
+
+        remotes.update_user(user)
+
+        if 'dead' in kwargs and kwargs['dead'] == 'true':
+            raise cherrypy.HTTPError(status=409)
+
+        # allow only one streaming client at once, or weird things might occur
+        cache_key = Stream.CACHE_KEY % user.id
+
+        if cache.get(cache_key) is True:
+            raise cherrypy.HTTPError(status=409)
+
+        queue = queue_dao.get_next(user.id)
+
+        if queue is None:
+            raise cherrypy.HTTPError(status=409)
+
+        user_agent = cherrypy.request.headers['User-Agent']
+
+        transcoder, format = transcoding.determine_transcoder(
+            queue.track,
+            user_agent,
+            [accept.value for accept in cherrypy.request.headers.elements('Accept')]
+        )
+
+        cherrypy.log(
+            '%s is streaming "%s" in %s (original was %s) with "%s"' %
+            (user.login, queue.track, format, queue.track.format, user_agent)
+        )
+
+        cherrypy.response.headers['Content-Type'] = format
+
+        def track_generator():
+            yield queue.track, queue.current_seconds
+
+        return transcoding.transcode(track_generator(), transcoder)
+
 
 class Root(object):
     @staticmethod
@@ -1374,6 +1434,7 @@ class Root(object):
     library = Library()
     ws = WsController()
     dashboard = Dashboard()
+    stream = Stream()
 
     @cherrypy.expose
     def __profile__(self, *args, **kwargs):
@@ -1548,41 +1609,3 @@ class Root(object):
         cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=play.m3u'
 
         return {'url': url}
-
-    @cherrypy.expose
-    @cherrypy.tools.transcodingsubprocess()
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.config(**{'response.stream': True})
-    def stream(self, **kwargs):
-
-        user = cherrypy.request.user
-
-        if 'dead' in kwargs and kwargs['dead'] == 'true':
-            raise cherrypy.HTTPError(status=409)
-
-        remotes.update_user(user)
-
-        queue = queue_dao.get_next(user.id)
-
-        if queue is None:
-            raise cherrypy.HTTPError(status=409)
-
-        user_agent = cherrypy.request.headers['User-Agent']
-
-        transcoder, format = transcoding.determine_transcoder(
-            queue.track,
-            user_agent,
-            [accept.value for accept in cherrypy.request.headers.elements('Accept')]
-        )
-
-        cherrypy.log(
-            '%s is streaming "%s" in %s (original was %s) with "%s"' %
-            (user.login, queue.track, format, queue.track.format, user_agent)
-        )
-
-        cherrypy.response.headers['Content-Type'] = format
-
-        def track_generator():
-            yield queue.track, queue.current_seconds
-
-        return transcoding.transcode(track_generator(), transcoder)

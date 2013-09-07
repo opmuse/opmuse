@@ -20,6 +20,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             this.playerControls = $('#player-controls');
             this.playerProgress = $('#player-progress');
             this.trackTime = $('#track-time');
+            this.trackUserAgent = $('#track-user-agent');
             this.trackDuration = $('#track-duration');
             this.queueDuration = $('#queue-duration');
             this.playButton = $('#play-button');
@@ -28,6 +29,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             this.playerTrack = $('#player-track');
 
             this.loaded = false;
+
+            // if this is false it's an external player playing.
+            this.usPlaying = false;
 
             that.currentTrack = null;
 
@@ -49,18 +53,26 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 that.setProgress(progress.seconds, progress.seconds_ahead);
             });
 
-            ws.on('queue.start', function (track) {
+            ws.on('queue.start', function (track, user_agent) {
                 that.setCurrent(track);
 
                 that.queue.reload();
 
+                that.setPlaying(user_agent);
+
                 that.setProgress(0, 0);
             });
 
-            ws.on('queue.progress', function (progress, track) {
+            ws.on('queue.end', function (track, user_agent) {
+                that.setStopped();
+            });
+
+            ws.on('queue.progress', function (progress, track, user_agent) {
                 if (that.currentTrack === null) {
                     that.currentTrack = track;
                 }
+
+                that.setPlaying(user_agent);
 
                 that.setProgress(progress.seconds, progress.seconds_ahead);
             });
@@ -87,6 +99,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 }
 
                 setTimeout(function () {
+                    that.usPlaying = true;
                     that.player.play();
                     that.playButton.hide();
                     that.pauseButton.show();
@@ -96,22 +109,27 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             });
 
             that.pauseButton.click(function() {
-                that.player.pause();
-                that.unload();
-                that.loaded = false;
+                if (that.usPlaying) {
+                    that.usPlaying = false;
+                    that.player.pause();
+                    that.unload();
+                    that.loaded = false;
 
-                that.pauseButton.hide();
-                that.playButton.show();
+                    that.pauseButton.hide();
+                    that.playButton.show();
+                }
 
                 return false;
             });
 
             that.nextButton.click(function() {
-                that.load();
+                if (that.usPlaying) {
+                    that.load();
 
-                setTimeout(function () {
-                    that.player.play();
-                }, 0);
+                    setTimeout(function () {
+                        that.player.play();
+                    }, 0);
+                }
 
                 return false;
             });
@@ -163,6 +181,30 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             }
 
             return moment().hours(0).minutes(0).seconds(seconds).format(format);
+        },
+        setPlaying: function (user_agent) {
+            var that = this;
+
+            that.playButton.hide();
+            that.pauseButton.show();
+
+            if (!that.usPlaying) {
+                that.pauseButton.addClass("disabled");
+                that.nextButton.addClass("disabled");
+            }
+
+            that.trackUserAgent.text(user_agent).attr("title", user_agent);
+        },
+        setStopped: function () {
+            var that = this;
+
+            that.playButton.show();
+            that.pauseButton.hide();
+
+            that.pauseButton.removeClass("disabled");
+            that.nextButton.removeClass("disabled");
+
+            that.trackUserAgent.text('').attr("title", '');
         },
         internalInit: function () {
             $('#next-button, #play-button, #pause-button').unbind('click.ajaxify');
