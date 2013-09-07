@@ -15,20 +15,26 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'domReady!'], function(
 
             that.internalInit();
         },
-        internalInit: function () {
-            var that = this;
-
-            $("#edit input[name=artists]").typeahead({
+        initTypeahead: function () {
+            $("#edit input[name=artists]").typeahead('destroy');
+            $("#edit input[name=artists]:not(.locked)").typeahead({
                 remote: '/library/search/api/artist?query=%QUERY'
             });
 
-            $("#edit input[name=albums]").typeahead({
+            $("#edit input[name=albums]").typeahead('destroy');
+            $("#edit input[name=albums]:not(.locked)").typeahead({
                 remote: '/library/search/api/album?query=%QUERY'
             });
 
-            $("#edit input[name=tracks]").typeahead({
+            $("#edit input[name=tracks]").typeahead('destroy');
+            $("#edit input[name=tracks]:not(.locked)").typeahead({
                 remote: '/library/search/api/track?query=%QUERY'
             });
+        },
+        internalInit: function () {
+            var that = this;
+
+            that.initTypeahead();
 
             $("#edit form button").click(function (event) {
                 var form = $(this).closest('form');
@@ -74,23 +80,29 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'domReady!'], function(
                             type = 'disc';
                         }
 
-                        var selector = "#edit input." + type + ":not(.lock)";
+                        var selector = "#edit input." + type;
 
                         if ($(this).hasClass('locked')) {
                             $(selector)
                                 .removeAttr("readonly")
-                                .unbind('keyup.lock, blur.lock');
+                                .unbind('keyup.lock, blur.lock')
+                                .removeClass('locked');
 
                             $(this).removeClass('locked');
                         } else {
-                            $($(selector).attr("readonly", "readonly").get(0)).removeAttr("readonly")
+                            $(selector).addClass('locked');
+                            $(this).addClass('locked');
+
+                            $($(selector).attr("readonly", "readonly").get(0))
+                                .removeAttr("readonly").removeClass("locked")
                                 .bind('keyup.lock, blur.lock',
                                     function (event) {
                                         $(selector).val($(this).val());
                                     }
                                 ).blur();
-                            $(this).addClass('locked');
                         }
+
+                        that.initTypeahead();
 
                         return false;
                     }
