@@ -1,5 +1,5 @@
 define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeahead',
-        'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
+        'sprintf', 'bootstrap/popover', 'domReady!'], function($, inheritance, ajaxify) {
 
     var instance = null;
 
@@ -192,7 +192,20 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                             that.send();
                         }).error(function (jqXHR, textStatus, errorThrown) {
                             that.activeUploads--;
-                            ajaxify.setPageInDom(jqXHR.responseText);
+
+                            $(file.dom).addClass("danger").find(".progress-bar")
+                                .removeClass("progress-bar-success").addClass("progress-bar-danger");
+
+                            $(file.dom).popover({
+                                html: true,
+                                trigger: "hover",
+                                placement: 'bottom',
+                                container: "#upload",
+                                title: sprintf("Error occured while uploading <strong>%s</strong>.", file.file.name),
+                                content: $(jqXHR.responseText).find("#content").contents()
+                            });
+
+                            that.send();
                         });
                 })(file);
             }
