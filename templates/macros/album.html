@@ -28,7 +28,7 @@
 {% endmacro %}
 
 {% macro album_queue_btn(album) %}
-    <a class="queue add add-album btn btn-default btn-sm"
+    <a class="queue add add-album btn btn-primary btn-sm"
         href="/queue/add/
             {%- for track in album.tracks -%}
                 {{ track.id }},
