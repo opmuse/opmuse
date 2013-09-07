@@ -47,7 +47,31 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                         var file = this;
 
                         var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl").data('file', file);
+
                         fileDom.find('.filename').text(file.name);
+
+                        fileDom.find('.file-remove').click(function () {
+                            var tr = $(this).closest("tr");
+
+                            var file = tr.data("file");
+                            var index = 0;
+
+                            for (var otherIndex in that.files) {
+                                var otherFile = that.files[otherIndex].file;
+
+                                if (file === otherFile) {
+                                    break;
+                                }
+
+                                index++;
+                            }
+
+                            that.files.splice(index, 1);
+
+                            tr.remove();
+
+                            return false;
+                        });
 
                         if (that.archives.indexOf(file.type) != -1) {
                             fileDom.find('[name=archive_password]').show();
