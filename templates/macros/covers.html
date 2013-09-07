@@ -7,6 +7,8 @@
                 src="/cover/album/{{ album.slug|urlencode }}
                     {%- if album.cover_hash -%}
                         {{ "?hash=%s" % album.cover_hash.decode('utf8')|urlencode }}
+                    {%- elif album.artists|count > 0 and album.artists[0].cover_hash -%}
+                        {{ "?hash=%s" % album.artists[0].cover_hash.decode('utf8')|urlencode }}
                     {%- else -%}
                         {{ "?hash=%s" % ('invalid' if album.invalid else 'valid') }}
                     {%- endif -%}"

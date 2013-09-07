@@ -4,13 +4,21 @@ import cherrypy
 import base64
 import mmh3
 import tempfile
+import time
+from urllib.request import urlopen
+from urllib.error import HTTPError
 from opmuse.ws import ws
 from opmuse.image import image as image_service
 from opmuse.library import library_dao
 from opmuse.library import Artist, Album
 from opmuse.lastfm import lastfm
+from opmuse.google import google
 from opmuse.database import get_database
-from urllib.request import urlretrieve
+from opmuse.remotes import remotes
+
+
+def log(msg, traceback=False):
+    cherrypy.log(msg, context='covers', traceback=traceback)
 
 
 class Covers:
@@ -49,15 +57,17 @@ class Covers:
         if type == "album":
             entity = library_dao.get_album_by_slug(slug)
 
+            remotes.update_album(entity)
+
             if entity is None:
                 raise ValueError('Entity not found')
 
             for artist in entity.artists:
                 if artist.cover_path is None or not os.path.exists(artist.cover_path):
-                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, 20, artist.id)
+                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, 9, artist.id)
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                cherrypy.engine.bgtask.put(self.fetch_album_cover, 20, entity.id)
+                cherrypy.engine.bgtask.put(self.fetch_album_cover, 9, entity.id)
 
                 for artist in entity.artists:
                     if artist.cover is not None:
@@ -66,11 +76,13 @@ class Covers:
         elif type == "artist":
             entity = library_dao.get_artist_by_slug(slug)
 
+            remotes.update_artist(entity)
+
             if entity is None:
                 raise ValueError('Entity not found')
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                cherrypy.engine.bgtask.put(self.fetch_artist_cover, 20, entity.id)
+                cherrypy.engine.bgtask.put(self.fetch_artist_cover, 9, entity.id)
 
         if entity is None:
             raise ValueError('Entity not found')
@@ -96,14 +108,44 @@ class Covers:
     def fetch_album_cover(self, album_id):
         album = get_database().query(Album).filter_by(id=album_id).one()
 
-        artist = album.artists[0]
+        remotes_album = None
+        tries = 0
 
-        lastfm_album = lastfm.get_album(artist.name, album.name)
+        # try and sleep until we get the remotes_album.
+        while remotes_album is None and tries < 8:
+            remotes_album = remotes.get_album(album)
+
+            tries += 1
+
+            if remotes_album is None:
+                # exponential backoff
+                time.sleep(tries ** 2)
+
+        lastfm_album = None
+
+        if remotes_album is not None:
+            lastfm_album = remotes_album['lastfm']
 
         if lastfm_album is None or lastfm_album['cover'] is None:
-            return
+            google_images = google.get_album_images(album)
 
-        cover, resize_cover, cover_ext = self.retrieve_and_resize(lastfm_album['cover'])
+            if google_images is not None:
+                urls = google_images
+            else:
+                return
+        else:
+            urls = [lastfm_album['cover']]
+
+        cover = None
+
+        for url in urls:
+            cover, resize_cover, cover_ext = self.retrieve_and_resize(url)
+
+            if cover is None:
+                continue
+
+        if cover is None:
+            return
 
         track_dirs = set()
 
@@ -135,19 +177,50 @@ class Covers:
     def fetch_artist_cover(self, artist_id):
         artist = get_database().query(Artist).filter_by(id=artist_id).one()
 
-        lastfm_artist = lastfm.get_artist(artist.name)
+        remotes_artist = None
+        tries = 0
+
+        # try and sleep until we get the remotes_artist.
+        while remotes_artist is None and tries < 8:
+            remotes_artist = remotes.get_artist(artist)
+
+            tries += 1
+
+            if remotes_artist is None:
+                # exponential backoff
+                time.sleep(tries ** 2)
+
+        lastfm_artist = None
+
+        if remotes_artist is not None:
+            lastfm_artist = remotes_artist['lastfm']
 
         if lastfm_artist is None or lastfm_artist['cover'] is None:
-            return
+            google_images = google.get_artist_images(artist)
 
-        cover, resize_cover, cover_ext = self.retrieve_and_resize(lastfm_artist['cover'])
+            if google_images is not None:
+                urls = google_images
+            else:
+                return
+        else:
+            urls = [lastfm_artist['cover']]
+
+        cover = None
+
+        for url in urls:
+            cover, resize_cover, cover_ext = self.retrieve_and_resize(url)
+
+            if cover is None:
+                continue
+
+        if cover is None:
+            return
 
         track_dirs = set()
 
-        for album in artist.albums:
-            for track in album.tracks:
-                for path in track.paths:
-                    track_dirs.add(os.path.dirname(path.path))
+        for track in artist.tracks:
+            for path in track.paths:
+                track_dirs.add(os.path.dirname(path.path))
 
         for track_dir in track_dirs:
             if not os.path.exists(track_dir):
@@ -177,12 +250,23 @@ class Covers:
 
         temp_image = tempfile.mktemp(image_ext).encode('utf8')
         resize_temp_image = tempfile.mktemp(image_ext).encode('utf8')
-        urlretrieve(image_url, temp_image)
+
+        try:
+            fp_from = urlopen(image_url)
+        except HTTPError as error:
+            log('Got "%s" when downloading %s.' % (error, image_url))
+            return None, None, None
+
+        with open(temp_image, "wb") as fp_to:
+            fp_to.write(fp_from.read())
 
         if not image_service.resize(temp_image, resize_temp_image, Covers.SIZE):
             os.remove(temp_image)
-            os.remove(resize_temp_image)
-            return
+
+            if os.path.exists(resize_temp_image):
+                os.remove(resize_temp_image)
+
+            return None, None, None
 
         resize_image = None
         image = None
