@@ -664,12 +664,13 @@ reader = TagReader()
 
 class StructureParser:
 
-    def __init__(self, filename, data_override = {}):
+    def __init__(self, filename, data_override = {}, data_fallback = {}):
         config = cherrypy.tree.apps[''].config['opmuse']
         self._fs_structure = config['library.fs.structure']
         self._path = os.path.abspath(config['library.path']).encode('utf8')
         self._filename = None if filename is None else os.path.abspath(filename)
         self._data_override = data_override
+        self._data_fallback = data_fallback
 
     def is_valid(self):
         if self._filename is None:
@@ -687,8 +688,18 @@ class StructureParser:
         path_parts = self.split(self._fs_structure, ':')
 
         for name, value in data.items():
-            if name == 'artist' and value is None:
-                value = 'Unknown Artist'
+            if name in self._data_fallback and self._data_fallback[name] is not None:
+                fallback_value = self._data_fallback[name]
+            else:
+                fallback_value = None
+
+            if value is None and name == 'artist':
+                if fallback_value is not None:
+                    value = fallback_value
+                else:
+                    value = 'Unknown Artist'
+            elif value is None and fallback_value is not None:
+                value = fallback_value
             elif value is None:
                 value = ''
 
@@ -769,8 +780,8 @@ class StructureParser:
 
 class TrackStructureParser(StructureParser):
 
-    def __init__(self, track, filename = None, data_override = {}):
-        StructureParser.__init__(self, filename, data_override)
+    def __init__(self, track, filename = None, data_override = {}, data_fallback = {}):
+        StructureParser.__init__(self, filename, data_override, data_fallback)
         self._track = track
 
     def get_data(self):
@@ -784,8 +795,8 @@ class TrackStructureParser(StructureParser):
 
 class MetadataStructureParser(StructureParser):
 
-    def __init__(self, metadata, filename = None, data_override = {}):
-        StructureParser.__init__(self, filename, data_override)
+    def __init__(self, metadata, filename = None, data_override = {}, data_fallback = {}):
+        StructureParser.__init__(self, filename, data_override, data_fallback)
         self._metadata = metadata
 
     def get_data(self):
@@ -1397,7 +1408,8 @@ class LibraryDao:
                 .order_by(Track.number)
                 .order_by(Track.name).all())
 
-    def add_files(self, filenames, move = False, remove_dirs = True, artist_name = None):
+    def add_files(self, filenames, move = False, remove_dirs = True, artist_name_override = None,
+                  artist_name_fallback = None):
         paths = []
 
         messages = []
@@ -1415,7 +1427,9 @@ class LibraryDao:
 
                 metadata = reader.parse_mutagen(filename)
 
-                structure_parser = MetadataStructureParser(metadata, filename, {'artist': artist_name})
+                structure_parser = MetadataStructureParser(metadata, filename,
+                                                           {'artist': artist_name_override},
+                                                           {'artist': artist_name_fallback})
 
                 dirname = structure_parser.get_path(absolute = True)
                 old_dirname = os.path.dirname(filename)

@@ -129,7 +129,7 @@ class Edit:
             artist_name = None
 
         tracks, messages = library_dao.add_files(
-            filenames, move = True, remove_dirs = True, artist_name = artist_name
+            filenames, move = True, remove_dirs = True, artist_name_override = artist_name
         )
 
         tracks = Edit._sort_tracks(tracks)
@@ -304,6 +304,7 @@ class Upload:
         filename = unquote(filename)
 
         ext = os.path.splitext(filename)[1].lower()[1:]
+        basename = os.path.splitext(filename)[0]
 
         tempdir = tempfile.mkdtemp()
 
@@ -317,6 +318,8 @@ class Upload:
 
         with open(path, 'wb') as fileobj:
             fileobj.write(cherrypy.request.rfile.read())
+
+        artist_name_fallback = None
 
         if audio_file is not None:
             track = None
@@ -348,6 +351,10 @@ class Upload:
                     messages.append("Uploaded %s to %s." % (filename, relative_track_path))
 
         elif ext == "zip":
+            # set artist name fallback to zip's name so if it's missing artist tags
+            # it's easily distinguishable and editable so it can be fixed after upload.
+            artist_name_fallback = basename
+
             try:
                 zip = ZipFile(path)
 
@@ -367,6 +374,9 @@ class Upload:
                 messages.append("%s: %s" % (os.path.basename(path), error))
 
         elif ext == "rar":
+            # look at corresponding ext == zip comment...
+            artist_name_fallback = basename
+
             try:
                 rar = RarFile(path)
 
@@ -396,7 +406,8 @@ class Upload:
             os.utime(path, None)
 
         if len(paths) > 0:
-            tracks, add_files_messages = library_dao.add_files(paths, move = True, remove_dirs = False)
+            tracks, add_files_messages = library_dao.add_files(paths, move = True, remove_dirs = False,
+                                                               artist_name_fallback = artist_name_fallback)
             messages += add_files_messages
         else:
             tracks = []
