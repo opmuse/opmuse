@@ -1441,6 +1441,7 @@ class Root(object):
         return b'Profiler is disabled, enable it with --profile'
 
     @cherrypy.expose
+    @cherrypy.tools.expires(secs=3600 * 24 * 30, force=True)
     @cherrypy.tools.authenticated(needs_auth=True)
     # TODO add some extra security to this function... maybe
     def download(self, file):
