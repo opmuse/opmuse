@@ -6,7 +6,7 @@ import mmh3
 import tempfile
 import time
 from urllib.request import urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from opmuse.ws import ws
 from opmuse.image import image as image_service
 from opmuse.library import library_dao
@@ -253,7 +253,7 @@ class Covers:
 
         try:
             fp_from = urlopen(image_url)
-        except HTTPError as error:
+        except (HTTPError, URLError) as error:
             log('Got "%s" when downloading %s.' % (error, image_url))
             return None, None, None
 
