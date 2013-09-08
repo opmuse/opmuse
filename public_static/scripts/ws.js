@@ -86,6 +86,12 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domRea
                     }, 6000);
                 }
             };
+
+            that.socket.onerror = function(event) {
+                logger.log('ws connection errored');
+
+                ajaxify.throb.setError("Got websocket error: " + event.data);
+            };
         },
         emit: function (event) {
             var that = this;
