@@ -108,10 +108,14 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
                 });
             });
 
-            this.load(this.selector);
+            this.load(this.selector, false);
         },
-        load: function (element) {
+        load: function (element, trigger) {
             var that = this;
+
+            if (typeof trigger == 'undefined' || trigger === null) {
+                trigger = true;
+            }
 
             $(element).find('a')
                 .unbind('click.ajaxify')
@@ -128,6 +132,10 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
                 // continue propagation if the link has said attribute
                 return $(this).is("[data-ajaxify=continue]");
             });
+
+            if (trigger) {
+                $(this.selector).trigger('ajaxifyInit');
+            }
         },
         loadPage: function (href) {
             var that = this;
@@ -165,8 +173,6 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             }
 
             this.load(this.selector);
-
-            $(this.selector).trigger('ajaxifyInit');
         },
         setInDom: function (content, newContent) {
             $(content).contents().remove();
