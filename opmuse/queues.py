@@ -3,7 +3,7 @@ import math
 from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, ObjectDeletedError
 from opmuse.database import Base, get_database
 from opmuse.security import User
 from opmuse.library import Track, Artist, Album, library_dao
@@ -158,8 +158,11 @@ class QueueDao:
         ws.emit('queue.update')
 
     def update_queue(self, id, **kwargs):
-        get_database().query(Queue).filter_by(id=id).update(kwargs)
-        get_database().commit()
+        try:
+            get_database().query(Queue).filter_by(id=id).update(kwargs)
+            get_database().commit()
+        except ObjectDeletedError:
+            pass
 
     def get_next(self, user_id):
         database = get_database()
