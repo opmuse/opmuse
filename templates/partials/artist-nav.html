@@ -9,6 +9,8 @@
                 </div>
                 <ul class="list-group">
                     <li class="list-group-item">
+                        <a href='http://www.google.com/search?q="{{ album.name|urlencode }}"'>
+                            on Google</a>,
                         <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
                             on Discogs</a>
                     {%- if remotes_album -%}
@@ -53,15 +55,20 @@
                             {% endif %}
                         {% endif %}
                         <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
-                            on Discogs</a>
+                            on Discogs</a>,
+                        <a href='http://www.google.com/search?q={{ '"' ~ artist.name|urlencode ~ '"' }}'>
+                            on Google</a>
+                        </li>
                         {%- if album -%}
-                            ,
+                        <li class="list-group-item">
+                            Album
                             <a href="http://www.discogs.com/search?q={{ "artist:'" ~
                                 artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
-                                Album on Discogs
-                            </a>
-                        {% endif %}
+                                on Discogs</a>,
+                            <a href='http://www.google.com/search?q={{ '"' ~ artist.name|urlencode ~ '" "' ~ album.name|urlencode ~ '"' }}'>
+                                on Google</a>
                         </li>
+                        {% endif %}
                         <li class="list-group-item">
                             {% if remotes_artist %}
                                 {% if remotes_artist.lastfm.listeners %}
