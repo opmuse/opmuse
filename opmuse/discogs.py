@@ -1,4 +1,5 @@
 import discogs_client
+import cherrypy
 from discogs_client import HTTPError
 from requests.exceptions import ConnectionError
 
