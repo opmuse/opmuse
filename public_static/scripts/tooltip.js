@@ -17,7 +17,7 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/tooltip', 'domReady!'], func
             that.internalInit();
         },
         internalInit: function () {
-            $("a[rel=tooltip]").tooltip();
+            $("*[rel=tooltip]").tooltip();
         }
     });
 
