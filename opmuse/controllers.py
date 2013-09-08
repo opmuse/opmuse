@@ -1358,19 +1358,17 @@ class Dashboard:
 
 class Stream:
 
-    CACHE_KEY = "STREAM_PLAYING_%d"
+    STREAM_PLAYING = {}
 
     def __init__(self):
         cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
         cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
 
     def transcoding_start(self, track):
-        cache_key = Stream.CACHE_KEY % cherrypy.request.user.id
-        cache.set(cache_key, True)
+        Stream.STREAM_PLAYING[cherrypy.request.user.id] = True
 
     def transcoding_end(self, track, transcoder):
-        cache_key = Stream.CACHE_KEY % cherrypy.request.user.id
-        cache.set(cache_key, False)
+        Stream.STREAM_PLAYING[cherrypy.request.user.id] = False
 
     @cherrypy.expose
     @cherrypy.tools.transcodingsubprocess()
@@ -1383,13 +1381,11 @@ class Stream:
         remotes.update_user(user)
 
         if 'dead' in kwargs and kwargs['dead'] == 'true':
-            raise cherrypy.HTTPError(status=409)
+            raise cherrypy.HTTPError(status=503)
 
         # allow only one streaming client at once, or weird things might occur
-        cache_key = Stream.CACHE_KEY % user.id
-
-        if cache.get(cache_key) is True:
-            raise cherrypy.HTTPError(status=409)
+        if user.id in Stream.STREAM_PLAYING and Stream.STREAM_PLAYING[user.id] is True:
+            raise cherrypy.HTTPError(status=503)
 
         queue = queue_dao.get_next(user.id)
 
