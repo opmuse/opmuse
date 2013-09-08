@@ -266,9 +266,13 @@ class QueueDao:
 
     def clear(self):
         user_id = cherrypy.request.user.id
-        get_database().query(Queue).filter(and_(Queue.user_id == user_id,
-                                           Queue.current == False)).delete(synchronize_session='fetch')
+
+        get_database().query(Queue).filter(Queue.user_id == user_id).delete(synchronize_session='fetch')
+
         get_database().commit()
+
+        self._reset_current()
+
         ws.emit('queue.update')
 
     def clear_played(self):
@@ -309,11 +313,8 @@ class QueueDao:
 
         get_database().commit()
 
-        ws_user = ws.get_ws_user()
-        ws_user.set('queue.current_track', None)
-        ws_user.set('queue.current_progress', None)
+        self._reset_current()
 
-        ws.emit('queue.reset')
         ws.emit('queue.update')
 
     def remove_tracks(self, ids):
@@ -324,11 +325,7 @@ class QueueDao:
         try:
             query.filter("current").one()
 
-            ws_user = ws.get_ws_user()
-            ws_user.set('queue.current_track', None)
-            ws_user.set('queue.current_progress', None)
-
-            ws.emit('queue.reset')
+            self._reset_current()
         except NoResultFound:
             pass
 
@@ -337,6 +334,13 @@ class QueueDao:
         get_database().commit()
 
         ws.emit('queue.update')
+
+    def _reset_current(self):
+        ws_user = ws.get_ws_user()
+        ws_user.set('queue.current_track', None)
+        ws_user.set('queue.current_progress', None)
+
+        ws.emit('queue.reset')
 
     def get_new_pos(self, user_id):
         index = get_database().query(func.max(Queue.index)).filter_by(user_id=user_id).scalar()
