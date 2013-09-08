@@ -66,11 +66,12 @@ class Lastfm:
         try:
             network = self.get_network(session_key)
             network.update_now_playing(**args)
-        except NetworkError:
-            log('Network error, failed to update now playing for "%s - %s - %s".' % (
+        except (WSError, NetworkError, MalformedResponseError) as error:
+            log('Network error, failed to update now playing for "%s - %s - %s": %s.' % (
                 args['artist'],
                 args['album'],
                 args['title'],
+                error
             ))
 
     def scrobble(self, user, session_key, seconds, **args):
@@ -104,12 +105,13 @@ class Lastfm:
                 seconds
             ))
 
-        except NetworkError:
+        except (WSError, NetworkError, MalformedResponseError) as error:
             # TODO put in queue and scrobble later
-            log('Network error, failed to scrobble "%s - %s - %s".' % (
+            log('Network error, failed to scrobble "%s - %s - %s": %s.' % (
                 args['artist'],
                 args['album'],
                 args['title'],
+                error
             ))
 
     def track_to_args(self, track):
@@ -166,9 +168,10 @@ class Lastfm:
                 'top_albums_overall': self.get_top_albums(PERIOD_OVERALL, user_name, 1, 500, session_key)
             }
 
-        except NetworkError:
-            log('Network error, failed to get user "%s".' % (
-                user_name
+        except (WSError, NetworkError, MalformedResponseError) as error:
+            log('Failed to get user "%s": %s.' % (
+                user_name,
+                error
             ))
 
     def get_top_albums(self, type, user_name, page = 1, limit = 50, session_key = None):
@@ -210,8 +213,8 @@ class Lastfm:
                 last_weight = album.weight
 
             return top_albums
-        except NetworkError:
-            log('Network error, failed to get %s.' % user_name)
+        except (WSError, NetworkError, MalformedResponseError) as error:
+            log('Network error, failed to get %s: %s.' % (user_name, error))
 
     def get_top_artists(self, type, user_name, page = 1, limit = 50, session_key = None):
         if session_key is None:
@@ -252,8 +255,8 @@ class Lastfm:
                 last_weight = artist.weight
 
             return top_artists
-        except NetworkError:
-            log('Network error, failed to get %s.' % user_name)
+        except (WSError, NetworkError, MalformedResponseError) as error:
+            log('Network error, failed to get %s: %s.' % (user_name, error))
 
     def _param_call(self, object, method, params, args):
         """
