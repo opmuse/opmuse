@@ -55,7 +55,7 @@ class WsUser:
         try:
             handler.send(json.dumps(message))
         except Exception as error:
-            log('Error occured while sending: %s' % error)
+            log('Error occured while sending "%s" to %s: %s' % (message, handler.user['login'], error))
 
 
 class Ws:
