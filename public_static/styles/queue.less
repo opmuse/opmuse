@@ -16,16 +16,16 @@
         left: 10px;
         margin-left: 0;
 
-        #next-button {
+        #next-button, #stop-button {
             float: left;
         }
 
-        #play-button, #pause-button {
+        #pause-button, #play-button {
             float: left;
             margin-left: 0;
         }
 
-        #next-button, #play-button, #pause-button {
+        #next-button, #play-button, #pause-button, #stop-button {
             padding: 1px 8px;
             display: block;
             font-size: 16px;
@@ -45,9 +45,13 @@
             }
         }
 
+        #stop-button {
+            display: none;
+        }
+
         dl {
             display: none;
-            margin: 0 14px 0 0;
+            margin: 0 10px 0 0;
             float: right;
 
             dt {
@@ -56,13 +60,6 @@
 
             #track-time:after {
                 content: ' / ';
-            }
-
-            #track-user-agent {
-                max-width: 50px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
             }
         }
     }
@@ -131,7 +128,7 @@
         top: auto;
         left: auto;
 
-        #next-button, #play-button, #pause-button {
+        #next-button, #play-button, #pause-button, #stop-button {
             margin-top: -6px;
             margin-right: 15px;
             margin-left: 0;
@@ -277,6 +274,7 @@
     }
 
     .error-icon,
+    .playing-icon,
     .current-icon,
     .played-icon {
         display: none;
@@ -284,6 +282,8 @@
 
     .played {
         .noplay-icon,
+        .playing-icon,
+        .error-icon,
         .current-icon {
             display: none;
         }
@@ -297,6 +297,8 @@
         background: rgba(255, 255, 255, 0.14);
 
         .played-icon,
+        .playing-icon,
+        .error-icon,
         .noplay-icon {
             display: none;
         }
@@ -304,9 +306,18 @@
         .current-icon {
             display: inline;
         }
+    }
 
-        .track-duration {
-            margin-right: 18px;
+    .playing {
+        .noplay-icon,
+        .error-icon,
+        .current-icon,
+        .played-icon {
+            display: none;
+        }
+
+        .playing-icon {
+            display: inline;
         }
     }
 
@@ -320,6 +331,8 @@
 
         .played-icon,
         .noplay-icon,
+        .playing-icon,
+        .error-icon,
         .current-icon {
             display: none;
         }

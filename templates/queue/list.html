@@ -32,7 +32,7 @@
             class="btn btn-xs btn-danger"
             accesskey="t"
             href="/queue/clear">
-            <i class="icon-remove-sign"></i>
+            <i class="icon-trash"></i>
             All
         </a>
         <a
@@ -40,18 +40,23 @@
             accesskey="r"
             class="btn btn-xs btn-danger"
             href="/queue/clear/played">
-            <i class="icon-remove-sign"></i>
-            played
+            <i class="icon-trash"></i>
+            Played
         </a>
     </div>
 
     <div class="btn-stream">
-        <a class="open-stream" target="_blank" href="/play.m3u" accesskey="d">
-            <i class="icon-download"></i>
+        <a rel="tooltip" class="open-stream" target="_blank" href="/play.m3u" accesskey="d"
+            title="Open in External Player.">
+            <i class="icon-download-alt"></i>
         </a>
-        <a class="open-stream open btn btn-default btn-xs" target="_blank" href="/play.m3u">
-            <i class="icon-download"></i>
-            Stream
+        <a rel="popover" data-trigger="hover" data-placement="left" data-html="true" data-container="body"
+            data-content="
+                <p>Open in an External Player that supports m3u playlists and mp3 or ogg streams.</p>
+                <p>The one thing you need to do is put your player on repeat for the one track the playlist will contain.</p>"
+            data-delay="1000" class="open-stream open btn btn-info btn-xs" target="_blank" href="/play.m3u">
+            <i class="icon-download-alt"></i>
+            Open in External Player
         </a>
     </div>
 
@@ -83,7 +88,7 @@
                     </span>
                 </li>
                 {% for q in queue %}
-                    <li class="track {{ "current active" if q.current }} {{ "played" if q.played }} {{ "error" if q.error }}"
+                    <li class="track {{ "playing" if q.playing }} {{ "current active" if q.current }} {{ "played" if q.played }} {{ "error" if q.error }}"
                         data-queue-id="{{ q.id }}">
                         <span class="text">
                             <span class="track-icon"
@@ -94,7 +99,8 @@
                                 data-container="body"
                                 {% endif %}>
                                 <i class="noplay-icon icon-check-empty"></i>
-                                <i class="current-icon icon-play"></i>
+                                <i class="current-icon icon-pause"></i>
+                                <i class="playing-icon icon-play"></i>
                                 <i class="played-icon icon-check"></i>
                                 <i class="error-icon icon-exclamation-sign"></i>
                             </span>
@@ -120,13 +126,11 @@
                             <span class="track-duration">
                                 {{ q.track.duration|format_seconds }}
                             </span>
-                            {% if not q.current %}
-                                <a
-                                    class="remove"
-                                    href="/queue/remove/{{ q.track.id }}">
-                                    <span class="icon-remove-sign"></span>
-                                </a>
-                            {% endif %}
+                            <a
+                                class="remove"
+                                href="/queue/remove/{{ q.track.id }}">
+                                <span class="icon-remove-sign"></span>
+                            </a>
                         </span>
                         <div class="clear"></div>
                     </li>

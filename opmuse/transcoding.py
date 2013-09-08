@@ -82,6 +82,8 @@ class FFMPEGTranscoder(Transcoder):
             self.ffmpeg_cmd = 'ffmpeg'
 
     def __enter__(self):
+        cherrypy.engine.publish('transcoding.start', transcoder=self, track=self.track)
+
         self.filename = self.track.paths[0].path
         self.pretty_filename = self.track.paths[0].pretty_path
 
@@ -254,8 +256,8 @@ class FFMPEGTranscoder(Transcoder):
             cherrypy.engine.publish('transcoding.progress', progress={
                 'seconds': seconds,
                 'bitrate': bitrate,
-                'seconds_ahead': seconds_ahead,
-            }, track=self.track)
+                'seconds_ahead': seconds_ahead
+            }, transcoder=self, track=self.track)
 
             debug('"%s" transcoding at %d b/s, we\'re %.2fs ahead (total %ds).' %
                  (self.pretty_filename, bitrate, seconds_ahead, seconds))
@@ -369,8 +371,6 @@ class Transcoding:
 
             if isinstance(transcoder, Transcoder):
                 raise Exception("transcoder must be an instance of Transcoder")
-
-            cherrypy.engine.publish('transcoding.start', track=track)
 
             with transcoder(track, skip_seconds) as transcode:
                 for data in transcode():

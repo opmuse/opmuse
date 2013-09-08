@@ -19,6 +19,7 @@ class Queue(Base):
     index = Column(Integer, index=True)
     current_seconds = Column(Integer)
     current = Column(Boolean, default=False)
+    playing = Column(Boolean, default=False)
     played = Column(Boolean, default=False)
     error = Column(String(255))
 
@@ -53,29 +54,31 @@ class QueueEvents:
         if progress is not None:
             ws.emit('queue.current_progress', progress, ws_user = ws_user)
 
-    def transcoding_progress(self, progress, track):
+    def transcoding_progress(self, progress, transcoder, track):
         ws_user = ws.get_ws_user()
         ws_user.set('queue.current_progress', progress)
 
         user_agent = cherrypy.request.headers['User-Agent']
+        format = transcoder.__class__.outputs()
 
-        ws.emit('queue.progress', progress, self.serialize_track(track), user_agent)
+        ws.emit('queue.progress', progress, self.serialize_track(track), user_agent, format)
 
         cherrypy.request.queue_progress = progress
 
-    def transcoding_start(self, track):
+    def transcoding_start(self, transcoder, track):
         if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
             queue_current_id = cherrypy.request.queue_current_id
-            queue_dao.update_queue(queue_current_id, current_seconds = None)
+            queue_dao.update_queue(queue_current_id, current_seconds = None, playing = True)
 
         track = self.serialize_track(track)
 
         user_agent = cherrypy.request.headers['User-Agent']
+        format = transcoder.__class__.outputs()
 
         ws_user = ws.get_ws_user()
         ws_user.set('queue.current_track', track)
 
-        ws.emit('queue.start', track, user_agent)
+        ws.emit('queue.start', track, user_agent, format)
 
     def transcoding_done(self, track):
         if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
@@ -94,6 +97,8 @@ class QueueEvents:
             hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None):
             queue_current = queue_dao.get_queue(cherrypy.request.queue_current_id)
 
+            queue_dao.update_queue(queue_current.id, playing = False)
+
             if queue_current is not None and queue_current.current:
                 if not hasattr(cherrypy.request, 'queues_done') or not cherrypy.request.queues_done:
                     progress = cherrypy.request.queue_progress
@@ -106,9 +111,10 @@ class QueueEvents:
                 else:
                     error = transcoder.error
 
-                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds, error = error)
+                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds,
+                                       error = error)
 
-                ws.emit('queue.update')
+            ws.emit('queue.update')
 
         track = self.serialize_track(track)
 
@@ -294,11 +300,39 @@ class QueueDao:
 
         ws.emit('queue.update')
 
+    def reset_current(self):
+        user_id = cherrypy.request.user.id
+
+        query = (get_database().query(Queue)
+                              .filter(and_(Queue.user_id == user_id, Queue.current))
+                              .update({'current': False, 'current_seconds': None}, synchronize_session='fetch'))
+
+        get_database().commit()
+
+        ws_user = ws.get_ws_user()
+        ws_user.set('queue.current_track', None)
+        ws_user.set('queue.current_progress', None)
+
+        ws.emit('queue.reset')
+        ws.emit('queue.update')
+
     def remove_tracks(self, ids):
         user_id = cherrypy.request.user.id
 
-        get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.track_id.in_(ids),
-                                           Queue.current == False)).delete(synchronize_session='fetch')
+        query = get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.track_id.in_(ids)))
+
+        try:
+            query.filter("current").one()
+
+            ws_user = ws.get_ws_user()
+            ws_user.set('queue.current_track', None)
+            ws_user.set('queue.current_progress', None)
+
+            ws.emit('queue.reset')
+        except NoResultFound:
+            pass
+
+        query.delete(synchronize_session='fetch')
 
         get_database().commit()
 

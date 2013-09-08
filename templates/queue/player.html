@@ -20,6 +20,12 @@
             <i class="icon-pause"></i>
         </a>
         <a
+            id="stop-button"
+            title="Stop"
+            href="/queue/stop">
+            <i class="icon-stop"></i>
+        </a>
+        <a
             id="next-button"
             title="Next"
             href="#">
@@ -37,10 +43,6 @@
                     {{ queue_current_track.duration|format_seconds if queue_current_track else 0|format_seconds }}
                 </span>
             </dd>
-        </dl>
-        <dl>
-            <dt>Player</dt>
-            <dd id="track-user-agent"></dd>
         </dl>
     </div>
 

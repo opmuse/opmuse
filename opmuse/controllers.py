@@ -714,6 +714,11 @@ class Queue:
         else:
             queue_dao.clear()
 
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    def stop(self):
+        queue_dao.reset_current()
+
 
 class Styles(object):
     @cherrypy.expose

@@ -25,10 +25,10 @@ class Lastfm:
         cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
         cherrypy.engine.subscribe('transcoding.progress', self.transcoding_progress)
 
-    def transcoding_progress(self, progress, track):
+    def transcoding_progress(self, progress, transcoder, track):
         cherrypy.request.lastfm_progress = progress
 
-    def transcoding_start(self, track):
+    def transcoding_start(self, transcoder, track):
         session_key = cherrypy.request.user.lastfm_session_key
         cherrypy.engine.bgtask.put(self.update_now_playing, 30, session_key, **self.track_to_args(track))
 
