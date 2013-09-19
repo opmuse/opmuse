@@ -42,7 +42,7 @@
     {% import "macros/covers.html" as covers %}
 
     <div class="album {{ 'invalid' if album.invalid else '' }}">
-        <figure class="effeckt-caption" data-effeckt-type="effeckt-caption-13">
+        <figure class="effeckt-caption" data-effeckt-type="half-slide">
             {% set album_url = urls.album_url(album, artist) %}
             <a href="{{ album_url }}">
                 {{ covers.album(album) }}
