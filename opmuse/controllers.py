@@ -976,7 +976,7 @@ class Library(object):
 
             artist_ids = []
 
-            if remotes_user is not None:
+            if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for artist in remotes_user['lastfm']['top_artists_overall']:
                     artist_results = search.query_artist(artist['name'], exact = True)
 
