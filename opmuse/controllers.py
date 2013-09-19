@@ -1131,7 +1131,7 @@ class Library(object):
 
         album_group_order = {
             'default': 0,
-            'no_date': 1,
+            'ep': 1,
             'va': 2
         }
 
@@ -1148,7 +1148,7 @@ class Library(object):
                     }
 
                 album_groups['va']['albums'].append(album)
-            else:
+            if len(album.tracks) > 6 or album.duration >= 60 * 20:
                 if 'default' not in album_groups:
                     album_groups['default'] = {
                         'title': 'Albums',
@@ -1156,6 +1156,14 @@ class Library(object):
                     }
 
                 album_groups['default']['albums'].append(album)
+            else:
+                if 'ep' not in album_groups:
+                    album_groups['ep'] = {
+                        'title': 'Singles & EPs',
+                        'albums': []
+                    }
+
+                album_groups['ep']['albums'].append(album)
 
             remotes.update_album(album)
 
