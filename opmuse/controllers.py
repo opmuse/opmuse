@@ -1135,7 +1135,7 @@ class Library(object):
             'va': 2
         }
 
-        album_groups = OrderedDict({})
+        album_groups = {}
 
         remotes.update_artist(artist)
 
@@ -1167,7 +1167,7 @@ class Library(object):
 
             remotes.update_album(album)
 
-        album_groups = dict(sorted(album_groups.items(),
+        album_groups = OrderedDict(sorted(album_groups.items(),
                                    key=lambda album_group: album_group_order[album_group[0]]))
 
         remotes_artist = remotes.get_artist(artist)
