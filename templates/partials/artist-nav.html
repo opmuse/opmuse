@@ -9,16 +9,17 @@
                 </div>
                 <ul class="list-group">
                     <li class="list-group-item">
-                        <a href='http://www.google.com/search?q="{{ album.name|urlencode }}"'>
-                            on Google</a>,
-                        <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
-                            on Discogs</a>
                     {%- if remotes_album -%}
-                        ,
                         {% if remotes_album.lastfm.url %}
-                            <a href="{{ remotes_album.lastfm.url }}">on Lastfm</a>
+                            <a href="{{ remotes_album.lastfm.url }}">on Lastfm</a>,
                         {% endif %}
                     {% endif %}
+                        <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
+                            on Discogs</a>,
+                        <a href='http://www.google.com/search?q="{{ album.name|urlencode }}"'>
+                            on Google</a>,
+                        <a href='http://translate.google.com/#auto/en/{{ album.name|urlencode }}'>
+                            on Google Translate</a>
                     <li class="list-group-item">
                         {% if remotes_album %}
                             {% if remotes_album.lastfm.listeners %}
@@ -57,7 +58,9 @@
                         <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
                             on Discogs</a>,
                         <a href='http://www.google.com/search?q={{ '"' ~ artist.name|urlencode ~ '"' }}'>
-                            on Google</a>
+                            on Google</a>,
+                        <a href='http://translate.google.com/#auto/en/{{ artist.name|urlencode }}'>
+                            on Google Translate</a>
                         </li>
                         {%- if album -%}
                         <li class="list-group-item">
