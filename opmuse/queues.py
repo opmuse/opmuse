@@ -278,7 +278,7 @@ class QueueDao:
     def clear_played(self):
         user_id = cherrypy.request.user.id
         get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.played,
-                                           Queue.current == False)).delete(synchronize_session='fetch')
+                                           "not current")).delete(synchronize_session='fetch')
         get_database().commit()
         ws.emit('queue.update')
 
@@ -308,8 +308,8 @@ class QueueDao:
         user_id = cherrypy.request.user.id
 
         query = (get_database().query(Queue)
-                              .filter(and_(Queue.user_id == user_id, Queue.current))
-                              .update({'current': False, 'current_seconds': None}, synchronize_session='fetch'))
+                 .filter(and_(Queue.user_id == user_id, Queue.current))
+                 .update({'current': False, 'current_seconds': None}, synchronize_session='fetch'))
 
         get_database().commit()
 

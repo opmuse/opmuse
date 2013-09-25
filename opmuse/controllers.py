@@ -1394,6 +1394,7 @@ class Dashboard:
             'new_albums': new_albums
         }
 
+
 class Stream:
 
     STREAM_PLAYING = {}
