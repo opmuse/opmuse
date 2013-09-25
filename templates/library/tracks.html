@@ -41,6 +41,12 @@
                         Invalid
                     </a>
                 </li>
+                <li>
+                    <a class="btn btn-xs {{ "btn-primary" if filter == "duplicates" else "btn-default" }}" href="/library/tracks?filter=duplicates&sort={{ sort }}">
+                        <i class="icon-code-fork"></i>
+                        Duplicates
+                    </a>
+                </li>
             </ul>
         </dd>
     </dl>

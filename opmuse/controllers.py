@@ -920,7 +920,7 @@ class Library(object):
 
         offset = page_size * (page - 1)
 
-        query = get_database().query(Track).filter(Track.scanned)
+        query = get_database().query(Track).filter(Track.scanned).group_by(Track.id)
 
         if sort == "added":
             query = query.order_by(Track.added.desc())
@@ -934,6 +934,9 @@ class Library(object):
             query = query.filter("album_id is null")
         elif filter == "invalid":
             query = query.filter("invalid is not null")
+        elif filter == "duplicates":
+            query = (query.join(TrackPath, Track.id == TrackPath.track_id)
+                          .having(func.count(distinct(TrackPath.id)) > 1))
 
         pages = math.ceil(query.count() / page_size)
 
