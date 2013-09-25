@@ -1,6 +1,7 @@
 import json
 import urllib.parse
 import urllib.request
+import os
 from opmuse.remotes import remotes
 
 
@@ -62,7 +63,11 @@ class Google:
 
         if results is not None and results['responseData'] is not None:
             for hit in results['responseData']['results']:
-                urls.append(hit['url'])
+                path = urllib.parse.urlparse(hit['url']).path
+                ext = os.path.splitext(path)[1].lower()[1:]
+
+                if ext in ['gif', 'png', 'jpg']:
+                    urls.append(hit['url'])
 
         return urls
 
