@@ -170,6 +170,9 @@ class Remove:
 
 
 class Search:
+    CACHE_RECENT_KEY = "search_recent"
+    MAX_RECENT = 10
+
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.json_out()
@@ -197,6 +200,8 @@ class Search:
 
         artist_tracks = set()
         album_tracks = set()
+
+        recent_searches = []
 
         if query is not None:
             albums = None
@@ -235,6 +240,18 @@ class Search:
                 for track in tracks:
                     raise HTTPRedirect('/library/track/%s' % track.slug)
 
+            if cache.has(Search.CACHE_RECENT_KEY):
+                recent_searches = cache.get(Search.CACHE_RECENT_KEY)
+            else:
+                cache.set(Search.CACHE_RECENT_KEY, recent_searches)
+
+            if type is None and len(entities) > 0:
+                if len(recent_searches) == 0 or query != recent_searches[0][0]:
+                    recent_searches.insert(0, (query, datetime.datetime.now(), cherrypy.request.user.login))
+
+                    if len(recent_searches) > Search.MAX_RECENT:
+                        recent_searches.pop()
+
             entities = sorted(entities, key=lambda entity: entity.__SEARCH_SCORE, reverse=True)
 
             hierarchy = Library._produce_track_hierarchy(entities)
@@ -257,7 +274,8 @@ class Search:
             'artists': artists,
             'track_tracks': tracks,
             'album_tracks': list(album_tracks),
-            'artist_tracks': list(artist_tracks)
+            'artist_tracks': list(artist_tracks),
+            'recent_searches': recent_searches
         }
 
 
