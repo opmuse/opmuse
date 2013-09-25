@@ -188,6 +188,10 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
 
     def remember(self, environ, identity):
         self.secret = self.get_secret(environ, identity)
+
+        if identity is not None:
+            identity['max_age'] = 3600 * 24 * 14
+
         return AuthTktCookiePlugin.remember(self, environ, identity)
 
     def identify(self, environ):
