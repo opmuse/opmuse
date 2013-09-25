@@ -67,8 +67,6 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 that.queue.reload();
 
                 that.setPlaying(user_agent, format);
-
-                that.setProgress(0, 0);
             });
 
             ws.on('queue.end', function (track, user_agent) {
