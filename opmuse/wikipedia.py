@@ -5,7 +5,7 @@ from urllib import request, parse
 
 class Wikipedia():
     BASE_URL = 'http://%s.wikipedia.org'
-    LANGUAGES = ['en', 'sv']
+    LANGUAGES = ['en', 'sv', 'de', 'es', 'it', 'fr', 'no', 'da', 'fi', 'ja', 'zh', 'ko']
     BASE_API_URL = '%s/w/api.php' % BASE_URL
     BASE_TITLE_URL = '%s/wiki' % BASE_URL
 
