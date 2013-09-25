@@ -163,6 +163,16 @@
                                     href="/download?file={{ item.relative_file|urlencode }}">
                                     {{ item.pretty_file }}
                                 </a>
+                                {% if item.is_artist_cover %}
+                                    <p rel="tooltip" title="This is a image used for one of the artist covers." class="label label-info">
+                                        Artist Cover
+                                    </p>
+                                {% endif %}
+                                {% if item.is_album_cover %}
+                                    <p rel="tooltip" title="This is the image used for the album cover." class="label label-info">
+                                        Album Cover
+                                    </p>
+                                {% endif %}
                                 <span class="file-size">
                                     {{ item.size|format_bytes }}
                                 </span>

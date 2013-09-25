@@ -854,6 +854,8 @@ class Library(object):
 
                     relative_file = file[len(library_path):]
 
+                    artist_covers = [artist.cover_path for artist in album.artists]
+
                     dirs[dir]['files'].append({
                         "file": file,
                         "relative_file": relative_file.decode('utf8', 'replace'),
@@ -861,7 +863,9 @@ class Library(object):
                         "size": size,
                         "track": track,
                         "isdir": isdir,
-                        "pretty_file": pretty_file
+                        "pretty_file": pretty_file,
+                        "is_album_cover": file == album.cover_path,
+                        "is_artist_cover": file in artist_covers
                     })
 
             dirs[dir]['files'] = sorted(dirs[dir]['files'],
