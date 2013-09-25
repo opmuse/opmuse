@@ -92,6 +92,9 @@
             #gradient > .vertical(#7A7A7A, #606060);
 
             .progress-bar {
+                /* we only update every 1s... */
+                .transition(width 1s linear);
+
                 &.seconds {
                     #gradient > .vertical(#252525, #000000);
                 }
