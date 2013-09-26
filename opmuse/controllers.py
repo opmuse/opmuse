@@ -1164,7 +1164,7 @@ class Library(object):
                     }
 
                 album_groups['va']['albums'].append(album)
-            if len(album.tracks) > 6 or album.duration >= 60 * 20:
+            elif len(album.tracks) > 6 or album.duration >= 60 * 20:
                 if 'default' not in album_groups:
                     album_groups['default'] = {
                         'title': 'Albums',
