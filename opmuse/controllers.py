@@ -1148,7 +1148,8 @@ class Library(object):
         album_group_order = {
             'default': 0,
             'ep': 1,
-            'va': 2
+            'split': 2,
+            'va': 3
         }
 
         album_groups = {}
@@ -1156,7 +1157,15 @@ class Library(object):
         remotes.update_artist(artist)
 
         for album in artist.albums:
-            if album.is_va:
+            if album.is_split:
+                if 'split' not in album_groups:
+                    album_groups['split'] = {
+                        'title': 'Splits',
+                        'albums': []
+                    }
+
+                album_groups['split']['albums'].append(album)
+            elif album.is_va:
                 if 'va' not in album_groups:
                     album_groups['va'] = {
                         'title': 'Various Artists',
@@ -1164,15 +1173,7 @@ class Library(object):
                     }
 
                 album_groups['va']['albums'].append(album)
-            elif len(album.tracks) > 6 or album.duration >= 60 * 20:
-                if 'default' not in album_groups:
-                    album_groups['default'] = {
-                        'title': 'Albums',
-                        'albums': []
-                    }
-
-                album_groups['default']['albums'].append(album)
-            else:
+            elif album.is_ep:
                 if 'ep' not in album_groups:
                     album_groups['ep'] = {
                         'title': 'Singles & EPs',
@@ -1180,6 +1181,14 @@ class Library(object):
                     }
 
                 album_groups['ep']['albums'].append(album)
+            else:
+                if 'default' not in album_groups:
+                    album_groups['default'] = {
+                        'title': 'Albums',
+                        'albums': []
+                    }
+
+                album_groups['default']['albums'].append(album)
 
             remotes.update_album(album)
 

@@ -89,6 +89,14 @@ class Album(Base):
         return Library.pretty_format(self.format)
 
     @hybrid_property
+    def is_split(self):
+        return len(self.artists) > 1 and len(self.artists) <= 3
+
+    @hybrid_property
+    def is_ep(self):
+        return not (len(self.tracks) > 6 or self.duration >= 60 * 20)
+
+    @hybrid_property
     def is_va(self):
         return len(self.artists) > 1
 
