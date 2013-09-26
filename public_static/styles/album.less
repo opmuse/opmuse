@@ -1,13 +1,4 @@
 #album {
-    .popover {
-        max-width: 800px;
-
-        img {
-            max-width: 750px;
-            max-height: 750px;
-        }
-    }
-
     .nav.nav-tabs {
         margin-bottom: 10px;
     }
@@ -19,102 +10,6 @@
 
     hr {
         margin: 10px 0;
-    }
-
-    table {
-        .label {
-            margin-right: 4px;
-        }
-
-        margin-top: 10px;
-
-        .queue {
-            margin-right: 10px;
-        }
-
-        .indent {
-            width: 12px;
-            padding: 0 !important;
-            background-color: @body-bg;
-            border-top-color: @body-bg;
-            border-left-color: @body-bg;
-            border-bottom-color: @body-bg;
-        }
-
-        tfoot {
-            border: 0;
-        }
-
-        tbody {
-            border: 0;
-        }
-
-        tbody.other-files-header .other-files-header-title {
-            cursor: pointer;
-        }
-
-        tbody.other-files-header .indent {
-            border-bottom-color: @table-border-color;
-        }
-
-        tbody:not(.other-files) tr:nth-child(2) .indent {
-            border-top-color: @table-border-color;
-        }
-
-        .other-files-header {
-            a {
-                float: right;
-                margin-top: 4px;
-
-                .in, .out {
-                    display: none;
-                }
-
-                &:not(.collapsed) .out {
-                    display: inline;
-                }
-
-                &.collapsed .in {
-                    display: inline;
-                }
-            }
-        }
-
-        .other-files-header,
-        .other-files {
-            &.collapse {
-                &:not(.in) {
-                    display: none;
-                }
-            }
-
-            .album-name,
-            .artist-name {
-                display: inline;
-
-                &:after {
-                    content: " - ";
-                }
-            }
-
-            .track-number,
-            .track-duration {
-                display: none;
-            }
-
-            .track-file {
-                float: right;
-            }
-
-            .file-size,
-            .file-modified {
-                float: right;
-            }
-
-            .file-size:before {
-                content: ', ';
-            }
-        }
     }
 
     .invalid-track {

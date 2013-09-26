@@ -30,7 +30,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, 
                     html: true,
                     placement: "top",
                     trigger: "hover",
-                    container: "#album",
+                    container: "#main",
                 };
 
                 if (['png', 'jpg', 'gif', 'jpeg'].indexOf(ext) != -1) {

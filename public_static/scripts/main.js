@@ -60,7 +60,7 @@ require(['jquery'], function($) {
             'covers',
             'remotes',
             'filters',
-            'album'
+            'dir_table'
         ], function () {
             $("#overlay").addClass('hide');
             $('body').trigger('loadFinish');

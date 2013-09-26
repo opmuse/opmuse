@@ -252,3 +252,118 @@
     padding: 6px;
     border: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+table.dir_table {
+    .label {
+        margin-right: 4px;
+    }
+
+    margin-top: 10px;
+
+    .queue {
+        margin-right: 10px;
+    }
+
+    tfoot {
+        border: 0;
+    }
+
+    tbody {
+        border: 0;
+    }
+
+    tbody.other-files-header .other-files-header-title {
+        cursor: pointer;
+    }
+
+    tbody.other-files-header .indent {
+        border-bottom-color: @table-border-color;
+    }
+
+    tbody:not(.other-files) tr:nth-child(2) .indent {
+        border-top-color: @table-border-color;
+    }
+
+    .other-files-header {
+        a {
+            float: right;
+            margin-top: 4px;
+
+            .in, .out {
+                display: none;
+            }
+
+            &:not(.collapsed) .out {
+                display: inline;
+            }
+
+            &.collapsed .in {
+                display: inline;
+            }
+        }
+    }
+
+    .other-files-header,
+    .other-files {
+        &.collapse {
+            &:not(.in) {
+                display: none;
+            }
+        }
+
+        .album-name,
+        .artist-name {
+            display: inline;
+
+            &:after {
+                content: " - ";
+            }
+        }
+
+        .track-number,
+        .track-duration {
+            display: none;
+        }
+
+        .track-file {
+            float: right;
+        }
+
+        .file-size,
+        .file-modified {
+            float: right;
+        }
+
+        .file-size:before {
+            content: ', ';
+        }
+    }
+
+    td:empty {
+        width: 0;
+        padding: 0;
+        margin: 0;
+        border-left-width: 0;
+        border-right-width: 0;
+    }
+
+    tr td.indent {
+        width: 12px;
+        padding: 0 !important;
+        background-color: @body-bg;
+        border-top-color: @body-bg;
+        border-left-color: @body-bg;
+        border-bottom-color: @body-bg;
+    }
+
+}
+
+.popover {
+    max-width: 800px;
+
+    img {
+        max-width: 750px;
+        max-height: 750px;
+    }
+}
+

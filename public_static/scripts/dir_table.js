@@ -2,10 +2,10 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
     var instance = null;
 
-    var Album = Class.extend({
+    var DirTable = Class.extend({
         init: function () {
             if (instance !== null) {
-                throw Error('Only one instance of Album allowed!');
+                throw Error('Only one instance of DirTable allowed!');
             }
 
             var that = this;
@@ -17,7 +17,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             that.internalInit();
         },
         internalInit: function () {
-            $("#album .other-files-header .other-files-header-title").click(function () {
+            $("table.dir_table .other-files-header .other-files-header-title").click(function () {
                 $(this).closest(".other-files-header").find(".other-files-toggle").click();
                 return false;
             });
@@ -26,7 +26,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
 
     return (function() {
         if (instance === null) {
-            instance = new Album();
+            instance = new DirTable();
         }
 
         return instance;

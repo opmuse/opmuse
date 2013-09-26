@@ -828,23 +828,42 @@ class Library(object):
 
         remotes_album = remotes.get_album(album)
 
-        dirs = {}
+        dir_tracks = self._dir_tracks(album.tracks)
 
-        for track in album.tracks:
+        return {
+            'album': album,
+            'dir_tracks': dir_tracks,
+            'remotes_artists': remotes_artists,
+            'remotes_album': remotes_album,
+        }
+
+    def _dir_tracks(self, tracks):
+        dir_tracks = {}
+
+        artist_covers = set()
+        album_covers = set()
+
+        for track in tracks:
+            if track.artist is not None:
+                artist_covers.add(track.artist.cover_path)
+
+            if track.album is not None:
+                album_covers.add(track.album.cover_path)
+
             dir = track.paths[0].dir
 
-            if dir not in dirs:
-                dirs[dir] = {
+            if dir not in dir_tracks:
+                dir_tracks[dir] = {
                     'tracks': [],
                     'pretty_dir': track.paths[0].pretty_dir,
                     'files': [],
                     'paths': []
                 }
 
-            dirs[dir]['paths'].append(track.paths[0].path)
-            dirs[dir]['tracks'].append(track)
+            dir_tracks[dir]['paths'].append(track.paths[0].path)
+            dir_tracks[dir]['tracks'].append(track)
 
-        for dir, item in dirs.items():
+        for dir, item in dir_tracks.items():
             for file in os.listdir(dir):
                 file = os.path.join(dir, file)
 
@@ -872,9 +891,7 @@ class Library(object):
 
                     relative_file = file[len(library_path):]
 
-                    artist_covers = [artist.cover_path for artist in album.artists]
-
-                    dirs[dir]['files'].append({
+                    dir_tracks[dir]['files'].append({
                         "file": file,
                         "relative_file": relative_file.decode('utf8', 'replace'),
                         "modified": modified,
@@ -882,42 +899,16 @@ class Library(object):
                         "track": track,
                         "isdir": isdir,
                         "pretty_file": pretty_file,
-                        "is_album_cover": file == album.cover_path,
+                        "is_album_cover": file in album_covers,
                         "is_artist_cover": file in artist_covers
                     })
 
-            dirs[dir]['files'] = sorted(dirs[dir]['files'],
+            dir_tracks[dir]['files'] = sorted(dir_tracks[dir]['files'],
                                         key = lambda item: "%d%s" % (not item["isdir"], item["file"]))
 
-        dirs = sorted(dirs.items(), key = lambda d: d[0])
+        dir_tracks = sorted(dir_tracks.items(), key = lambda d: d[0])
 
-        # calculate colspan here and not in template because jinja makes it really difficult
-        colspan = 4
-
-        if len(album.artists) > 1:
-            colspan += 1
-
-        for track in album.tracks:
-            if track.invalid:
-                colspan += 1
-                break
-
-        disc = False
-
-        for track in album.tracks:
-            if track.disc is not None:
-                disc = True
-                colspan += 1
-                break
-
-        return {
-            'album': album,
-            'dirs': dirs,
-            'remotes_artists': remotes_artists,
-            'remotes_album': remotes_album,
-            'colspan': colspan,
-            'disc': disc
-        }
+        return dir_tracks #, dir_colspan
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -1207,7 +1198,10 @@ class Library(object):
             if artist != artist_result:
                 same_artists.add(artist_result)
 
+        dir_tracks = self._dir_tracks(artist.no_album_tracks)
+
         return {
+            'dir_tracks': dir_tracks,
             'artist': artist,
             'album_groups': album_groups,
             'remotes_artist': remotes_artist,
