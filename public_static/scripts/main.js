@@ -24,6 +24,7 @@ require(['jquery'], function($) {
             'upload',
             'messages',
             'modal',
+            'tab',
             'popover',
             'tooltip',
             'locations',
