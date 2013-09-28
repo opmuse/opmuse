@@ -109,9 +109,9 @@
                         {% if remotes_artist.wikipedia.summary %}
                             {{ print_wikipedia(remotes_artist.wikipedia) }}
                         {% else %}
-                            <p>
-                                {{ remotes_artist.lastfm.bio }}
-                            </p>
+                            <div class="lastfm_bio">
+                                {{ remotes_artist.lastfm.bio|nl2p }}
+                            </div>
                         {% endif %}
                     {% endif %}
                 </div>

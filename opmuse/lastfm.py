@@ -369,7 +369,7 @@ class Lastfm:
 
             return {
                 'url': artist.get_url(),
-                'bio': bio,
+                'bio': bio.strip(),
                 'cover': artist.get_cover_image(),
                 'listeners': artist.get_listener_count(),
                 'tags': tags,
