@@ -31,10 +31,6 @@
         display: none;
     }
 
-    p:last-child {
-        margin-bottom: 0;
-    }
-
     .cover-container {
         margin: 20px 10px 0 0;
         float: right;
@@ -81,7 +77,10 @@
     .wikipedia-footer {
         float: right;
         color: @gray-lighter;
-        margin-bottom: 0;
+
+        &:not(:last-child) {
+            margin-bottom: 0;
+        }
 
         a {
             color: @gray-light;

@@ -22,11 +22,19 @@
     {% if wikipedia.summary %}
         <p class="wikipedia-content">{{ wikipedia.summary }}</p>
         <p class="wikipedia-footer">
-            ... continue reading at <a href="{{ wikipedia.url }}">{{ wikipedia.title }}</a>.
+            ... continue reading at
+            <a href="{{ wikipedia.url }}">
+                {{ wikipedia.title }}
+                {% if wikipedia.language != 'en' %}
+                    ({{ wikipedia.language }})
+                {% endif %}
+            </a>.
         </p>
-        <p class="wikipedia-footer wikipedia-footer-sub">
-            ... and try your luck on <a href='http://translate.google.com/translate?u={{ wikipedia.url|urlencode }}'>Google Translate</a>
-        </p>
+        {% if wikipedia.language != "en" %}
+            <p class="wikipedia-footer wikipedia-footer-sub">
+                ... and try your luck on <a href='http://translate.google.com/translate?u={{ wikipedia.url|urlencode }}'>Google Translate</a>
+            </p>
+        {% endif %}
     {% endif %}
 {% endmacro %}
 

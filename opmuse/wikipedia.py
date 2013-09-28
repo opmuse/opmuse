@@ -10,7 +10,7 @@ class Wikipedia():
     BASE_TITLE_URL = '%s/wiki' % BASE_URL
 
     def get_track(self, artist_name, album_name, track_name):
-        extract = self.find_extract(track_name, ['song'], Wikipedia.LANGUAGES)
+        extract, language = self.find_extract(track_name, ['song'], Wikipedia.LANGUAGES)
 
         if extract is None:
             summary = ''
@@ -22,6 +22,7 @@ class Wikipedia():
             url = extract['url']
 
         return {
+            'language': language,
             'summary': summary,
             'title': title,
             'url': url
@@ -34,7 +35,7 @@ class Wikipedia():
             album_name = artist_name
 
         if album_name is not None and artist_name is not None:
-            extract = self.find_extract(album_name, ['%s album' % artist_name, 'album', 'ep', 'soundtrack'],
+            extract, language = self.find_extract(album_name, ['%s album' % artist_name, 'album', 'ep', 'soundtrack'],
                                         Wikipedia.LANGUAGES)
 
         if extract is None:
@@ -47,6 +48,7 @@ class Wikipedia():
             url = extract['url']
 
         return {
+            'language': language,
             'summary': summary,
             'title': title,
             'url': url
@@ -54,7 +56,7 @@ class Wikipedia():
 
     def get_artist(self, artist_name):
 
-        extract = self.find_extract(artist_name, ['band', 'musician', 'singer', 'artist'], Wikipedia.LANGUAGES)
+        extract, language = self.find_extract(artist_name, ['band', 'musician', 'singer', 'artist'], Wikipedia.LANGUAGES)
 
         if extract is None:
             summary = ''
@@ -66,6 +68,7 @@ class Wikipedia():
             url = extract['url']
 
         return {
+            'language': language,
             'summary': summary,
             'title': title,
             'url': url
@@ -102,7 +105,7 @@ class Wikipedia():
                 extract = self.query_extracts(name, language)
 
             if extract is not None:
-                return extract
+                return extract, language
 
     def opensearch(self, query, language):
         response = self._request({
