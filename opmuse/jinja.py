@@ -105,6 +105,18 @@ def pretty_date(date):
     return _pretty_date(date)
 
 
+def nl2p(string):
+    paragraphs = []
+
+    for line in string.split('\n'):
+        if line == "":
+            continue
+
+        paragraphs.append("<p>%s</p>" % line)
+
+    return ''.join(paragraphs)
+
+
 def format_seconds(seconds):
     if seconds is None:
         seconds = 0
@@ -154,6 +166,7 @@ class JinjaPlugin(SimplePlugin):
             cache_size=-1
         )
 
+        self.env.filters['nl2p'] = nl2p
         self.env.filters['format_seconds'] = format_seconds
         self.env.filters['pretty_date'] = pretty_date
         self.env.filters['urlencode'] = urlencode
