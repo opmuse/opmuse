@@ -18,24 +18,79 @@
     {%- endfor %}.
 {% endmacro %}
 
-{% macro print_wikipedia(wikipedia) %}
-    {% if wikipedia.summary %}
-        <p class="wikipedia-content">{{ wikipedia.summary }}</p>
-        <p class="wikipedia-footer">
-            ... continue reading at
-            <a href="{{ wikipedia.url }}">
-                {{ wikipedia.title }}
-                {% if wikipedia.language != 'en' %}
-                    ({{ wikipedia.language }})
-                {% endif %}
-            </a>.
-        </p>
-        {% if wikipedia.language != "en" %}
-            <p class="wikipedia-footer wikipedia-footer-sub">
-                ... and try your luck on <a href='http://translate.google.com/translate?u={{ wikipedia.url|urlencode }}'>Google Translate</a>
-            </p>
+{% macro print_articles_nav(remotes, index, active = True) %}
+    {% if remotes %}
+        {% if remotes.wikipedia|count > 0 %}
+            {% for wikipedia in remotes.wikipedia %}
+                {% set title = wikipedia.title ~ (" | " ~ wikipedia.language if wikipedia.language != 'en') %}
+                <li data-toggle="pill" class="{{ "active" if active and loop.first }}">
+                    <a rel="tooltip" title="{{ title }}" href="#wikipediatab_{{ index }}_{{ loop.index }}">
+                        {{ title }}
+                    </a>
+                </li>
+            {% endfor %}
+            {% if remotes.lastfm and remotes.lastfm.bio %}
+                <li data-toggle="pill" class="{{ "active" if active and remotes.wikipedia|count == 0 }}">
+                    <a href="#lastfmtab_{{ index }}">Last.fm Artist</a>
+                </li>
+            {% endif %}
         {% endif %}
     {% endif %}
+{% endmacro %}
+
+{% macro print_articles_content(remotes, index, active = True) %}
+    {% if remotes %}
+        {% if remotes.wikipedia|count > 0 %}
+            {% for wikipedia in remotes.wikipedia %}
+                <div class="pill-pane {{ "active" if active and loop.first }}" id="wikipediatab_{{ index }}_{{ loop.index }}">
+                    <p class="wikipedia-content">{{ wikipedia.summary }}</p>
+                    <p class="wikipedia-footer">
+                        ... continue reading at
+                        <a href="{{ wikipedia.url }}">
+                            {{ wikipedia.title }}
+                            {% if wikipedia.language != 'en' %}
+                                | {{ wikipedia.language }}
+                            {% endif %}
+                        </a>.
+                    </p>
+                    {% if wikipedia.language != "en" %}
+                        <p class="wikipedia-footer wikipedia-footer-sub">
+                            ... and try your luck on
+                            <a href='http://translate.google.com/translate?u={{ wikipedia.url|urlencode }}'>
+                                Google Translate
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% if remotes.lastfm and remotes.lastfm.bio %}
+            <div class="pill-pane {{ "active" if active and remotes.wikipedia|count == 0 }}" id="lastfmtab_{{ index }}">
+                <div class="lastfm_bio">
+                    {{ remotes.lastfm.bio|nl2p }}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% macro print_articles(remotes_artist, remotes_album = None, remotes_track = None) %}
+    {% set album_active = False if remotes_track and (remotes_track.wikipedia|count > 0 or
+        remotes_track.lastfm and remotes_track.lastfm.bio) else True %}
+
+    {% set artist_active = album_active and (False if remotes_album and (remotes_album.wikipedia|count > 0 or
+        remotes_album.lastfm and remotes_album.lastfm.bio) else True) %}
+
+    <div class="pill-content">
+        {{ print_articles_content(remotes_track, 0) }}
+        {{ print_articles_content(remotes_album, 1, album_active) }}
+        {{ print_articles_content(remotes_artist, 2, artist_active) }}
+    </div>
+    <ul class="nav nav-pills nav-pills-sm">
+        {{ print_articles_nav(remotes_track, 0) }}
+        {{ print_articles_nav(remotes_album, 1, album_active) }}
+        {{ print_articles_nav(remotes_artist, 2, artist_active) }}
+    </ul>
 {% endmacro %}
 
 {% import "macros/covers.html" as covers %}
@@ -106,40 +161,28 @@
             {% if artist %}
                 <div class="remotes remotes_artist_head_{{ artist.id }}">
                     {% if remotes_artist %}
-                        {% if remotes_artist.wikipedia.summary %}
-                            {{ print_wikipedia(remotes_artist.wikipedia) }}
-                        {% else %}
-                            <div class="lastfm_bio">
-                                {{ remotes_artist.lastfm.bio|nl2p }}
-                            </div>
-                        {% endif %}
+                        {{ print_articles(remotes_artist) }}
                     {% endif %}
                 </div>
-            {% endif %}
-            {% if album %}
+            {% elif album %}
                 <div class="remotes remotes_album_head_{{ album.id }}">
                     {% if remotes_album %}
-                        {% if remotes_album.wikipedia.summary %}
-                            {{ print_wikipedia(remotes_album.wikipedia) }}
-                        {% elif remotes_artists|length == 1 %}
-                            {{ print_wikipedia(remotes_artists[0].wikipedia) }}
-                        {% endif %}
+                        {{ print_articles(remotes_artists[0] if remotes_artists|count > 0, remotes_album) }}
                     {% endif %}
                 </div>
-            {% endif %}
-            {% if track %}
+            {% elif track %}
                 <div class="remotes remotes_track_head_{{ track.id }}">
                     {% if remotes_track %}
-                        {{ print_wikipedia(remotes_track.wikipedia) }}
+                        {{ print_articles(remotes_artist, remotes_album, remotes_track) }}
                     {% endif %}
                 </div>
             {% endif %}
         </div>
         <div class="col-xs-5">
         {% if album %}
-            <div class="album">
+            <div class="album cover">
         {% elif artists %}
-            <div class="artist">
+            <div class="artist cover">
         {% endif %}
                 <figure class="effeckt-caption" data-effeckt-type="half-slide">
                     {% if album %}

@@ -31,15 +31,6 @@
         display: none;
     }
 
-    .cover-container {
-        margin: 20px 10px 0 0;
-        float: right;
-
-        @media (max-width: 768px) {
-            display: none;
-        }
-    }
-
     ul {
         margin: 0;
     }
@@ -117,5 +108,24 @@
                 float: right;
             }
         }
+    }
+
+    .artist,
+    .album {
+        &.cover {
+            margin-top: 20px;
+            margin-right: 17%;
+            float: right;
+        }
+    }
+
+    .cover-container {
+        @media (max-width: 768px) {
+            display: none;
+        }
+    }
+
+    .pill-content {
+        overflow: hidden;
     }
 }

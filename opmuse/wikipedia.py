@@ -10,69 +10,64 @@ class Wikipedia():
     BASE_TITLE_URL = '%s/wiki' % BASE_URL
 
     def get_track(self, artist_name, album_name, track_name):
-        extract, language = self.find_extract(track_name, ['song'], Wikipedia.LANGUAGES)
+        articles = []
 
-        if extract is None:
-            summary = ''
-            title = ''
-            url = ''
-        else:
+        for extract, language in self.find_extract(track_name, ['song'], Wikipedia.LANGUAGES):
             summary = extract['extract']
             title = extract['title']
             url = extract['url']
 
-        return {
-            'language': language,
-            'summary': summary,
-            'title': title,
-            'url': url
-        }
+            articles.append({
+                'language': language,
+                'summary': summary,
+                'title': title,
+                'url': url
+            })
+
+        return articles
 
     def get_album(self, artist_name, album_name):
-        extract = None
+        articles = []
 
         if album_name is not None and re.sub('[^a-z]+', '', album_name.lower()) == 'selftitled':
             album_name = artist_name
 
         if album_name is not None and artist_name is not None:
-            extract, language = self.find_extract(album_name, ['%s album' % artist_name, 'album', 'ep', 'soundtrack'],
-                                        Wikipedia.LANGUAGES)
+            for extract, language in self.find_extract(album_name,
+                                                       ['%s album' % artist_name, 'album', 'ep', 'soundtrack'],
+                                                       Wikipedia.LANGUAGES):
+                summary = extract['extract']
+                title = extract['title']
+                url = extract['url']
 
-        if extract is None:
-            summary = ''
-            title = ''
-            url = ''
-        else:
-            summary = extract['extract']
-            title = extract['title']
-            url = extract['url']
+                articles.append({
+                    'language': language,
+                    'summary': summary,
+                    'title': title,
+                    'url': url
+                })
 
-        return {
-            'language': language,
-            'summary': summary,
-            'title': title,
-            'url': url
-        }
+        return articles
 
     def get_artist(self, artist_name):
 
-        extract, language = self.find_extract(artist_name, ['band', 'musician', 'singer', 'artist'], Wikipedia.LANGUAGES)
+        articles = []
 
-        if extract is None:
-            summary = ''
-            title = ''
-            url = ''
-        else:
+        for extract, language in self.find_extract(artist_name, ['band', 'musician', 'singer', 'artist'],
+                Wikipedia.LANGUAGES):
+
             summary = extract['extract']
             title = extract['title']
             url = extract['url']
 
-        return {
-            'language': language,
-            'summary': summary,
-            'title': title,
-            'url': url
-        }
+            articles.append({
+                'language': language,
+                'summary': summary,
+                'title': title,
+                'url': url
+            })
+
+        return articles
 
     def find_extract(self, name, types, languages):
         title_format = "%s (%s)"
@@ -105,7 +100,7 @@ class Wikipedia():
                 extract = self.query_extracts(name, language)
 
             if extract is not None:
-                return extract, language
+                yield extract, language
 
     def opensearch(self, query, language):
         response = self._request({
