@@ -2,14 +2,24 @@ import json
 import urllib.parse
 import urllib.request
 import os
-from opmuse.remotes import remotes
+import opmuse.remotes
 
 
 class Google:
     IMAGES_URL = 'http://ajax.googleapis.com/ajax/services/search/images?v=1.0&%s'
+    SEARCH_URL = 'https://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s'
+
+    def get_artist_search(self, artist):
+        remotes_artist = opmuse.remotes.remotes.get_artist(artist)
+
+        tags = self._tags(remotes_artist)
+
+        query = self._query('"%s"' % artist.name, tags)
+
+        return self.search("-discogs.com -wikipedia.org -last.fm %s" % query)
 
     def get_album_images(self, album):
-        remotes_album = remotes.get_album(album)
+        remotes_album = opmuse.remotes.remotes.get_album(album)
 
         tags = self._tags(remotes_album)
 
@@ -24,7 +34,7 @@ class Google:
         return self.images(query)
 
     def get_artist_images(self, artist):
-        remotes_artist = remotes.get_artist(artist)
+        remotes_artist = opmuse.remotes.remotes.get_artist(artist)
 
         tags = self._tags(remotes_artist)
 
@@ -51,6 +61,26 @@ class Google:
             query += ' AND "%s"' % '" OR "'.join(tags)
 
         return query
+
+    def search(self, query):
+        url = Google.SEARCH_URL % urllib.parse.urlencode({
+            'q': query
+        })
+
+        results = json.loads(urllib.request.urlopen(url).read().decode("utf8", "replace"))
+
+        hits = []
+
+        if results is not None and results['responseData'] is not None:
+            for hit in results['responseData']['results']:
+                hits.append({
+                    'content': hit['content'],
+                    'url': hit['url'],
+                    'title': hit['titleNoFormatting'],
+                    'visible_url': hit['visibleUrl'],
+                })
+
+        return hits
 
     def images(self, query):
         url = Google.IMAGES_URL % urllib.parse.urlencode({
