@@ -15,35 +15,65 @@
         ,
         {% endif %}
         <a href="{{ urls.artist_url(artist) }}">{{ artist.name|show_ws }}</a>
-    {%- endfor %}.
+    {%- endfor %}
 {% endmacro %}
 
-{% macro print_articles_nav(remotes, index, active = True) %}
+{% macro print_articles_nav(type, remotes, index) %}
     {% if remotes %}
         {% if remotes.wikipedia|count > 0 %}
-            {% for wikipedia in remotes.wikipedia %}
-                {% set title = wikipedia.title ~ (" | " ~ wikipedia.language if wikipedia.language != 'en') %}
-                <li data-toggle="pill" class="{{ "active" if active and loop.first }}">
-                    <a rel="tooltip" title="{{ title }}" href="#wikipediatab_{{ index }}_{{ loop.index }}">
-                        {{ title }}
-                    </a>
-                </li>
-            {% endfor %}
-            {% if remotes.lastfm and remotes.lastfm.bio %}
-                <li data-toggle="pill" class="{{ "active" if active and remotes.wikipedia|count == 0 }}">
-                    <a href="#lastfmtab_{{ index }}">Last.fm Artist</a>
-                </li>
-            {% endif %}
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                {{ type }} on Wikipedia <span class="icon-caret-down"></span>
+            </a>
+            <ul class="dropdown-menu">
+                {% for wikipedia in remotes.wikipedia %}
+                    {% set title = wikipedia.title ~ (" | " ~ wikipedia.language if wikipedia.language != 'en') %}
+                    <li data-toggle="pill">
+                        <a title="{{ title }}" href="#wikipediatab_{{ index }}_{{ loop.index }}">
+                            {{ title }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endif %}
+        {% if remotes.lastfm and remotes.lastfm.bio %}
+            <li data-toggle="pill">
+                <a href="#lastfmtab_{{ index }}">{{ type }} on last.fm</a>
+            </li>
+        {% endif %}
+        {% if remotes.google and remotes.google|count > 0 %}
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    {{ type }} on Google <span class="icon-caret-down"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    {% for hit in remotes.google %}
+                        <li data-toggle="pill">
+                            <a title="{{ hit.title }}" href="#googletab_{{ index }}_{{ loop.index }}">
+                                {{ hit.title }} | {{ hit.visible_url }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
         {% endif %}
     {% endif %}
 {% endmacro %}
 
-{% macro print_articles_content(remotes, index, active = True) %}
+{% macro print_articles_content(remotes, index) %}
     {% if remotes %}
         {% if remotes.wikipedia|count > 0 %}
             {% for wikipedia in remotes.wikipedia %}
-                <div class="pill-pane {{ "active" if active and loop.first }}" id="wikipediatab_{{ index }}_{{ loop.index }}">
-                    <p class="wikipedia-content">{{ wikipedia.summary }}</p>
+                <div class="pill-pane" id="wikipediatab_{{ index }}_{{ loop.index }}">
+                    <div class="wikipedia-content">
+                    {% if album %}
+                        {{ covers.album_large(album) }}
+                    {% elif artists %}
+                        {{ covers.artist_large(artists[0]) }}
+                    {% endif %}
+                    {{ wikipedia.summary }}
+                    </div>
                     <p class="wikipedia-footer">
                         ... continue reading at
                         <a href="{{ wikipedia.url }}">
@@ -65,31 +95,57 @@
             {% endfor %}
         {% endif %}
         {% if remotes.lastfm and remotes.lastfm.bio %}
-            <div class="pill-pane {{ "active" if active and remotes.wikipedia|count == 0 }}" id="lastfmtab_{{ index }}">
-                <div class="lastfm_bio">
+            <div class="pill-pane" id="lastfmtab_{{ index }}">
+                <div class="lastfm-content">
+                    {% if album %}
+                        {{ covers.album_large(album) }}
+                    {% elif artists %}
+                        {{ covers.artist_large(artists[0]) }}
+                    {% endif %}
                     {{ remotes.lastfm.bio|nl2p }}
                 </div>
             </div>
+        {% endif %}
+        {% if remotes.google and remotes.google|count > 0 %}
+            {% for hit in remotes.google %}
+                <div class="pill-pane" id="googletab_{{ index }}_{{ loop.index }}">
+                    <div class="google-content">
+                        {% if album %}
+                            {{ covers.album_large(album) }}
+                        {% elif artists %}
+                            {{ covers.artist_large(artists[0]) }}
+                        {% endif %}
+                        <p>
+                            {{ hit.content }}
+                        </p>
+                    </div>
+                    <p class="google-footer">
+                        ... continue reading at <a href="{{ hit.url }}">
+                            {{ hit.title }} | {{ hit.visible_url }}
+                        </a>.
+                    </p>
+                    <p class="google-footer google-footer-sub">
+                        ... and try your luck on
+                        <a href='http://translate.google.com/translate?u={{ hit.url|urlencode }}'>
+                            Google Translate
+                        </a>
+                    </p>
+                </div>
+            {% endfor %}
         {% endif %}
     {% endif %}
 {% endmacro %}
 
 {% macro print_articles(remotes_artist, remotes_album = None, remotes_track = None) %}
-    {% set album_active = False if remotes_track and (remotes_track.wikipedia|count > 0 or
-        remotes_track.lastfm and remotes_track.lastfm.bio) else True %}
-
-    {% set artist_active = album_active and (False if remotes_album and (remotes_album.wikipedia|count > 0 or
-        remotes_album.lastfm and remotes_album.lastfm.bio) else True) %}
-
     <div class="pill-content">
         {{ print_articles_content(remotes_track, 0) }}
-        {{ print_articles_content(remotes_album, 1, album_active) }}
-        {{ print_articles_content(remotes_artist, 2, artist_active) }}
+        {{ print_articles_content(remotes_album, 1) }}
+        {{ print_articles_content(remotes_artist, 2) }}
     </div>
     <ul class="nav nav-pills nav-pills-sm">
-        {{ print_articles_nav(remotes_track, 0) }}
-        {{ print_articles_nav(remotes_album, 1, album_active) }}
-        {{ print_articles_nav(remotes_artist, 2, artist_active) }}
+        {{ print_articles_nav("Track", remotes_track, 0) }}
+        {{ print_articles_nav("Album", remotes_album, 1) }}
+        {{ print_articles_nav("Artist", remotes_artist, 2) }}
     </ul>
 {% endmacro %}
 
@@ -123,41 +179,56 @@
 
 <div class="artist-head">
     <div class="row">
-        <div class="col-xs-7">
-            {% if track %}
-                <h3 class="track-head">
+        <div class="col-xs-12">
+            <h2>
+                {% if track %}
                     <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
-                    {% if album %}
-                        <small>
-                            on <a href="{{ urls.album_url(album) }}">{{ album.name|show_ws }}</a>
-                        </small>
-                    {% endif %}
-                </h3>
-                {% if artists and artists|length > 0 %}
-                    <p class="track-subline">
-                        {{ print_artists(artists, true) }}
-                    </p>
-                {% endif %}
-            {% elif album %}
-                <h3 class="album-head">
+                {% elif album %}
                     <a href="{{ urls.album_url(album) }}">{{ album.name|show_ws }}</a>
                     {% if album.date %}
                         <span class="date">{{ album.date }}</span>
                     {% endif %}
-                    {% if artists and artists|length > 0 %}
-                        <small>
+                {% else %}
+                    {{ print_artists(artists, false) }}
+                {% endif %}
+                <small>
+                    {% if track %}
+                        track
+                        {% if artists and artists|length > 0 %}
                             {{ print_artists(artists, true) }}
-                        </small>
+                        {% endif %}
+                        {% if album %}
+                            on album <a href="{{ urls.album_url(album) }}">{{ album.name|show_ws }}</a>
+                        {% endif %}
+                        - {{ track.duration|format_seconds }} long, added {{ track.added|pretty_date }}
+                    {% elif album %}
+                        album
+                        {% if artists and artists|length > 0 %}
+                            {{ print_artists(artists, true) }}
+                        {% endif %}
+                        - {{ album.tracks|length }} tracks, {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}
+                    {% else %}
+                        artist - {{ artist.album_count }} albums, {{ artist.va_count }} VAs, added {{ artist.added|pretty_date }}
                     {% endif %}
-                </h3>
-                <p class="album-subline">
-                    {{ album.tracks|length }} tracks, {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}.
-                </p>
-            {% else %}
-            <h3>
-                {{ print_artists(artists, false) }}
-            </h3>
-            {% endif %}
+                    {% if is_granted('admin') %}
+                        {% if album %}
+                            <a class="remove-cover btn btn-default btn-sm"
+                                href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                                <i class="icon-refresh"></i>
+                            </a>
+                        {% elif artists %}
+                            <a class="remove-cover btn btn-default btn-sm"
+                                href="/cover_refresh/artist/{{ artists[0].slug|urlencode }}">
+                                <i class="icon-refresh"></i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </small>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
             {% if artist %}
                 <div class="remotes remotes_artist_head_{{ artist.id }}">
                     {% if remotes_artist %}
@@ -177,42 +248,6 @@
                     {% endif %}
                 </div>
             {% endif %}
-        </div>
-        <div class="col-xs-5">
-        {% if album %}
-            <div class="album cover">
-        {% elif artists %}
-            <div class="artist cover">
-        {% endif %}
-                <figure class="effeckt-caption" data-effeckt-type="half-slide">
-                    {% if album %}
-                        {{ covers.album(album) }}
-                    {% elif artists %}
-                        {{ covers.artist(artists[0]) }}
-                    {% endif %}
-                    <figcaption>
-                        <div class="effeckt-figcaption-wrap">
-                            <div class="left">
-                            </div>
-                            <div class="right">
-                                {% if is_granted('admin') %}
-                                    {% if album %}
-                                        <a class="remove-cover btn btn-default btn-sm"
-                                            href="/cover_refresh/album/{{ album.slug|urlencode }}">
-                                            <i class="icon-refresh"></i>
-                                        </a>
-                                    {% elif artists %}
-                                        <a class="remove-cover btn btn-default btn-sm"
-                                            href="/cover_refresh/artist/{{ artists[0].slug|urlencode }}">
-                                            <i class="icon-refresh"></i>
-                                        </a>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </figcaption>
-                </figure>
-            </div>
         </div>
     </div>
 </div>

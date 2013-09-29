@@ -1,6 +1,14 @@
+{% macro album_large(album, width = 700, height = 300) %}
+    {{ _album(album, width, height, "img-rounded", "cover-large", "large") }}
+{% endmacro %}
+
 {% macro album(album, cover_size = 220, cover_class = "img-thumbnail") %}
-    <span class="cover-container {{ "artist_cover_" ~ album.artists[0].id if album.artists|count > 0 }}" id="album_cover_{{ album.id }}">
-        <img width="{{ cover_size }}" height="{{ cover_size }}"
+    {{ _album(album, cover_size, cover_size, cover_class, "", "default") }}
+{% endmacro %}
+
+{% macro _album(album, width, height, cover_class, cover_container_class, size) %}
+    <span class="cover-container {{ cover_container_class }} {{ "artist_cover_" ~ album.artists[0].id if album.artists|count > 0 }}" id="album_cover_{{ album.id }}">
+        <img width="{{ width }}" height="{{ height }}"
             {% if not album %}
                 src="/static/images/cover_placeholder.png"
             {% else %}
@@ -11,25 +19,34 @@
                         {{ "?hash=%s" % album.artists[0].cover_hash.decode('utf8')|urlencode }}
                     {%- else -%}
                         {{ "?hash=%s" % ('invalid' if album.invalid else 'valid') }}
-                    {%- endif -%}"
+                    {%- endif -%}&size={{ size }}"
             {% endif %}
             alt="Album cover" class="album-cover {{ cover_class }}" />
     </span>
 {% endmacro %}
 
+{% macro artist_large(artist, width = 700, height = 300) %}
+    {{ _artist(artist, width, height, "img-rounded", "cover-large", "large") }}
+{% endmacro %}
+
 {% macro artist(artist, cover_size = 220, cover_class = "img-thumbnail") %}
-    <span class="cover-container" id="artist_cover_{{ artist.id }}">
-        <img width="{{ cover_size }}" height="{{ cover_size }}"
+    {{ _artist(artist, cover_size, cover_size, cover_class, "", "default") }}
+{% endmacro %}
+
+{% macro _artist(artist, width, height, cover_class, cover_container_class, size) %}
+    <span class="cover-container {{ cover_container_class }}" id="artist_cover_{{ artist.id }}">
+        <img width="{{ width }}" height="{{ height }}"
         {% if artist %}
             src="/cover/artist/{{ artist.slug|urlencode }}
             {%- if artist.cover_hash -%}
                 {{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode }}
             {%- else -%}
                 {{ "?hash=%s" % ('invalid' if artist.invalid else 'valid') }}
-            {%- endif -%}"
+            {%- endif -%}&size={{ size }}"
         {% else %}
             src="/static/images/cover_placeholder.png"
         {% endif %}
             alt="Artist cover" class="artist-cover {{ cover_class }}" />
     </span>
 {% endmacro %}
+

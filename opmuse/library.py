@@ -66,6 +66,7 @@ class Album(Base):
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32), index=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
+    cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
@@ -145,6 +146,7 @@ class Artist(Base):
     name = Column(StringBinaryType(255), index=True, unique=True)
     slug = Column(String(255), index=True, unique=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
+    cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 

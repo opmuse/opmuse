@@ -22,7 +22,10 @@ def log(msg, traceback=False):
 
 
 class Covers:
-    SIZE = 220
+    DEFAULT_WIDTH = 220
+    DEFAULT_HEIGHT = 220
+    LARGE_WIDTH = 700
+    LARGE_HEIGHT = 300
 
     def refresh(self, type, slug):
         if type not in ['album', 'artist']:
@@ -42,13 +45,14 @@ class Covers:
             entity.cover_path = None
             entity.cover_hash = None
             entity.cover = None
+            entity.cover_large = None
 
         if type == "album":
             ws.emit_all('covers.album.update', entity.id)
         elif type == "artist":
             ws.emit_all('covers.artist.update', entity.id)
 
-    def get_cover(self, type, slug):
+    def get_cover(self, type, slug, size = "default"):
         if type not in ['album', 'artist']:
             raise ValueError('Invalid type %s supplied' % type)
 
@@ -71,7 +75,7 @@ class Covers:
 
                 for artist in entity.artists:
                     if artist.cover is not None:
-                        return self.guess_mime(artist), artist.cover
+                        return self.guess_mime(artist), artist.cover_large if size == "large" else artist.cover
 
         elif type == "artist":
             entity = library_dao.get_artist_by_slug(slug)
@@ -91,17 +95,28 @@ class Covers:
             if entity.cover is None:
                 cover_ext = os.path.splitext(entity.cover_path)[1].decode('utf8')
                 temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
+                temp_cover_large = tempfile.mktemp(cover_ext).encode('utf8')
 
-                if image_service.resize(entity.cover_path, temp_cover, Covers.SIZE):
+                cover = image_service.resize(entity.cover_path, temp_cover,
+                                             Covers.DEFAULT_WIDTH, Covers.DEFAULT_HEIGHT)
+
+                cover_large = image_service.resize(entity.cover_path, temp_cover_large,
+                                                   Covers.LARGE_WIDTH, Covers.LARGE_HEIGHT)
+
+                if cover and cover_large:
                     with open(temp_cover, 'rb') as file:
                         entity.cover = file.read()
                         entity.cover_hash = base64.b64encode(mmh3.hash_bytes(entity.cover))
 
+                    with open(temp_cover_large, 'rb') as file:
+                        entity.cover_large = file.read()
+
                     os.remove(temp_cover)
+                    os.remove(temp_cover_large)
 
                     get_database().commit()
 
-            return self.guess_mime(entity), entity.cover
+            return self.guess_mime(entity), entity.cover_large if size == "large" else entity.cover
 
         return None, None
 
@@ -139,7 +154,7 @@ class Covers:
         cover = None
 
         for url in urls:
-            cover, resize_cover, cover_ext = self.retrieve_and_resize(url)
+            cover, resize_cover, resize_cover_large, cover_ext = self.retrieve_and_resize(url)
 
             if cover is None:
                 continue
@@ -168,6 +183,7 @@ class Covers:
             album.cover_path = cover_dest
 
         album.cover = resize_cover
+        album.cover_large = resize_cover_large
         album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
 
         get_database().commit()
@@ -208,7 +224,7 @@ class Covers:
         cover = None
 
         for url in urls:
-            cover, resize_cover, cover_ext = self.retrieve_and_resize(url)
+            cover, resize_cover, resize_cover_large, cover_ext = self.retrieve_and_resize(url)
 
             if cover is None:
                 continue
@@ -237,6 +253,7 @@ class Covers:
             artist.cover_path = cover_dest
 
         artist.cover = resize_cover
+        artist.cover_large = resize_cover_large
         artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
 
         get_database().commit()
@@ -249,39 +266,52 @@ class Covers:
         album_dirs = set()
 
         temp_image = tempfile.mktemp(image_ext).encode('utf8')
-        resize_temp_image = tempfile.mktemp(image_ext).encode('utf8')
 
         try:
             fp_from = urlopen(image_url)
         except (HTTPError, URLError) as error:
             log('Got "%s" when downloading %s.' % (error, image_url))
-            return None, None, None
+            return None, None, None, None
 
         with open(temp_image, "wb") as fp_to:
             fp_to.write(fp_from.read())
 
-        if not image_service.resize(temp_image, resize_temp_image, Covers.SIZE):
-            os.remove(temp_image)
+        resize_image = self._resize(temp_image, Covers.DEFAULT_WIDTH, Covers.DEFAULT_HEIGHT)
+        resize_image_large = self._resize(temp_image, Covers.LARGE_WIDTH, Covers.LARGE_HEIGHT)
 
-            if os.path.exists(resize_temp_image):
-                os.remove(resize_temp_image)
+        if not resize_image or not resize_image_large:
+            return None, None, None, None
 
-            return None, None, None
-
-        resize_image = None
         image = None
-
-        with open(resize_temp_image, 'rb') as file:
-            resize_image = file.read()
-
-        os.remove(resize_temp_image)
 
         with open(temp_image, 'rb') as file:
             image = file.read()
 
         os.remove(temp_image)
 
-        return image, resize_image, image_ext
+        return image, resize_image, resize_image_large, image_ext
+
+    def _resize(self, temp_image, width, height):
+        image_ext = os.path.splitext(temp_image.decode('utf8'))[1]
+
+        resize_temp_image = tempfile.mktemp(image_ext).encode('utf8')
+
+        if not image_service.resize(temp_image, resize_temp_image, width, height):
+            os.remove(temp_image)
+
+            if os.path.exists(resize_temp_image):
+                os.remove(resize_temp_image)
+
+            return False
+
+        resize_image = None
+
+        with open(resize_temp_image, 'rb') as file:
+            resize_image = file.read()
+
+        os.remove(resize_temp_image)
+
+        return resize_image
 
     def guess_mime(self, entity):
         mimetype = mimetypes.guess_type(entity.cover_path.decode('utf8', 'replace'))

@@ -35,25 +35,19 @@
         margin: 0;
     }
 
-    h3 {
-        font-size: 1.5em;
+    h2 {
+        font-size: 2.4em;
         margin: 0 0 5px 0;
         line-height: 30px;
+        color: @text-color;
 
-        &.track-head,
-        &.album-head {
-            small {
-                font-size: .8em;
-                display: block;
-                color: @text-color;
-                a {
-                    color: @link-color;
-                }
-            }
+        small {
+            margin-top: 8px;
+            display: block;
         }
 
         .date {
-            color: @gray;
+            color: @gray-dark;
 
             &:after {
                 content: ')';
@@ -65,7 +59,9 @@
         }
     }
 
+    .google-footer,
     .wikipedia-footer {
+        clear: both;
         float: right;
         color: @gray-lighter;
 
@@ -77,6 +73,7 @@
             color: @gray-light;
         }
 
+        &.google-footer-sub,
         &.wikipedia-footer-sub {
             font-size: 0.7em;
             font-family: @original-font-family-sans-serif;
@@ -84,24 +81,7 @@
         }
     }
 
-    .track-subline,
-    .album-subline {
-        margin: 0;
-        font-size: .8em;
-        color: @gray-light;
-
-        a {
-            color: @gray-light;
-        }
-    }
-
-    p {
-        margin: 12px 0;
-        clear: both;
-        overflow: hidden;
-    }
-
-    .lastfm_bio {
+    .lastfm-content {
         p:last-child {
             a {
                 display: block;
@@ -110,16 +90,11 @@
         }
     }
 
-    .artist,
-    .album {
-        &.cover {
-            margin-top: 20px;
-            margin-right: 17%;
-            float: right;
-        }
-    }
-
     .cover-container {
+        float: right;
+        display: block;
+        margin: 0 10px 15px 15px;
+
         @media (max-width: 768px) {
             display: none;
         }
@@ -127,5 +102,9 @@
 
     .pill-content {
         overflow: hidden;
+    }
+
+    .nav-pills {
+        margin-top: 10px;
     }
 }

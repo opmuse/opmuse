@@ -1,6 +1,9 @@
 @album-width: 220px;
+@album-height: @album-width;
 
-.artist-head,
+@album-large-width: 700px;
+@album-large-height: 300px;
+
 .artists,
 .albums {
     clear: both;
@@ -53,7 +56,7 @@
                     width: 21%;
 
                     font-size: .8em;
-                    color: @gray;
+                    color: @gray-dark;
 
                     &:after {
                         content: ")";
@@ -190,6 +193,18 @@
 
     .cover-overlay {
         z-index: 10;
+    }
+
+    &.cover-large {
+        width: @album-large-width;
+        height: @album-large-height;
+
+        img {
+            background-image: url(/static/images/cover_large_placeholder.png);
+
+            width: @album-large-width;
+            height: @album-large-height;
+        }
     }
 }
 

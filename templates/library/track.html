@@ -148,10 +148,14 @@
             <th>Size</th>
             <td>{{ track.size|format_bytes }}</td>
         </tr>
+        <tr>
+            <th>Hash</th>
+            <td>{{ track.hash.decode('utf8') }}</td>
+        </tr>
     </table>
     {% if track.has_dups %}
-        <p class="alert alert-info">
-            Track has duplicates, you could remove all but one of them.
+        <p class="alert alert-warning">
+            Track has exact duplicates (e.g. the same hash), you could remove all but one of them.
         </p>
     {% endif %}
     <table class="table table-striped table-bordered table-condensed">
@@ -165,7 +169,7 @@
                     {{ path.pretty_path }}
                 </td>
                 <td>
-                    {{ path.path_modified|pretty_date }}
+                    {{ path.path_modified }}
                 </td>
             </tr>
         {% endfor %}

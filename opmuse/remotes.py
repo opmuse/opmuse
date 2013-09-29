@@ -2,8 +2,11 @@ import cherrypy
 from opmuse.cache import cache
 from opmuse.wikipedia import wikipedia
 from opmuse.lastfm import lastfm
+from opmuse.google import google
 from opmuse.ws import ws
 from opmuse.discogs import discogs
+from opmuse.database import get_database
+from opmuse.library import Artist
 
 
 class Remotes:
@@ -113,9 +116,12 @@ class Remotes:
     def _fetch_artist(self, id, name):
         key = Remotes.ARTIST_KEY_FORMAT % id
 
+        artist_entity = get_database().query(Artist).filter(Artist.id == id).one()
+
         artist = {
             'wikipedia': wikipedia.get_artist(name),
             'lastfm': lastfm.get_artist(name),
+            'google': google.get_artist_search(artist_entity),
             'discogs': discogs.get_artist(name)
         }
 
