@@ -54,7 +54,7 @@ class Wikipedia():
         articles = []
 
         for extract, language in self.find_extract(artist_name, ['band', 'musician', 'singer', 'artist'],
-                Wikipedia.LANGUAGES):
+                                                   Wikipedia.LANGUAGES):
 
             summary = extract['extract']
             title = extract['title']

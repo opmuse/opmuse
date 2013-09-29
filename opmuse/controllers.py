@@ -904,11 +904,11 @@ class Library(object):
                     })
 
             dir_tracks[dir]['files'] = sorted(dir_tracks[dir]['files'],
-                                        key = lambda item: "%d%s" % (not item["isdir"], item["file"]))
+                                              key = lambda item: "%d%s" % (not item["isdir"], item["file"]))
 
         dir_tracks = sorted(dir_tracks.items(), key = lambda d: d[0])
 
-        return dir_tracks #, dir_colspan
+        return dir_tracks
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
