@@ -24,6 +24,22 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/tab', 'domReady!'], function
 
                 return false;
             });
+
+            this.setActive("pill");
+            this.setActive("tab");
+        },
+        /**
+         * if there's no active tab/pill set first tab/pill as active...
+         */
+        setActive: function (type) {
+            var nav = $("[data-toggle=" + type + "]").closest(".nav-" + type + "s");
+            var content = nav.siblings("." + type + "-content");
+
+            if (content.length > 0 && content.find(">li.active").length == 0) {
+                var first = content.find(':first-child');
+                var id = first.attr("id");
+                nav.find("[href=#" + id + "]").tab("show");
+            }
         }
     });
 
