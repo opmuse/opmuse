@@ -24,8 +24,10 @@ def log(msg, traceback=False):
 class Covers:
     DEFAULT_WIDTH = 220
     DEFAULT_HEIGHT = 220
-    LARGE_WIDTH = 700
-    LARGE_HEIGHT = 300
+    DEFAULT_GRAVITY = 'center'
+    LARGE_WIDTH = 620
+    LARGE_HEIGHT = 270
+    LARGE_GRAVITY = 'north'
 
     def refresh(self, type, slug):
         if type not in ['album', 'artist']:
@@ -98,10 +100,15 @@ class Covers:
                 temp_cover_large = tempfile.mktemp(cover_ext).encode('utf8')
 
                 cover = image_service.resize(entity.cover_path, temp_cover,
-                                             Covers.DEFAULT_WIDTH, Covers.DEFAULT_HEIGHT)
+                                             Covers.DEFAULT_WIDTH, Covers.DEFAULT_HEIGHT,
+                                             Covers.DEFAULT_GRAVITY)
+
+                large_offset = self._get_image_offset(Covers.LARGE_WIDTH, Covers.LARGE_HEIGHT,
+                                                      Covers.LARGE_GRAVITY)
 
                 cover_large = image_service.resize(entity.cover_path, temp_cover_large,
-                                                   Covers.LARGE_WIDTH, Covers.LARGE_HEIGHT)
+                                                   Covers.LARGE_WIDTH, Covers.LARGE_HEIGHT,
+                                                   Covers.LARGE_GRAVITY, large_offset)
 
                 if cover and cover_large:
                     with open(temp_cover, 'rb') as file:
@@ -276,8 +283,8 @@ class Covers:
         with open(temp_image, "wb") as fp_to:
             fp_to.write(fp_from.read())
 
-        resize_image = self._resize(temp_image, Covers.DEFAULT_WIDTH, Covers.DEFAULT_HEIGHT)
-        resize_image_large = self._resize(temp_image, Covers.LARGE_WIDTH, Covers.LARGE_HEIGHT)
+        resize_image = self._resize(temp_image, Covers.DEFAULT_WIDTH, Covers.DEFAULT_HEIGHT, Covers.DEFAULT_GRAVITY)
+        resize_image_large = self._resize(temp_image, Covers.LARGE_WIDTH, Covers.LARGE_HEIGHT, Covers.LARGE_GRAVITY)
 
         if not resize_image or not resize_image_large:
             return None, None, None, None
@@ -291,12 +298,21 @@ class Covers:
 
         return image, resize_image, resize_image_large, image_ext
 
-    def _resize(self, temp_image, width, height):
+    def _get_image_offset(self, width, height, gravity):
+        if gravity == "north":
+            offset_y = int(height * 0.15)
+            return "+0+%d" % offset_y
+        else:
+            return "+0+0"
+
+    def _resize(self, temp_image, width, height, gravity):
         image_ext = os.path.splitext(temp_image.decode('utf8'))[1]
+
+        offset = self._get_image_offset(width, height, gravity)
 
         resize_temp_image = tempfile.mktemp(image_ext).encode('utf8')
 
-        if not image_service.resize(temp_image, resize_temp_image, width, height):
+        if not image_service.resize(temp_image, resize_temp_image, width, height, gravity, offset):
             os.remove(temp_image)
 
             if os.path.exists(resize_temp_image):
