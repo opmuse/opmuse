@@ -1605,9 +1605,14 @@ class Root(object):
         if cover is None:
             cherrypy.response.headers['Content-Type'] = 'image/png'
 
+            if size == "large":
+                placeholder = 'cover_large_placeholder.png'
+            else:
+                placeholder = 'cover_placeholder.png'
+
             return cherrypy.lib.static.serve_file(os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
-                '..', 'public_static', 'images', 'cover_placeholder.png'
+                '..', 'public_static', 'images', placeholder
             ))
         else:
             cherrypy.response.headers['Content-Type'] = mime
