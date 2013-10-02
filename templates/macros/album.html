@@ -69,6 +69,10 @@
                     </div>
                     <div class="right">
                         {{ album_queue_btn(album) }}
+                        <a class="remove-cover btn btn-default btn-sm"
+                            href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                            <i class="icon-refresh"></i>
+                        </a>
                         <div class="labels">
                             {% if album.is_va %}
                                 <p class="album-va label label-success">VA</p>
