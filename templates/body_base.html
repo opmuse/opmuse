@@ -8,24 +8,18 @@
     {% include "message.html" %}
 
     <div id="top" class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-        {% include "navbar.html" %}
-        <div id="navbar-sub" class="navbar-sub">
-            {%- block navbar_sub %}{% endblock -%}
-        </div>
+        {% import "navbar.html" as navbar %}
+        {{ navbar.navbar(subnav_file_path) }}
     </div>
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-1">
-            </div>
-            <div class="col-xs-10">
+            <div class="col-md-10 col-md-offset-1">
                 <div id="messages" class="{% block main_class %}{% endblock %}">
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container">
         {% block container %}
             <div class="row">
                 <div class="col-xs-12">

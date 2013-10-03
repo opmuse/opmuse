@@ -1,14 +1,11 @@
 {% extends "body.html" %}
+{% set subnav_file_path = "partials/library-nav.html" %}
 
 {% block title  %}
     Tag
 {% endblock %}
 
 {% import "macros/media.html" as media %}
-
-{% block navbar_sub %}
-    {% include "partials/library-nav.html" %}
-{% endblock %}
 
 {% block content %}
 <div id="tag">
