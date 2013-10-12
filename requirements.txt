@@ -1,6 +1,6 @@
 CherryPy==3.2.4
 Jinja2==2.7.1
-MarkupSafe==0.15
+MarkupSafe==0.18
 ply==3.4
 SQLAlchemy==0.8.2
 mmh3==2.2
