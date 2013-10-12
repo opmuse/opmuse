@@ -132,15 +132,6 @@ def format_seconds(seconds):
     return "%s%02d:%02d" % (string, minutes, seconds)
 
 
-# TODO this has been added in master
-#       https://github.com/mitsuhiko/jinja2/commit/37303a86583eda14fb61b14b4922bdce073bce57
-def urlencode(value):
-    if value is not None:
-        return quote(value)
-    else:
-        return ''
-
-
 class JinjaPlugin(SimplePlugin):
 
     def __init__(self, bus):
@@ -169,7 +160,6 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['nl2p'] = nl2p
         self.env.filters['format_seconds'] = format_seconds
         self.env.filters['pretty_date'] = pretty_date
-        self.env.filters['urlencode'] = urlencode
         self.env.filters['format_number'] = format_number
         self.env.filters['show_ws'] = show_ws
         self.env.filters['format_bytes'] = format_bytes
