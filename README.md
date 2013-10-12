@@ -3,17 +3,19 @@ What is opmuse?
 
 A web application to play, organize and share your music library.
 
-Requirements
-------------
-
-You need *python 3.3*, *ffmpeg* (the executable), *ImageMagick* (convert and
-identify executables), *lessc* and a Linux environment. This has only been tested on
-Debian and Exherbo but most other Linux distros should do as well as other \*nix
-OSes. If you're on Windows you're on your own.
-
 Setup
 -----
 
+### Requirements
+
+You need **python 3.3**, **ffmpeg**, **ImageMagick**, **nodejs** (for less) and
+a Linux environment. This has only been tested on Debian and Exherbo but most
+other Linux distros should do as well as other similar \*nix OSes. If you're on
+Windows you're on your own.
+
+### Install
+
+```shell
     $ git clone https://github.com/opmuse/opmuse.git
     $ cd opmuse
     $ git submodule init
@@ -21,21 +23,29 @@ Setup
     $ virtualenv -p python3.3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
-    $ pip install -r optional-requirements.txt # needed for mysql
     $ cp config/opmuse.dist.ini config/opmuse.ini
     $ edit config/opmuse.ini
     $ ./run.sh
+```
+
+If you want MySQL support and some additional dev-tools you should do this.
+
+```shell
+    $ source virtualenv/bin/activate
+    $ pip install -r optional-requirements.txt
+```
 
 You probably want fixtures for some default data (an admin account with password
 admin for one).
 
+```shell
+    $ source virtualenv/bin/activate
     $ python opmuse/fixtures.py
+```
 
-This script is the only way to add accounts at the moment, so just modify it
-appropriately and run to add accounts.
+### Upgrading
 
-Upgrading
----------
+When you do a git pull some of these might be required.
 
     $ git submodule init
     $ git submodule update
@@ -44,8 +54,9 @@ Upgrading
 
     $ pip install -r requirements.txt
 
-    $ rm opmuse.db # e.g. drop database..
+    $ pip install -r optional-requirements.txt
 
+    $ rm opmuse.db # e.g. drop database..
     $ rm -rf cache/index/* # remove whoosh index
 
 Our Doctrine
