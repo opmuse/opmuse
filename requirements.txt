@@ -9,6 +9,6 @@ pylast==0.5.11
 Whoosh==2.5.4
 vendor/mutagen-py3.tar.bz2
 rarfile==2.6
-ws4py==0.3.0-beta
+ws4py==0.3.2
 Unidecode==0.04.13
 vendor/discogs_client.tar.bz2
