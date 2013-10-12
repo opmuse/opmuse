@@ -6,7 +6,7 @@ A web application to play, organize and share your music library.
 Requirements
 ------------
 
-You need *python 3.2*, *ffmpeg* (the executable), *ImageMagick* (convert and
+You need *python 3.3*, *ffmpeg* (the executable), *ImageMagick* (convert and
 identify executables), *lessc* and a Linux environment. This has only been tested on
 Debian and Exherbo but most other Linux distros should do as well as other \*nix
 OSes. If you're on Windows you're on your own.
@@ -18,7 +18,7 @@ Setup
     $ cd opmuse
     $ git submodule init
     $ git submodule update
-    $ virtualenv -p python3 ./virtualenv
+    $ virtualenv -p python3.3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ pip install -r optional-requirements.txt # needed for mysql
