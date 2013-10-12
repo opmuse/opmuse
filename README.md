@@ -15,49 +15,51 @@ Windows you're on your own.
 
 ### Install
 
-```shell
-    $ git clone https://github.com/opmuse/opmuse.git
-    $ cd opmuse
-    $ git submodule init
-    $ git submodule update
-    $ virtualenv -p python3.3 ./virtualenv
-    $ source virtualenv/bin/activate
-    $ pip install -r requirements.txt
-    $ cp config/opmuse.dist.ini config/opmuse.ini
-    $ edit config/opmuse.ini
-    $ ./run.sh
+```Shell
+$ git clone https://github.com/opmuse/opmuse.git
+$ cd opmuse
+$ git submodule init
+$ git submodule update
+$ virtualenv -p python3.3 ./virtualenv
+$ source virtualenv/bin/activate
+$ pip install -r requirements.txt
+$ cp config/opmuse.dist.ini config/opmuse.ini
+$ edit config/opmuse.ini
+$ ./run.sh
 ```
 
 If you want MySQL support and some additional dev-tools you should do this.
 
-```shell
-    $ source virtualenv/bin/activate
-    $ pip install -r optional-requirements.txt
+```Shell
+$ source virtualenv/bin/activate
+$ pip install -r optional-requirements.txt
 ```
 
 You probably want fixtures for some default data (an admin account with password
 admin for one).
 
-```shell
-    $ source virtualenv/bin/activate
-    $ python opmuse/fixtures.py
+```Shell
+$ source virtualenv/bin/activate
+$ python opmuse/fixtures.py
 ```
 
 ### Upgrading
 
 When you do a git pull some of these might be required.
 
-    $ git submodule init
-    $ git submodule update
+```Shell
+$ git submodule init
+$ git submodule update
 
-    $ merge config/opmuse.dist.ini config/opmuse.ini
+$ merge config/opmuse.dist.ini config/opmuse.ini
 
-    $ pip install -r requirements.txt
+$ pip install -r requirements.txt
 
-    $ pip install -r optional-requirements.txt
+$ pip install -r optional-requirements.txt
 
-    $ rm opmuse.db # e.g. drop database..
-    $ rm -rf cache/index/* # remove whoosh index
+$ rm opmuse.db # e.g. drop database..
+$ rm -rf cache/index/* # remove whoosh index
+```
 
 Our Doctrine
 ------------
