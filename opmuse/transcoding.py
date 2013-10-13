@@ -316,7 +316,7 @@ class Transcoding:
         ['Music Player Daemon', ['audio/mp3', 'audio/ogg']],
         ['foobar2000', ['audio/mp3', 'audio/ogg']],
         ['Windows.*Chrome', ['audio/mp3', 'audio/ogg']],
-        ['Linux.*Chrome', ['audio/ogg']],
+        ['Linux.*Chrome', ['audio/mp3', 'audio/ogg']],
         ['VLC', ['audio/mp3', 'audio/ogg']],
         ['GStreamer', ['audio/mp3', 'audio/ogg']] # This matches Nokia N9s default player
     ]
