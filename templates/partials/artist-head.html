@@ -137,16 +137,24 @@
 {% endmacro %}
 
 {% macro print_articles(remotes_artist, remotes_album = None, remotes_track = None) %}
-    <div class="pill-content">
-        {{ print_articles_content(remotes_track, 0) }}
-        {{ print_articles_content(remotes_album, 1) }}
-        {{ print_articles_content(remotes_artist, 2) }}
-    </div>
-    <ul class="nav nav-pills nav-pills-sm">
-        {{ print_articles_nav("Track", remotes_track, 0) }}
-        {{ print_articles_nav("Album", remotes_album, 1) }}
-        {{ print_articles_nav("Artist", remotes_artist, 2) }}
-    </ul>
+    {% if not remotes_artist and not remotes_album and not remotes_track %}
+        {% if album %}
+            {{ covers.album_large(album) }}
+        {% elif artists %}
+            {{ covers.artist_large(artists[0]) }}
+        {% endif %}
+    {% else %}
+        <div class="pill-content">
+            {{ print_articles_content(remotes_track, 0) }}
+            {{ print_articles_content(remotes_album, 1) }}
+            {{ print_articles_content(remotes_artist, 2) }}
+        </div>
+        <ul class="nav nav-pills nav-pills-sm">
+            {{ print_articles_nav("Track", remotes_track, 0) }}
+            {{ print_articles_nav("Album", remotes_album, 1) }}
+            {{ print_articles_nav("Artist", remotes_artist, 2) }}
+        </ul>
+    {% endif %}
 {% endmacro %}
 
 {% import "macros/covers.html" as covers %}
@@ -231,21 +239,15 @@
         <div class="col-xs-12">
             {% if artist %}
                 <div class="remotes remotes_artist_head_{{ artist.id }}">
-                    {% if remotes_artist %}
-                        {{ print_articles(remotes_artist) }}
-                    {% endif %}
+                    {{ print_articles(remotes_artist) }}
                 </div>
             {% elif album %}
                 <div class="remotes remotes_album_head_{{ album.id }}">
-                    {% if remotes_album %}
-                        {{ print_articles(remotes_artists[0] if remotes_artists|count > 0, remotes_album) }}
-                    {% endif %}
+                    {{ print_articles(remotes_artists[0] if remotes_artists|count > 0, remotes_album) }}
                 </div>
             {% elif track %}
                 <div class="remotes remotes_track_head_{{ track.id }}">
-                    {% if remotes_track %}
-                        {{ print_articles(remotes_artist, remotes_album, remotes_track) }}
-                    {% endif %}
+                    {{ print_articles(remotes_artist, remotes_album, remotes_track) }}
                 </div>
             {% endif %}
         </div>
