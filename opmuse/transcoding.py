@@ -312,23 +312,23 @@ class OggFFMPEGTranscoder(FFMPEGTranscoder):
 
 
 class Transcoding:
-    # list of players that don't supply proper Accept headers, basically...
-    # don't have audio/flac here, always transcode it seeing as it's lossless...
     players = [
-        ['Music Player Daemon', ['audio/ogg', 'audio/mp3']],
-        ['foobar2000', ['audio/ogg', 'audio/mp3']],
-        ['Windows.*Chrome', ['audio/ogg', 'audio/mp3']],
+        ['Music Player Daemon', ['audio/mp3', 'audio/ogg']],
+        ['foobar2000', ['audio/mp3', 'audio/ogg']],
+        ['Windows.*Chrome', ['audio/mp3', 'audio/ogg']],
         ['Linux.*Chrome', ['audio/ogg']],
-        ['Windows-Media-Player', ['audio/mp3']],
-        ['NSPlayer', ['audio/mp3']],
-        ['WinampMPEG', ['audio/mp3']],
-        ['iTunes.*Windows', ['audio/mp3']],
-        ['iTunes.*Macintosh', ['audio/mp3']],
-        ['VLC', ['audio/ogg', 'audio/mp3']],
-        # This matches Nokia N9s default player
-        ['GStreamer', ['audio/ogg', 'audio/mp3']],
-        ['iPad', ['audio/mp3']],
+        ['VLC', ['audio/mp3', 'audio/ogg']],
+        ['GStreamer', ['audio/mp3', 'audio/ogg']] # This matches Nokia N9s default player
     ]
+    """
+    if a player doesn't supply a usable Accept header we will look through this
+    to figure out what formats it supports
+
+     - we don't put audio/flac here, always transcode it to mp3 or ogg
+     - we prioritze mp3 over ogg because we've had some lag-issues with ogg,
+       at least when transcoding from flac to ogg...
+     - we default to mp3
+    """
 
     transcoders = [Mp3FFMPEGTranscoder, OggFFMPEGTranscoder]
 
@@ -341,14 +341,16 @@ class Transcoding:
         for player, formats in self.players:
             if re.search(player, user_agent):
                 transcoder, format = self._determine_transcoder(track, formats)
+
                 if transcoder is not None:
                     return transcoder, format
+
                 break
 
-        if track.format == 'audio/ogg':
-            return CopyFFMPEGTranscoder, 'audio/ogg'
+        if track.format == 'audio/mp3':
+            return CopyFFMPEGTranscoder, 'audio/mp3'
         else:
-            return OggFFMPEGTranscoder, 'audio/ogg'
+            return Mp3FFMPEGTranscoder, 'audio/mp3'
 
     def _determine_transcoder(self, track, formats):
         if track.format in formats:
