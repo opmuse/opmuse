@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'domReady!'], function($, inheritance, ajaxify) {
+define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
     var instance = null;
 
     var Edit = Class.extend({
@@ -16,19 +16,30 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'domReady!'], function(
             that.internalInit();
         },
         initTypeahead: function () {
-            $("#edit input[name=artists]").typeahead('destroy');
-            $("#edit input[name=artists]:not(.locked)").typeahead({
-                remote: '/library/search/api/artist?query=%QUERY'
-            });
+            this.createTypeahead("artist");
+            this.createTypeahead("album");
+            this.createTypeahead("track");
+        },
+        createTypeahead: function (type) {
+            $(sprintf("#edit input[name=%ss]", type)).typeahead('destroy');
+            $(sprintf("#edit input[name=%ss]:not(.locked)", type)).each(function () {
+                var input = this;
 
-            $("#edit input[name=albums]").typeahead('destroy');
-            $("#edit input[name=albums]:not(.locked)").typeahead({
-                remote: '/library/search/api/album?query=%QUERY'
-            });
+                $(input).typeahead({
+                    remote: {
+                        url: sprintf('/library/search/api/%s?query=%%QUERY', type),
+                        filter: function (parsedResponse) {
+                            var originalValue = $(input).data('originalValue');
+                            var index = parsedResponse.indexOf(originalValue);
 
-            $("#edit input[name=tracks]").typeahead('destroy');
-            $("#edit input[name=tracks]:not(.locked)").typeahead({
-                remote: '/library/search/api/track?query=%QUERY'
+                            if (index != -1) {
+                                parsedResponse.splice(index, 1);
+                            }
+
+                            return parsedResponse;
+                        }
+                    }
+                });
             });
         },
         internalInit: function () {
