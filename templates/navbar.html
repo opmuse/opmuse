@@ -18,11 +18,7 @@
         <div class="navbar-collapse collapse">
             <div id="navbar-main" >
                 {% if authenticated %}
-                    <a class="logout btn btn-sm btn-info"
-                        href="/logout?came_from={{ current_url|urlencode }}">
-                        <i class="icon-signout"></i>
-                        Sign out {{ request.user.login }}
-                    </a>
+
                 {% endif %}
                 <ul class="nav navbar-nav">
                     {% if authenticated %}
@@ -34,6 +30,11 @@
                         </li>
                         <li class="{{ "active" if request.path_info|startswith("/users") }}">
                             <a href="/users/you/settings">Users</a>
+                        </li>
+                        <li class="visible-xs">
+                            <a href="/logout?came_from={{ current_url|urlencode }}">
+                                Sign out {{ request.user.login }}
+                            </a>
                         </li>
                         <li class="navbar-search">
                             <input accesskey="s" class="search-query form-control input-sm"
@@ -48,6 +49,14 @@
                         </li>
                     {% endif %}
                 </ul>
+                {% if authenticated %}
+                    <div class="nav navbar-nav navbar-right">
+                        <a class="logout btn btn-info btn-sm navbar-btn visible-lg visible-md visible-sm"
+                            href="/logout?came_from={{ current_url|urlencode }}">
+                            <i class="icon-signout"></i> Sign out {{ request.user.login -}}
+                        </a>
+                    </div>
+                {% endif %}
             </div>
             <div id="navbar-sub" class="navbar-sub">
                 {%- include subnav_file_path ignore missing -%}
