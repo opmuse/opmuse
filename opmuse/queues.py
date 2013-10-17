@@ -345,10 +345,10 @@ class QueueDao:
 
         ws.emit('queue.update')
 
-    def remove_tracks(self, ids):
+    def remove(self, ids):
         user_id = cherrypy.request.user.id
 
-        query = get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.track_id.in_(ids)))
+        query = get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.id.in_(ids)))
 
         try:
             query.filter("current").one()

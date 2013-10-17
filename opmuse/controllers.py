@@ -727,7 +727,7 @@ class Queue:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     def remove(self, ids):
-        queue_dao.remove_tracks(ids.split(','))
+        queue_dao.remove(ids.split(','))
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)

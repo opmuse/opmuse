@@ -89,7 +89,7 @@
                             class="remove"
                             href="/queue/remove/
                             {%- for q in queue -%}
-                                {{ q.track.id }},
+                                {{ q.id }},
                             {%- endfor -%}
                             ">
                             <span class="icon-remove-sign"></span>
@@ -137,7 +137,7 @@
                             </span>
                             <a
                                 class="remove"
-                                href="/queue/remove/{{ q.track.id }}">
+                                href="/queue/remove/{{ q.id }}">
                                 <span class="icon-remove-sign"></span>
                             </a>
                         </span>
