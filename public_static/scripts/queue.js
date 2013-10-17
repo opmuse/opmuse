@@ -317,7 +317,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 return false;
             }).unbind('click.ajaxify');
 
-            $('#clear-queue, #clear-played-queue')
+            $('#clear-queue, #clear-played-queue, #shuffle-queue')
                 .unbind('click.queue')
                 .bind('click.queue', function (event) {
                 var url = $(this).attr('href');

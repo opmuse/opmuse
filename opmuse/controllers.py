@@ -721,6 +721,11 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
+    def shuffle(self):
+        queue_dao.shuffle()
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
     def remove(self, ids):
         queue_dao.remove_tracks(ids.split(','))
 

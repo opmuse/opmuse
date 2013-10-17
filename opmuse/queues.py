@@ -1,5 +1,6 @@
 import cherrypy
 import math
+import random
 from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
@@ -272,6 +273,33 @@ class QueueDao:
         get_database().commit()
 
         self._reset_current()
+
+        ws.emit('queue.update')
+
+    def shuffle(self):
+        user_id = cherrypy.request.user.id
+
+        current_index = (get_database().query(Queue.index)
+                                       .filter(Queue.user_id == user_id, Queue.current)
+                                       .scalar())
+
+        query = get_database().query(Queue).filter(Queue.user_id == user_id)
+
+        if current_index is None:
+            current_index = 0
+        else:
+            query = query.filter(Queue.index > current_index)
+
+        queue_count = query.count()
+
+        indexes = list(range(queue_count))
+
+        random.shuffle(indexes)
+
+        for index, queue in enumerate(query.all()):
+            queue.index = current_index + 1 + indexes[index]
+
+        get_database().commit()
 
         ws.emit('queue.update')
 
