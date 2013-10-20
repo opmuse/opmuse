@@ -26,6 +26,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
             $('.search-query').bind('keyup', function (event) {
 
                 if (event.keyCode == 13 && $(this).val() != "") {
+                    $(this).blur();
+                    $(window).focus();
                     ajaxify.setPage('/search/' + encodeURIComponent($(this).val()));
                 }
 
