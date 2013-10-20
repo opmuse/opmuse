@@ -33,7 +33,8 @@ require(['jquery'], function($) {
             'covers',
             'remotes',
             'filters',
-            'dir_table'
+            'dir_table',
+            'navbar'
         ], function () {
             $("#overlay").addClass('hide');
             $('body').trigger('loadFinish');

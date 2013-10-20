@@ -1,4 +1,4 @@
-define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], function($, inheritance, popover) {
+define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], function ($, inheritance, popover) {
 
     var Throb = Class.extend({
         init: function (brand) {
@@ -120,18 +120,21 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             $(element).find('a')
                 .unbind('click.ajaxify')
                 .bind('click.ajaxify', function (event) {
-                var href = $(this).attr('href');
+                    var href = $(this).attr('href');
 
-                if (!event.ctrlKey && that.isRelative(href)) {
-                    that.setPage(href);
-                } else {
-                    // open external and ctrl-click in new window/tab
-                    window.open(href, "_blank");
+                    if (!event.ctrlKey && that.isRelative(href)) {
+                        that.setPage(href);
+                    } else {
+                        // open external and ctrl-click in new window/tab
+                        window.open(href, "_blank");
+                    }
+
+                    $(this).trigger('ajaxifyClick');
+
+                    // continue propagation if the link has said attribute
+                    return $(this).is("[data-ajaxify=continue]");
                 }
-
-                // continue propagation if the link has said attribute
-                return $(this).is("[data-ajaxify=continue]");
-            });
+            );
 
             if (trigger) {
                 $(this.selector).trigger('ajaxifyInit');
