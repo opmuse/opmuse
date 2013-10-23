@@ -1,4 +1,5 @@
 {% import "macros/covers.html" as covers %}
+{% import "macros/tracks.html" as tracks %}
 
 <div class="artist">
     <figure class="effeckt-caption" data-effeckt-type="half-slide">
@@ -28,10 +29,7 @@
                     </a>
                     {% if artist.invalid %}
                         <div class="labels">
-                            <p class="artist-invalid label label-danger"
-                                title="This artist has invalid tracks.">
-                                <i class="icon-warning-sign"></i>
-                            </p>
+                            {{ tracks.invalids_label(artist.invalid) }}
                         </div>
                     {% endif %}
                 </div>

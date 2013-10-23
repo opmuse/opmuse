@@ -1,5 +1,55 @@
 {% import "macros/urls.html" as urls %}
 
+{% macro invalids_label(invalids) %}
+    {% for invalid in invalids %}
+        {{ invalid_label(invalid) }}
+    {% endfor %}
+{% endmacro %}
+
+{% macro invalid_label(invalid) %}
+    {% if invalid == "dir" %}
+    <span class="invalid-track invalid-dir label label-warning" rel="popover"
+        title="Folder doesn't match tags."
+        data-trigger="hover"
+        data-container="body"
+        data-html="true"
+        data-content="Track isn't located in its expected folder. Note that these names are case
+        sensitive. <strong>This does not affect the playability of this track!</strong>">
+        <i class="icon-folder-open"></i>
+    </span>
+    {% elif invalid == "incomplete_tags" %}
+    <span class="invalid-track invalid-incomplete label label-danger" rel="popover"
+        title="Required tags are missing."
+        data-trigger="hover"
+        data-container="body"
+        data-html="true"
+        data-content="Track is missing valid tags (ID3, Ogg tags etc) for artist and/or title. Use edit to set
+        these properly. <strong>This does not affect the playability of this track!</strong>
+        ">
+        <i class="icon-tag"></i>
+    </span>
+    {% elif invalid == "broken_tags" %}
+    <span class="invalid-track invalid-broken label label-danger" rel="popover"
+        title="Tags are broken."
+        data-trigger="hover"
+        data-container="body"
+        data-html="true"
+        data-content="<p>Track has broken tags. These most likely needs to be fixed manually.
+            <strong>This doesn't necessarily affect the playability of this track!</strong></p>
+        ">
+        <i class="icon-tags"></i>
+    </span>
+    {% elif invalid == "missing_tags" %}
+        <span class="invalid-track icon-circle-blank label label-danger" rel="popover" title="Tags are missing">
+            <i class="icon-circle-blank"></i>
+        </span>
+    {% else %}
+        <span class="invalid-track label label-danger" rel="popover"
+            {{ invalid }}
+        </span>
+    {% endif %}
+{% endmacro %}
+
 {% macro table(tracks, show_album = True, show_artist = True) %}
     <table class="table table-striped table-bordered table-condensed">
         <tr>
@@ -15,13 +65,16 @@
             <th>Added</th>
         </tr>
         {% for track in tracks %}
-            <tr class="{{ "danger" if track.invalid  }}">
+            <tr>
                 <td>
                     <a class="queue add btn btn-default btn-xs" href="/queue/add/{{ track.id }}">
                         <i class="icon-headphones"></i>
                     </a>
                 </td>
                 <td>
+                    {% if track.invalid %}
+                        {{ invalid_label(track.invalid) }}
+                    {% endif %}
                     <a href="/library/track/{{ track.slug|urlencode }}">
                         {{ track.name|show_ws }}
                     </a>
@@ -86,11 +139,7 @@
                     <th></th>
                 </tr>
                 {% for track in tracks %}
-                    {% if track.invalid %}
-                        <tr class="danger">
-                    {% else %}
-                        <tr>
-                    {% endif %}
+                    <tr>
                         <td class="indent">&nbsp;</td>
                         {% if track.disc %}
                             <td>Disc {{ track.disc }}</td>
@@ -130,7 +179,7 @@
                         </td>
                         <td>{{ track.duration|format_seconds }}</td>
                         {% if track.invalid %}
-                            <td>{% include "partials/track-invalid.html" %}</td>
+                            {{ invalid_label(track.invalid) }}
                         {% else %}
                             <td></td>
                         {% endif %}

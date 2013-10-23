@@ -40,6 +40,7 @@
 {% macro album(artist, album) %}
     {% import "macros/urls.html" as urls %}
     {% import "macros/covers.html" as covers %}
+    {% import "macros/tracks.html" as tracks %}
 
     <div class="album {{ 'invalid' if album.invalid else '' }}">
         <figure class="effeckt-caption" data-effeckt-type="half-slide">
@@ -84,20 +85,7 @@
                                 </p>
                             {% endif %}
                             {% if album.invalid %}
-                            <p class="album-invalid label label-danger" title="This album containts invalid tracks.">
-                                {% if "dir" in album.invalid %}
-                                    <i class="icon-folder-open"></i>
-                                {% endif %}
-                                {% if "incomplete_tags" in album.invalid %}
-                                    <i class="icon-tag"></i>
-                                {% endif %}
-                                {% if "broken_tags" in album.invalid %}
-                                    <i class="icon-tags"></i>
-                                {% endif %}
-                                {% if "missing_tags" in album.invalid %}
-                                    <i class="icon-circle-blank"></i>
-                                {% endif %}
-                            </p>
+                                {{ tracks.invalids_label(album.invalid) }}
                             {% endif %}
                         </div>
                     </div>

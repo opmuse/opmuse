@@ -113,16 +113,16 @@ class Album(Base):
         if len(self.tracks) == 0:
             return None
 
-        invalids = []
+        invalids = set([])
 
         for track in self.tracks:
             if track.invalid is not None:
-                invalids.append(track.invalid)
+                invalids.add(track.invalid)
 
         if len(invalids) == 0:
             return None
         else:
-            return invalids
+            return list(invalids)
 
     @hybrid_property
     def duration(self):
@@ -171,13 +171,19 @@ class Artist(Base):
 
     @hybrid_property
     def invalid(self):
-        tracks = []
+        if len(self.tracks) == 0:
+            return None
 
-        for album in self.albums:
-            for track in album.tracks:
-                tracks.append(track)
+        invalids = set([])
 
-        return len(tracks) != sum(not track.invalid for track in tracks)
+        for track in self.tracks:
+            if track.invalid is not None:
+                invalids.add(track.invalid)
+
+        if len(invalids) == 0:
+            return None
+        else:
+            return list(invalids)
 
     @hybrid_property
     def added(self):
@@ -403,7 +409,7 @@ class MutagenParser(TagParser):
         if number is not None and len(number) > 8:
             number = None
 
-        if artist is None or album is None or track is None:
+        if artist is None or track is None:
             invalid = ['incomplete_tags']
         else:
             invalid = ['valid']
@@ -579,7 +585,7 @@ class PathParser(TagParser):
         else:
             disc = None
 
-        if metadata is None or metadata.artist_name is None or metadata.album_name is None:
+        if metadata is None or metadata.artist_name is None or metadata.track_name is None:
             invalid = ['missing_tags']
         else:
             invalid = []
