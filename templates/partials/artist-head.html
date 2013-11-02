@@ -28,7 +28,7 @@
             <ul class="dropdown-menu">
                 {% for wikipedia in remotes.wikipedia %}
                     {% set title = wikipedia.title ~ (" | " ~ wikipedia.language if wikipedia.language != 'en') %}
-                    <li data-toggle="pill">
+                    <li data-toggle="tab">
                         <a title="{{ title }}" href="#wikipediatab_{{ index }}_{{ loop.index }}">
                             {{ title }}
                         </a>
@@ -38,7 +38,7 @@
         </li>
         {% endif %}
         {% if remotes.lastfm and remotes.lastfm.bio %}
-            <li data-toggle="pill">
+            <li data-toggle="tab">
                 <a href="#lastfmtab_{{ index }}">{{ type }} on last.fm</a>
             </li>
         {% endif %}
@@ -49,7 +49,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     {% for hit in remotes.google %}
-                        <li data-toggle="pill">
+                        <li data-toggle="tab">
                             <a title="{{ hit.title }}" href="#googletab_{{ index }}_{{ loop.index }}">
                                 {{ hit.title }} | {{ hit.visible_url }}
                             </a>
@@ -65,7 +65,7 @@
     {% if remotes %}
         {% if remotes.wikipedia|count > 0 %}
             {% for wikipedia in remotes.wikipedia %}
-                <div class="pill-pane" id="wikipediatab_{{ index }}_{{ loop.index }}">
+                <div class="tab-pane" id="wikipediatab_{{ index }}_{{ loop.index }}">
                     <div class="wikipedia-content">
                     {% if album %}
                         {{ covers.album_large(album) }}
@@ -95,7 +95,7 @@
             {% endfor %}
         {% endif %}
         {% if remotes.lastfm and remotes.lastfm.bio %}
-            <div class="pill-pane" id="lastfmtab_{{ index }}">
+            <div class="tab-pane" id="lastfmtab_{{ index }}">
                 <div class="lastfm-content">
                     {% if album %}
                         {{ covers.album_large(album) }}
@@ -108,7 +108,7 @@
         {% endif %}
         {% if remotes.google and remotes.google|count > 0 %}
             {% for hit in remotes.google %}
-                <div class="pill-pane" id="googletab_{{ index }}_{{ loop.index }}">
+                <div class="tab-pane" id="googletab_{{ index }}_{{ loop.index }}">
                     <div class="google-content">
                         {% if album %}
                             {{ covers.album_large(album) }}
@@ -144,7 +144,7 @@
             {{ covers.artist_large(artists[0]) }}
         {% endif %}
     {% else %}
-        <div class="pill-content">
+        <div class="tab-content">
             {{ print_articles_content(remotes_track, 0) }}
             {{ print_articles_content(remotes_album, 1) }}
             {{ print_articles_content(remotes_artist, 2) }}

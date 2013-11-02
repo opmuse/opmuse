@@ -1,5 +1,5 @@
 .container {
-    max-width: none !important;
+    width: auto !important;
 }
 
 .transition(@duration: 1s) {
@@ -47,7 +47,7 @@ body {
 #right {
     padding: 0 5px 40px 0;
 
-    @media (max-width: @screen-md) {
+    @media (max-width: @screen-md-min) {
         padding-top: 0;
     }
 }
@@ -55,7 +55,7 @@ body {
 #content {
     padding: 0 10px 25px 10px;
 
-    @media (max-width: @screen-md) {
+    @media (max-width: @screen-md-min) {
         padding-top: 0;
         padding-bottom: 10px;
     }
@@ -70,7 +70,7 @@ body {
     bottom: 0;
     height: 472px;
 
-    @media (max-width: @screen-md) {
+    @media (max-width: @screen-md-min) {
         right: auto;
         bottom: auto;
         position: static;
@@ -180,7 +180,7 @@ body {
             cursor: pointer;
             border-radius: 2px;
 
-            @media (max-width: @screen-md) {
+            @media (max-width: @screen-md-min) {
                 display: none;
             }
         }
@@ -195,7 +195,7 @@ body {
             font-size: 20px;
         }
 
-        @media (max-width: @screen-md) {
+        @media (max-width: @screen-md-min) {
             border-top-left-radius: 0;
             border-top-right-radius: 0;
             position: static;

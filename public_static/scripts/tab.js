@@ -32,8 +32,8 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/tab', 'domReady!'], function
          * if there's no active tab/pill set first tab/pill as active...
          */
         setActive: function (type) {
-            var nav = $("[data-toggle=" + type + "]").closest(".nav-" + type + "s");
-            var content = nav.siblings("." + type + "-content");
+            var nav = $("[data-toggle=tab]").closest(".nav-" + type + "s");
+            var content = nav.siblings(".tab-content");
 
             if (content.length > 0 && content.find(">li.active").length == 0) {
                 var first = content.find(':first-child');
