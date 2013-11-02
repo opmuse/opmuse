@@ -25,7 +25,7 @@
 
 <div id="queue"
     data-queue_info-duration="{{ queue_info.duration }}"
-    data-queue_current_track-duration="{{ queue_current_track.duration if queue_current_track }}">
+    data-queue_current_track-duration="{{ queue_current_track.duration if queue_current_track else '' }}">
     <div class="btn-group btn-clear">
         <a
             id="clear-queue"
@@ -97,11 +97,11 @@
                     </span>
                 </li>
                 {% for q in queue %}
-                    <li class="track {{ "playing" if q.playing }} {{ "current active" if q.current }} {{ "played" if q.played }} {{ "error" if q.error }}"
+                    <li class="track {{ "playing" if q.playing else '' }} {{ "current active" if q.current else '' }} {{ "played" if q.played else '' }} {{ "error" if q.error else '' }}"
                         data-queue-id="{{ q.id }}">
                         <span class="text">
                             <span class="track-icon"
-                                title="{{ q.error if q.error }}"
+                                title="{{ q.error if q.error else '' }}"
                                 {% if q.error %}
                                 rel="popover"
                                 data-trigger="hover"

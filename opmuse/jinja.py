@@ -6,7 +6,7 @@ import locale
 from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from urllib.parse import quote
 from opmuse.security import is_granted as _is_granted
 from opmuse.pretty import pretty_date as _pretty_date
@@ -153,6 +153,7 @@ class JinjaPlugin(SimplePlugin):
                 )
             ),
             extensions=['jinja2.ext.loopcontrols'],
+            undefined=StrictUndefined,
             auto_reload=auto_reload,
             cache_size=-1
         )

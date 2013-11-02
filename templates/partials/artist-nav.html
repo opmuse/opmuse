@@ -1,7 +1,7 @@
 {% import "macros/urls.html" as urls %}
 
 <div class="artist-nav">
-    {% if album %}
+    {% if album is defined and album%}
         <div class="remotes remotes_album_nav_{{ album.id }}">
             <div class="sidebar-nav panel panel-default">
                 <div class="panel-heading">
@@ -62,7 +62,7 @@
                         <a href='http://translate.google.com/#auto/en/{{ artist.name|urlencode }}'>
                             on Google Translate</a>
                         </li>
-                        {%- if album -%}
+                        {%- if album is defined and album -%}
                         <li class="list-group-item">
                             Album
                             <a href="http://www.discogs.com/search?q={{ "artist:'" ~

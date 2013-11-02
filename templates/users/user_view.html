@@ -57,7 +57,7 @@
     {% if remotes_user %}
         <div class="row">
             <div class="col-xs-5">
-                {% if remotes_user.lastfm.top_artists_overall %}
+                {% if remotes_user.lastfm and remotes_user.lastfm.top_artists_overall %}
                     <table class="table table-striped table-bordered">
                         <tr>
                             <th colspan="3">Lastfm Top Artists</th>

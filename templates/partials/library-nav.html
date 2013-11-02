@@ -1,15 +1,15 @@
 <ul class="nav navbar-nav">
-    <li class="{{ "active" if request.path_info|startswith("/library/album") }}">
+    <li class="{{ "active" if request.path_info|startswith("/library/album") else '' }}">
         <a href="/library/albums">Albums</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/library/artist") }}">
+    <li class="{{ "active" if request.path_info|startswith("/library/artist") else '' }}">
         <a href="/library/artists">Artists</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/library/track") }}">
+    <li class="{{ "active" if request.path_info|startswith("/library/track") else '' }}">
         <a href="/library/tracks">Tracks</a>
     </li>
     {% if is_granted('admin') %}
-        <li class="{{ "active" if request.path_info|startswith("/library/upload") }}">
+        <li class="{{ "active" if request.path_info|startswith("/library/upload") else '' }}">
             <a href="/library/upload">Upload</a>
         </li>
     {% endif %}

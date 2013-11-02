@@ -1,11 +1,11 @@
 <ul class="nav navbar-nav">
-    <li class="{{ "active" if request.path_info|startswith("/users/you") }}">
+    <li class="{{ "active" if request.path_info|startswith("/users/you") else '' }}">
         <a href="/users/you/settings">You</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/users/user") }}">
+    <li class="{{ "active" if request.path_info|startswith("/users/user") else '' }}">
         <a href="/users/users">Users</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/users/role") }}">
+    <li class="{{ "active" if request.path_info|startswith("/users/role") else '' }}">
         <a href="/users/roles">Roles</a>
     </li>
 </ul>

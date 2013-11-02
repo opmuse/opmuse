@@ -7,7 +7,9 @@
 {% endmacro %}
 
 {% macro _album(album, width, height, cover_class, cover_container_class, size) %}
-    <span class="cover-container {{ cover_container_class }} {{ "artist_cover_" ~ album.artists[0].id if album.artists|count > 0 }}" id="album_cover_{{ album.id }}">
+    <span
+        class="cover-container {{ cover_container_class }} {{ "artist_cover_" ~ album.artists[0].id if album and album.artists|count > 0 else '' }}"
+        id="album_cover_{{ album.id if album else '' }}">
         <img width="{{ width }}" height="{{ height }}"
             {% if not album %}
                 src="/static/images/cover_placeholder.png"

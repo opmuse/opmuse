@@ -22,13 +22,13 @@
                 {% endif %}
                 <ul class="nav navbar-nav">
                     {% if authenticated %}
-                        <li class="{{ "active" if request.path_info|startswith("/dashboard") }}">
+                        <li class="{{ "active" if request.path_info|startswith("/dashboard") else '' }}">
                             <a href="/">Dashboard</a>
                         </li>
-                        <li class="{{ "active" if request.path_info|startswith("/library") }}">
+                        <li class="{{ "active" if request.path_info|startswith("/library") else '' }}">
                             <a href="/library/albums">Library</a>
                         </li>
-                        <li class="{{ "active" if request.path_info|startswith("/users") }}">
+                        <li class="{{ "active" if request.path_info|startswith("/users") else '' }}">
                             <a href="/users/you/settings">Users</a>
                         </li>
                         <li class="visible-xs">
@@ -41,10 +41,10 @@
                                 type="text" placeholder="Search" autocomplete="off" />
                         </li>
                     {% else %}
-                        <li class="{{ "active" if request.path_info|startswith("/index") }}">
+                        <li class="{{ "active" if request.path_info|startswith("/index") else '' }}">
                             <a href="/">Home</a>
                         </li>
-                        <li class="{{ "active" if request.path_info == "/login" }}">
+                        <li class="{{ "active" if request.path_info == "/login" else '' }}">
                             <a class="login" href="/login">Login</a>
                         </li>
                     {% endif %}
@@ -59,7 +59,9 @@
                 {% endif %}
             </div>
             <div id="navbar-sub" class="navbar-sub">
-                {%- include subnav_file_path ignore missing -%}
+                {%- if subnav_file_path is defined %}
+                    {%- include subnav_file_path ignore missing -%}
+                {% endif -%}
             </div>
         </div>
     </div>
