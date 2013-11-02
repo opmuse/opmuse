@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block right %}
-<div class="artist-nav panel panel-default sidebar-nav">
+<div class="panel panel-default sidebar-nav">
     {% if remotes_user.lastfm %}
     <div class="panel-heading">
         <h3 class="panel-title">{{ user.login }}</h3>
@@ -19,7 +19,7 @@
 </div>
 {% endblock %}
 
-{% set subnav_file = "partials/users-nav.html" %}
+{% set subnav_file_path = "partials/users-nav.html" %}
 
 {% block content %}
 <div id="users">
