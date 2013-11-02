@@ -33,7 +33,7 @@
             {%- for track in album.tracks -%}
                 {{ track.id }},
             {%- endfor -%}">
-        <i class="icon-headphones"></i>
+        <i class="fa fa-headphones"></i>
     </a>
 {% endmacro %}
 
@@ -72,7 +72,7 @@
                         {{ album_queue_btn(album) }}
                         <a class="remove-cover btn btn-default btn-sm"
                             href="/cover_refresh/album/{{ album.slug|urlencode }}">
-                            <i class="icon-refresh"></i>
+                            <i class="fa fa-refresh"></i>
                         </a>
                         <div class="labels">
                             {% if album.is_va %}
@@ -81,7 +81,7 @@
                             {% if album.low_quality %}
                                 <p class="album-low-quality label label-warning"
                                     title="Album has tracks of low quality, consider replacing them.">
-                                    <i class="icon-thumbs-down"></i>
+                                    <i class="fa fa-thumbs-down"></i>
                                 </p>
                             {% endif %}
                             {% if album.invalid %}

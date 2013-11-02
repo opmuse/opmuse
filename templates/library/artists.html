@@ -19,25 +19,25 @@
                 <ul>
                     <li>
                         <a class="btn btn-xs {{ "btn-primary" if filter == "none" else "btn-default" }}" href="/library/artists?filter=none&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="icon-circle-blank"></i>
+                            <i class="fa fa-circle-o"></i>
                             None
                         </a>
                     </li>
                     <li>
                         <a class="btn btn-xs {{ "btn-primary" if filter == "yours" else "btn-default" }}" href="/library/artists?filter=yours&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="icon-user"></i>
+                            <i class="fa fa-user"></i>
                             Yours
                         </a>
                     </li>
                     <li>
                         <a class="btn btn-xs {{ "btn-primary" if filter == "invalid" else "btn-default" }}" href="/library/artists?filter=invalid&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="icon-warning-sign"></i>
+                            <i class="fa fa-exclamation-triangle"></i>
                             Invalid
                         </a>
                     </li>
                     <li class="filter_value ">
                         <a class="btn btn-xs {{ "btn-primary" if filter == "tag" else "btn-default" }}" href="/library/artists?filter=tag&sort={{ sort }}">
-                            <i class="icon-tag"></i>
+                            <i class="fa fa-tag"></i>
                             <input autocomplete="off" type="text" class="form-control"
                                 placeholder="Tag" value="{{ filter_value }}" />
                         </a>
@@ -51,19 +51,19 @@
                 <ul>
                     <li>
                         <a class="btn btn-xs {{ "btn-primary" if sort == "none" else "btn-default" }}" href="/library/artists?filter={{ filter }}&sort=none&filter_value={{ filter_value }}">
-                            <i class="icon-circle-blank"></i>
+                            <i class="fa fa-circle-o"></i>
                             None
                         </a>
                     </li>
                     <li>
                         <a class="btn btn-xs {{ "btn-primary" if sort == "added" else "btn-default" }}" href="/library/artists?filter={{ filter }}&sort=added&filter_value={{ filter_value }}">
-                            <i class="icon-asterisk"></i>
+                            <i class="fa fa-asterisk"></i>
                             Added
                         </a>
                     </li>
                     <li>
                         <a class="btn btn-xs {{ "btn-primary" if sort == "random" else "btn-default" }}" href="/library/artists?filter={{ filter }}&sort=random&filter_value={{ filter_value }}">
-                            <i class="icon-random"></i>
+                            <i class="fa fa-random"></i>
                             Random
                         </a>
                     </li>

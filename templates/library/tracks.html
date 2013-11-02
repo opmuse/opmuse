@@ -20,31 +20,31 @@
             <ul>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if filter == "none" else "btn-default" }}" href="/library/tracks?filter=none&sort={{ sort }}">
-                        <i class="icon-circle-blank"></i>
+                        <i class="fa fa-circle-o"></i>
                         None
                     </a>
                 </li>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if filter == "woartist" else "btn-default" }}" href="/library/tracks?filter=woartist&sort={{ sort }}">
-                        <i class="icon-music"></i>
+                        <i class="fa fa-music"></i>
                         w/o Artist
                     </a>
                 </li>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if filter == "woalbum" else "btn-default" }}" href="/library/tracks?filter=woalbum&sort={{ sort }}">
-                        <i class="icon-music"></i>
+                        <i class="fa fa-music"></i>
                         w/o Album
                     </a>
                 </li>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if filter == "invalid" else "btn-default" }}" href="/library/tracks?filter=invalid&sort={{ sort }}">
-                        <i class="icon-warning-sign"></i>
+                        <i class="fa fa-exclamation-triangle"></i>
                         Invalid
                     </a>
                 </li>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if filter == "duplicates" else "btn-default" }}" href="/library/tracks?filter=duplicates&sort={{ sort }}">
-                        <i class="icon-code-fork"></i>
+                        <i class="fa fa-code-fork"></i>
                         Duplicates
                     </a>
                 </li>
@@ -57,19 +57,19 @@
             <ul>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if sort == "none" else "btn-default" }}" href="/library/tracks?filter={{ filter }}&sort=none">
-                        <i class="icon-circle-blank"></i>
+                        <i class="fa fa-circle-o"></i>
                         None
                     </a>
                 </li>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if sort == "added" else "btn-default" }}" href="/library/tracks?filter={{ filter }}&sort=added">
-                        <i class="icon-asterisk"></i>
+                        <i class="fa fa-asterisk"></i>
                         Added
                     </a>
                 </li>
                 <li>
                     <a class="btn btn-xs {{ "btn-primary" if sort == "random" else "btn-default" }}" href="/library/tracks?filter={{ filter }}&sort=random">
-                        <i class="icon-random"></i>
+                        <i class="fa fa-random"></i>
                         Random
                     </a>
                 </li>

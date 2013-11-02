@@ -33,7 +33,7 @@
 	url = https://github.com/twitter/typeahead.js/
 [submodule "vendor/typeahead.js-bootstrap.css"]
 	path = vendor/typeahead.js-bootstrap.css
-	url = https://github.com/jharding/typeahead.js-bootstrap.css.git
+	url = https://github.com/fredkelly/typeahead.js-bootstrap.css.git
 [submodule "vendor/Effeckt.css"]
 	path = vendor/Effeckt.css
 	url = https://github.com/h5bp/Effeckt.css.git

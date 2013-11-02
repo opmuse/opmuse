@@ -5,13 +5,13 @@
     <div class="btn-group edit-btn">
         <a class="btn btn-default {{ btn_size }} dropdown-toggle" data-toggle="dropdown" href="#">
             {{ title }}
-            <span class="icon-caret-down"></span>
+            <span class="fa fa-caret-down"></span>
         </a>
         <ul class="dropdown-menu">
             <li>
                 <a href="/library/edit/{% for track in tracks -%}
                     {{ track.id }}, {%- endfor %}">
-                    <i class="icon-pencil"></i>
+                    <i class="fa fa-pencil"></i>
                     Edit
                 </a>
             </li>
@@ -21,7 +21,7 @@
                     data-toggle="modal"
                     data-backdrop="false"
                     href="#{{ modalId }}">
-                    <i class="icon-trash"></i>
+                    <i class="fa fa-trash-o"></i>
                     Remove
                 </a>
             </li>
@@ -31,7 +31,7 @@
                     href="/library/edit/move/{% for track in tracks -%}
                     {{ track.id }},
                     {%- endfor %}">
-                    <i class="icon-folder-open"></i>
+                    <i class="fa fa-folder-open"></i>
                     Move to <strong>{{ tracks[0]|track_path }}/</strong>
                 </a>
             </li>
@@ -40,7 +40,7 @@
                     href="/library/edit/move/{% for track in tracks -%}
                 {{ track.id }},
                 {%- endfor %}/va">
-                    <i class="icon-folder-open"></i>
+                    <i class="fa fa-folder-open"></i>
                     Move to <strong>{{ tracks[0]|track_path("Various Artists") }}/</strong>
                 </a>
             </li>

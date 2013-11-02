@@ -16,7 +16,7 @@
             <label class="control-label" for="login-input">Login</label>
             <div class="controls">
                 <div class="input-prepend">
-                    <span class="add-on"><i class="icon-user"></i></span>
+                    <span class="add-on"><i class="fa fa-user"></i></span>
                     <input autocomplete="off" type="text" name="login" id="login-input"
                         placeholder="Login" value="" />
                 </div>
@@ -26,7 +26,7 @@
             <label class="control-label" for="mail-input">Mail</label>
             <div class="controls">
                 <div class="input-prepend">
-                    <span class="add-on"><i class="icon-envelope"></i></span>
+                    <span class="add-on"><i class="fa fa-envelope"></i></span>
                     <input autocomplete="off" type="email" name="mail" id="mail-input"
                         placeholder="login@example.com" value="" />
                 </div>
@@ -36,7 +36,7 @@
             <label class="control-label" for="mail-input">Roles</label>
             <div class="controls">
                 <div class="input-prepend">
-                    <span class="add-on"><i class="icon-group"></i></span>
+                    <span class="add-on"><i class="fa fa-group"></i></span>
                     <select multiple="multiple" autocomplete="off" name="roles" id="roles-input">
                         {% for role in roles %}
                             <option value="{{ role.id }}">{{ role.name }}</options>
@@ -49,12 +49,12 @@
             <label class="control-label" for="password1">Password</label>
             <div class="controls">
                 <div class="input-prepend">
-                    <span class="add-on"><i class="icon-key"></i></span>
+                    <span class="add-on"><i class="fa fa-key"></i></span>
                     <input autocomplete="off" type="password" name="password1" id="password1"
                         placeholder="Password" />
                 </div>
                 <div class="input-prepend">
-                    <span class="add-on"><i class="icon-key"></i></span>
+                    <span class="add-on"><i class="fa fa-key"></i></span>
                     <input autocomplete="off" type="password" name="password2" id="password2"
                         placeholder="Confirm Password" />
                 </div>
@@ -63,7 +63,7 @@
         <div class="control-group">
             <div class="controls">
                 <button type="submit" class="btn btn-default">
-                    <i class="icon-plus"></i>
+                    <i class="fa fa-plus"></i>
                     Add
                 </button>
             </div>

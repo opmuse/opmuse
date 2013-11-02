@@ -23,7 +23,7 @@
         {% if remotes.wikipedia|count > 0 %}
         <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                {{ type }} on Wikipedia <span class="icon-caret-down"></span>
+                {{ type }} on Wikipedia <span class="fa fa-caret-down"></span>
             </a>
             <ul class="dropdown-menu">
                 {% for wikipedia in remotes.wikipedia %}
@@ -45,7 +45,7 @@
         {% if remotes.google and remotes.google|count > 0 %}
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    {{ type }} on Google <span class="icon-caret-down"></span>
+                    {{ type }} on Google <span class="fa fa-caret-down"></span>
                 </a>
                 <ul class="dropdown-menu">
                     {% for hit in remotes.google %}
@@ -222,12 +222,12 @@
                         {% if album %}
                             <a class="remove-cover btn btn-default btn-sm"
                                 href="/cover_refresh/album/{{ album.slug|urlencode }}">
-                                <i class="icon-refresh"></i>
+                                <i class="fa fa-refresh"></i>
                             </a>
                         {% elif artists %}
                             <a class="remove-cover btn btn-default btn-sm"
                                 href="/cover_refresh/artist/{{ artists[0].slug|urlencode }}">
-                                <i class="icon-refresh"></i>
+                                <i class="fa fa-refresh"></i>
                             </a>
                         {% endif %}
                     {% endif %}
