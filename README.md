@@ -1,6 +1,6 @@
 ### What is opmuse?
 
-<img align="right" src="https://github.com/opmuse/opmuse/raw/master/public_static/images/opossum.png" />
+<img align="right" src="https://github.com/opmuse/opmuse/raw/master/assets/opossum-readme.png" />
 
 A web application to play, organize and share your music library.
 
