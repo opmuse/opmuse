@@ -3,6 +3,8 @@ What is opmuse?
 
 A web application to play, organize and share your music library.
 
+![Opossum](https://github.com/opmuse/opmuse/raw/master/public_static/images/opossum.png)
+
 Setup
 -----
 

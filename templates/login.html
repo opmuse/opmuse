@@ -6,8 +6,26 @@
 
 {% block container %}
 <div id="login">
-    <div class="login jumbotron">
-        {% include "partials/login.html" %}
+    <div class="
+        col-lg-6 col-md-8 col-sm-10 col-xs-12
+        col-lg-offset-3 col-md-offset-2 col-sm-offset-1
+        ">
+        <div class="col-md-5 col-xs-12">
+            <div class="jumbotron">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <img width="180" height="180" src="/static/images/opossum.png" />
+                        <p>Remember kids, never opt for less than the optimum option!</p>
+                        <p class="quote"><small>&mdash; Ophelia</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-6 col-xs-12">
+            <div class="jumbotron">
+                {% include "partials/login.html" %}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

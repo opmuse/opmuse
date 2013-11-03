@@ -81,13 +81,15 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                     function (event) {
                         var type = null;
 
-                        if ($(this).is(".album")) {
+                        var th = $(this).closest("th");
+
+                        if (th.is(".album")) {
                             type = 'album';
-                        } else if ($(this).is(".artist")) {
+                        } else if (th.is(".artist")) {
                             type = 'artist';
-                        } else if ($(this).is(".date")) {
+                        } else if (th.is(".date")) {
                             type = 'date';
-                        } else if ($(this).is(".disc")) {
+                        } else if (th.is(".disc")) {
                             type = 'disc';
                         }
 

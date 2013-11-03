@@ -1,4 +1,35 @@
 #edit {
+    .left {
+        float: left;
+    }
+
+    .right {
+        margin-bottom: 10px;
+        float:right;
+    }
+
+    hr {
+        clear: both;
+    }
+
+    .lock {
+        float: right;
+
+        .icon-locked {
+            display: none;
+        }
+
+        &.locked {
+            .icon-unlocked {
+                display: none;
+            }
+
+            .icon-locked {
+                display: inline;
+            }
+        }
+    }
+
     table {
         margin: 10px 0;
 
