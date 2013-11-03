@@ -8,10 +8,10 @@ A web application to play, organize and share your music library.
 
 #### Requirements
 
-You need **python 3.3**, **ffmpeg**, **ImageMagick**, **nodejs** (for less) and
-a Linux environment. This has only been tested on Debian and Exherbo but most
-other Linux distros should do as well as other similar \*nix OSes. If you're on
-Windows you're on your own.
+You need **python 3.3**, **ffmpeg**, **ImageMagick**, **nodejs** (for less.js)
+and a Linux environment. This has only been tested on Debian and Exherbo but
+most other Linux distros should do as well as other similar \*nix OSes. If
+you're on Windows you're on your own.
 
 #### Install
 
@@ -71,7 +71,7 @@ $ rm -rf cache/index/* # remove whoosh index
 
     i.e. A users played tracks are submitted to last.fm
 
-  - We trust the data provided for us.
+  - We trust the data provided to us.
 
     i.e. Names are always case-sensitive. We don't try to be smart and remove leading spaces or anything, if your collection isn't tagged correctly you will suffer.
 
