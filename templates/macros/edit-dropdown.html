@@ -27,7 +27,7 @@
             </li>
             <li class="divider"></li>
             <li>
-                <a title="Move to {{ tracks[0]|track_path|e }}/"
+                <a rel="tooltip" title="Move to {{ tracks[0]|track_path|e }}/"
                     href="/library/edit/move/{% for track in tracks -%}
                     {{ track.id }},
                     {%- endfor %}">
@@ -36,7 +36,7 @@
                 </a>
             </li>
             <li>
-                <a title="Move to {{ tracks[0]|track_path("Various Artists")|e }}/"
+                <a rel="tooltip" title="Move to {{ tracks[0]|track_path("Various Artists")|e }}/"
                     href="/library/edit/move/{% for track in tracks -%}
                 {{ track.id }},
                 {%- endfor %}/va">
