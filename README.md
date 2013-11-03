@@ -1,21 +1,19 @@
-What is opmuse?
----------------
+### What is opmuse?
 
 <img align="right" src="https://github.com/opmuse/opmuse/raw/master/public_static/images/opossum.png" />
 
 A web application to play, organize and share your music library.
 
-Setup
------
+### Setup
 
-### Requirements
+#### Requirements
 
 You need **python 3.3**, **ffmpeg**, **ImageMagick**, **nodejs** (for less) and
 a Linux environment. This has only been tested on Debian and Exherbo but most
 other Linux distros should do as well as other similar \*nix OSes. If you're on
 Windows you're on your own.
 
-### Install
+#### Install
 
 ```Shell
 $ git clone https://github.com/opmuse/opmuse.git
@@ -45,7 +43,7 @@ $ source virtualenv/bin/activate
 $ python opmuse/fixtures.py
 ```
 
-### Upgrading
+#### Upgrading
 
 When you do a git pull some of these might be required.
 
@@ -63,8 +61,7 @@ $ rm opmuse.db # e.g. drop database..
 $ rm -rf cache/index/* # remove whoosh index
 ```
 
-Our Doctrine
-------------
+### Our Doctrine
 
   - We don't exclusively store metadata about your library.
 
@@ -82,8 +79,7 @@ Our Doctrine
 
     i.e. If a file's location doesn't correspond to its tags we mark it as invalid and provide facilities for fixing this.
 
-Here's opmuse
--------------
+### Here's opmuse
 
 This is a taste of what it looks like, hopefully it's not too outdated at time of viewing.
 
