@@ -50,7 +50,7 @@
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item">
-                        {% if remotes_artist %}
+                        {% if remotes_artist is defined and remotes_artist %}
                             {% if remotes_artist.lastfm.url %}
                                 <a href="{{ remotes_artist.lastfm.url }}">on Lastfm</a>,
                             {% endif %}
