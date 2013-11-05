@@ -138,7 +138,7 @@
 
 {% macro print_articles(remotes_artist, remotes_album = None, remotes_track = None) %}
     {% if not remotes_artist and not remotes_album and not remotes_track %}
-        {% if album %}
+        {% if album is defined and album %}
             {{ covers.album_large(album) }}
         {% elif artists %}
             {{ covers.artist_large(artists[0]) }}
