@@ -73,13 +73,13 @@
                         </li>
                         {% endif %}
                         <li class="list-group-item">
-                            {% if remotes_artist %}
+                            {% if remotes_artist is defined and remotes_artist %}
                                 {% if remotes_artist.lastfm.listeners %}
                                     <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
                                 {% endif %}
                             {% endif %}
                         </li>
-                        {% if remotes_artist and remotes_artist.lastfm.tags|count > 0 %}
+                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm.tags|count > 0 %}
                             <li class="list-group-item">
                                 {% for tag in remotes_artist.lastfm.tags %}
                                 <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
@@ -88,7 +88,7 @@
                                 {% endfor %}
                             </li>
                         {% endif %}
-                        {% if remotes_artist and remotes_artist.lastfm.similar|count > 0 %}
+                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm.similar|count > 0 %}
                             <li class="list-group-item">
                                 {% for similar in remotes_artist.lastfm.similar %}
                                     <span class="label label-primary" title="Lastfm similar, {{ similar.name }}">
@@ -97,7 +97,7 @@
                                 {% endfor %}
                             </li>
                         {% endif %}
-                        {% if remotes_artist and remotes_artist.discogs.aliases|count > 0 %}
+                        {% if remotes_artist is defined and remotes_artist and remotes_artist.discogs.aliases|count > 0 %}
                             <li class="list-group-item">
                                 {% for alias in remotes_artist.discogs.aliases %}
                                     <span class="label label-primary" title="Discog Alias, {{ alias }}">
