@@ -6,12 +6,26 @@ A web application to play, organize and share your music library.
 
 ### Using
 
+The only way we distribute right now is through our Debian apt repository. Other
+than if you feel comfortable enough to set everything up from the git repository
+yourself. Take a look at *Developing* if so.
+
 #### Debian Repository
+
+Some of the required packages are in sid/jessie and some we provide ourselves.
+
+Add the key
 
     $ wget http://apt.opmu.se/opmuse.pub
     $ apt-key add opmuse.pub
+
+Add the repository
+
     $ echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
     $ apt-get update
+
+Install opmuse
+
     $ apt-get install opmuse
 
 ### Developing
