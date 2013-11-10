@@ -1,3 +1,4 @@
+import sys
 import os.path
 import re
 import subprocess
@@ -11,8 +12,17 @@ git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 install_requires = []
 dependency_links = []
 
+debian_dependency_maps = {
+    'CherryPy': 'cherrypy3'
+}
+
 for install_require in parse_requirements('requirements.txt'):
     if install_require.req is not None:
+        project_name = install_require.req.project_name
+
+        if project_name in debian_dependency_maps:
+            install_require.req.project_name = debian_dependency_maps[project_name]
+
         install_requires.append(str(install_require.req))
     elif install_require.url is not None:
         dependency_links.append(git_url % re.sub(r'^file://%s/' % project_root, '', install_require.url))
