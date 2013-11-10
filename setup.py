@@ -24,6 +24,7 @@ setup(
     version=git_version,
     packages=['opmuse'],
     description="A web application to play, organize and share your music library.",
+    long_description=open('README.md', 'r').read(),
     author="Mattias Fliesberg",
     author_email="mattias.fliesberg@gmail.com",
     url="http://opmu.se/",
