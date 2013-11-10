@@ -28,12 +28,28 @@ setup(
     author="Mattias Fliesberg",
     author_email="mattias.fliesberg@gmail.com",
     url="http://opmu.se/",
-    license="GPLv3",
+    license="GPLv3+",
     install_requires=install_requires,
     dependency_links=dependency_links,
     entry_points={
         'console_scripts': [
             'opmuse = opmuse.boot'
         ]
-    }
+    },
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Environment :: Web Environment",
+        "Intended Audience :: End Users/Desktop",
+        "Framework :: CherryPy",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: JavaScript",
+        "Topic :: Internet",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Multimedia :: Sound/Audio",
+        "Topic :: Multimedia :: Sound/Audio :: Players"
+    ],
 )
