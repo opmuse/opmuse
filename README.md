@@ -4,7 +4,17 @@
 
 A web application to play, organize and share your music library.
 
-### Setup
+### Using
+
+#### Debian Repository
+
+    $ wget http://apt.opmu.se/opmuse.pub
+    $ apt-key add opmuse.pub
+    $ echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
+    $ apt-get update
+    $ apt-get install opmuse
+
+### Developing
 
 #### Requirements
 
@@ -15,51 +25,43 @@ you're on Windows you're on your own.
 
 #### Install
 
-```Shell
-$ git clone https://github.com/opmuse/opmuse.git
-$ cd opmuse
-$ git submodule init
-$ git submodule update
-$ virtualenv -p python3.3 ./virtualenv
-$ source virtualenv/bin/activate
-$ pip install -r requirements.txt
-$ cp config/opmuse.dist.ini config/opmuse.ini
-$ edit config/opmuse.ini
-$ ./run.sh
-```
+    $ git clone https://github.com/opmuse/opmuse.git
+    $ cd opmuse
+    $ git submodule init
+    $ git submodule update
+    $ virtualenv -p python3.3 ./virtualenv
+    $ source virtualenv/bin/activate
+    $ pip install -r requirements.txt
+    $ cp config/opmuse.dist.ini config/opmuse.ini
+    $ edit config/opmuse.ini
+    $ ./run.sh
 
 If you want MySQL support and some additional dev-tools you should do this.
 
-```Shell
-$ source virtualenv/bin/activate
-$ pip install -r optional-requirements.txt
-```
+    $ source virtualenv/bin/activate
+    $ pip install -r optional-requirements.txt
 
 You probably want fixtures for some default data (an admin account with password
 admin for one).
 
-```Shell
-$ source virtualenv/bin/activate
-$ python opmuse/fixtures.py
-```
+    $ source virtualenv/bin/activate
+    $ python opmuse/fixtures.py
 
 #### Upgrading
 
 When you do a git pull some of these might be required.
 
-```Shell
-$ git submodule init
-$ git submodule update
+    $ git submodule init
+    $ git submodule update
 
-$ merge config/opmuse.dist.ini config/opmuse.ini
+    $ merge config/opmuse.dist.ini config/opmuse.ini
 
-$ pip install -r requirements.txt
+    $ pip install -r requirements.txt
 
-$ pip install -r optional-requirements.txt
+    $ pip install -r optional-requirements.txt
 
-$ rm opmuse.db # e.g. drop database..
-$ rm -rf cache/index/* # remove whoosh index
-```
+    $ rm opmuse.db # e.g. drop database..
+    $ rm -rf cache/index/* # remove whoosh index
 
 ### Our Doctrine
 
