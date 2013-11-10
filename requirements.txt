@@ -3,10 +3,10 @@ Jinja2>=2.7.1,<2.8
 SQLAlchemy>=0.8.3,<0.9
 mmh3==2.2
 repoze.who==2.2
-pylast==0.5.11
+pylast>=0.5.11,<0.6
 Whoosh>=2.5.4,<2.6
 vendor/mutagen-py3.tar.bz2
 rarfile==2.6
 ws4py==0.3.2
-Unidecode==0.04.14
+Unidecode>=0.04.13<0.05
 vendor/discogs_client.tar.bz2
