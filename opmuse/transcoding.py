@@ -318,7 +318,8 @@ class Transcoding:
         ['Windows.*Chrome', ['audio/mp3', 'audio/ogg']],
         ['Linux.*Chrome', ['audio/mp3', 'audio/ogg']],
         ['VLC', ['audio/mp3', 'audio/ogg']],
-        ['GStreamer', ['audio/mp3', 'audio/ogg']] # This matches Nokia N9s default player
+        # This matches Nokia N9s default player
+        ['GStreamer', ['audio/mp3', 'audio/ogg']]
     ]
     """
     if a player doesn't supply a usable Accept header we will look through this
