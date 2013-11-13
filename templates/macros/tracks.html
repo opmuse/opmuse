@@ -148,7 +148,7 @@
                         {% endif %}
                         <td>{{ track.number }}</td>
                         <td>
-                            {%- if track.album.artists|length > 1%}
+                            {%- if track.album and track.album.artists|length > 1%}
                                 <a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name|show_ws }}</a>
                             {% endif -%}
                         </td>
