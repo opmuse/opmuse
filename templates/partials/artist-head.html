@@ -74,17 +74,40 @@
     {% endif %}
 {% endmacro %}
 
+{% macro print_cover(album, artist) %}
+    <figure class="effeckt-caption" data-effeckt-type="quarter-appear">
+        {% if album is defined and album %}
+            {{ covers.album_large(album) }}
+        {% elif artist %}
+            {{ covers.artist_large(artist) }}
+        {% endif %}
+        <figcaption>
+            <div class="effeckt-figcaption-wrap">
+                {% if is_granted('admin') %}
+                    {% if album is defined and album %}
+                        <a class="remove-cover btn btn-default btn-sm"
+                            href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                            <i class="fa fa-refresh"></i> Update Album Cover
+                        </a>
+                    {% elif artist %}
+                        <a class="remove-cover btn btn-default btn-sm"
+                            href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
+                            <i class="fa fa-refresh"></i> Update Artist Cover
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </figcaption>
+    </figure>
+{% endmacro %}
+
 {% macro print_articles_content(remotes, index) %}
     {% if remotes %}
         {% if remotes.wikipedia|count > 0 %}
             {% for wikipedia in remotes.wikipedia %}
                 <div class="tab-pane" id="wikipediatab_{{ index }}_{{ loop.index }}">
                     <div class="wikipedia-content">
-                    {% if album is defined and album %}
-                        {{ covers.album_large(album) }}
-                    {% elif artists %}
-                        {{ covers.artist_large(artists[0]) }}
-                    {% endif %}
+                    {{ print_cover(album, artists[0]) }}
                     {{ wikipedia.summary }}
                     </div>
                     <p class="wikipedia-footer">
@@ -110,11 +133,7 @@
         {% if remotes.lastfm and 'bio' in remotes.lastfm and remotes.lastfm.bio %}
             <div class="tab-pane" id="lastfmtab_{{ index }}">
                 <div class="lastfm-content">
-                    {% if album is defined and album %}
-                        {{ covers.album_large(album) }}
-                    {% elif artists %}
-                        {{ covers.artist_large(artists[0]) }}
-                    {% endif %}
+                    {{ print_cover(album, artists[0]) }}
                     {{ remotes.lastfm.bio|nl2p }}
                 </div>
             </div>
@@ -123,11 +142,7 @@
             {% for hit in remotes.google %}
                 <div class="tab-pane" id="googletab_{{ index }}_{{ loop.index }}">
                     <div class="google-content">
-                        {% if album is defined and album %}
-                            {{ covers.album_large(album) }}
-                        {% elif artists %}
-                            {{ covers.artist_large(artists[0]) }}
-                        {% endif %}
+                        {{ print_cover(album, artists[0]) }}
                         <p>
                             {{ hit.content }}
                         </p>
@@ -151,11 +166,7 @@
 
 {% macro print_articles(remotes_artist, remotes_album = None, remotes_track = None) %}
     {% if not remotes_artist and not remotes_album and not remotes_track %}
-        {% if album is defined and album %}
-            {{ covers.album_large(album) }}
-        {% elif artists %}
-            {{ covers.artist_large(artists[0]) }}
-        {% endif %}
+        {{ print_cover(album, artists[0]) }}
     {% else %}
         <div class="tab-content">
             {{ print_articles_content(remotes_track, 0) }}
@@ -230,19 +241,6 @@
                         - {{ album.tracks|length }} tracks, {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}
                     {% else %}
                         artist - {{ artist.album_count }} albums, {{ artist.va_count }} VAs, added {{ artist.added|pretty_date }}
-                    {% endif %}
-                    {% if is_granted('admin') %}
-                        {% if album is defined and album %}
-                            <a class="remove-cover btn btn-default btn-sm"
-                                href="/cover_refresh/album/{{ album.slug|urlencode }}">
-                                <i class="fa fa-refresh"></i>
-                            </a>
-                        {% elif artists %}
-                            <a class="remove-cover btn btn-default btn-sm"
-                                href="/cover_refresh/artist/{{ artists[0].slug|urlencode }}">
-                                <i class="fa fa-refresh"></i>
-                            </a>
-                        {% endif %}
                     {% endif %}
                 </small>
             </h2>
