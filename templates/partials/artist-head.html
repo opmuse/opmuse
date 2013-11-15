@@ -3,7 +3,7 @@
 {% macro print_artists(artists, print_by, max_artists = 3) %}
     <span class="artists-names"
         {% if artists|length > max_artists %}
-            rel="tooltip" title="
+            rel="tooltip" data-placement="bottom" title="
             {% for artist in artists %}
                 {%- if artists|length > 1 and loop.last %} and {% elif not loop.first -%}
                 , {% endif -%}
