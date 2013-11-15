@@ -1,21 +1,34 @@
 {% import "macros/urls.html" as urls %}
 
-{% macro print_artists(artists, print_by) %}
-    {% if print_by %}
-        {% if artists|length > 1 %}
-            with
-        {% else %}
-            by
+{% macro print_artists(artists, print_by, max_artists = 3) %}
+    <span class="artists-names"
+        {% if artists|length > max_artists %}
+            rel="tooltip" title="
+            {% for artist in artists %}
+                {%- if artists|length > 1 and loop.last %} and {% elif not loop.first -%}
+                , {% endif -%}
+                {{ artist.name|show_ws }}
+            {%- endfor %}"
+        {%- endif %}>
+        {% if print_by %}
+            {% if artists|length > 1 %}
+                with
+            {% else %}
+                by
+            {% endif %}
         {% endif %}
-    {% endif %}
-    {% for artist in artists %}
-        {%- if artists|length > 1 and loop.last %}
-        and
-        {% elif not loop.first -%}
-        ,
-        {% endif %}
-        <a href="{{ urls.artist_url(artist) }}">{{ artist.name|show_ws }}</a>
-    {%- endfor %}
+        {% for artist in artists[0:max_artists] %}
+            {%- if artists|length > 1 and loop.index == artists|length %}
+            and
+            {% elif not loop.first -%}
+            ,
+            {% endif %}
+            <a href="{{ urls.artist_url(artist) }}">{{ artist.name|show_ws }}</a>
+            {%- if loop.last and loop.index < artists|length -%}
+                &hellip; <span class="artists-total">({{ artists|length }} total)</span>
+            {% endif %}
+        {%- endfor %}
+    </span>
 {% endmacro %}
 
 {% macro print_articles_nav(type, remotes, index) %}
