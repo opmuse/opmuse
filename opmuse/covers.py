@@ -25,8 +25,8 @@ class Covers:
     DEFAULT_WIDTH = 220
     DEFAULT_HEIGHT = 220
     DEFAULT_GRAVITY = 'center'
-    LARGE_WIDTH = 560
-    LARGE_HEIGHT = 260
+    LARGE_WIDTH = 700
+    LARGE_HEIGHT = 325
     LARGE_GRAVITY = 'north'
 
     def refresh(self, type, slug):
