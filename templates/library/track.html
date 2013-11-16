@@ -153,6 +153,18 @@
             <th>Hash</th>
             <td>{{ track.hash.decode('utf8') }}</td>
         </tr>
+        <tr>
+            <th>Uploaded by</th>
+            <td>
+                {% if track.upload_user %}
+                    <a href="/users/user/{{ track.upload_user.login }}">
+                        {{ track.upload_user.login }}
+                    </a>
+                {% else %}
+                    Unknown
+                {% endif %}
+            </td>
+        </tr>
     </table>
     {% if track.has_dups %}
         <p class="alert alert-warning">

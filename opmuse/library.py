@@ -138,6 +138,13 @@ class Album(Base):
 
         return max(track.added for track in self.tracks)
 
+    @hybrid_property
+    def upload_user(self):
+        if len(self.tracks) == 0:
+            return None
+
+        return self.tracks[0].upload_user
+
 
 class Artist(Base):
     __tablename__ = 'artists'
@@ -251,12 +258,15 @@ class Track(Base):
     invalid_msg = Column(String(255))
     disc = Column(String(64))
     scanned = Column(Boolean, default=False)
+    upload_user_id = Column(Integer, ForeignKey('users.id'))
 
     album = relationship("Album", lazy='joined', innerjoin=False,
                          backref=backref('tracks', order_by=(disc, number, name)))
 
     artist = relationship("Artist", lazy='joined', innerjoin=False,
                           backref=backref('tracks', order_by=name))
+
+    upload_user = relationship("User", lazy='joined', innerjoin=False)
 
     def __init__(self, hash):
         self.hash = hash

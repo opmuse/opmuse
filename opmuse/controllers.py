@@ -433,6 +433,8 @@ class Upload:
         shutil.rmtree(tempdir)
 
         for track in tracks:
+            track.upload_user = cherrypy.request.user
+
             all_tracks.append(track.id)
 
             if track.album is not None:
