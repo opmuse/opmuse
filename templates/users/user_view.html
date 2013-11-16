@@ -6,7 +6,7 @@
 
 {% block right %}
 <div class="panel panel-default sidebar-nav">
-    {% if remotes_user.lastfm %}
+    {% if remotes_user and remotes_user.lastfm %}
     <div class="panel-heading">
         <h3 class="panel-title">{{ user.login }}</h3>
     </div>
