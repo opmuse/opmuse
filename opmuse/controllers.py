@@ -1335,8 +1335,22 @@ class Dashboard:
 
         new_albums = library_dao.get_new_albums(16, 0)
 
-        if remotes_user is not None and user['remotes_user']['lastfm'] is not None:
-            for recent_track in user['remotes_user']['lastfm']['recent_tracks']:
+        all_users = [user] + users
+
+        index = 0
+
+        while True:
+            found = False
+
+            for user in all_users:
+                if (user['remotes_user'] is None or user['remotes_user']['lastfm'] is None or
+                    len(user['remotes_user']['lastfm']['recent_tracks']) < index):
+                    continue
+
+                found = True
+
+                recent_track = user['remotes_user']['lastfm']['recent_tracks'][index]
+
                 results = search.query_artist(recent_track['artist'], exact=True)
 
                 track = artist = None
@@ -1356,25 +1370,26 @@ class Dashboard:
                     'track': track,
                     'artist_name': recent_track['artist'],
                     'name': recent_track['name'],
+                    'user': user['user']
                 })
 
-                if len(recent_tracks) >= 16:
-                    break
+            index += 1
+
+            if not found or index >= 16:
+                break
 
         top_artists = OrderedDict({})
 
         index = 0
 
-        remotes_users = [remotes_user] + [user['remotes_user'] for user in users]
-
         while True:
             stop = True
 
-            for remotes_user in remotes_users:
-                if remotes_user is None or remotes_user['lastfm'] is None:
+            for user in all_users:
+                if user['remotes_user'] is None or user['remotes_user']['lastfm'] is None:
                     continue
 
-                top = remotes_user['lastfm']['top_artists_month']
+                top = user['remotes_user']['lastfm']['top_artists_month']
 
                 if top is not None and index < len(top):
                     stop = False

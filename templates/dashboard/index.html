@@ -71,30 +71,34 @@
                         </h2>
                     </div>
                     <ul class="list-group recently-listened">
-                        {% if user.remotes_user and user.remotes_user.lastfm %}
-                            {% for recent_track in recent_tracks %}
-                                <li class="list-group-item">
-                                    {% if recent_track.track and recent_track.track.album %}
-                                        {{ covers.album(recent_track.track.album, 50, "img-rounded") }}
+                        {% for recent_track in recent_tracks %}
+                            <li class="list-group-item">
+                                {% if recent_track.track and recent_track.track.album %}
+                                    {{ covers.album(recent_track.track.album, 70, "img-rounded") }}
+                                {% else %}
+                                    {{ covers.artist(recent_track.artist, 70, "img-rounded") }}
+                                {% endif %}
+                                <p>
+                                    {% if recent_track.artist %}
+                                        <a href="{{ urls.artist_url(recent_track.artist) }}">
+                                            {{ recent_track.artist.name }}
+                                        </a>
                                     {% else %}
-                                        {{ covers.artist(recent_track.artist, 50, "img-rounded") }}
+                                        {{ recent_track.artist_name }}
                                     {% endif %}
-                                    <p>
-                                        {% if recent_track.artist %}
-                                            <a href="{{ urls.artist_url(recent_track.artist) }}">
-                                                {{ recent_track.artist.name }}
-                                            </a>
-                                        {% else %}
-                                            {{ recent_track.artist_name }}
-                                        {% endif %}
-                                    </p>
-                                    <p>
-                                        {{ recent_track.name }}
-                                    </p>
-                                    <div class="clear"></div>
-                                </li>
-                            {% endfor %}
-                        {% endif %}
+                                </p>
+                                <p>
+                                    {{ recent_track.name }}
+                                </p>
+                                <p>
+                                    Listened by
+                                    <a href="/users/user/{{ recent_track.user.login }}">
+                                        {{ recent_track.user.login }}
+                                    </a>
+                                </p>
+                                <div class="clear"></div>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -115,8 +119,17 @@
                                 <p>{{ new_album.name }}</p>
                             </a>
                             <p>{{ album.album_desc(new_album, True) }}</p>
+                            <p>
+                                Uploaded by
+                                {% if new_album.upload_user %}
+                                    <a href="/users/user/{{ new_album.upload_user.login }}">
+                                        {{ new_album.upload_user.login }}
+                                    </a>
+                                {% else %}
+                                    Unkown
+                                {% endif %}
+                            </p>
                             <div class="clear"></div>
-
                         </li>
                         {% endfor %}
                     </ul>

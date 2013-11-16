@@ -79,7 +79,7 @@
                             <th colspan="2">Lastfm Recent Tracks</th>
                         </tr>
                         {% for track in remotes_user.lastfm.recent_tracks %}
-                        {% if not last_track or last_track.artist != track.artist %}
+                        {% if last_track is not defined or not last_track or last_track.artist != track.artist %}
                         <tr>
                             <th colspan="2"><a href="/search/{{ track.artist }}/artist">{{ track.artist }}</a></th>
                         </tr>
