@@ -33,14 +33,17 @@ class Remotes:
     def _fetch_user(self, id, lastfm_user, lastfm_session_key):
         key = Remotes.USER_KEY_FORMAT % id
 
-        user = {}
+        if lastfm_user is None or lastfm_session_key is None:
+            return
 
-        if lastfm_user is not None and lastfm_session_key is not None:
-            user['lastfm'] = lastfm.get_user(lastfm_user, lastfm_session_key)
-        else:
-            user['lastfm'] = None
+        user_lastfm = lastfm.get_user(lastfm_user, lastfm_session_key)
 
-        cache.set(key, user)
+        if user_lastfm is None:
+            return
+
+        cache.set(key, {
+            'lastfm': user_lastfm
+        })
 
         ws.emit_all('remotes.user.fetched', id)
 
