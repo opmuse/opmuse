@@ -41,69 +41,67 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-sm-7">
-        <div class="row">
-            <div class="">
-                <div class="panel panel-default dashboard-box">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            Top Artists
-                            <i class="icon fa fa-rocket"></i>
-                        </h3>
-                    </div>
-                    <div class="top-artists panel-body">
-                        {% for top_artist in top_artists %}
-                            <a href="{{ urls.artist_url(top_artist) }}" title="{{ top_artist.name }}">
-                                {{ covers.artist(top_artist, 90, "img-rounded") }}
+    <div class="col-md-3">
+        <div class="dashboard-box panel panel-info">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon fa fa-headphones"></i>
+                    Recently Listened
+                </h2>
+            </div>
+            <ul class="list-group recently-listened">
+                {% for recent_track in recent_tracks %}
+                    <li class="list-group-item">
+                        {% if recent_track.track and recent_track.track.album %}
+                            {{ covers.album(recent_track.track.album, 70, "img-rounded") }}
+                        {% else %}
+                            {{ covers.artist(recent_track.artist, 70, "img-rounded") }}
+                        {% endif %}
+                        <p>
+                            {% if recent_track.artist %}
+                                <a href="{{ urls.artist_url(recent_track.artist) }}">
+                                    {{ recent_track.artist.name }}
+                                </a>
+                            {% else %}
+                                {{ recent_track.artist_name }}
+                            {% endif %}
+                        </p>
+                        <p>
+                            {{ recent_track.name }}
+                        </p>
+                        <p>
+                            Listened by
+                            <a href="/users/user/{{ recent_track.user.login }}">
+                                {{ recent_track.user.login }}
                             </a>
-                        {% endfor %}
-                    </div>
+                        </p>
+                        <div class="clear"></div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-9">
+        <div class="row">
+            <div class="panel panel-info dashboard-box">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Top Artists
+                        <i class="icon fa fa-rocket"></i>
+                    </h3>
+                </div>
+                <div class="top-artists panel-body">
+                    {% for top_artist in top_artists %}
+                        <a href="{{ urls.artist_url(top_artist) }}" title="{{ top_artist.name }}">
+                            {{ covers.artist(top_artist, 90, "img-rounded") }}
+                        </a>
+                    {% endfor %}
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
-                <div class="dashboard-box panel panel-default">
-                    <div class="panel-heading">
-                        <h2 class="panel-title">
-                            <i class="icon fa fa-headphones"></i>
-                            Recently Listened
-                        </h2>
-                    </div>
-                    <ul class="list-group recently-listened">
-                        {% for recent_track in recent_tracks %}
-                            <li class="list-group-item">
-                                {% if recent_track.track and recent_track.track.album %}
-                                    {{ covers.album(recent_track.track.album, 70, "img-rounded") }}
-                                {% else %}
-                                    {{ covers.artist(recent_track.artist, 70, "img-rounded") }}
-                                {% endif %}
-                                <p>
-                                    {% if recent_track.artist %}
-                                        <a href="{{ urls.artist_url(recent_track.artist) }}">
-                                            {{ recent_track.artist.name }}
-                                        </a>
-                                    {% else %}
-                                        {{ recent_track.artist_name }}
-                                    {% endif %}
-                                </p>
-                                <p>
-                                    {{ recent_track.name }}
-                                </p>
-                                <p>
-                                    Listened by
-                                    <a href="/users/user/{{ recent_track.user.login }}">
-                                        {{ recent_track.user.login }}
-                                    </a>
-                                </p>
-                                <div class="clear"></div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="dashboard-box panel panel-default">
+            <div class="col-md-4">
+                <div class="dashboard-box panel panel-info">
                     <div class="panel-heading">
                         <h2 class="panel-title">
                             <i class="icon fa fa-music"></i>
@@ -135,59 +133,59 @@
                     </ul>
                 </div>
             </div>
+            <div class="col-sm-8">
+                <div class="dashboard-box panel panel-info">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <i class="icon fa fa-user"></i>
+                            You
+                        </h2>
+                    </div>
+                    <div class="user panel-body">
+                        {{ _user(current_user) }}
+                    </div>
+                </div>
+                <div class="dashboard-box panel panel-info">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <i class="icon fa fa-group"></i>
+                            Users
+                        </h2>
+                    </div>
+                    <div class="users panel-body">
+                        {% for user in users %}
+                            {{ _user(user, True) }}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="dashboard-box panel panel-info">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <i class="icon fa fa-book"></i>
+                            Library
+                        </h2>
+                    </div>
+                    <div class="panel-body">
+                        {% set tracks = request.library_dao.get_track_count() %}
+                        {% set invalid = request.library_dao.get_invalid_track_count() %}
+                        {% set albums = request.library_dao.get_album_count() %}
+                        {% set artists = request.library_dao.get_artist_count() %}
+                        {% set scanning = request.library.scanning %}
+                        <p>
+                            We're currently <strong>{{ '' if scanning else 'not' }} scanning</strong> for new
+                            tracks.
+                        </p>
+                        <p>
+                            You have <strong>{{ tracks|format_number }}</strong> tracks
+                            (<strong>{{ invalid|format_number }}</strong> invalid,
+                            {{ "%0.f" % ((invalid / tracks if tracks > 0 else 0) * 100) }}%),
+                            <strong>{{ albums|format_number }}</strong>
+                            albums and <strong>{{ artists|format_number }}</strong> artists.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-sm-5">
-        <div class="dashboard-box panel panel-default">
-            <div class="panel-heading">
-                <h2 class="panel-title">
-                    <i class="icon fa fa-user"></i>
-                    You
-                </h2>
-            </div>
-            <div class="user panel-body">
-                {{ _user(current_user) }}
-            </div>
-        </div>
-        <div class="dashboard-box panel panel-default">
-            <div class="panel-heading">
-                <h2 class="panel-title">
-                    <i class="icon fa fa-group"></i>
-                    Users
-                </h2>
-            </div>
-            <div class="users panel-body">
-                {% for user in users %}
-                    {{ _user(user, True) }}
-                {% endfor %}
-            </div>
-        </div>
-        <div class="dashboard-box panel panel-default">
-            <div class="panel-heading">
-                <h2 class="panel-title">
-                    <i class="icon fa fa-book"></i>
-                    Library
-                </h2>
-            </div>
-            <div class="panel-body">
-                {% set tracks = request.library_dao.get_track_count() %}
-                {% set invalid = request.library_dao.get_invalid_track_count() %}
-                {% set albums = request.library_dao.get_album_count() %}
-                {% set artists = request.library_dao.get_artist_count() %}
-                {% set scanning = request.library.scanning %}
-                <p>
-                    We're currently <strong>{{ '' if scanning else 'not' }} scanning</strong> for new
-                    tracks.
-                </p>
-                <p>
-                    You have <strong>{{ tracks|format_number }}</strong> tracks
-                    (<strong>{{ invalid|format_number }}</strong> invalid,
-                    {{ "%0.f" % ((invalid / tracks if tracks > 0 else 0) * 100) }}%), <strong>{{ albums|format_number }}</strong>
-                    albums and <strong>{{ artists|format_number }}</strong> artists.
-                </p>
-            </div>
-        </div>
-    </div>
     </div>
 </div>
 {% endblock %}
