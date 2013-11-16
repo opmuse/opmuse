@@ -1325,7 +1325,7 @@ class Dashboard:
 
         remotes_user = remotes.get_user(cherrypy.request.user)
 
-        user = {
+        current_user = {
             'user': cherrypy.request.user,
             'current_track': queue_dao.get_current_track(cherrypy.request.user.id),
             'remotes_user': remotes_user,
@@ -1335,7 +1335,7 @@ class Dashboard:
 
         new_albums = library_dao.get_new_albums(16, 0)
 
-        all_users = [user] + users
+        all_users = [current_user] + users
 
         index = 0
 
@@ -1412,7 +1412,7 @@ class Dashboard:
         top_artists = list(top_artists.keys())
 
         return {
-            'user': user,
+            'current_user': current_user,
             'users': users,
             'top_artists': top_artists,
             'recent_tracks': recent_tracks,
