@@ -1331,52 +1331,46 @@ class Dashboard:
             'remotes_user': remotes_user,
         }
 
-        recent_tracks = []
+        all_recent_tracks = []
 
         new_albums = library_dao.get_new_albums(16, 0)
 
         all_users = [current_user] + users
 
-        index = 0
+        for user in all_users:
+            if user['remotes_user'] is None or user['remotes_user']['lastfm'] is None:
+                continue
 
-        while True:
-            found = False
+            all_recent_tracks += user['remotes_user']['lastfm']['recent_tracks']
 
-            for user in all_users:
-                if (user['remotes_user'] is None or user['remotes_user']['lastfm'] is None or
-                    len(user['remotes_user']['lastfm']['recent_tracks']) < index):
-                    continue
+        all_recent_tracks = sorted(all_recent_tracks,
+                                   key=lambda recent_track: recent_track['timestamp'], reverse=True)
 
-                found = True
+        recent_tracks = []
 
-                recent_track = user['remotes_user']['lastfm']['recent_tracks'][index]
+        for recent_track in all_recent_tracks[0:24]:
+            results = search.query_artist(recent_track['artist'], exact=True)
 
-                results = search.query_artist(recent_track['artist'], exact=True)
+            track = artist = None
 
-                track = artist = None
+            if len(results) > 0:
+                artist = results[0]
+
+                results = search.query_track(recent_track['name'], exact=True)
 
                 if len(results) > 0:
-                    artist = results[0]
+                    for result in results:
+                        if result.artist.id == artist.id:
+                            track = result
 
-                    results = search.query_track(recent_track['name'], exact=True)
-
-                    if len(results) > 0:
-                        for result in results:
-                            if result.artist.id == artist.id:
-                                track = result
-
-                recent_tracks.append({
-                    'artist': artist,
-                    'track': track,
-                    'artist_name': recent_track['artist'],
-                    'name': recent_track['name'],
-                    'user': user['user']
-                })
-
-            index += 1
-
-            if not found or index >= 16:
-                break
+            recent_tracks.append({
+                'artist': artist,
+                'track': track,
+                'artist_name': recent_track['artist'],
+                'name': recent_track['name'],
+                'timestamp': recent_track['timestamp'],
+                'user': user['user']
+            })
 
         top_artists = OrderedDict({})
 

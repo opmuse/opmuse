@@ -70,7 +70,8 @@
                             {{ recent_track.name }}
                         </p>
                         <p>
-                            Listened by
+                            {{ recent_track.timestamp|pretty_date }}
+                            by
                             <a href="/users/user/{{ recent_track.user.login }}">
                                 {{ recent_track.user.login }}
                             </a>
