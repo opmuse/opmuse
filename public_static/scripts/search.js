@@ -14,7 +14,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
 
             var that = this;
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 
@@ -23,8 +23,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         internalInit: function () {
             var query = $("#search").data("query");
 
-            $('.search-query').bind('keyup', function (event) {
-
+            $('.search-query')
+                .off('keyup.search-query')
+                .on('keyup.search-query', function (event) {
                 if (event.keyCode == 13 && $(this).val() != "") {
                     $(this).blur();
                     $(window).focus();
