@@ -35,6 +35,9 @@ class CacheStorage:
         self._storage = {}
 
     def set(self, key, updated, value):
+        if value is Keep and key in self._storage:
+            value = self._storage[key]['value']
+
         self._storage[key] = {
             'value': value,
             'updated': updated
@@ -71,6 +74,10 @@ class Cache:
         are only used to mark the key as used until the data is actually set
         (e.g. for slow bgtasks and such) so if that fails the Keep value is
         invalid and it's "safe" to try again.
+
+        This only happens the first time a value is fetched because subsequent
+        times it will just have left the already set value. But it only needs to
+        happen the first time...
     """
 
     def __init__(self):
