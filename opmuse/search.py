@@ -143,9 +143,10 @@ class Search:
 
         if cache_age is None or cache.needs_update(cache_key, cache_age):
             results = write_handler.index.searcher().search(terms)
+
             ret = set([(int(result['id']), result.score) for result in results])
 
-            if cache_age is not None:
+            if cache_age is not None and len(ret) > 0:
                 cache.set(cache_key, ret)
         else:
             ret = cache.get(cache_key)
