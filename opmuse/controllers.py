@@ -10,6 +10,7 @@ import math
 import time
 import mimetypes
 import string
+from datetime import timedelta
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
@@ -1337,11 +1338,45 @@ class Dashboard:
         recent_tracks = Dashboard.get_recent_tracks(all_users)
         new_albums = library_dao.get_new_albums(16, 0)
 
+        now = datetime.datetime.now()
+
+        day_format = "%Y-%m-%d"
+
+        today = now.strftime(day_format)
+        yesterday = (now - timedelta(days=1)).strftime(day_format)
+        week = now.isocalendar()[0:1]
+
+        for recent_track in recent_tracks:
+            track = recent_track['track']
+
+            if track is None:
+                continue
+
+            user = recent_track['user']
+
+            if 'played_times' not in user:
+                user['played_times'] = {
+                    'today': 0,
+                    'yesterday': 0,
+                    'week': 0
+                }
+
+            track_datetime = datetime.datetime.fromtimestamp(int(recent_track['timestamp']))
+
+            if track_datetime.strftime(day_format) == yesterday:
+                user['played_times']['yesterday'] += track.duration
+
+            if track_datetime.strftime(day_format) == today:
+                user['played_times']['today'] += track.duration
+
+            if track_datetime.isocalendar()[0:1] == week:
+                user['played_times']['week'] += track.duration
+
         return {
             'current_user': current_user,
             'users': users,
             'top_artists': top_artists,
-            'recent_tracks': recent_tracks,
+            'recent_tracks': recent_tracks[0:24],
             'new_albums': new_albums
         }
 
@@ -1393,7 +1428,7 @@ class Dashboard:
             recent_tracks = []
 
             for recent_track in user['remotes_user']['lastfm']['recent_tracks']:
-                recent_tracks.append((user['user'], recent_track))
+                recent_tracks.append((user, recent_track))
 
             all_recent_tracks += recent_tracks
 
@@ -1402,7 +1437,7 @@ class Dashboard:
 
         recent_tracks = []
 
-        for user, recent_track in all_recent_tracks[0:24]:
+        for user, recent_track in all_recent_tracks:
             results = search.query_artist(recent_track['artist'], exact=True, cache_age=7200)
 
             track = artist = None

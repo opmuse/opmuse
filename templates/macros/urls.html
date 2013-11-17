@@ -1,3 +1,7 @@
+{% macro track_url(track) -%}
+    /library/track/{{ track.slug|urlencode }}
+{%- endmacro %}
+
 {% macro artist_url(artist) -%}
     /{{ artist.slug|urlencode }}
 {%- endmacro %}

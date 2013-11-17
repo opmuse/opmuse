@@ -33,6 +33,14 @@
                     {% endif %}.
                 {% endif %}
             </p>
+            <p>
+                {% if user.played_times is defined %}
+                    Listened
+                    <strong>{{ user.played_times.today|format_seconds_alt }}</strong> today,
+                    <strong>{{ user.played_times.yesterday|format_seconds_alt }}</strong> yesterday,
+                    <strong>{{ user.played_times.week|format_seconds_alt }}</strong> this week.
+                {% endif %}
+            </p>
         </div>
     </div>
 {% endmacro %}
@@ -67,13 +75,19 @@
                             {% endif %}
                         </p>
                         <p>
-                            {{ recent_track.name }}
+                            {% if recent_track.track %}
+                                <a href="{{ urls.track_url(recent_track.track) }}">
+                                    {{ recent_track.track.name }}
+                                </a>
+                            {% else %}
+                                {{ recent_track.name }}
+                            {% endif %}
                         </p>
                         <p>
                             {{ recent_track.timestamp|pretty_date }}
                             by
-                            <a href="/users/user/{{ recent_track.user.login }}">
-                                {{ recent_track.user.login }}
+                            <a href="/users/user/{{ recent_track.user.user.login }}">
+                                {{ recent_track.user.user.login }}
                             </a>
                         </p>
                         <div class="clear"></div>
