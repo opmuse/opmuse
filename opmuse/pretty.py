@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 def pretty_date(time):
     now = datetime.now()
 
