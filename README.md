@@ -70,9 +70,9 @@ When you do a git pull some of these might be required.
 
     $ merge config/opmuse.dist.ini config/opmuse.ini
 
-    $ pip install -r requirements.txt
+    $ pip install --upgrade -r requirements.txt
 
-    $ pip install -r optional-requirements.txt
+    $ pip install --upgrade -r optional-requirements.txt
 
     $ rm opmuse.db # e.g. drop database..
     $ rm -rf cache/index/* # remove whoosh index
