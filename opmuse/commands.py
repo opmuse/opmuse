@@ -1,13 +1,19 @@
+import os
 import argparse
 from opmuse.boot import configure
+from opmuse.database import Base, get_engine
+from alembic.config import Config
+from alembic import command
 
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
 
 
 def command_database(action=None):
     if action == "update":
-        from opmuse.database import Base, get_engine
         Base.metadata.create_all(get_engine())
+        alembic_config = Config(os.path.join("alembic.ini"))
+        command.stamp(alembic_config, "head")
     else:
         parser.error('Needs to provide a valid action (update).')
 
