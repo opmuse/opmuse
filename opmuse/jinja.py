@@ -167,6 +167,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['json'] = json
         self.env.filters['startswith'] = startswith
         self.env.filters['track_path'] = track_path
+        self.env.filters['round'] = round
 
         self.env.globals['rand_id'] = rand_id
         self.env.globals['is_granted'] = is_granted
