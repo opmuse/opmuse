@@ -845,6 +845,7 @@ class Library:
 
     def __init__(self, path):
         self.scanning = False
+        self.files_found = None
         self._path = path
 
     @staticmethod
@@ -905,6 +906,8 @@ class Library:
                     filename = os.path.join(path, filename)
 
                     queue.append(filename)
+
+        self.files_found = index
 
         log("%d files found" % index)
 
@@ -1425,6 +1428,11 @@ class LibraryDao:
 
     def get_track_count(self):
         return (get_database().query(func.count(Track.id))
+                .filter(Track.scanned).scalar())
+
+    def get_track_path_count(self):
+        return (get_database().query(func.count(TrackPath.id))
+                .join(Track, Track.id == TrackPath.track_id)
                 .filter(Track.scanned).scalar())
 
     def get_tracks_by_ids(self, ids):

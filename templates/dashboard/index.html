@@ -159,7 +159,12 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="dashboard-box panel panel-info">
+                {% set tracks = request.library_dao.get_track_count() %}
+                {% set invalid = request.library_dao.get_invalid_track_count() %}
+                {% set albums = request.library_dao.get_album_count() %}
+                {% set artists = request.library_dao.get_artist_count() %}
+                {% set scanning = request.library.scanning %}
+                <div class="dashboard-box panel panel-{{ "primary" if scanning else "info" }}">
                     <div class="panel-heading">
                         <h2 class="panel-title">
                             <i class="icon fa fa-book"></i>
@@ -167,15 +172,19 @@
                         </h2>
                     </div>
                     <div class="panel-body">
-                        {% set tracks = request.library_dao.get_track_count() %}
-                        {% set invalid = request.library_dao.get_invalid_track_count() %}
-                        {% set albums = request.library_dao.get_album_count() %}
-                        {% set artists = request.library_dao.get_artist_count() %}
-                        {% set scanning = request.library.scanning %}
-                        <p>
-                            We're currently <strong>{{ '' if scanning else 'not' }} scanning</strong> for new
-                            tracks.
-                        </p>
+                        {% if scanning %}
+                            {% set track_paths = request.library_dao.get_track_path_count() %}
+                            {% set files_found = request.library.files_found %}
+                            <p>
+                                We're currently scanning for new tracks.
+                                {{ track_paths|format_number }} of {{ files_found|format_number }} files scanned.
+                            </p>
+                            <div class="progress progress-striped active">
+                                <span class="progress-bar"
+                                    style="width: {{ (track_paths / files_found) * 100 if files_found else 0 }}%">
+                                </span>
+                            </div>
+                        {% endif %}
                         <p>
                             You have <strong>{{ tracks|format_number }}</strong> tracks
                             (<strong>{{ invalid|format_number }}</strong> invalid,
