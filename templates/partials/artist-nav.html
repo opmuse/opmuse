@@ -3,7 +3,7 @@
 <div class="artist-nav">
     {% if album is defined and album%}
         <div class="remotes remotes_album_nav_{{ album.id }}">
-            <div class="sidebar-nav panel panel-default">
+            <div class="sidebar-nav panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">{{ album.name }}</h3>
                 </div>
@@ -44,7 +44,7 @@
         {% for artist in artists %}
             <div class="remotes remotes_artist_nav_{{ artist.id }}">
                 {% set remotes_artist = remotes_artists[loop.index0] %}
-                <div class="sidebar-nav panel panel-default">
+                <div class="sidebar-nav panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">{{ artist.name }}</h3>
                     </div>

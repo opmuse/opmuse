@@ -5,17 +5,17 @@
 {% endblock %}
 
 {% block right %}
-<div class="panel panel-default sidebar-nav">
-    {% if remotes_user and remotes_user.lastfm %}
+<div class="panel panel-info sidebar-nav">
     <div class="panel-heading">
         <h3 class="panel-title">{{ user.login }}</h3>
     </div>
     <ul class="list-group">
-        <li class="list-group-item">
-            <a href="{{ remotes_user.lastfm.url }}">on Lastfm</a>
-        </li>
+        {% if remotes_user and remotes_user.lastfm %}
+            <li class="list-group-item">
+                <a href="{{ remotes_user.lastfm.url }}">on Lastfm</a>
+            </li>
+        {% endif %}
     </ul>
-    {% endif %}
 </div>
 {% endblock %}
 
