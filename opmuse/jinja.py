@@ -207,6 +207,9 @@ class Jinja(HandlerWrapperTool):
         HandlerWrapperTool.callable(self)
 
     def jinja(self, next_handler, *args, **kwargs):
+        if cherrypy.request.jinja is None:
+            return
+
         response_dict = next_handler(*args, **kwargs)
         conf = self._merged_args()
 
@@ -237,6 +240,9 @@ class JinjaAuthenticatedTool(cherrypy.Tool):
                                self.start, priority=20)
 
     def start(self):
+        if cherrypy.request.jinja is None:
+            return
+
         cherrypy.request.jinja.globals['authenticated'] = False
         cherrypy.request.jinja.globals['user'] = None
 
