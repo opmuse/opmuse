@@ -132,6 +132,24 @@ class Cache:
     def delete(self, key):
         self.storage.delete(key)
 
+    def call(self, method, args, age):
+        """
+            Calls method if new/old or uses cached value if not.
+            Only supports caching on method name and not on args.
+        """
+        if not hasattr(method, '__self__'):
+            raise ValueError('Unsupported method type, need @classmethod.')
+
+        key = "%s.%s.%s" % (method.__module__, method.__self__.__name__, method.__name__)
+
+        if self.needs_update(key, age):
+            result = method(*args)
+            self.set(key, result)
+        else:
+            result = self.get(key)
+
+        return result
+
 
 class CachePlugin(Monitor):
     GC_AGE = 3 * 30 * 24 * 3600
