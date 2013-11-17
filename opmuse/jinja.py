@@ -117,6 +117,31 @@ def nl2p(string):
     return ''.join(paragraphs)
 
 
+def format_seconds_alt(seconds):
+    if seconds is None:
+        seconds = 0
+
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    if minutes > 0:
+        minute_str = "%dm " % minutes
+    else:
+        minute_str = ""
+
+    if hours > 0:
+        hour_str = "%dh " % hours
+    else:
+        hour_str = ""
+
+    if hours == 0 and minutes == 0 and seconds == 0 or seconds > 0:
+        second_str = "%ds " % seconds
+    else:
+        second_str = ""
+
+    return "%s%s%s" % (hour_str, minute_str, second_str)
+
+
 def format_seconds(seconds):
     if seconds is None:
         seconds = 0
@@ -160,6 +185,7 @@ class JinjaPlugin(SimplePlugin):
 
         self.env.filters['nl2p'] = nl2p
         self.env.filters['format_seconds'] = format_seconds
+        self.env.filters['format_seconds_alt'] = format_seconds_alt
         self.env.filters['pretty_date'] = pretty_date
         self.env.filters['format_number'] = format_number
         self.env.filters['show_ws'] = show_ws
