@@ -49,7 +49,7 @@ you're on Windows you're on your own.
     $ cp config/opmuse.dist.ini config/opmuse.ini
     $ edit config/opmuse.ini
     $ ./console database update
-    $ ./run.sh
+    $ ./console cherrypy
 
 If you want MySQL support and some additional dev-tools you should do this.
 
