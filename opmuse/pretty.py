@@ -1,25 +1,20 @@
+from datetime import datetime
 
-
-# stolen and slightly modified from
-# http://stackoverflow.com/questions/1551382/python-user-friendly-time-format
-def pretty_date(time=False):
-    """
-    Get a datetime object or a int() Epoch timestamp and return a
-    pretty string like 'an hour ago', 'Yesterday', '3 months ago',
-    'just now', etc
-    """
-    from datetime import datetime
+def pretty_date(time):
     now = datetime.now()
 
-    if type(time) is str:
+    if time is None:
+        time = 0
+    elif type(time) is str:
         time = int(time)
 
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time, datetime):
         diff = now - time
-    elif not time:
-        diff = now - now
+    else:
+        raise ValueError("Unsupported time value.")
+
     second_diff = diff.seconds
     day_diff = diff.days
 
@@ -29,22 +24,24 @@ def pretty_date(time=False):
     if day_diff == 0:
         if second_diff < 10:
             return "just now"
-        if second_diff < 60:
-            return str(int(second_diff)) + " seconds ago"
-        if second_diff < 120:
+        elif second_diff < 60:
+            return "%d seconds ago" % second_diff
+        elif second_diff < 120:
             return "a minute ago"
-        if second_diff < 3600:
-            return str(int(second_diff / 60)) + " minutes ago"
-        if second_diff < 7200:
+        elif second_diff < 3600:
+            return "%d minutes ago" % (second_diff / 60)
+        elif second_diff < 7200:
             return "an hour ago"
-        if second_diff < 86400:
-            return str(int(second_diff / 3600)) + " hours ago"
-    if day_diff == 1:
-        return "Yesterday"
-    if day_diff < 7:
-        return str(int(day_diff)) + " days ago"
-    if day_diff < 31:
-        return str(int(day_diff / 7)) + " weeks ago"
-    if day_diff < 365:
-        return str(int(day_diff / 30)) + " months ago"
-    return str(int(day_diff / 365)) + " years ago"
+        elif second_diff < 86400:
+            return "%d hours ago" % (second_diff / 3600)
+    else:
+        if day_diff == 1:
+            return "1 day ago"
+        elif day_diff < 7:
+            return "%d days ago" % day_diff
+        elif day_diff < 31:
+            return "%d weeks ago" % (day_diff / 7)
+        elif day_diff < 365:
+            return "%d months ago" % (day_diff / 30)
+
+    return "%d years ago" % (day_diff / 365)
