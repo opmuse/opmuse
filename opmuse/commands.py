@@ -11,9 +11,15 @@ parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
 
 
 def command_cherrypy(*args):
-    subprocess.call([
-        'python', 'opmuse/boot.py'
-    ] + list(args), cwd=root_path)
+    try:
+        process = subprocess.Popen([
+            'python', 'opmuse/boot.py'
+        ] + list(args), cwd=root_path)
+
+        process.wait()
+    except KeyboardInterrupt:
+        process.terminate()
+        process.wait()
 
 
 def command_database(action=None):
