@@ -1341,14 +1341,19 @@ class Dashboard:
             if user['remotes_user'] is None or user['remotes_user']['lastfm'] is None:
                 continue
 
-            all_recent_tracks += user['remotes_user']['lastfm']['recent_tracks']
+            recent_tracks = []
+
+            for recent_track in user['remotes_user']['lastfm']['recent_tracks']:
+                recent_tracks.append((user['user'], recent_track))
+
+            all_recent_tracks += recent_tracks
 
         all_recent_tracks = sorted(all_recent_tracks,
-                                   key=lambda recent_track: recent_track['timestamp'], reverse=True)
+                                   key=lambda recent_track: recent_track[1]['timestamp'], reverse=True)
 
         recent_tracks = []
 
-        for recent_track in all_recent_tracks[0:24]:
+        for user, recent_track in all_recent_tracks[0:24]:
             results = search.query_artist(recent_track['artist'], exact=True)
 
             track = artist = None
@@ -1369,7 +1374,7 @@ class Dashboard:
                 'artist_name': recent_track['artist'],
                 'name': recent_track['name'],
                 'timestamp': recent_track['timestamp'],
-                'user': user['user']
+                'user': user
             })
 
         top_artists = OrderedDict({})
