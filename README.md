@@ -48,6 +48,7 @@ you're on Windows you're on your own.
     $ pip install -r requirements.txt
     $ cp config/opmuse.dist.ini config/opmuse.ini
     $ edit config/opmuse.ini
+    $ ./console database update
     $ ./run.sh
 
 If you want MySQL support and some additional dev-tools you should do this.
@@ -74,7 +75,8 @@ When you do a git pull some of these might be required.
 
     $ pip install --upgrade -r optional-requirements.txt
 
-    $ rm opmuse.db # e.g. drop database..
+    $ ./console database update
+
     $ rm -rf cache/index/* # remove whoosh index
 
 ### Our Doctrine

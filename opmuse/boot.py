@@ -8,7 +8,7 @@ import locale
 from os.path import join, abspath, dirname
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
-from opmuse.security import User, repozewho_pipeline, AuthenticatedTool, AuthorizeTool
+from opmuse.security import repozewho_pipeline, AuthenticatedTool, AuthorizeTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedTool
 from opmuse.search import WhooshPlugin

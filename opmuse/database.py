@@ -57,7 +57,6 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
 
     def start(self):
         self.engine = get_engine()
-        Base.metadata.create_all(self.engine)
 
     start.priority = 100
 

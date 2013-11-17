@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [[ -z $ROOT ]]; then
+    ROOT=$(dirname $0)
+fi
+
+if [[ -z $PYTHONPATH ]]; then
+    export PYTHONPATH=.:$ROOT
+else
+    export PYTHONPATH=$PYTHONPATH:$ROOT
+fi
+
+if [ -f $ROOT/virtualenv/bin/activate ]; then
+    . $ROOT/virtualenv/bin/activate
+else
+    echo "error: Missing virtualenv."
+    exit 1
+fi
+
+python $ROOT/opmuse/commands.py $@
