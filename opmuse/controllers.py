@@ -1001,7 +1001,7 @@ class Library(object):
 
             if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for artist in remotes_user['lastfm']['top_artists_overall']:
-                    artist_results = search.query_artist(artist['name'], exact = True)
+                    artist_results = search.query_artist(artist['name'], exact = True, cache_age = 7200)
 
                     if len(artist_results) > 0:
                         artist_ids.append(artist_results[0].id)
@@ -1018,7 +1018,7 @@ class Library(object):
 
                 if remotes_tag is not None and remotes_tag['lastfm'] is not None:
                     for artist in remotes_tag['lastfm']['artists']:
-                        artist_results = search.query_artist(artist['name'], exact = True)
+                        artist_results = search.query_artist(artist['name'], exact = True, cache_age = 7200)
 
                         if len(artist_results) > 0:
                             artist_ids.append(artist_results[0].id)
@@ -1085,7 +1085,7 @@ class Library(object):
 
             if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for album in remotes_user['lastfm']['top_albums_overall']:
-                    album_results = search.query_album(album['name'], exact = True)
+                    album_results = search.query_album(album['name'], exact = True, cache_age = 7200)
 
                     if len(album_results) > 0:
                         album_ids.append(album_results[0].id)
@@ -1107,7 +1107,7 @@ class Library(object):
 
                 if remotes_tag is not None and remotes_tag['lastfm'] is not None:
                     for album in remotes_tag['lastfm']['albums']:
-                        album_results = search.query_album(album['name'], exact = True)
+                        album_results = search.query_album(album['name'], exact = True, cache_age = 7200)
 
                         if len(album_results) > 0:
                             album_ids.append(album_results[0].id)
