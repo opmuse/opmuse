@@ -77,13 +77,15 @@
                     <td>
                         <input type="hidden" name="ids" value="{{ track.id }}" />
                         <input tabindex="{{ loop.index }}" autocomplete="off"
-                            type="text" class="artist form-control" name="artists" value="{{ track.artist.name|e }}"
+                            type="text" class="artist form-control" name="artists"
+                            value="{{ track.artist.name|e if track.artist else '' }}"
                             data-original-value="{{ track.artist.name|e }}" />
                     </td>
                     <td>
                         <input tabindex="{{ loop.index + tracks|length }}" autocomplete="off"
-                            type="text" class="album form-control" name="albums" value="{{ track.album.name|e }}"
-                            data-original-value="{{ track.album.name|e }}" />
+                            type="text" class="album form-control" name="albums"
+                            value="{{ track.album.name|e if track.album else '' }}"
+                            data-original-value="{{ track.album.name|e if track.album else '' }}" />
                     </td>
                     <td>
                         <input tabindex="{{ loop.index + tracks|length * 2 }}" autocomplete="off"
@@ -93,7 +95,7 @@
                     <td>
                         <input tabindex="{{ loop.index + tracks|length * 3 }}" autocomplete="off"
                             type="text" class="date form-control" name="dates"
-                            value="{{ track.album.date|e if track.album.date else '' }}" />
+                            value="{{ track.album.date|e if track.album and track.album.date else '' }}" />
                     </td>
                     <td>
                         <input tabindex="{{ loop.index + tracks|length * 4 }}" autocomplete="off"
