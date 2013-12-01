@@ -6,7 +6,8 @@ A web application to play, organize and share your music library.
 
 ### Using
 
-The only way we distribute right now is through our Debian apt repository. Other
+**This whole section is under development and will not work as advertised!** The
+only way we distribute right now is through our Debian apt repository. Other
 than if you feel comfortable enough to set everything up from the git repository
 yourself. Take a look at *Developing* if so.
 
