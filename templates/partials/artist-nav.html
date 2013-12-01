@@ -10,7 +10,7 @@
                 <ul class="list-group">
                     <li class="list-group-item">
                     {%- if remotes_album -%}
-                        {% if remotes_album.lastfm.url %}
+                        {% if remotes_album.lastfm and remotes_album.lastfm.url %}
                             <a href="{{ remotes_album.lastfm.url }}">on Lastfm</a>,
                         {% endif %}
                     {% endif %}
@@ -22,13 +22,13 @@
                             on Google Translate</a>
                     <li class="list-group-item">
                         {% if remotes_album %}
-                            {% if remotes_album.lastfm.listeners %}
+                            {% if remotes_album.lastfm and remotes_album.lastfm.listeners %}
                                 <strong>{{ remotes_album.lastfm.listeners|format_number }}</strong> Lastfm Listeners
                             {% endif %}
                         {% endif %}
                     </li>
                     <li class="list-group-item">
-                        {% if remotes_album %}
+                        {% if remotes_album and remotes_album.lastfm %}
                             {% for tag in remotes_album.lastfm.tags %}
                             <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
                                 <a href="/library/albums?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
@@ -51,7 +51,7 @@
                     <ul class="list-group">
                         <li class="list-group-item">
                         {% if remotes_artist is defined and remotes_artist %}
-                            {% if remotes_artist.lastfm.url %}
+                            {% if remotes_artist.lastfm and remotes_artist.lastfm.url %}
                                 <a href="{{ remotes_artist.lastfm.url }}">on Lastfm</a>,
                             {% endif %}
                         {% endif %}
@@ -74,12 +74,12 @@
                         {% endif %}
                         <li class="list-group-item">
                             {% if remotes_artist is defined and remotes_artist %}
-                                {% if remotes_artist.lastfm.listeners %}
+                                {% if remotes_artist.lastfm and remotes_artist.lastfm.listeners %}
                                     <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
                                 {% endif %}
                             {% endif %}
                         </li>
-                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm.tags|count > 0 %}
+                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm and remotes_artist.lastfm.tags|count > 0 %}
                             <li class="list-group-item">
                                 {% for tag in remotes_artist.lastfm.tags %}
                                 <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
@@ -88,7 +88,7 @@
                                 {% endfor %}
                             </li>
                         {% endif %}
-                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm.similar|count > 0 %}
+                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm and remotes_artist.lastfm.similar|count > 0 %}
                             <li class="list-group-item">
                                 {% for similar in remotes_artist.lastfm.similar %}
                                     <span class="label label-primary" title="Lastfm similar, {{ similar.name }}">
