@@ -187,6 +187,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             $(content)
                 .append($(newContent).contents());
 
+            // TODO adds attributes but doesn't remove no longer existing attributes
             $.each($(newContent).get(0).attributes, function (index, attribute) {
                 $(content).attr(attribute.name, attribute.value);
             });
