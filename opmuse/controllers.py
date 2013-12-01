@@ -21,7 +21,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func, distinct, or_
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
-from opmuse.lastfm import SessionKey, lastfm
+from opmuse.lastfm import SessionKey, lastfm, LastfmError
 from opmuse.library import (Album, Artist, Track, TrackPath, library_dao,
                             Library as LibraryService, TrackStructureParser)
 from opmuse.security import User, Role, hash_password
@@ -459,6 +459,7 @@ class You:
     def lastfm(self):
 
         auth_url = authenticated_user = new_auth = None
+        need_config = False
 
         cache_key = 'you_lastfm_session_key_%d' % cherrypy.request.user.id
 
@@ -477,11 +478,15 @@ class You:
                     new_auth = True
                     raise HTTPRedirect('/users/you/lastfm')
             else:
-                session_key = SessionKey()
-                auth_url = session_key.get_auth_url()
-                cache.set(cache_key, session_key)
+                try:
+                    session_key = SessionKey()
+                    auth_url = session_key.get_auth_url()
+                    cache.set(cache_key, session_key)
+                except LastfmError:
+                    need_config = True
 
         return {
+            'need_config': need_config,
             'auth_url': auth_url,
             'new_auth': new_auth
         }

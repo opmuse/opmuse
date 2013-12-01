@@ -15,6 +15,10 @@ User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
 
 
+class LastfmError(Exception):
+    pass
+
+
 def log(msg):
     cherrypy.log(msg, context='lastfm')
 
@@ -45,6 +49,10 @@ class Lastfm:
 
     def get_network(self, session_key = ''):
         config = cherrypy.tree.apps[''].config['opmuse']
+
+        if 'lastfm.key' not in config or 'lastfm.secret' not in config:
+            raise LastfmError('lastfm.key and lastfm.secret needs to be set for lastfm features.')
+
         key = config['lastfm.key']
         secret = config['lastfm.secret']
         return get_lastfm_network(key, secret, session_key)
@@ -66,7 +74,7 @@ class Lastfm:
         try:
             network = self.get_network(session_key)
             network.update_now_playing(**args)
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             log('Network error, failed to update now playing for "%s - %s - %s": %s.' % (
                 args['artist'],
                 args['album'],
@@ -105,7 +113,7 @@ class Lastfm:
                 seconds
             ))
 
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             # TODO put in queue and scrobble later
             log('Network error, failed to scrobble "%s - %s - %s": %s.' % (
                 args['artist'],
@@ -168,7 +176,7 @@ class Lastfm:
                 'top_albums_overall': self.get_top_albums(PERIOD_OVERALL, user_name, 1, 500, session_key)
             }
 
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             log('Failed to get user "%s": %s.' % (
                 user_name,
                 error
@@ -213,7 +221,7 @@ class Lastfm:
                 last_weight = album.weight
 
             return top_albums
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             log('Network error, failed to get %s: %s.' % (user_name, error))
 
     def get_top_artists(self, type, user_name, page = 1, limit = 50, session_key = None):
@@ -255,7 +263,7 @@ class Lastfm:
                 last_weight = artist.weight
 
             return top_artists
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             log('Network error, failed to get %s: %s.' % (user_name, error))
 
     def _param_call(self, object, method, params, args):
@@ -293,7 +301,7 @@ class Lastfm:
                 'tags': tags,
                 'cover': album.get_cover_image()
             }
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             log('Failed to get album "%s - %s": %s' % (
                 artist_name,
                 album_name,
@@ -324,7 +332,7 @@ class Lastfm:
                 'artists': artists,
                 'albums': albums
             }
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             log('Failed to get tag "%s": %s' % (
                 tag_name,
                 error
@@ -375,7 +383,7 @@ class Lastfm:
                 'tags': tags,
                 'similar': similars
             }
-        except (WSError, NetworkError, MalformedResponseError) as error:
+        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
             log('Failed to get artist "%s": %s' % (
                 artist_name,
                 error
