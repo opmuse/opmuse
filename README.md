@@ -87,12 +87,8 @@ When you do a git pull some of these might be required.
     $ pip install --upgrade -r mysql-requirements.txt
     $ pip install --upgrade -r dev-requirements.txt
 
-    # if no rescan is required, just run migrations
+    $ ./console database reset # will initiate rescan, might not be required
     $ ./console database update
-
-    # if a rescan is required
-    $ ./console database drop
-    $ ./console database create
 
 ### Our Doctrine
 

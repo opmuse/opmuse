@@ -7,6 +7,9 @@ from alembic.config import Config
 from alembic import command
 from opmuse.boot import configure
 from opmuse.database import Base, get_engine, get_database_name, get_database_type
+from opmuse.library import TrackPath, Track, Artist, Album
+from opmuse.queues import Queue
+from opmuse.cache import CacheObject
 from search import INDEXDIR
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -50,8 +53,7 @@ def command_database(action=None):
                 engine = get_engine(no_database=True)
                 engine.execute("CREATE DATABASE %s" % get_database_name())
             except ProgrammingError as e:
-                print('Error occured while creating database: %s' % e)
-                return
+                parser.error('Error occured while creating database: %s' % e)
 
         engine = get_engine()
         Base.metadata.create_all(engine)
@@ -60,7 +62,7 @@ def command_database(action=None):
         try:
             command.upgrade(alembic_config, "head")
         except ProgrammingError as e:
-            print('Error occured while updating database: %s' % e)
+            parser.error('Error occured while updating database: %s' % e)
     elif action == "drop":
         if database_type == "sqlite":
             parser.error('Dropping is unsupported for sqlite.')
@@ -71,8 +73,17 @@ def command_database(action=None):
     elif action == "fixtures":
         from opmuse.fixtures import run_fixtures
         run_fixtures()
+    elif action == "reset":
+        engine = get_engine()
+        engine.execute(Queue.__table__.delete())
+        engine.execute(TrackPath.__table__.delete())
+        engine.execute(Track.__table__.delete())
+        engine.execute(Album.__table__.delete())
+        engine.execute(Artist.__table__.delete())
+        engine.execute(CacheObject.__table__.delete())
+        command_whoosh("drop")
     else:
-        parser.error('Needs to provide a valid action (create, update, drop, fixtures).')
+        parser.error('Needs to provide a valid action (create, update, drop, fixtures, reset).')
 
 
 def main():
