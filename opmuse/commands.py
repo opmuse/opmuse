@@ -31,6 +31,7 @@ def command_whoosh(action=None):
     else:
         parser.error('Needs to provide a valid action (drop).')
 
+
 def command_cherrypy(*args):
     try:
         process = subprocess.Popen([
