@@ -4,6 +4,7 @@
 /public_static/styles/*.css
 /public_static/styles/*/*.css
 /opmuse.db
+/opmuse.db-journal
 *.pyc
 /tests/opmuse.db
 /cache/*

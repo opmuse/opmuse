@@ -47,20 +47,32 @@ you're on Windows you're on your own.
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ cp config/opmuse.dist.ini config/opmuse.ini
-    $ edit config/opmuse.ini
-    $ ./console database update
+    $ edit config/opmuse.ini # fix library.path
+
+If you just want to use **SQLite**.
+
+    $ ./console database create
+
+If you want to use **MySQL** instead of SQLite (MySQL is recommended).
+
+    $ pip install -r mysql-requirements.txt
+    $ edit config/opmuse.ini # fix database.url
+    $ ./console database create
+
+If you want some additional dev tools (firepy, repoze.profile).
+
+    $ source virtualenv/bin/activate
+    $ pip install -r dev-requirements.txt
+    $ ./console cherrypy -- -f # start with firepy (use with cherrypy.request.firepy())
+    $ ./console cherrypy -- -p # start with repoze.profile (access it at /__profile__)
+
+You probably want fixtures for some default data (an admin account with password admin for one).
+
+    $ ./console database fixtures
+
+Then you start the whole debacle with
+
     $ ./console cherrypy
-
-If you want MySQL support and some additional dev-tools you should do this.
-
-    $ source virtualenv/bin/activate
-    $ pip install -r optional-requirements.txt
-
-You probably want fixtures for some default data (an admin account with password
-admin for one).
-
-    $ source virtualenv/bin/activate
-    $ python opmuse/fixtures.py
 
 #### Upgrading
 
@@ -72,10 +84,15 @@ When you do a git pull some of these might be required.
     $ merge config/opmuse.dist.ini config/opmuse.ini
 
     $ pip install --upgrade -r requirements.txt
+    $ pip install --upgrade -r mysql-requirements.txt
+    $ pip install --upgrade -r dev-requirements.txt
 
-    $ pip install --upgrade -r optional-requirements.txt
-
+    # if no rescan is required, just run migrations
     $ ./console database update
+
+    # if a rescan is required
+    $ ./console database drop
+    $ ./console database create
 
     $ rm -rf cache/index/* # remove whoosh index
 

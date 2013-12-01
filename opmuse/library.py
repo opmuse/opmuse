@@ -20,7 +20,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from multiprocessing import cpu_count
 from threading import Thread
-from opmuse.database import Base, get_session, get_type, get_database
+from opmuse.database import Base, get_session, get_database_type, get_database
 from opmuse.image import image
 from opmuse.search import search
 from unidecode import unidecode
@@ -253,6 +253,7 @@ class Track(Base):
     added = Column(DateTime, index=True)
     bitrate = Column(Integer)
     sample_rate = Column(Integer)
+    mode = Column(String(16))
     size = Column(BigInteger)
     invalid = Column(String(32), index=True)
     invalid_msg = Column(String(255))
@@ -320,6 +321,7 @@ class FileMetadata:
         self.disc = args[12]
         self.size = args[13]
         self.sample_rate = args[14]
+        self.mode = args[15]
 
         self.metadatas = args
 
@@ -391,7 +393,7 @@ class MutagenParser(TagParser):
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
             log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
-            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], "Mutagen: %s" % error) + ((None, ) * 5)))
+            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], "Mutagen: %s" % error) + ((None, ) * 6)))
 
         artist = str(tag['artist'][0]) if 'artist' in tag else None
         album = str(tag['album'][0]) if 'album' in tag else None
@@ -402,6 +404,19 @@ class MutagenParser(TagParser):
         bitrate = tag.info.bitrate if hasattr(tag.info, 'bitrate') else None
         sample_rate = tag.info.sample_rate if hasattr(tag.info, 'sample_rate') else None
         disc = str(tag['discnumber'][0]) if 'discnumber' in tag else None
+
+        mode = None
+
+        if hasattr(tag.info, 'mode'):
+            if tag.info.mode in (mutagen.mp3.STEREO, mutagen.mp3.JOINTSTEREO, mutagen.mp3.DUALCHANNEL):
+                mode = 'stereo'
+            elif tag.info.mode == mutagen.mp3.MONO:
+                mode = 'mono'
+        elif hasattr(tag.info, 'channels'):
+            if tag.info.channels == 2:
+                mode = 'stereo'
+            elif tag.info.channels == 1:
+                mode = 'mono'
 
         if artist is not None and len(artist) == 0:
             artist = None
@@ -425,7 +440,8 @@ class MutagenParser(TagParser):
             invalid = ['valid']
 
         return FileMetadata(artist, album, track, duration, number, None, date,
-                            bitrate, invalid, None, None, None, disc, None, sample_rate)
+                            bitrate, invalid, None, None, None, disc, None,
+                            sample_rate, mode)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -511,7 +527,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 15)
+                return FileMetadata(*(None, ) * 16)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
@@ -610,7 +626,8 @@ class PathParser(TagParser):
                     invalid = ['dir']
 
         return FileMetadata(artist, album, track_name, None, number, added, None, None,
-                            invalid, None, album_cover_path, artist_cover_path, disc, size, None)
+                            invalid, None, album_cover_path, artist_cover_path, disc, size,
+                            None, None)
 
     @staticmethod
     def match_in_dir(match_files, files):
@@ -873,7 +890,7 @@ class Library:
 
         self.scanning = True
 
-        self._database_type = get_type()
+        self._database_type = get_database_type()
         self._database = get_session()
 
         # always treat paths as bytes to avoid encoding issues we don't
@@ -1122,6 +1139,7 @@ class LibraryProcess:
         track.added = added
         track.bitrate = metadata.bitrate
         track.sample_rate = metadata.sample_rate
+        track.mode = metadata.mode
         track.size = metadata.size
         track.disc = metadata.disc
 

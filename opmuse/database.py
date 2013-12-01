@@ -1,4 +1,5 @@
 import cherrypy
+import re
 from urllib.parse import urlparse
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -19,16 +20,29 @@ def get_database():
             return bgtask_data.database
 
 
-def get_type():
+def get_database_type():
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']
-    return urlparse(url).scheme
+    return re.sub(r'(\+[^+]+)?$', '', urlparse(url).scheme)
 
 
-def get_engine():
+def get_engine(no_database=False):
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']
+
+    if no_database:
+        url = re.sub(r'/[^/]+$', '', url)
+
     return create_engine(url, echo=False, poolclass=NullPool, isolation_level="READ UNCOMMITTED")
+
+
+def get_database_name():
+    config = cherrypy.tree.apps[''].config['opmuse']
+    url = config['database.url']
+
+    match = re.search(r'/([^/]+)$', url)
+
+    return match.group(1)
 
 
 def get_raw_session(create_all = False):
