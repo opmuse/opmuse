@@ -77,6 +77,9 @@ def json(value):
 
 
 def format_number(number):
+    if number is None:
+        return None
+
     return locale.format('%d', number, grouping=True)
 
 

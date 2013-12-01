@@ -131,7 +131,7 @@
                 {% if track.bitrate %}
                     {{ (track.bitrate / 1024) | format_number }} kbits/s
                 {% else %}
-                    Unknown
+                    N/A
                 {% endif %}
                 {% if track.low_quality %}
                     <span class="label label-warning"
@@ -142,8 +142,18 @@
             </td>
         </tr>
         <tr>
+            <th>Mode</th>
+            <td>{{ track.mode if track.mode else "N/A" }}</td>
+        </tr>
+        <tr>
             <th>Sample Rate</th>
-            <td>{{ track.sample_rate|format_number }} Hz</td>
+            <td>
+                {% if track.sample_rate %}
+                    {{ track.sample_rate|format_number }} Hz
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Size</th>
@@ -161,7 +171,7 @@
                         {{ track.upload_user.login }}
                     </a>
                 {% else %}
-                    Unknown
+                    N/A
                 {% endif %}
             </td>
         </tr>
