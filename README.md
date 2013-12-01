@@ -47,13 +47,14 @@ you're on Windows you're on your own.
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ cp config/opmuse.dist.ini config/opmuse.ini
-    $ edit config/opmuse.ini
+    $ edit config/opmuse.ini # fix library.path
+
+If you just want to use **SQLite**.
+
     $ ./console database update
-    $ ./console cherrypy
 
 If you want to use **MySQL** instead of SQLite (MySQL is recommended).
 
-    $ source virtualenv/bin/activate
     $ pip install -r mysql-requirements.txt
     $ edit config/opmuse.ini # fix database.url
     $ mysql -e "create database opmuse"
@@ -63,13 +64,17 @@ If you want some additional dev tools (firepy, repoze.profile).
 
     $ source virtualenv/bin/activate
     $ pip install -r dev-requirements.txt
-    $ ./console cherrypy -- -f # start with firepy (use with *cherrypy.request.firepy()*)
-    $ ./console cherrypy -- -p # start with repoze.profile (access it at */__profile__*)
+    $ ./console cherrypy -- -f # start with firepy (use with cherrypy.request.firepy())
+    $ ./console cherrypy -- -p # start with repoze.profile (access it at /__profile__)
 
 You probably want fixtures for some default data (an admin account with password admin for one).
 
     $ source virtualenv/bin/activate
     $ python opmuse/fixtures.py
+
+Then you start the whole debacle with
+
+    $ ./console cherrypy
 
 #### Upgrading
 
