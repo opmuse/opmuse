@@ -51,14 +51,13 @@ you're on Windows you're on your own.
 
 If you just want to use **SQLite**.
 
-    $ ./console database update
+    $ ./console database create
 
 If you want to use **MySQL** instead of SQLite (MySQL is recommended).
 
     $ pip install -r mysql-requirements.txt
     $ edit config/opmuse.ini # fix database.url
-    $ mysql -e "create database opmuse"
-    $ ./console database update
+    $ ./console database create
 
 If you want some additional dev tools (firepy, repoze.profile).
 
@@ -69,8 +68,7 @@ If you want some additional dev tools (firepy, repoze.profile).
 
 You probably want fixtures for some default data (an admin account with password admin for one).
 
-    $ source virtualenv/bin/activate
-    $ python opmuse/fixtures.py
+    $ ./console database fixtures
 
 Then you start the whole debacle with
 
@@ -89,7 +87,12 @@ When you do a git pull some of these might be required.
     $ pip install --upgrade -r mysql-requirements.txt
     $ pip install --upgrade -r dev-requirements.txt
 
+    # if no rescan is required, just run migrations
     $ ./console database update
+
+    # if a rescan is required
+    $ ./console database drop
+    $ ./console database create
 
     $ rm -rf cache/index/* # remove whoosh index
 

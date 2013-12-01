@@ -20,7 +20,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from multiprocessing import cpu_count
 from threading import Thread
-from opmuse.database import Base, get_session, get_type, get_database
+from opmuse.database import Base, get_session, get_database_type, get_database
 from opmuse.image import image
 from opmuse.search import search
 from unidecode import unidecode
@@ -873,7 +873,7 @@ class Library:
 
         self.scanning = True
 
-        self._database_type = get_type()
+        self._database_type = get_database_type()
         self._database = get_session()
 
         # always treat paths as bytes to avoid encoding issues we don't
