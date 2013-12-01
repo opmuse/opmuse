@@ -1,3 +1,2 @@
-vendor/oursql-0.9.4.zip
 repoze.profile==2.0
 firepy==0.1.5
