@@ -1,4 +1,5 @@
 import os
+import shutil
 import argparse
 import subprocess
 from sqlalchemy.exc import ProgrammingError
@@ -6,10 +7,26 @@ from alembic.config import Config
 from alembic import command
 from opmuse.boot import configure
 from opmuse.database import Base, get_engine, get_database_name, get_database_type
+from search import INDEXDIR
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
 
+
+def command_whoosh(action=None):
+    if action == "drop":
+        for file in os.listdir(INDEXDIR):
+            if file[0:1] == ".":
+                continue
+
+            path = os.path.join(INDEXDIR, file)
+
+            if os.path.isfile(path):
+                os.unlink(path)
+            else:
+                shutil.rmtree(path)
+    else:
+        parser.error('Needs to provide a valid action (drop).')
 
 def command_cherrypy(*args):
     try:
@@ -50,6 +67,7 @@ def command_database(action=None):
 
         engine = get_engine(no_database=True)
         engine.execute("DROP DATABASE IF EXISTS %s" % get_database_name())
+        command_whoosh("drop")
     elif action == "fixtures":
         from opmuse.fixtures import run_fixtures
         run_fixtures()
@@ -58,7 +76,7 @@ def command_database(action=None):
 
 
 def main():
-    parser.add_argument('command', choices=('database', 'cherrypy'), help='Command to run.')
+    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh'), help='Command to run.')
     parser.add_argument('additional', nargs='*', help='Additional arguments.')
 
     args = parser.parse_args()

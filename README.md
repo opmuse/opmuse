@@ -94,8 +94,6 @@ When you do a git pull some of these might be required.
     $ ./console database drop
     $ ./console database create
 
-    $ rm -rf cache/index/* # remove whoosh index
-
 ### Our Doctrine
 
   - We don't exclusively store metadata about your library.

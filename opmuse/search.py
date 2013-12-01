@@ -15,6 +15,11 @@ import opmuse.library
 index_names = ['Artist', 'Album', 'Track']
 write_handlers = {}
 
+INDEXDIR = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)),
+    '..', 'cache', 'index'
+)
+
 
 def log(msg):
     cherrypy.log(msg, context='search')
@@ -170,13 +175,8 @@ class WhooshPlugin(Monitor):
         self._running = False
 
     def start(self):
-        indexdir = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
-            '..', 'cache', 'index'
-        )
-
         for index_name in index_names:
-            index_path = os.path.join(indexdir, index_name)
+            index_path = os.path.join(INDEXDIR, index_name)
 
             if whoosh.index.exists_in(index_path):
                 index = whoosh.index.open_dir(index_path)
