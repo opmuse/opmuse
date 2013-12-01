@@ -23,10 +23,12 @@
                     </dl>
                 </div>
                 <div class="right">
-                    <a class="remove-cover btn btn-default btn-sm"
-                        href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
-                        <i class="fa fa-refresh"></i>
-                    </a>
+                    {% if is_granted('admin') %}
+                        <a class="remove-cover btn btn-default btn-sm"
+                            href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
+                            <i class="fa fa-refresh"></i>
+                        </a>
+                    {% endif %}
                     {% if artist.invalid %}
                         <div class="labels">
                             {{ tracks.invalids_label(artist.invalid) }}

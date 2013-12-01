@@ -70,10 +70,12 @@
                     </div>
                     <div class="right">
                         {{ album_queue_btn(album) }}
-                        <a class="remove-cover btn btn-default btn-sm"
-                            href="/cover_refresh/album/{{ album.slug|urlencode }}">
-                            <i class="fa fa-refresh"></i>
-                        </a>
+                        {% if is_granted('admin') %}
+                            <a class="remove-cover btn btn-default btn-sm"
+                                href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                                <i class="fa fa-refresh"></i>
+                            </a>
+                        {% endif %}
                         <div class="labels">
                             {% if album.is_va %}
                                 <p class="album-va label label-success">VA</p>
