@@ -45,27 +45,6 @@ def show_ws(string):
     return replace_ws(replace_ws(string)[::-1])[::-1]
 
 
-def replace_ws(string):
-    match = re.search('\S', string)
-
-    if match is not None:
-        index = match.start()
-        return "%s%s" % (index * "\u2423", string[index:])
-    else:
-        return len(string) * "\u2423"
-
-
-def show_ws(string):
-    """
-    Helper for replacing trailing whitespace with the unicode visible space
-    character
-    """
-    if string is not None:
-        return replace_ws(replace_ws(string)[::-1])[::-1]
-
-    return string
-
-
 def format_bytes(bytes, precision=2):
     bytes = int(bytes)
 
