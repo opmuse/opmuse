@@ -20,7 +20,17 @@ a:hover {
 }
 
 .pagination-container {
-    text-align: center;
+    /* magic centering hack */
+    float: right;
+    right: 50%;
+    position: relative;
+    margin-bottom: 60px;
+
+    .pagination-inner {
+        float: right;
+        right: -50%;
+        position: relative;
+    }
 }
 
 html {

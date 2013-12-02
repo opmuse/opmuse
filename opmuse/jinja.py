@@ -33,6 +33,16 @@ from opmuse.queues import queue_dao
 VISIBLE_WS = "\u2423"
 
 
+# implemented with the help of http://codereview.stackexchange.com/a/15239
+def pagination_pages(page, pages, size):
+    if pages <= 10:
+        return list(range(1, pages + 1))
+    else:
+        return list(set(range(1, size + 1))
+                 | set(range(max(1, page - size + 1), min(page + size, pages + 1)))
+                 | set(range(pages - size + 1, pages + 1)))
+
+
 def is_granted(role):
     return _is_granted([role])
 
@@ -194,6 +204,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['track_path'] = track_path
         self.env.filters['round'] = round
 
+        self.env.globals['pagination_pages'] = pagination_pages
         self.env.globals['rand_id'] = rand_id
         self.env.globals['is_granted'] = is_granted
 
