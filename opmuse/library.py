@@ -867,12 +867,20 @@ class MetadataStructureParser(StructureParser):
         self._metadata = metadata
 
     def get_data(self):
-        return {
-            'artist': self._metadata.artist_name,
-            'album': self._metadata.album_name,
-            'disc': self._metadata.disc,
-            'date': self._metadata.date,
-        }
+        if self._metadata is not None:
+            return {
+                'artist': self._metadata.artist_name,
+                'album': self._metadata.album_name,
+                'disc': self._metadata.disc,
+                'date': self._metadata.date,
+            }
+        else:
+            return {
+                'artist': None,
+                'album': None,
+                'disc': None,
+                'date': None
+            }
 
 
 class Library:
