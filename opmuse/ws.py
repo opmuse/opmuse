@@ -149,7 +149,7 @@ class Ws:
         self._events[event].append(callback)
 
 
-class WsController(object):
+class WsController:
     @cherrypy.expose
     def default(self, *args, **kwargs):
         cherrypy.request.ws_handler.auth_user(cherrypy.request.user)

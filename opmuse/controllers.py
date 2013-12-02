@@ -768,7 +768,7 @@ class Queue:
         queue_dao.reset_current()
 
 
-class Styles(object):
+class Styles:
     @cherrypy.expose
     def default(self, *args, **kwargs):
         file = os.path.join(*args)
@@ -790,7 +790,7 @@ class Styles(object):
         return cherrypy.lib.static.serve_file(lesspath)
 
 
-class Library(object):
+class Library:
     search = Search()
     upload = Upload()
     edit = Edit()
@@ -1544,7 +1544,7 @@ class Stream:
         return transcoding.transcode(track_generator(), transcoder)
 
 
-class Root(object):
+class Root:
     @staticmethod
     def handle_error(status, message, traceback, version):
         return render_template("error.html", {

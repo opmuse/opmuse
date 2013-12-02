@@ -136,7 +136,7 @@ class AuthorizeTool(cherrypy.Tool):
             raise cherrypy.HTTPError(403)
 
 
-class DatabaseAuthenticator(object):
+class DatabaseAuthenticator:
 
     def authenticate(self, environ, identity):
         try:
