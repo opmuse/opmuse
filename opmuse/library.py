@@ -112,6 +112,10 @@ class Album(Base):
 
     @hybrid_property
     def is_ep(self):
+        for match in ('EP', 'ep', 'E.P.', 'e.p.'):
+            if re.search(r'\b%s$' % re.escape(match), self.name):
+                return True
+
         return not (len(self.tracks) > 6 or self.duration >= 60 * 20)
 
     @hybrid_property
