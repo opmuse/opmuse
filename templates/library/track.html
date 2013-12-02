@@ -59,11 +59,7 @@
     <table class="table table-striped table-bordered table-condensed">
         <tr>
             <th>Invalid</th>
-                {% if track.invalid %}
-                    <td class="{{ "warning" if track.invalid == 'dir' else "danger" }}">
-                {% else %}
-                    <td>
-                {% endif %}
+            <td>
                 {% if track.invalid %}
                     {{ tracks.invalid_label(track.invalid) }}
                 {% else %}

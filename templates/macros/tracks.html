@@ -179,7 +179,7 @@
                         </td>
                         <td>{{ track.duration|format_seconds }}</td>
                         {% if track.invalid %}
-                            {{ invalid_label(track.invalid) }}
+                            <td>{{ invalid_label(track.invalid) }}</td>
                         {% else %}
                             <td></td>
                         {% endif %}
