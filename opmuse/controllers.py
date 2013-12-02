@@ -357,6 +357,7 @@ class Upload:
 
         artist_name_fallback = None
 
+        # this file is a regular file that belongs to an audio_file
         if audio_file is not None:
             track = None
             tries = 0
@@ -433,7 +434,15 @@ class Upload:
             except Exception as error:
                 messages.append("%s: %s" % (os.path.basename(path), error))
 
+        # this is a plain audio file
         else:
+            for comp in basename.split('-'):
+                comp = comp.strip()
+
+                if not re.search(r'^[0-9]+$', comp):
+                    artist_name_fallback = comp
+                    break
+
             paths.append(path.encode('utf8'))
 
         for path in paths:
