@@ -211,32 +211,10 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             });
         },
         disableElements: function (element) {
-            $(element).addClass('ajaxify-disabled');
-
-            $(element).find("input, textarea, select").attr("disabled", "disabled");
-            $(element).find('.btn, a, input').addClass('disabled');
-
-            $(element).find("*").bind(
-                'click.ajaxify_disabled ' +
-                'dblclick.ajaxify_disabled ' +
-                'dragstart.ajaxify_disabled',
-                function(event) {
-                    return false;
-                }
-            ).unbind('click.ajaxify');
+            $("#overlay").removeClass("hide").addClass("transparent");
         },
         enableElements: function (element) {
-            $(element).removeClass('ajaxify-disabled');
-
-            $(element).find("input, textarea, select").removeAttr("disabled");
-
-            $(element).find('.btn, a, input').removeClass('disabled');
-
-            $(element).find("*").unbind(
-                'click.ajaxify_disabled ' +
-                'dblclick.ajaxify_disabled ' +
-                'dragstart.ajaxify_disabled'
-            );
+            $("#overlay").addClass("hide").removeClass("transparent");
         },
         getPage: function (href) {
             if (!this.isRelative(href)) {
