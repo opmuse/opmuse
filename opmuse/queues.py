@@ -26,6 +26,7 @@ from opmuse.database import Base, get_database
 from opmuse.security import User
 from opmuse.library import Track, Artist, Album, library_dao
 from opmuse.ws import ws
+from opmuse.utils import memoize
 
 
 class Queue(Base):
@@ -154,6 +155,7 @@ class QueueEvents:
 
 
 class QueueDao:
+    @memoize
     def get_current_track(self, user_id):
         try:
             return (get_database()
@@ -167,6 +169,7 @@ class QueueDao:
         except NoResultFound:
             return None
 
+    @memoize
     def get_queue(self, id):
         try:
             return get_database().query(Queue).filter_by(id=id).one()
@@ -230,6 +233,7 @@ class QueueDao:
 
         return next_queue
 
+    @memoize
     def get_queues(self, user_id):
         queues = []
 
