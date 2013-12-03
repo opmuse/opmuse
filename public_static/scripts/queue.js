@@ -83,7 +83,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             ws.on('queue.start', function (track, user_agent, format) {
                 that.setCurrent(track);
 
-                that.queue.reload();
+                that.queue.reloadList();
+                that.queue.reloadCover();
 
                 that.setPlaying(user_agent, format);
             });
@@ -105,7 +106,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             ws.on('queue.next.none', function () {
                 that.setCurrent(null);
                 that.setProgress(0, 0);
-                that.queue.reload();
+                that.queue.reloadList();
+                that.queue.reloadCover();
             });
 
             $(that.player).bind('ended', function (event) {
@@ -306,7 +308,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             that.initNanoScroller();
 
             ws.on('queue.update', function () {
-                that.reload();
+                that.reloadList();
             });
         },
         initNanoScroller: function () {
@@ -386,7 +388,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 that.player.formatSeconds(($("#queue").attr('data-queue_info-duration')))
             );
         },
-        reload: function () {
+        reloadList: function () {
             var that = this;
 
             $.ajax(this.listUrl, {
@@ -396,7 +398,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                     that.internalInit();
                 }
             });
-
+        },
+        reloadCover: function () {
             $.ajax(this.coverUrl, {
                 success: function (data) {
                     ajaxify.setInDom("#player-cover", data);
