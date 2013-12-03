@@ -10,7 +10,7 @@
     {%- if album.is_va -%}
         /va/{{album.slug|urlencode }}
     {%- else -%}
-        {%- if not artist and album.artists|length == 0 -%}
+        {%- if (artist is not defined or not artist) and album.artists|length == 0 -%}
             {% set artist_slug = "unknown" %}
         {%- elif album.artists|length > 0 -%}
             {% set artist_slug = album.artists[0].slug|urlencode %}
