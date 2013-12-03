@@ -331,21 +331,18 @@ class QueueDao:
         get_database().commit()
         ws.emit('queue.update')
 
-    def add_tracks(self, ids):
+    def add_tracks(self, track_ids):
         user_id = cherrypy.request.user.id
-        user = get_database().query(User).filter_by(id=user_id).one()
 
-        for id in ids:
-            if id == "":
+        for track_id in track_ids:
+            if track_id == "":
                 continue
-
-            track = get_database().query(Track).filter_by(id=id).one()
 
             index = self.get_new_pos(user_id)
 
             queue = Queue(index)
-            queue.track = track
-            queue.user = user
+            queue.track_id = track_id
+            queue.user_id = user_id
 
             get_database().add(queue)
 
