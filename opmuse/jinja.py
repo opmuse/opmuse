@@ -23,6 +23,7 @@ import locale
 from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
+from cherrypy._cpdispatch import PageHandler
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from urllib.parse import quote
 from opmuse.security import is_granted as _is_granted
@@ -207,6 +208,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.globals['pagination_pages'] = pagination_pages
         self.env.globals['rand_id'] = rand_id
         self.env.globals['is_granted'] = is_granted
+        self.env.globals['render'] = render
 
     start.priority = 130
 
@@ -215,6 +217,23 @@ class JinjaPlugin(SimplePlugin):
 
     def stop(self):
         self.env = None
+
+
+def render(path, params = []):
+    # this one fucks with cherrypy.request and stuff, but seeing as this should
+    # only be run in a template after all that jazz is done, it should be safe.
+    # i guess we'll notice if it doesn't though :/
+    func, vpath = cherrypy.request.dispatch.find_handler(path)
+    config = cherrypy.request.config
+
+    if func:
+        handler = PageHandler(func, *params)
+        filename = config['tools.jinja.filename']
+        response_dict = handler()
+        html = render_template(filename, response_dict)
+        return html
+    else:
+        return ''
 
 
 def render_template(filename, dictionary):
