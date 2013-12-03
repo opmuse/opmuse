@@ -720,6 +720,20 @@ class Users:
 class Queue:
 
     @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='queue/player.html')
+    def player(self):
+        user = cherrypy.request.user
+        queues, queue_info = queue_dao.get_queues(user.id)
+        queue_current_track = queue_dao.get_current_track(user.id)
+
+        return {
+            'queues': queues,
+            'queue_info': queue_info,
+            'queue_current_track': queue_current_track
+        }
+
+    @cherrypy.expose
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -739,14 +753,26 @@ class Queue:
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='queue/cover.html')
     def cover(self):
-        return {}
+        user = cherrypy.request.user
+        queue_current_track = queue_dao.get_current_track(user.id)
+
+        return {
+            'queue_current_track': queue_current_track
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='queue/list.html')
     def list(self):
-        # XXX queues is set in QueueTool
-        return {}
+        user = cherrypy.request.user
+        queues, queue_info = queue_dao.get_queues(user.id)
+        queue_current_track = queue_dao.get_current_track(user.id)
+
+        return {
+            'queues': queues,
+            'queue_info': queue_info,
+            'queue_current_track': queue_current_track
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)

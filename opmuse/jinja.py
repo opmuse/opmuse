@@ -243,14 +243,6 @@ def render_template(filename, dictionary):
     template.globals['xhr'] = cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     template.globals['current_url'] = cherrypy.url()
 
-    # TODO UGLY, this can hopefully be removed when we get symfony-style {% render %} tags...
-    if cherrypy.request.user is not None:
-        user = cherrypy.request.user
-        queues, queue_info = queue_dao.get_queues(user.id)
-        template.globals['queues'] = queues
-        template.globals['queue_info'] = queue_info
-        template.globals['queue_current_track'] = queue_dao.get_current_track(user.id)
-
     return template.render(dictionary)
 
 
