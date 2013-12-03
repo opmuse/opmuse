@@ -27,7 +27,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             // animation duration as set in throbber.less
             // we want to always run one full cycle of the animation and never
             // stop in the middle of it...
-            this.animationDuration = 2100;
+            this.animationDuration = 700;
 
             this.active = 0;
 
