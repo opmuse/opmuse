@@ -36,7 +36,7 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/modal', 'domReady!'], functi
             that.internalInit();
         },
         internalInit: function () {
-            $("[data-toggle=modal]").unbind('click.ajaxify');
+            $("[data-toggle=modal]").data('ajaxify', false);
         }
     });
 

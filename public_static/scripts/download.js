@@ -36,7 +36,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, 
             that.internalInit();
         },
         internalInit: function () {
-            $('.download').unbind('click.ajaxify')
+            $('.download').data('ajaxify', false);
 
             $('.download').each(function () {
                 var button = this;

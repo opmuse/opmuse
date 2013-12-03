@@ -94,7 +94,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                 return false;
             });
 
-            $("#edit .lock").unbind('click.ajaxify')
+            $("#edit .lock")
                 .unbind('click.edit')
                 .bind('click.edit',
                     function (event) {

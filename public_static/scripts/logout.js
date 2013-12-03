@@ -36,7 +36,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
             that.internalInit();
         },
         internalInit: function () {
-            $(".logout").unbind('click.ajaxify');
+            $(".logout").data('ajaxify', false);
         }
     });
 

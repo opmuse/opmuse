@@ -44,11 +44,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'bind', 'domReady!'], fun
                 $(this).data('prev-value', $(this).val());
             });
 
-            $(".filters .filter_value a")
-            .unbind('click.ajaxify')
-            .click(function (event) {
-                return false;
-            });
+            $(".filters .filter_value a").data('ajaxify', false);
 
             $(".filters .filter_value input").blur(function (event) {
                 $(this).data('keydown-timestamp', null);

@@ -37,7 +37,7 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
         },
         internalInit: function () {
             if ($("#login").length > 0) {
-                $("#login, .home").unbind('click.ajaxify');
+                $("#login, .home").data('ajaxify', false);
             }
 
             $("input[name=login]").focus();

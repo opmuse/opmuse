@@ -36,11 +36,8 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/tab', 'domReady!'], function
             that.internalInit();
         },
         internalInit: function () {
-            $("[data-toggle=tab] a, [data-toggle=pill] a")
-            .unbind('click.ajaxify')
-            .click(function (event) {
+            $("[data-toggle=tab] a, [data-toggle=pill] a").click(function (event) {
                 $(this).tab("show");
-
                 return false;
             });
 

@@ -47,7 +47,8 @@ define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inherit
         internalInit: function () {
             var that = this;
 
-            $("a.remove-cover").unbind('click.ajaxify').unbind('click.covers')
+            $("a.remove-cover")
+                .unbind('click.covers')
                 .bind('click.covers', function (event) {
                     $.ajax($(this).attr('href'));
 

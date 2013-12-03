@@ -36,7 +36,7 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/button', 'domReady!'], funct
             that.internalInit();
         },
         internalInit: function () {
-            $(".dropdown-toggle").unbind('click.ajaxify');
+            $(".dropdown-toggle").data('ajaxify', false);
         }
     });
 

@@ -36,7 +36,7 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/collapse', 'domReady!'], fun
             that.internalInit();
         },
         internalInit: function () {
-            $("[data-toggle=collapse]").unbind('click.ajaxify');
+            $("[data-toggle=collapse]").data('ajaxify', false);
         }
     });
 

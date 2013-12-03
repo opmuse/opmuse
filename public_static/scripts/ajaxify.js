@@ -127,17 +127,16 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             });
 
             this.load(this.selector, false);
-        },
-        load: function (element, trigger) {
-            var that = this;
 
-            if (typeof trigger == 'undefined' || trigger === null) {
-                trigger = true;
-            }
+            $(document).on('click.ajaxify', 'a',
+                function (event) {
 
-            $(element).find('a')
-                .unbind('click.ajaxify')
-                .bind('click.ajaxify', function (event) {
+                    var ajaxify = $(this).data('ajaxify');
+
+                    if (typeof ajaxify != 'undefined' && ajaxify !== null && ajaxify === false) {
+                        return;
+                    }
+
                     var href = $(this).attr('href');
 
                     if (!event.ctrlKey && that.isRelative(href)) {
@@ -153,6 +152,14 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
                     return $(this).is("[data-ajaxify=continue]");
                 }
             );
+
+        },
+        load: function (element, trigger) {
+            var that = this;
+
+            if (typeof trigger == 'undefined' || trigger === null) {
+                trigger = true;
+            }
 
             if (trigger) {
                 $(this.selector).trigger('ajaxifyInit');

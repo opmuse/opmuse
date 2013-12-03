@@ -57,13 +57,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
 
             that.currentTrack = null;
 
-            $(window).bind('beforeunload', function (event) {
+            $(window).on('beforeunload', function (event) {
                 if (!that.player.paused) {
                     return false;
                 }
             });
 
-            $(ws).bind('open', function () {
+            $(ws).on('open', function () {
                 ws.emit('queue.open');
             });
 
@@ -110,7 +110,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 that.queue.reloadCover();
             });
 
-            $(that.player).bind('ended', function (event) {
+            $(that.player).on('ended', function (event) {
                 that.setProgress(0, 0);
                 that.load();
 
@@ -261,7 +261,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             that.stopButton.removeClass("disabled");
         },
         internalInit: function () {
-            $('#next-button, #play-button, #pause-button').unbind('click.ajaxify');
+            $('#next-button, #play-button, #pause-button').data('ajaxify', false);
         },
         unload: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {
@@ -296,11 +296,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             this.coverUrl = '/queue/cover';
             this.updateUrl = '/queue/update';
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 
-            $('#queue').bind('ajaxifyInit', function (event) {
+            $('#queue').on('ajaxifyInit', function (event) {
                 that.initNanoScroller();
             });
 
@@ -316,37 +316,38 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 alwaysVisible: true
             });
 
-            $('#panel').unbind('panelFullscreen').bind('panelFullscreen', function (event) {
+            $('#panel').off('panelFullscreen').on('panelFullscreen', function (event) {
                 $("#queue .nano").nanoScroller();
             });
         },
         internalInit: function () {
             var that = this;
+
             $('.queue.add')
-                .unbind('click.queue')
-                .bind('click.queue', function (event) {
+                .off('click.queue')
+                .on('click.queue', function (event) {
                 var url = $(this).attr('href');
                 $.ajax(url);
                 return false;
-            }).unbind('click.ajaxify');
+            });
 
             $('#queue .remove')
-                .unbind('click.queue')
-                .bind("click.queue", function (event) {
+                .off('click.queue')
+                .on("click.queue", function (event) {
                 var url = $(this).attr('href');
                 $.ajax(url);
                 return false;
-            }).unbind('click.ajaxify');
+            });
 
             $('#clear-queue, #clear-played-queue, #shuffle-queue')
-                .unbind('click.queue')
-                .bind('click.queue', function (event) {
+                .off('click.queue')
+                .on('click.queue', function (event) {
                 var url = $(this).attr('href');
                 $.ajax(url);
                 return false;
-            }).unbind('click.ajaxify');
+            });
 
-            $('.open-stream').unbind('click.ajaxify');
+            $('.open-stream').data('ajaxify', false);
 
             var items = null;
 
