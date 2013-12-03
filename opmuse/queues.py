@@ -43,7 +43,7 @@ class Queue(Base):
     error = Column(String(255))
 
     user = relationship("User", backref=backref('users', order_by=id))
-    track = relationship("Track", backref=backref('tracks', cascade="all,delete", order_by=id))
+    track = relationship("Track", lazy='joined', backref=backref('tracks', cascade="all,delete", order_by=id))
 
     def __init__(self, index):
         self.index = index
