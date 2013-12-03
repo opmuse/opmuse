@@ -42,7 +42,11 @@
                                 <i class="panel-handle-icon-open fa fa-chevron-up"></i>
                                 <i class="panel-handle-icon-close fa fa-chevron-down"></i>
                             </div>
-                            {% include "queue/queue.html" %}
+                            {# optimization, not needed on ajaxify request so
+                               we don't include it... #}
+                            {% if not xhr %}
+                                {% include "queue/queue.html" %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>
