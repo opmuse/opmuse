@@ -133,6 +133,30 @@ def multi_headers():
         cherrypy.response.header_list.extend(headers)
 
 
+def memoize(func):
+    """
+        memoize decorator which memoizes on current request.
+    """
+    def wrapper(self, *args, **kwargs):
+        if not hasattr(cherrypy.request, 'memoize'):
+            cherrypy.request.memoize = {}
+
+        if len(kwargs) > 0:
+            # to avoid different call signatures creating different keys, e.g. func(1)
+            # and func(arg=1) might be the same call but will have different signatures.
+            # also, dicts aren't hashable.
+            raise Exception('memoize doesn\'t support keywords args.')
+
+        key = (func, args)
+
+        if key not in cherrypy.request.memoize:
+            cherrypy.request.memoize[key] = func(self, *args)
+
+        return cherrypy.request.memoize[key]
+
+    return wrapper
+
+
 firepy_tool = cherrypy.Tool('on_start_resource', firepy)
 firepy_start_tool = cherrypy.Tool('on_start_resource', firepy_start)
 firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end, priority=100)
