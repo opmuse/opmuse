@@ -17,13 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], function($, inheritance, storage) {
+define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function($, inheritance, storage) {
 
     var Panel = Class.extend({
-        init: function () {
+        init: function (layout) {
             var panelOpen = storage.get('layout.panel.open');
 
             var that = this;
+
+            this.layout = layout;
 
             this.panel = $("#panel");
 
@@ -39,7 +41,7 @@ define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], 
                     that.open();
                 }
 
-                $(that.panel).one('webkitTransitionEnd transitionend', function (event) {
+                $(that.panel).one('transitionend', function (event) {
                     $(that.panel).trigger('panelFullscreen');
                 });
             });
@@ -75,15 +77,11 @@ define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], 
         },
         openFullscreen: function () {
             $(this.panel).addClass("panel-fullscreen");
-            $("#overlay").addClass("transparent");
-            $("#main, #top").blurjs({
-                radius: 1
-            });
+            this.layout.showOverlay();
         },
         closeFullscreen: function () {
             $(this.panel).removeClass("panel-fullscreen");
-            $("#overlay").removeClass("transparent");
-            $("#main, #top").blurjs('remove');
+            this.layout.hideOverlay();
         },
         open: function () {
             this.panel.addClass("open");
@@ -103,8 +101,16 @@ define(['jquery', 'inheritance', 'storage', 'blur', 'matchMedia', 'domReady!'], 
                 throw Error('Only one instance of Layout allowed!');
             }
 
-            this.panel = new Panel();
-        }
+            this.panel = new Panel(this);
+        },
+        showOverlay: function () {
+            $("body").addClass("overlayed");
+            $("#overlay").removeClass("hide").addClass("transparent");
+        },
+        hideOverlay: function() {
+            $("body").removeClass("overlayed");
+            $("#overlay").addClass("hide").removeClass("transparent");
+        },
     });
 
     return (function() {

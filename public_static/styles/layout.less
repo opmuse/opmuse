@@ -71,9 +71,17 @@ body {
     }
 }
 
+.overlayed {
+    #panel {
+        z-index: 2002;
+    }
+}
+
 #panel {
     z-index: 1035;
-    .transition(.7s);
+    transition-property: width, height;
+    transition-duration: .7s;
+    transition-timing-function: ease-in-out;
 
     position: fixed;
     right: 20px;
@@ -96,7 +104,6 @@ body {
     }
 
     &.panel-fullscreen.open {
-        z-index: 1035;
         top: 0;
         left: 0;
         width: 100%;
@@ -175,7 +182,6 @@ body {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
         .box-shadow(0 0 6px rgba(0, 0, 0, .8));
-        z-index: 900;
 
         #panel-full,
         #panel-handle {
@@ -184,7 +190,6 @@ body {
             padding: 0 16px;
             background-color: #000;
             position: absolute;
-            z-index: 900;
             color: @white;
             font-size: 24px;
             cursor: pointer;
@@ -292,7 +297,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 999999;
+    z-index: 2001;
     background-color: #fff;
 
     &.hide {
@@ -300,7 +305,7 @@ body {
     }
 
     &.transparent {
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: rgba(255, 255, 255, 0.2);
         display: block;
     }
 

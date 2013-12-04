@@ -17,7 +17,9 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], function ($, inheritance, popover) {
+define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domReady!'],
+    function ($, inheritance, popover, layout) {
+
     var Throb = Class.extend({
         init: function (brand) {
             var that = this;
@@ -169,19 +171,19 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             var that = this;
             var contents = that.contents.join(',');
 
-            that.disableElements(contents);
+            layout.showOverlay();
 
             this.activeRequest = $.ajax(href, {
                 success: function (data, textStatus, xhr) {
                     that.setPageInDom(data);
-                    that.enableElements(contents);
+                    layout.hideOverlay();
                     that.activeRequest = null;
                 },
                 error: function (xhr) {
                     if (xhr.statusText != 'abort') {
                         that.setPageInDom(xhr.responseText);
                     }
-                    that.enableElements(contents);
+                    layout.hideOverlay();
                     that.activeRequest = null;
                 },
             });
@@ -216,12 +218,6 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'bind', 'domReady!'], func
             $.each($(newContent).get(0).attributes, function (index, attribute) {
                 $(content).attr(attribute.name, attribute.value);
             });
-        },
-        disableElements: function (element) {
-            $("#overlay").removeClass("hide").addClass("transparent");
-        },
-        enableElements: function (element) {
-            $("#overlay").addClass("hide").removeClass("transparent");
         },
         getPage: function (href) {
             if (!this.isRelative(href)) {
