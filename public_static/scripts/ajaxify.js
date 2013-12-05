@@ -205,7 +205,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domRead
             this.load(this.selector);
         },
         setInDom: function (content, newContent) {
-            $(content).contents().remove();
+            $(content).empty();
 
             if ($(newContent).length == 0) {
                 return;
