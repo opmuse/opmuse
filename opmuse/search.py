@@ -26,7 +26,6 @@ from whoosh.analysis import (RegexTokenizer, SpaceSeparatedTokenizer,
 from whoosh.qparser import QueryParser
 from whoosh.query import Term, Or
 from opmuse.database import get_database
-from opmuse.cache import cache
 import opmuse.library
 
 index_names = ['Artist', 'Album', 'Track']
@@ -107,16 +106,16 @@ class Search:
         write_handler = write_handlers["Artist"]
         write_handler.update_document(str(artist.id), name = artist.name)
 
-    def query_track(self, query, exact = False, exact_metaphone = False, cache_age = None):
-        results = self._query("Track", query, exact, exact_metaphone, cache_age)
+    def query_track(self, query, exact = False, exact_metaphone = False):
+        results = self._query("Track", query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Track, results)
 
-    def query_album(self, query, exact = False, exact_metaphone = False, cache_age = None):
-        results = self._query("Album", query, exact, exact_metaphone, cache_age)
+    def query_album(self, query, exact = False, exact_metaphone = False):
+        results = self._query("Album", query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Album, results)
 
-    def query_artist(self, query, exact = False, exact_metaphone = False, cache_age = None):
-        results = self._query("Artist", query, exact, exact_metaphone, cache_age)
+    def query_artist(self, query, exact = False, exact_metaphone = False):
+        results = self._query("Artist", query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Artist, results)
 
     def _fetch_by_keys(self, entity, results):
@@ -137,7 +136,7 @@ class Search:
 
         return sorted(entities, key=lambda entity: indexed_results[entity.id], reverse=True)
 
-    def _query(self, index_name, query, exact = False, exact_metaphone = False, cache_age = None):
+    def _query(self, index_name, query, exact = False, exact_metaphone = False):
         write_handler = write_handlers[index_name]
 
         if exact:
@@ -159,21 +158,10 @@ class Search:
                 QueryParser("stemmed_name", write_handler.index.schema).parse(query)
             ]
 
-        terms = Or([term for term in terms if term is not None])
+        results = (write_handler.index.searcher()
+                   .search(Or([term for term in terms if term is not None])))
 
-        cache_key = "%s.%s" % (index_name, terms)
-
-        if cache_age is None or cache.needs_update(cache_key, cache_age):
-            results = write_handler.index.searcher().search(terms)
-
-            ret = set([(int(result['id']), result.score) for result in results])
-
-            if cache_age is not None and len(ret) > 0:
-                cache.set(cache_key, ret)
-        else:
-            ret = cache.get(cache_key)
-
-        return ret
+        return set([(int(result['id']), result.score) for result in results])
 
 
 class WhooshPlugin(Monitor):

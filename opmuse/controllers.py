@@ -1059,7 +1059,7 @@ class Library:
 
             if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for artist in remotes_user['lastfm']['top_artists_overall']:
-                    artist_results = search.query_artist(artist['name'], exact = True, cache_age = 7200)
+                    artist_results = search.query_artist(artist['name'], exact = True)
 
                     if len(artist_results) > 0:
                         artist_ids.append(artist_results[0].id)
@@ -1076,7 +1076,7 @@ class Library:
 
                 if remotes_tag is not None and remotes_tag['lastfm'] is not None:
                     for artist in remotes_tag['lastfm']['artists']:
-                        artist_results = search.query_artist(artist['name'], exact = True, cache_age = 7200)
+                        artist_results = search.query_artist(artist['name'], exact = True)
 
                         if len(artist_results) > 0:
                             artist_ids.append(artist_results[0].id)
@@ -1143,7 +1143,7 @@ class Library:
 
             if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for album in remotes_user['lastfm']['top_albums_overall']:
-                    album_results = search.query_album(album['name'], exact = True, cache_age = 7200)
+                    album_results = search.query_album(album['name'], exact = True)
 
                     if len(album_results) > 0:
                         album_ids.append(album_results[0].id)
@@ -1165,7 +1165,7 @@ class Library:
 
                 if remotes_tag is not None and remotes_tag['lastfm'] is not None:
                     for album in remotes_tag['lastfm']['albums']:
-                        album_results = search.query_album(album['name'], exact = True, cache_age = 7200)
+                        album_results = search.query_album(album['name'], exact = True)
 
                         if len(album_results) > 0:
                             album_ids.append(album_results[0].id)
@@ -1457,7 +1457,7 @@ class Dashboard:
 
                     artist = top[index]
 
-                    results = search.query_artist(artist['name'], exact=True, cache_age=7200)
+                    results = search.query_artist(artist['name'], exact=True)
 
                     if len(results) > 0:
                         top_artists[results[0]] = None
@@ -1495,14 +1495,14 @@ class Dashboard:
         recent_tracks = []
 
         for user, recent_track in all_recent_tracks:
-            results = search.query_artist(recent_track['artist'], exact=True, cache_age=7200)
+            results = search.query_artist(recent_track['artist'], exact=True)
 
             track = artist = None
 
             if len(results) > 0:
                 artist = results[0]
 
-                results = search.query_track(recent_track['name'], exact=True, cache_age=7200)
+                results = search.query_track(recent_track['name'], exact=True)
 
                 if len(results) > 0:
                     for result in results:
