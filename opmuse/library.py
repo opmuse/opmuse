@@ -35,6 +35,7 @@ from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
+from sqlalchemy_utils import aggregated
 from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_database_type, get_database
@@ -145,12 +146,9 @@ class Album(Base):
         else:
             return list(invalids)
 
-    @hybrid_property
+    @aggregated('tracks', Column(Integer))
     def duration(self):
-        if len(self.tracks) == 0:
-            return None
-
-        return sum(track.duration if track.duration is not None else 0 for track in self.tracks)
+        return func.sum(Track.duration)
 
     @hybrid_property
     def added(self):
