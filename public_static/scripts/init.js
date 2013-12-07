@@ -29,7 +29,6 @@ window.require = {
         'domReady': 'lib/domReady',
         'sprintf': 'lib/sprintf',
         'moment': 'lib/moment',
-        'blur': 'lib/blur',
         'matchMedia': 'lib/matchMedia',
         'jquery.ui': 'lib/jquery.ui',
         'typeahead': 'lib/typeahead'
@@ -37,7 +36,6 @@ window.require = {
     shim: {
         'typeahead': ['jquery'],
         'jquery.ui': ['jquery'],
-        'blur': ['jquery'],
         'bootstrap/popover': ['bootstrap/tooltip'],
         'bootstrap/button': ['bootstrap/dropdown'],
         'jquery.nanoscroller': ['jquery']
