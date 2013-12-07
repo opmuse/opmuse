@@ -27,10 +27,13 @@ def log(msg):
 
 class WebSocketHandler(WebSocket):
     def auth_user(self, user):
-        self.user = {
-            'id': user.id,
-            'login': user.login
-        }
+        if user is None:
+            self.user = None
+        else:
+            self.user = {
+                'id': user.id,
+                'login': user.login
+            }
 
     def opened(self):
         ws.auth_user(self)
@@ -82,6 +85,9 @@ class Ws:
         self._events = {}
 
     def get_ws_user_by_handler(self, handler):
+        if handler.user is None:
+            return None
+
         return self.get_ws_user(handler.user['id'], handler.user['login'])
 
     def get_ws_user(self, id = None, login = None):
@@ -98,11 +104,18 @@ class Ws:
 
     def auth_user(self, handler):
         ws_user = self.get_ws_user_by_handler(handler)
+
+        if ws_user is None:
+            return
+
         ws_user.add_handler(handler)
 
         self._all_handlers.append(handler)
 
     def cleanup(self, handler):
+        if handler.user is None:
+            return
+
         if handler.user['id'] in self._ws_users:
             self._ws_users[handler.user['id']].remove_handler(handler)
 
@@ -152,6 +165,10 @@ class Ws:
 class WsController:
     @cherrypy.expose
     def default(self, *args, **kwargs):
+        if cherrypy.request.user is None:
+            cherrypy.request.ws_handler.auth_user(None)
+            raise cherrypy.HTTPError(status=403)
+
         cherrypy.request.ws_handler.auth_user(cherrypy.request.user)
 
 
