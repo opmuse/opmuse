@@ -89,6 +89,7 @@ class Album(Base):
     cover_hash = Column(BINARY(24))
 
     artists = relationship("Artist", secondary='tracks', lazy='joined')
+    tracks = relationship("Track", order_by="Track.disc, Track.number, Track.name")
 
     def __init__(self, name, date, slug, cover, cover_path, cover_hash):
         self.name = name
@@ -98,10 +99,9 @@ class Album(Base):
         self.cover_path = cover_path
         self.cover_hash = cover_hash
 
-    @hybrid_property
+    @aggregated('tracks', Column(String(128)))
     def format(self):
-        formats = [track.format for track in self.tracks]
-        return max(set(formats), key=formats.count)
+        return func.max(Track.format)
 
     @hybrid_property
     def pretty_format(self):
@@ -147,15 +147,16 @@ class Album(Base):
             return list(invalids)
 
     @aggregated('tracks', Column(Integer))
+    def track_count(self):
+        return func.count(Track.id)
+
+    @aggregated('tracks', Column(Integer))
     def duration(self):
         return func.sum(Track.duration)
 
-    @hybrid_property
+    @aggregated('tracks', Column(DateTime, index=True))
     def added(self):
-        if len(self.tracks) == 0:
-            return None
-
-        return max(track.added for track in self.tracks)
+        return func.max(Track.added)
 
     @hybrid_property
     def upload_user(self):
@@ -178,10 +179,8 @@ class Artist(Base):
 
     albums = relationship("Album", secondary='tracks',
                           order_by=(Album.date.desc(), Album.name))
-
-    no_album_tracks = relationship("Track",
-                                   primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)",
-                                   backref="artists")
+    tracks = relationship("Track", order_by="Track.name")
+    no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
     def __init__(self, name, slug):
         self.name = name
@@ -280,12 +279,8 @@ class Track(Base):
     scanned = Column(Boolean, default=False)
     upload_user_id = Column(Integer, ForeignKey('users.id'))
 
-    album = relationship("Album", lazy='joined', innerjoin=False,
-                         backref=backref('tracks', order_by=(disc, number, name)))
-
-    artist = relationship("Artist", lazy='joined', innerjoin=False,
-                          backref=backref('tracks', order_by=name))
-
+    album = relationship("Album", lazy='joined', innerjoin=False)
+    artist = relationship("Artist", lazy='joined', innerjoin=False)
     upload_user = relationship("User", lazy='joined', innerjoin=False)
 
     def __init__(self, hash):
