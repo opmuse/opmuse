@@ -30,11 +30,10 @@ from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
-                        DateTime, Boolean, func, TypeDecorator, Index, distinct)
+                        DateTime, Boolean, func, TypeDecorator, Index, distinct, select)
 from sqlalchemy.dialects import mysql
-from sqlalchemy.orm import relationship, backref, deferred
+from sqlalchemy.orm import relationship, backref, deferred, validates, column_property
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import validates
 from sqlalchemy_utils import aggregated
 from multiprocessing import cpu_count
 from threading import Thread
@@ -73,184 +72,6 @@ class StringBinaryType(TypeDecorator):
 
 def log(msg):
     cherrypy.log(msg, context='library')
-
-
-class Album(Base):
-    __tablename__ = 'albums'
-    __table_args__ = (Index('name_date', "name", "date", unique=True), ) + Base.__table_args__
-
-    id = Column(Integer, primary_key=True)
-    name = Column(StringBinaryType(255))
-    slug = Column(String(255), index=True, unique=True)
-    date = Column(String(32), index=True)
-    cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
-    cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
-    cover_path = Column(BLOB)
-    cover_hash = Column(BINARY(24))
-
-    artists = relationship("Artist", secondary='tracks', lazy='joined')
-    tracks = relationship("Track", order_by="Track.disc, Track.number, Track.name")
-
-    def __init__(self, name, date, slug, cover, cover_path, cover_hash):
-        self.name = name
-        self.date = date
-        self.slug = slug
-        self.cover = cover
-        self.cover_path = cover_path
-        self.cover_hash = cover_hash
-
-    @aggregated('tracks', Column(String(128)))
-    def format(self):
-        return func.max(Track.format)
-
-    @hybrid_property
-    def pretty_format(self):
-        return Library.pretty_format(self.format)
-
-    @hybrid_property
-    def is_split(self):
-        return len(self.artists) > 1 and len(self.artists) <= 3
-
-    @hybrid_property
-    def is_ep(self):
-        for match in ('EP', 'ep', 'E.P.', 'e.p.'):
-            if re.search(r'\b%s$' % re.escape(match), self.name):
-                return True
-
-        return not (len(self.tracks) > 6 or self.duration >= 60 * 20)
-
-    @hybrid_property
-    def is_va(self):
-        return len(self.artists) > 1
-
-    @hybrid_property
-    def low_quality(self):
-        if len(self.tracks) == 0:
-            return False
-
-        return sum(int(track.low_quality) for track in self.tracks) > 0
-
-    @hybrid_property
-    def invalid(self):
-        if len(self.tracks) == 0:
-            return None
-
-        invalids = set([])
-
-        for track in self.tracks:
-            if track.invalid is not None:
-                invalids.add(track.invalid)
-
-        if len(invalids) == 0:
-            return None
-        else:
-            return list(invalids)
-
-    @aggregated('tracks', Column(Integer))
-    def track_count(self):
-        return func.count(Track.id)
-
-    @aggregated('tracks', Column(Integer))
-    def duration(self):
-        return func.sum(Track.duration)
-
-    @aggregated('tracks', Column(DateTime, index=True))
-    def added(self):
-        return func.max(Track.added)
-
-    @hybrid_property
-    def upload_user(self):
-        if len(self.tracks) == 0:
-            return None
-
-        return self.tracks[0].upload_user
-
-
-class Artist(Base):
-    __tablename__ = 'artists'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(StringBinaryType(255), index=True, unique=True)
-    slug = Column(String(255), index=True, unique=True)
-    cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
-    cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
-    cover_path = Column(BLOB)
-    cover_hash = Column(BINARY(24))
-
-    albums = relationship("Album", secondary='tracks',
-                          order_by=(Album.date.desc(), Album.name))
-    tracks = relationship("Track", order_by="Track.name")
-    no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
-
-    def __init__(self, name, slug):
-        self.name = name
-        self.slug = slug
-
-    @hybrid_property
-    def va_count(self):
-        return sum(album.is_va for album in self.albums)
-
-    @hybrid_property
-    def album_count(self):
-        return sum(not album.is_va for album in self.albums)
-
-    @hybrid_property
-    def invalid(self):
-        if len(self.tracks) == 0:
-            return None
-
-        invalids = set([])
-
-        for track in self.tracks:
-            if track.invalid is not None:
-                invalids.add(track.invalid)
-
-        if len(invalids) == 0:
-            return None
-        else:
-            return list(invalids)
-
-    @aggregated('tracks', Column(DateTime, index=True))
-    def added(self):
-        return func.max(Track.added)
-
-
-class TrackPath(Base):
-    __tablename__ = 'track_paths'
-
-    id = Column(Integer, primary_key=True)
-    path = Column(BLOB)
-    filename = Column(BLOB)
-    modified = Column(DateTime, index=True)
-    dir = Column(BLOB)
-    track_id = Column(Integer, ForeignKey('tracks.id'))
-
-    track = relationship("Track", backref=backref('paths', cascade="all,delete", order_by=id))
-
-    def __init__(self, path):
-        self.path = path
-
-    @validates('path')
-    def _set_path(self, key, value):
-        self.dir = os.path.dirname(value)
-        self.filename = os.path.basename(value)
-        self.modified = datetime.datetime.utcnow()
-        return value
-
-    @hybrid_property
-    def pretty_path(self):
-        library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
-        return self.path.decode('utf8', 'replace')[len(library_path) + 1:]
-
-    @hybrid_property
-    def pretty_dir(self):
-        pretty_path = self.pretty_path
-        return "%s/" % os.path.dirname(pretty_path)
-
-    @hybrid_property
-    def path_modified(self):
-        stat = os.stat(self.path)
-        return datetime.datetime.fromtimestamp(stat.st_mtime)
 
 
 class Track(Base):
@@ -312,6 +133,188 @@ class Track(Base):
             return "%s - %s" % (self.artist.name, self.name)
         else:
             return "%s - %s - %s" % (self.artist.name, self.album.name, self.name)
+
+
+class Artist(Base):
+    __tablename__ = 'artists'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(StringBinaryType(255), index=True, unique=True)
+    slug = Column(String(255), index=True, unique=True)
+    cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
+    cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
+    cover_path = Column(BLOB)
+    cover_hash = Column(BINARY(24))
+
+    albums = relationship("Album", secondary='tracks') #,
+                          #order_by=(Album.date.desc(), Album.name))
+    tracks = relationship("Track", order_by="Track.name")
+    no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
+
+    def __init__(self, name, slug):
+        self.name = name
+        self.slug = slug
+
+    @hybrid_property
+    def va_count(self):
+        return sum(album.is_va for album in self.albums)
+
+    @hybrid_property
+    def album_count(self):
+        return sum(not album.is_va for album in self.albums)
+
+    @hybrid_property
+    def invalid(self):
+        if len(self.tracks) == 0:
+            return None
+
+        invalids = set([])
+
+        for track in self.tracks:
+            if track.invalid is not None:
+                invalids.add(track.invalid)
+
+        if len(invalids) == 0:
+            return None
+        else:
+            return list(invalids)
+
+    @aggregated('tracks', Column(DateTime, index=True))
+    def added(self):
+        return func.max(Track.added)
+
+
+class Album(Base):
+    __tablename__ = 'albums'
+    __table_args__ = (Index('name_date', "name", "date", unique=True), ) + Base.__table_args__
+
+    id = Column(Integer, primary_key=True)
+    name = Column(StringBinaryType(255))
+    slug = Column(String(255), index=True, unique=True)
+    date = Column(String(32), index=True)
+    cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
+    cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
+    cover_path = Column(BLOB)
+    cover_hash = Column(BINARY(24))
+
+    artists = relationship("Artist", secondary='tracks', lazy='joined')
+    tracks = relationship("Track", order_by="Track.disc, Track.number, Track.name")
+
+    artist_count = column_property(select([func.count(distinct(Artist.id))])
+                                   .select_from(Artist.__table__.join(Track.__table__))
+                                   .where(Track.album_id == id))
+
+    def __init__(self, name, date, slug, cover, cover_path, cover_hash):
+        self.name = name
+        self.date = date
+        self.slug = slug
+        self.cover = cover
+        self.cover_path = cover_path
+        self.cover_hash = cover_hash
+
+    @aggregated('tracks', Column(String(128)))
+    def format(self):
+        return func.max(Track.format)
+
+    @hybrid_property
+    def pretty_format(self):
+        return Library.pretty_format(self.format)
+
+    @hybrid_property
+    def is_split(self):
+        return self.artist_count > 1 and self.artist_count <= 3
+
+    @hybrid_property
+    def is_ep(self):
+        for match in ('EP', 'ep', 'E.P.', 'e.p.'):
+            if re.search(r'\b%s$' % re.escape(match), self.name):
+                return True
+
+        return not (self.track_count > 6 or self.duration >= 60 * 20)
+
+    @hybrid_property
+    def is_va(self):
+        return self.artist_count > 1
+
+    @hybrid_property
+    def low_quality(self):
+        if len(self.tracks) == 0:
+            return False
+
+        return sum(int(track.low_quality) for track in self.tracks) > 0
+
+    @hybrid_property
+    def invalid(self):
+        if len(self.tracks) == 0:
+            return None
+
+        invalids = set([])
+
+        for track in self.tracks:
+            if track.invalid is not None:
+                invalids.add(track.invalid)
+
+        if len(invalids) == 0:
+            return None
+        else:
+            return list(invalids)
+
+    @aggregated('tracks', Column(Integer))
+    def track_count(self):
+        return func.count(Track.id)
+
+    @aggregated('tracks', Column(Integer))
+    def duration(self):
+        return func.sum(Track.duration)
+
+    @aggregated('tracks', Column(DateTime, index=True))
+    def added(self):
+        return func.max(Track.added)
+
+    @hybrid_property
+    def upload_user(self):
+        if len(self.tracks) == 0:
+            return None
+
+        return self.tracks[0].upload_user
+
+
+class TrackPath(Base):
+    __tablename__ = 'track_paths'
+
+    id = Column(Integer, primary_key=True)
+    path = Column(BLOB)
+    filename = Column(BLOB)
+    modified = Column(DateTime, index=True)
+    dir = Column(BLOB)
+    track_id = Column(Integer, ForeignKey('tracks.id'))
+
+    track = relationship("Track", backref=backref('paths', cascade="all,delete", order_by=id))
+
+    def __init__(self, path):
+        self.path = path
+
+    @validates('path')
+    def _set_path(self, key, value):
+        self.dir = os.path.dirname(value)
+        self.filename = os.path.basename(value)
+        self.modified = datetime.datetime.utcnow()
+        return value
+
+    @hybrid_property
+    def pretty_path(self):
+        library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
+        return self.path.decode('utf8', 'replace')[len(library_path) + 1:]
+
+    @hybrid_property
+    def pretty_dir(self):
+        pretty_path = self.pretty_path
+        return "%s/" % os.path.dirname(pretty_path)
+
+    @hybrid_property
+    def path_modified(self):
+        stat = os.stat(self.path)
+        return datetime.datetime.fromtimestamp(stat.st_mtime)
 
 
 class FileMetadata:
