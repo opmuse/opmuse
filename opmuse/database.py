@@ -102,8 +102,9 @@ class SqlAlchemyPlugin(cherrypy.process.plugins.SimplePlugin):
         session.configure(bind=engine)
 
     def stop(self):
-        self.engine.dispose()
-        self.engine = None
+        if self.engine is not None:
+            self.engine.dispose()
+            self.engine = None
 
 
 class SqlAlchemyTool(cherrypy.Tool):
