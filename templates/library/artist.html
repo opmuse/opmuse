@@ -23,8 +23,6 @@
 
     <hr />
 
-    {{ edit_dropdown.dropdown(artist.tracks) }}
-
     {% for album_group in album_groups.values() %}
         {% if album_group.albums|length > 0 %}
             <h3>{{ album_group.title }}</h2>
