@@ -210,12 +210,9 @@ class Artist(Base):
         else:
             return list(invalids)
 
-    @hybrid_property
+    @aggregated('tracks', Column(DateTime, index=True))
     def added(self):
-        if len(self.tracks) == 0:
-            return None
-
-        return max(track.added for track in self.tracks)
+        return func.max(Track.added)
 
 
 class TrackPath(Base):
