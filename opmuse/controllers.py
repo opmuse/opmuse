@@ -1181,7 +1181,7 @@ class Library:
         pages = math.ceil(query.count() / page_size)
 
         if sort == "added":
-            query = query.order_by(func.max(Track.added).desc())
+            query = query.order_by(Album.added.desc())
         elif sort == "date":
             query = query.order_by(Album.date.desc())
         elif sort == "random":
