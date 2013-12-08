@@ -15,6 +15,7 @@ import sqlalchemy as sa
 
 def upgrade():
     op.add_column('albums', sa.Column('added', sa.DateTime))
+    op.create_index('ix_albums_added', 'albums', ['added'])
 
 
 def downgrade():
