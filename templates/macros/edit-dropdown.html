@@ -1,62 +1,84 @@
-{% macro dropdown(tracks, title="Tracks", btn_size = "btn-sm", moves = True) %}
+{% macro dropdown(tracks, title="Tracks", btn_size = "btn-sm") %}
 {% if is_granted('admin') %}
     {% set modalId = "removeAlbumModal" + rand_id() %}
-    {{ remove_modal(modalId, "Remove " + title, tracks) }}
+    {{ remove_modal(modalId, "Remove " + title) }}
     <div class="btn-group edit-btn">
-        <a class="btn btn-default {{ btn_size }} dropdown-toggle" data-toggle="dropdown" href="#">
-            {{ title }}
-            <span class="fa fa-caret-down"></span>
-        </a>
+        {{ _dropdown_btn(title, btn_size) }}
         <ul class="dropdown-menu">
-            <li>
-                <a href="/library/edit/{% for track in tracks -%}
-                    {{ track.id }}, {%- endfor %}">
-                    <i class="fa fa-pencil"></i>
-                    Edit
-                </a>
-            </li>
-            <li>
-                <a
-                    role="button"
-                    data-toggle="modal"
-                    data-backdrop="false"
-                    data-remote="/remove/modal/{% for track in tracks -%}
-                        {{ track.id }}, {%- endfor %}?title={{ title|urlencode }}"
-                    href="#{{ modalId }}">
-                    <i class="fa fa-trash-o"></i>
-                    Remove
-                </a>
-            </li>
-        {% if moves %}
-            <li class="divider"></li>
-            <li>
-                <a rel="tooltip" title="Move to {{ tracks[0]|track_path|e }}/"
-                    href="/library/edit/move/{% for track in tracks -%}
-                    {{ track.id }},
-                    {%- endfor %}">
-                    <i class="fa fa-folder-open"></i>
-                    Move to <strong>{{ tracks[0]|track_path }}/</strong>
-                </a>
-            </li>
-            <li>
-                <a rel="tooltip" title="Move to {{ tracks[0]|track_path("Various Artists")|e }}/"
-                    href="/library/edit/move/{% for track in tracks -%}
+        {% set track_ids = [] %}
+        {% for track in tracks %}
+            {% do track_ids.append(track.id) %}
+        {% endfor %}
+        {{ _dropdown_edit(track_ids, title, modalId) }}
+        <li class="divider"></li>
+        <li>
+            <a rel="tooltip" title="Move to {{ tracks[0]|track_path|e }}/"
+                href="/library/edit/move/{% for track in tracks -%}
                 {{ track.id }},
-                {%- endfor %}/va">
-                    <i class="fa fa-folder-open"></i>
-                    Move to <strong>{{ tracks[0]|track_path("Various Artists") }}/</strong>
-                </a>
-            </li>
-        {% endif %}
+                {%- endfor %}">
+                <i class="fa fa-folder-open"></i>
+                Move to <strong>{{ tracks[0]|track_path }}/</strong>
+            </a>
+        </li>
+        <li>
+            <a rel="tooltip" title="Move to {{ tracks[0]|track_path("Various Artists")|e }}/"
+                href="/library/edit/move/{% for track in tracks -%}
+            {{ track.id }},
+            {%- endfor %}/va">
+                <i class="fa fa-folder-open"></i>
+                Move to <strong>{{ tracks[0]|track_path("Various Artists") }}/</strong>
+            </a>
+        </li>
         </ul>
     </div>
 {% endif %}
 {% endmacro %}
 
-{% macro remove_modal(modalId, modalLabel, tracks) %}
+{% macro dropdown_edit(track_ids, title="Tracks", btn_size = "btn-sm") %}
+    {% set modalId = "removeAlbumModal" + rand_id() %}
+    {{ remove_modal(modalId, "Remove " + title) }}
+    <div class="btn-group edit-btn">
+        {{ _dropdown_btn(title, btn_size) }}
+        <ul class="dropdown-menu">
+            {{ _dropdown_edit(track_ids, title, modalId) }}
+        </ul>
+    </div>
+{% endmacro %}
+
+{% macro _dropdown_edit(track_ids, title, modalId) %}
+    <li>
+        <a href="/library/edit/{% for track_id in track_ids -%}
+            {{ track_id }}, {%- endfor %}">
+            <i class="fa fa-pencil"></i>
+            Edit
+        </a>
+    </li>
+    <li>
+        <a
+            role="button"
+            data-toggle="modal"
+            data-backdrop="false"
+            data-remote="/remove/modal/{% for track_id in track_ids -%}
+                {{ track_id }}, {%- endfor %}?title={{ title|urlencode }}"
+            href="#{{ modalId }}">
+            <i class="fa fa-trash-o"></i>
+            Remove
+        </a>
+    </li>
+{% endmacro %}
+
+{% macro _dropdown_btn(title, btn_size) %}
+    <a class="btn btn-default {{ btn_size }} dropdown-toggle" data-toggle="dropdown" href="#">
+        {{ title }}
+        <span class="fa fa-caret-down"></span>
+    </a>
+{% endmacro %}
+
+{% macro remove_modal(modalId, modalLabel) %}
 {% if is_granted('admin') %}
     <div class="modal" id="{{ modalId }}" tabindex="-1" role="dialog"
         aria-labelledby="removeModalLabel" aria-hidden="true">
     </div>
 {% endif %}
 {% endmacro %}
+

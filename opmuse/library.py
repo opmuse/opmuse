@@ -1377,6 +1377,11 @@ class LibraryDao:
 
         search.delete_artist(artist)
 
+    def get_track_ids_by_album_id(self, album_id):
+        results = get_database().execute(select([Track.id]).where(Track.album_id == album_id))
+
+        return [result[0] for result in results]
+
     def get_library_path(self):
         library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
 

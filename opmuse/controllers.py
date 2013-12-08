@@ -229,11 +229,11 @@ class Search:
         artists = []
         albums = []
         tracks = []
+        track_ids = []
 
         hierarchy = None
 
-        artist_tracks = set()
-        album_tracks = set()
+        album_track_ids = set()
 
         recent_searches = []
 
@@ -262,6 +262,7 @@ class Search:
                 remotes.update_album(album)
 
             for track in tracks:
+                track_ids.append(track.id)
                 remotes.update_track(track)
 
             entities = artists + albums + tracks
@@ -291,14 +292,9 @@ class Search:
             hierarchy = Library._produce_track_hierarchy(entities)
 
             for key, result_artist in hierarchy['artists'].items():
-                for album in result_artist['entity'].albums:
-                    for track in album.tracks:
-                        artist_tracks.add(track)
-
-            for key, result_artist in hierarchy['artists'].items():
                 for key, result_album in result_artist['albums'].items():
-                    for track in result_album['entity'].tracks:
-                        album_tracks.add(track)
+                    for track_id in library_dao.get_track_ids_by_album_id(result_album['entity'].id):
+                        album_track_ids.add(track_id)
 
         return {
             'query': query,
@@ -306,9 +302,8 @@ class Search:
             'tracks': tracks,
             'albums': albums,
             'artists': artists,
-            'track_tracks': tracks,
-            'album_tracks': list(album_tracks),
-            'artist_tracks': list(artist_tracks),
+            'track_ids': track_ids,
+            'album_track_ids': list(album_track_ids),
             'recent_searches': recent_searches
         }
 

@@ -25,14 +25,11 @@
         </div>
         <div class="col-xs-5">
             <div class="edit-buttons">
-                {% if artist_tracks %}
-                    {{ edit_dropdown.dropdown(artist_tracks, "Tracks in Artists", moves = False) }}
+                {% if album_track_ids %}
+                    {{ edit_dropdown.dropdown_edit(album_track_ids, "Tracks in Albums") }}
                 {% endif %}
-                {% if album_tracks %}
-                    {{ edit_dropdown.dropdown(album_tracks, "Tracks in Albums", moves = False) }}
-                {% endif %}
-                {% if track_tracks %}
-                    {{ edit_dropdown.dropdown(track_tracks, "Tracks", moves = False) }}
+                {% if track_ids %}
+                    {{ edit_dropdown.dropdown_edit(track_ids, "Tracks") }}
                 {% endif %}
             </div>
         </div>
