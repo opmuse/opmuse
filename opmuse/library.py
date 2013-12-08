@@ -146,8 +146,8 @@ class Artist(Base):
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
-    albums = relationship("Album", secondary='tracks') #,
-                          #order_by=(Album.date.desc(), Album.name))
+    albums = relationship("Album", secondary='tracks',
+                          order_by="Album.date.desc(), Album.name")
     tracks = relationship("Track", order_by="Track.name")
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
