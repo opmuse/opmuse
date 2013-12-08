@@ -109,6 +109,9 @@ def firepy_start():
 
 
 def firepy_end():
+    if not hasattr(cherrypy.request, '_firepy_logs'):
+        return
+
     from firepy.firephp import FirePHP
 
     headers = FirePHP.base_headers()
