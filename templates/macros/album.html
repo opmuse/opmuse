@@ -39,7 +39,7 @@
     {% import "macros/covers.html" as covers %}
     {% import "macros/tracks.html" as tracks %}
 
-    <div class="album {{ 'invalid' if album.invalid else '' }}">
+    <div class="album">
         <figure class="effeckt-caption" data-effeckt-type="half-slide">
             {% set album_url = urls.album_url(album, artist) %}
             <a href="{{ album_url }}">
@@ -73,20 +73,6 @@
                                 <i class="fa fa-refresh"></i>
                             </a>
                         {% endif %}
-                        <div class="labels">
-                            {% if album.is_va %}
-                                <p class="album-va label label-success">VA</p>
-                            {% endif %}
-                            {% if album.low_quality %}
-                                <p class="album-low-quality label label-warning"
-                                    title="Album has tracks of low quality, consider replacing them.">
-                                    <i class="fa fa-thumbs-down"></i>
-                                </p>
-                            {% endif %}
-                            {% if album.invalid %}
-                                {{ tracks.invalids_label(album.invalid) }}
-                            {% endif %}
-                        </div>
                     </div>
                 </div>
             </figcaption>

@@ -20,7 +20,7 @@
                     {%- elif album.artists|count > 0 and album.artists[0].cover_hash -%}
                         {{ "?hash=%s" % album.artists[0].cover_hash.decode('utf8')|urlencode }}
                     {%- else -%}
-                        {{ "?hash=%s" % ('invalid' if album.invalid else 'valid') }}
+                        ?hash=
                     {%- endif -%}&size={{ size }}"
             {% endif %}
             alt="Album cover" class="album-cover {{ cover_class }}" />
