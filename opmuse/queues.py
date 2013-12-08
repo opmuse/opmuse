@@ -331,6 +331,13 @@ class QueueDao:
         get_database().commit()
         ws.emit('queue.update')
 
+    def add_album_tracks(self, album_id):
+        try:
+            album = get_database().query(Album).filter_by(id=album_id).one()
+            self.add_tracks([track.id for track in album.tracks])
+        except NoResultFound:
+            return
+
     def add_tracks(self, track_ids):
         user_id = cherrypy.request.user.id
 

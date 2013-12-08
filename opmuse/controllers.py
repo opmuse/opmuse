@@ -776,6 +776,11 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
+    def add_album(self, id):
+        queue_dao.add_album_tracks(id)
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
     def add(self, ids):
         queue_dao.add_tracks(ids.split(','))
 
