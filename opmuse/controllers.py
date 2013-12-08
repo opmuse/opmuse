@@ -168,6 +168,22 @@ class Edit:
 class Remove:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='remove/modal.html')
+    def modal(self, ids, title = None):
+        ids = ids.split(',')
+
+        tracks = library_dao.get_tracks_by_ids(ids)
+
+        if title is None:
+            title = ''
+
+        return {
+            'tracks': tracks,
+            'title': title
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
     def default(self, ids):
         artist = album = None
 

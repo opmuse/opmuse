@@ -20,6 +20,8 @@
                     role="button"
                     data-toggle="modal"
                     data-backdrop="false"
+                    data-remote="/remove/modal/{% for track in tracks -%}
+                        {{ track.id }}, {%- endfor %}?title={{ title|urlencode }}"
                     href="#{{ modalId }}">
                     <i class="fa fa-trash-o"></i>
                     Remove
@@ -53,33 +55,6 @@
 {% if is_granted('admin') %}
     <div class="modal" id="{{ modalId }}" tabindex="-1" role="dialog"
         aria-labelledby="removeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 class="modal-title" id="removeModalLabel">{{ modalLabel }}</h3>
-                </div>
-                <div class="modal-body">
-                    <p>This will remove all these tracks/files from opmuse and all
-                       files from <strong>the filesystem</strong>.</p>
-                    <ul>
-                        {% for track in tracks %}
-                            {% for path in track.paths %}
-                                <li>{{ path.pretty_path }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
-                    <a class="btn btn-default" data-ajaxify="continue" data-dismiss="modal" href="/remove/
-                        {%- for track in tracks -%}
-                            {{ track.id }},
-                        {%- endfor -%}
-                        ">Yes</a>
-                </div>
-            </div>
-        </div>
     </div>
 {% endif %}
 {% endmacro %}
