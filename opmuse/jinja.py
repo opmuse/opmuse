@@ -187,7 +187,7 @@ class JinjaPlugin(SimplePlugin):
                     '..', 'templates'
                 )
             ),
-            extensions=['jinja2.ext.loopcontrols'],
+            extensions=['jinja2.ext.loopcontrols', 'jinja2.ext.do'],
             undefined=StrictUndefined,
             auto_reload=auto_reload,
             cache_size=-1
