@@ -43,7 +43,7 @@
             {%- if artist.cover_hash -%}
                 {{ "?hash=%s" % artist.cover_hash.decode('utf8')|urlencode }}
             {%- else -%}
-                {{ "?hash=%s" % ('invalid' if artist.invalid else 'valid') }}
+                ?hash=
             {%- endif -%}&size={{ size }}"
         {% else %}
             src="/static/images/cover_placeholder.png"
