@@ -26,13 +26,13 @@
         <div class="col-xs-5">
             <div class="edit-buttons">
                 {% if artist_tracks %}
-                    {{ edit_dropdown.dropdown(artist_tracks, "Tracks in Artists") }}
+                    {{ edit_dropdown.dropdown(artist_tracks, "Tracks in Artists", moves = False) }}
                 {% endif %}
                 {% if album_tracks %}
-                    {{ edit_dropdown.dropdown(album_tracks, "Tracks in Albums") }}
+                    {{ edit_dropdown.dropdown(album_tracks, "Tracks in Albums", moves = False) }}
                 {% endif %}
                 {% if track_tracks %}
-                    {{ edit_dropdown.dropdown(track_tracks, "Tracks") }}
+                    {{ edit_dropdown.dropdown(track_tracks, "Tracks", moves = False) }}
                 {% endif %}
             </div>
         </div>

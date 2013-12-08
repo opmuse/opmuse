@@ -1,4 +1,4 @@
-{% macro dropdown(tracks, title="Tracks", btn_size = "btn-sm") %}
+{% macro dropdown(tracks, title="Tracks", btn_size = "btn-sm", moves = True) %}
 {% if is_granted('admin') %}
     {% set modalId = "removeAlbumModal" + rand_id() %}
     {{ remove_modal(modalId, "Remove " + title, tracks) }}
@@ -27,6 +27,7 @@
                     Remove
                 </a>
             </li>
+        {% if moves %}
             <li class="divider"></li>
             <li>
                 <a rel="tooltip" title="Move to {{ tracks[0]|track_path|e }}/"
@@ -46,6 +47,7 @@
                     Move to <strong>{{ tracks[0]|track_path("Various Artists") }}/</strong>
                 </a>
             </li>
+        {% endif %}
         </ul>
     </div>
 {% endif %}
