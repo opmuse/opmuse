@@ -32,7 +32,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
                         DateTime, Boolean, func, TypeDecorator, Index, distinct, select)
 from sqlalchemy.dialects import mysql
-from sqlalchemy.orm import relationship, backref, deferred, validates, column_property
+from sqlalchemy.orm import relationship, backref, deferred, validates, column_property, joinedload
 from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import cpu_count
 from threading import Thread
@@ -1665,6 +1665,7 @@ class LibraryDao:
     def get_new_albums(self, limit, offset):
         return (get_database()
                 .query(Album)
+                .options(joinedload(Album.tracks))
                 .join(Track, Album.id == Track.album_id)
                 .group_by(Album.id)
                 .order_by(func.max(Track.added).desc())
