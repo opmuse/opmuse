@@ -1106,9 +1106,6 @@ class Library:
         for artist in artists:
             remotes.update_artist(artist)
 
-            for album in artist.albums:
-                remotes.update_album(album)
-
         return {
             'artists': artists,
             'page': page,
