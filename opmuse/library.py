@@ -34,7 +34,6 @@ from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINA
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, backref, deferred, validates, column_property
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy_utils import aggregated
 from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_database_type, get_database
@@ -151,6 +150,8 @@ class Artist(Base):
     tracks = relationship("Track", order_by="Track.name")
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
+    added = column_property(select([func.max(Track.added)]).where(Track.artist_id == id).correlate_except(Track))
+
     def __init__(self, name, slug):
         self.name = name
         self.slug = slug
@@ -179,10 +180,6 @@ class Artist(Base):
         else:
             return list(invalids)
 
-    @aggregated('tracks', Column(DateTime, index=True))
-    def added(self):
-        return func.max(Track.added)
-
 
 class Album(Base):
     __tablename__ = 'albums'
@@ -204,6 +201,21 @@ class Album(Base):
                                    .select_from(Artist.__table__.join(Track.__table__))
                                    .where(Track.album_id == id))
 
+    # TODO func.max() makes no sense for Track.format... maybe we should put
+    #      format in a table so we can fetch the most used format in said album
+    #      here instead.
+    format = column_property(select([func.max(Track.format)])
+                             .where(Track.album_id == id).correlate_except(Track))
+
+    track_count = column_property(select([func.count(Track.id)])
+                                  .where(Track.album_id == id).correlate_except(Track))
+
+    duration = column_property(select([func.sum(Track.duration)])
+                               .where(Track.album_id == id).correlate_except(Track))
+
+    added = column_property(select([func.max(Track.added)])
+                            .where(Track.album_id == id).correlate_except(Track))
+
     def __init__(self, name, date, slug, cover, cover_path, cover_hash):
         self.name = name
         self.date = date
@@ -211,10 +223,6 @@ class Album(Base):
         self.cover = cover
         self.cover_path = cover_path
         self.cover_hash = cover_hash
-
-    @aggregated('tracks', Column(String(128)))
-    def format(self):
-        return func.max(Track.format)
 
     @hybrid_property
     def pretty_format(self):
@@ -258,18 +266,6 @@ class Album(Base):
             return None
         else:
             return list(invalids)
-
-    @aggregated('tracks', Column(Integer))
-    def track_count(self):
-        return func.count(Track.id)
-
-    @aggregated('tracks', Column(Integer))
-    def duration(self):
-        return func.sum(Track.duration)
-
-    @aggregated('tracks', Column(DateTime, index=True))
-    def added(self):
-        return func.max(Track.added)
 
     @hybrid_property
     def upload_user(self):
