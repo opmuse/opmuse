@@ -119,6 +119,9 @@ class Search:
         return self._fetch_by_keys(opmuse.library.Artist, results)
 
     def _fetch_by_keys(self, entity, results):
+        if len(results) == 0:
+            return []
+
         ids = [result[0] for result in results]
 
         entities = get_database().query(entity).filter(entity.id.in_(ids)).all()
