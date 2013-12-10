@@ -885,9 +885,11 @@ class Library:
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/album.html')
     def album(self, artist_slug, album_slug):
-        album = library_dao.get_album_by_slug(album_slug)
-
-        if album is None:
+        try:
+            album = (get_database().query(Album)
+                     .options(joinedload(Album.tracks, Track.paths)) # _dir_tracks() uses paths
+                     .filter_by(slug=album_slug).one())
+        except NoResultFound:
             raise cherrypy.NotFound()
 
         remotes.update_album(album)
