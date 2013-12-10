@@ -887,7 +887,8 @@ class Library:
     def album(self, artist_slug, album_slug):
         try:
             album = (get_database().query(Album)
-                     .options(joinedload(Album.tracks, Track.paths)) # _dir_tracks() uses paths
+                     # _dir_tracks() uses paths
+                     .options(joinedload(Album.tracks, Track.paths))
                      .filter_by(slug=album_slug).one())
         except NoResultFound:
             raise cherrypy.NotFound()
