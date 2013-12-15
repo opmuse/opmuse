@@ -20,19 +20,32 @@ import cherrypy
 import time
 import traceback
 import os
+import threading
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+
+
+# TODO we don't do any closing of these fds.
+log_fds = {}
 
 
 def debug(msg):
     cherrypy.log.error(msg, context='timers', severity=logging.DEBUG)
 
 
-def log(msg):
+def log_timers(msg):
     if hasattr(cherrypy.request, 'firepy'):
         cherrypy.request.firepy(msg)
 
-    debug(msg)
+    thread = threading.current_thread()
+    logname = "%s.%d.timers.log" % (thread.name, thread.ident)
+
+    if logname not in log_fds:
+        logpath = os.path.join(os.path.dirname(__file__), '..', logname)
+        log_fds[logname] = open(logpath, "w+")
+
+    log_fds[logname].write(msg)
+    log_fds[logname].write("\n")
 
 
 @event.listens_for(Engine, "before_cursor_execute")
@@ -40,8 +53,8 @@ def before_cursor_execute(conn, cursor, statement, parameters, context, executem
     context._query_start_time = time.time()
     context._query_path = None
 
-    log("start query: %s" % statement)
-    log("%r" % (parameters, ))
+    log_timers("start query: %s" % statement)
+    log_timers("%r" % (parameters, ))
 
     stack = traceback.extract_stack()
 
@@ -52,7 +65,7 @@ def before_cursor_execute(conn, cursor, statement, parameters, context, executem
         if dirname == "opmuse" and filename != 'timers.py':
             path = os.path.join(dirname, filename)
 
-            log("%s:%d %s" % (path, lineno, text))
+            log_timers("%s:%d %s" % (path, lineno, text))
 
             context._query_path = path
             break
@@ -76,7 +89,7 @@ def after_cursor_execute(conn, cursor, statement, parameters, context, executema
 
         cherrypy.request._timers_modules[path] += total
 
-    log("end query, time: %f" % total)
+    log_timers("end query, time: %f" % total)
 
 
 def timers_start():
@@ -91,13 +104,13 @@ def timers_end():
     total_queries = cherrypy.request._timers_total_queries
     query_time = cherrypy.request._timers_query_time
 
-    log("request ended: %f query time, %d queries, %f total time." %
+    log_timers("request ended: %f query time, %d queries, %f total time." %
         (query_time, total_queries, total_time))
 
-    log("modules' query times:")
+    log_timers("modules' query times:")
 
     for path, path_time in cherrypy.request._timers_modules.items():
-        log("%s: %f" % (path, path_time))
+        log_timers("%s: %f" % (path, path_time))
 
 
 timers_start_tool = cherrypy.Tool('on_start_resource', timers_start)
