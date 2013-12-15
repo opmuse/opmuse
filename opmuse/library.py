@@ -76,7 +76,7 @@ def log(msg):
 class Track(Base):
     __tablename__ = 'tracks'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     slug = Column(String(255), index=True, unique=True)
     name = Column(StringBinaryType(255), index=True)
     duration = Column(Integer)
@@ -137,7 +137,7 @@ class Track(Base):
 class Artist(Base):
     __tablename__ = 'artists'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(StringBinaryType(255), index=True, unique=True)
     slug = Column(String(255), index=True, unique=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
@@ -150,7 +150,8 @@ class Artist(Base):
     tracks = relationship("Track", order_by="Track.name")
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
-    added = column_property(select([func.max(Track.added)]).where(Track.artist_id == id).correlate_except(Track))
+    added = column_property(select([func.max(Track.added)])
+                            .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name, slug):
         self.name = name
@@ -185,7 +186,7 @@ class Album(Base):
     __tablename__ = 'albums'
     __table_args__ = (Index('name_date', "name", "date", unique=True), ) + Base.__table_args__
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(StringBinaryType(255))
     slug = Column(String(255), index=True, unique=True)
     date = Column(String(32), index=True)
@@ -199,22 +200,22 @@ class Album(Base):
 
     artist_count = column_property(select([func.count(distinct(Artist.id))])
                                    .select_from(Artist.__table__.join(Track.__table__))
-                                   .where(Track.album_id == id))
+                                   .where(Track.album_id == id), deferred=True)
 
     # TODO func.max() makes no sense for Track.format... maybe we should put
     #      format in a table so we can fetch the most used format in said album
     #      here instead.
     format = column_property(select([func.max(Track.format)])
-                             .where(Track.album_id == id).correlate_except(Track))
+                             .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     track_count = column_property(select([func.count(Track.id)])
-                                  .where(Track.album_id == id).correlate_except(Track))
+                                  .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     duration = column_property(select([func.sum(Track.duration)])
-                               .where(Track.album_id == id).correlate_except(Track))
+                               .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     added = column_property(select([func.max(Track.added)])
-                            .where(Track.album_id == id).correlate_except(Track))
+                            .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name, date, slug, cover, cover_path, cover_hash):
         self.name = name
@@ -278,7 +279,7 @@ class Album(Base):
 class TrackPath(Base):
     __tablename__ = 'track_paths'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     path = Column(BLOB)
     filename = Column(BLOB)
     modified = Column(DateTime, index=True)
@@ -970,7 +971,8 @@ class Library:
             to_process.append(filename)
 
             if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                p = Thread(target=LibraryProcess, args = (self._path, to_process, None, no))
+                p = Thread(target=LibraryProcess, args = (self._path, to_process, None, no),
+                           name="LibraryProcess_%d" % no)
                 p.start()
 
                 log("Spawned library thread %d with ident %s)." % (no, p.ident))
@@ -1057,10 +1059,15 @@ class LibraryProcess:
 
         try:
             track = self._database.query(Track).filter_by(hash=hash).one()
+
             # file most likely just moved
             if filename not in [path.path for path in track.paths]:
-                track.paths.append(TrackPath(filename))
-            self._database.commit()
+                track_path = TrackPath(filename)
+                track_path.track_id = track.id
+
+                self._database.add(track_path)
+                self._database.commit()
+
             return track
         # file doesn't exist
         except NoResultFound:
@@ -1081,22 +1088,19 @@ class LibraryProcess:
             except NoResultFound:
                 artist_slug = self.get_artist_slug(metadata)
                 artist = Artist(metadata.artist_name, artist_slug)
+
                 self._database.add(artist)
 
-            try:
-                self._database.commit()
-            except IntegrityError:
-                # we get an IntegrityError if the unique constraint kicks in
-                # in which case the artist already exists so fetch it instead.
-                self._database.rollback()
-                artist = self._database.query(Artist).filter_by(
-                    name=metadata.artist_name
-                ).one()
-
-            artist.name = metadata.artist_name
-
-            if artist.cover_path is None:
-                artist.cover_path = metadata.artist_cover_path
+                try:
+                    self._database.commit()
+                    search.add_artist(artist)
+                except IntegrityError:
+                    # we get an IntegrityError if the unique constraint kicks in
+                    # in which case the artist already exists so fetch it instead.
+                    self._database.rollback()
+                    artist = self._database.query(Artist).filter_by(
+                        name=metadata.artist_name
+                    ).one()
 
         if metadata.album_name is not None:
             try:
@@ -1108,23 +1112,24 @@ class LibraryProcess:
                 album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
                 self._database.add(album)
 
-            try:
-                self._database.commit()
-            except IntegrityError:
-                # we get an IntegrityError if the unique constraint kicks in
-                # in which case the album already exists so fetch it instead.
-                self._database.rollback()
-                album = self._database.query(Album).filter_by(
-                    name=metadata.album_name, date=metadata.date
-                ).one()
+                try:
+                    self._database.commit()
+                    search.add_album(album)
+                except IntegrityError:
+                    # we get an IntegrityError if the unique constraint kicks in
+                    # in which case the album already exists so fetch it instead.
+                    self._database.rollback()
+                    album = self._database.query(Album).filter_by(
+                        name=metadata.album_name, date=metadata.date
+                    ).one()
 
-            album.name = metadata.album_name
+        if album is not None and album.cover_path is None:
+            album.cover_path = metadata.cover_path
+            self._database.commit()
 
-            if album.date is None:
-                album.date = metadata.date
-
-            if album.cover_path is None:
-                album.cover_path = metadata.cover_path
+        if artist is not None and artist.cover_path is None:
+            artist.cover_path = metadata.artist_cover_path
+            self._database.commit()
 
         ext = os.path.splitext(filename)[1].lower()
 
@@ -1176,25 +1181,22 @@ class LibraryProcess:
             track.invalid = invalid[0] if len(invalid) > 0 else ''
             track.invalid_msg = metadata.invalid_msg
 
-        track.paths.append(TrackPath(filename))
-
         if album is not None:
-            album.tracks.append(track)
+            track.album_id = album.id
 
         if artist is not None:
-            artist.tracks.append(track)
+            track.artist_id = artist.id
 
         self._database.commit()
+
+        track_path = TrackPath(filename)
+        track_path.track_id = track.id
+
+        self._database.add(track_path)
 
         track.scanned = True
 
         self._database.commit()
-
-        if artist is not None:
-            search.add_artist(artist)
-
-        if album is not None:
-            search.add_album(album)
 
         search.add_track(track)
 
@@ -1694,6 +1696,7 @@ class LibraryPlugin(SimplePlugin):
             self.library.start()
 
         self.thread = Thread(
+            name="Library",
             target=run,
             args=(self, os.path.abspath(config['library.path']))
         )
