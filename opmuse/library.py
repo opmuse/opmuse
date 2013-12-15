@@ -906,6 +906,8 @@ class Library:
 
     def start(self):
 
+        start_time = time.time()
+
         self.scanning = True
 
         self._database_type = get_database_type()
@@ -1006,7 +1008,7 @@ class Library:
 
         self.scanning = False
 
-        log("Done updating library.")
+        log("Done updating library, in %d seconds." % (time.time() - start_time))
 
     @staticmethod
     def is_supported(filename):
