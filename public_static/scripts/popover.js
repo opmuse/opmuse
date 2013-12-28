@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'bootstrap/popover', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Popover = Class.extend({

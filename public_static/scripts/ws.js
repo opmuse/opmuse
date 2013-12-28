@@ -17,7 +17,10 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domReady!'], function($, inheritance, logger, ajaxify) {
+define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domReady!'],
+        function($, inheritance, logger, ajaxify) {
+
+    "use strict";
 
     var instance = null;
 

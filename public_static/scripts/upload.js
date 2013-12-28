@@ -20,6 +20,8 @@
 define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeahead',
         'sprintf', 'bootstrap/popover', 'domReady!'], function($, inheritance, ajaxify) {
 
+    "use strict";
+
     var instance = null;
 
     var Upload = Class.extend({

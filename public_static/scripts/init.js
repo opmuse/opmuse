@@ -17,6 +17,8 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+"use strict";
+
 window.require = {
     baseUrl: "/static/scripts/",
     urlArgs: "version=" + window.opmuseGlobals.version,

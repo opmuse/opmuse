@@ -19,6 +19,8 @@
 
 define(['inheritance'], function(inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Logger = Class.extend({

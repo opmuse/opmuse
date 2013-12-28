@@ -18,6 +18,9 @@
  */
 
 define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritance, ajaxify) {
+
+    "use strict";
+
     var instance = null;
 
     var You = Class.extend({

@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'bootstrap/tab', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Tab = Class.extend({

@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'bootstrap/button', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Button = Class.extend({

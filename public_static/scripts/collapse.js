@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'bootstrap/collapse', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Collapse = Class.extend({

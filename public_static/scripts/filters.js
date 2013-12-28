@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'bind', 'domReady!'], function($, inheritance, ajaxify) {
 
+    "use strict";
+
     var instance = null;
 
     var Filters = Class.extend({

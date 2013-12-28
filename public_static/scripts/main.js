@@ -17,6 +17,8 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+"use strict";
+
 requirejs.onError = function (err) {
     var overlay = document.getElementById("overlay");
     overlay.className = 'error';

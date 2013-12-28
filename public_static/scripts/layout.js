@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function($, inheritance, storage) {
 
+    "use strict";
+
     var Panel = Class.extend({
         init: function (layout) {
             var panelOpen = storage.get('layout.panel.open');

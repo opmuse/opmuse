@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Login = Class.extend({

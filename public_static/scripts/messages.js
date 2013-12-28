@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'lib/bootstrap/alert', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Messages = Class.extend({

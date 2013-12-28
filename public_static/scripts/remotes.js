@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function($, inheritance, ws, ajaxify) {
 
+    "use strict";
+
     var instance = null;
 
     var Remotes = Class.extend({

@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var DirTable = Class.extend({

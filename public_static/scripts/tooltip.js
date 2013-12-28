@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'bootstrap/tooltip', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Tooltip = Class.extend({

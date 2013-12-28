@@ -20,6 +20,8 @@
 define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domReady!'],
     function ($, inheritance, popover, layout) {
 
+    "use strict";
+
     var Throb = Class.extend({
         init: function (brand) {
             var that = this;

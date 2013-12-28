@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'bind', 'bootstrap/modal', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Modal = Class.extend({

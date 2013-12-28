@@ -20,6 +20,8 @@
 define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscroller', 'moment', 'bind', 'domReady!'],
     function($, inheritance, ajaxify, ws) {
 
+    "use strict";
+
     var Player = Class.extend({
         init: function (queue) {
             if (instance !== null) {
@@ -206,7 +208,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
         setProgress: function (seconds, seconds_ahead) {
             var that = this;
 
-            var seconds_perc = seconds_ahead_perc = 0;
+            var seconds_perc = 0;
+            var seconds_ahead_perc = 0;
 
             if (that.currentTrack !== null) {
                 var duration = that.currentTrack.duration;

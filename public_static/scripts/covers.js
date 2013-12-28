@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inheritance, ws) {
 
+    "use strict";
+
     var instance = null;
 
     var Covers = Class.extend({

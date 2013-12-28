@@ -18,6 +18,9 @@
  */
 
 define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
+
+    "use strict";
+
     var instance = null;
 
     var Edit = Class.extend({

@@ -19,6 +19,8 @@
 
 define(['jquery', 'inheritance', 'sprintf', 'domReady!'], function($, inheritance) {
 
+    "use strict";
+
     var instance = null;
 
     var Storage = Class.extend({
