@@ -5,7 +5,7 @@ mmh3>=2.2
 repoze.who==2.2
 pylast>=0.5.11,<0.6
 Whoosh>=2.5.4,<2.6
-vendor/mutagen-py3.tar.bz2
+mutagenx==1.22
 rarfile==2.6
 ws4py==0.3.2
 Unidecode>=0.04.13,<0.05
