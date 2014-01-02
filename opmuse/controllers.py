@@ -35,7 +35,7 @@ from repoze.who.api import get_api
 from repoze.who._compat import get_cookies
 from collections import OrderedDict
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, undefer
 from sqlalchemy import func, distinct, or_
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
@@ -1411,7 +1411,7 @@ class Dashboard:
 
         top_artists = Dashboard.get_top_artists(all_users)
         recent_tracks = Dashboard.get_recent_tracks(all_users)
-        new_albums = library_dao.get_new_albums(16, 0)
+        new_albums = Dashboard.get_new_albums(16, 0)
 
         now = datetime.datetime.now()
 
@@ -1451,9 +1451,22 @@ class Dashboard:
             'current_user': current_user,
             'users': users,
             'top_artists': top_artists,
-            'recent_tracks': recent_tracks[0:24],
+            'recent_tracks': recent_tracks,
             'new_albums': new_albums
         }
+
+    @staticmethod
+    def get_new_albums(limit, offset):
+        return (get_database()
+                .query(Album)
+                .options(joinedload(Album.tracks))
+                .options(undefer(Album.artist_count))
+                .join(Track, Album.id == Track.album_id)
+                .group_by(Album.id)
+                .order_by(func.max(Track.added).desc())
+                .limit(limit)
+                .offset(offset)
+                .all())
 
     @staticmethod
     def get_top_artists(all_users):
@@ -1535,6 +1548,9 @@ class Dashboard:
                 'timestamp': recent_track['timestamp'],
                 'user': user
             })
+
+            if len(recent_tracks) > 24:
+                break
 
         return recent_tracks
 

@@ -1667,17 +1667,6 @@ class LibraryDao:
 
         return entities
 
-    def get_new_albums(self, limit, offset):
-        return (get_database()
-                .query(Album)
-                .options(joinedload(Album.tracks))
-                .join(Track, Album.id == Track.album_id)
-                .group_by(Album.id)
-                .order_by(func.max(Track.added).desc())
-                .limit(limit)
-                .offset(offset)
-                .all())
-
 
 library_dao = LibraryDao()
 
