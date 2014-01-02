@@ -27,6 +27,7 @@ from whoosh.qparser import QueryParser
 from whoosh.query import Term, Or
 from opmuse.database import get_database
 import opmuse.library
+from opmuse.utils import memoize
 
 index_names = ['Artist', 'Album', 'Track']
 write_handlers = {}
@@ -139,6 +140,7 @@ class Search:
 
         return sorted(entities, key=lambda entity: indexed_results[entity.id], reverse=True)
 
+    @memoize
     def _query(self, index_name, query, exact = False, exact_metaphone = False):
         write_handler = write_handlers[index_name]
 
