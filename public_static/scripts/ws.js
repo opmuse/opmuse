@@ -63,6 +63,11 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domRea
         internalInit: function () {
             var that = this;
 
+            if (!("WebSocket" in window)) {
+                ajaxify.throb.setError("Browser doesn't support websockets, things will not work as expected.");
+                return;
+            }
+
             that.socket = new WebSocket(that.url);
 
             // if it takes longer that 5s to connect we assume something is wrong
