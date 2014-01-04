@@ -167,6 +167,15 @@ def format_seconds(seconds):
     return "%s%02d:%02d" % (string, minutes, seconds)
 
 
+def guess_autoescape(template_name):
+    if template_name is None or '.' not in template_name:
+        return False
+
+    ext = template_name.rsplit('.', 1)[1]
+
+    return ext in ('html', )
+
+
 class JinjaPlugin(SimplePlugin):
 
     def __init__(self, bus):
@@ -187,7 +196,8 @@ class JinjaPlugin(SimplePlugin):
                     '..', 'templates'
                 )
             ),
-            extensions=['jinja2.ext.loopcontrols', 'jinja2.ext.do'],
+            extensions=['jinja2.ext.loopcontrols', 'jinja2.ext.do', 'jinja2.ext.autoescape'],
+            autoescape=guess_autoescape,
             undefined=StrictUndefined,
             auto_reload=auto_reload,
             cache_size=-1
