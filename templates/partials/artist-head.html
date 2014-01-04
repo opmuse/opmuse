@@ -101,10 +101,11 @@
     </figure>
 {% endmacro %}
 
-{% macro print_articles_content(remotes, index) %}
+{% macro print_articles_content(remotes, index, found_something) %}
     {% if remotes %}
         {% if remotes.wikipedia|count > 0 %}
             {% for wikipedia in remotes.wikipedia %}
+                {% do found_something.append(1) %}
                 <div class="tab-pane" id="wikipediatab_{{ index }}_{{ loop.index }}">
                     <div class="wikipedia-content">
                     {{ print_cover(album, artists[0]) }}
@@ -131,6 +132,7 @@
             {% endfor %}
         {% endif %}
         {% if remotes.lastfm is defined and remotes.lastfm and 'bio' in remotes.lastfm and remotes.lastfm.bio %}
+            {% do found_something.append(1) %}
             <div class="tab-pane" id="lastfmtab_{{ index }}">
                 <div class="lastfm-content">
                     {{ print_cover(album, artists[0]) }}
@@ -140,6 +142,7 @@
         {% endif %}
         {% if 'google' in remotes and remotes.google and remotes.google|count > 0 %}
             {% for hit in remotes.google %}
+                {% do found_something.append(1) %}
                 <div class="tab-pane" id="googletab_{{ index }}_{{ loop.index }}">
                     <div class="google-content">
                         {{ print_cover(album, artists[0]) }}
@@ -164,19 +167,64 @@
     {% endif %}
 {% endmacro %}
 
+{% macro print_type() %}
+    {%- if artist is defined and artist -%}
+        artist
+    {%- elif track is defined and track -%}
+        track
+    {%- elif album is defined and album -%}
+        album
+    {%- endif -%}
+{% endmacro %}
+
 {% macro print_articles(remotes_artist, remotes_album = None, remotes_track = None) %}
     {% if not remotes_artist and not remotes_album and not remotes_track %}
-        {{ print_cover(album, artists[0]) }}
-    {% else %}
         <div class="tab-content">
-            {{ print_articles_content(remotes_track, 0) }}
-            {{ print_articles_content(remotes_album, 1) }}
-            {{ print_articles_content(remotes_artist, 2) }}
+            <div class="tab-pane" id="fetchingtab">
+                <div class="fetching-content">
+                    {{ print_cover(album, artists[0]) }}
+                    <p>
+                        <i class="fa fa-spin fa-spinner"></i>
+                        Fetching articles for this {{ print_type() }}.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <ul class="nav nav-pills nav-pills-sm">
+            <li data-toggle="tab">
+                <a href="#fetchingtab">N/A</a>
+            </li>
+        </ul>
+    {% else %}
+        {# using a array instead of boolean so it gets passed by reference, so to say #}
+        {% set found_something = [] %}
+
+        <div class="tab-content">
+            {{ print_articles_content(remotes_track, 0, found_something) }}
+            {{ print_articles_content(remotes_album, 1, found_something) }}
+            {{ print_articles_content(remotes_artist, 2, found_something) }}
+
+            {% if not found_something %}
+                <div class="tab-pane" id="nothingtab">
+                    <div class="nothing-content">
+                        {{ print_cover(album, artists[0]) }}
+                        <p>
+                            Found no articles for this {{ print_type() }}.
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
         </div>
         <ul class="nav nav-pills nav-pills-sm">
             {{ print_articles_nav("Track", remotes_track, 0) }}
             {{ print_articles_nav("Album", remotes_album, 1) }}
             {{ print_articles_nav("Artist", remotes_artist, 2) }}
+
+            {% if not found_something %}
+                <li data-toggle="tab">
+                    <a href="#nothingtab">N/A</a>
+                </li>
+            {% endif %}
         </ul>
     {% endif %}
 {% endmacro %}
@@ -252,13 +300,13 @@
                 <div class="remotes remotes_artist_head_{{ artist.id }}">
                     {{ print_articles(remotes_artist) }}
                 </div>
-            {% elif album is defined and album %}
-                <div class="remotes remotes_album_head_{{ album.id }}">
-                    {{ print_articles(remotes_artists[0] if remotes_artists is defined and remotes_artists|count > 0 else None, remotes_album) }}
-                </div>
             {% elif track is defined and track %}
                 <div class="remotes remotes_track_head_{{ track.id }}">
                     {{ print_articles(remotes_artist, remotes_album, remotes_track) }}
+                </div>
+            {% elif album is defined and album %}
+                <div class="remotes remotes_album_head_{{ album.id }}">
+                    {{ print_articles(remotes_artists[0] if remotes_artists is defined and remotes_artists|count > 0 else None, remotes_album) }}
                 </div>
             {% endif %}
         </div>

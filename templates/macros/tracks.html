@@ -67,7 +67,11 @@
         {% for track in tracks %}
             <tr>
                 <td>
-                    <a class="queue add btn btn-default btn-xs" href="/queue/add/{{ track.id }}">
+                    <a
+                        class="queue add btn btn-primary btn-xs"
+                        href="/queue/add/{{ track.id }}"
+                        title="Queue this track"
+                        rel="tooltip">
                         <i class="fa fa-headphones"></i>
                     </a>
                 </td>
@@ -111,20 +115,26 @@
 {% macro dir_table(dir_tracks) %}
     {% import "macros/edit-dropdown.html" as edit_dropdown %}
 
-    <table class="table table-striped table-bordered accordion dir_table">
+    <div class="dir_table">
         {% set index = 0 %}
         {% for dir, item in dir_tracks %}
             {% set tracks = item['tracks'] %}
             {% set files = item['files'] %}
             {% set pretty_dir = item['pretty_dir'] %}
-            <tbody>
-                <tr class="dir-info">
-                    <th colspan="6">
+            <h4 class="folder-name">
+                <i title="{{ dir.decode('utf8', 'replace') }}" rel="tooltip" class="fa fa-folder-open"></i>
+                {{ pretty_dir }}
+            </h4>
+            <div class="table-responsive">
+            <table class="table table-striped">
+                <tr>
+                    <td colspan="6">
                         <div class="btn-group queue-btn">
                             <a
                                 accesskey="a"
                                 class="queue add add-album btn-xs btn btn-primary"
-                                title="Queue all"
+                                title="Queue this folder."
+                                rel="tooltip"
                                 href="/queue/add/
                                     {%- for track in tracks -%}
                                         {{ track.id }},
@@ -133,19 +143,11 @@
                                 <i class="fa fa-headphones"></i>
                             </a>
                         </div>
-                        {{ pretty_dir }}
                         {{ edit_dropdown.dropdown(tracks, btn_size = "btn-xs") }}
-                    </th>
-                    <th></th>
+                    </td>
                 </tr>
                 {% for track in tracks %}
                     <tr>
-                        <td class="indent">&nbsp;</td>
-                        {% if track.disc %}
-                            <td>Disc {{ track.disc }}</td>
-                        {% else %}
-                            <td></td>
-                        {% endif %}
                         <td>{{ track.number }}</td>
                         <td>
                             {%- if track.album and track.album.artists|length > 1%}
@@ -156,28 +158,35 @@
                             <span class="btn-group queue-btn">
                                 <a
                                     class="btn btn-primary btn-xs queue add"
-                                    href="/queue/add/{{ track.id }}">
+                                    href="/queue/add/{{ track.id }}"
+                                    title="Queue this track"
+                                    rel="tooltip">
                                     <i class="fa fa-headphones"></i>
                                 </a>
                             </span>
                             {% if track.has_dups %}
                                 <span class="label label-warning"
-                                    title="Track has duplicates, you could remove all but one of them.">
-                                    <i class="fa fa-group"></i>
+                                    title="Track has duplicates, you could remove all but one of them."
+                                    rel="tooltip">
+                                    {{ track.paths|length }}<i class="fa fa-times"></i>
                                 </span>
                             {% endif %}
                             {% if track.low_quality %}
                                 <span class="label label-warning"
-                                    title="Track is of low quality, consider replacing it.">
+                                    title="Track is of low quality, consider replacing it."
+                                    rel="tooltip">
                                     <i class="fa fa-thumbs-down"></i>
                                 </span>
                             {% endif %}
-                            <p class="label label-info">
-                                {{ track.pretty_format }}
-                            </p>
                             <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
                         </td>
                         <td>{{ track.duration|format_seconds }}</td>
+                        <td class="hidden-xs">
+                            {{ track.pretty_format }}
+                            {% if track.bitrate %}
+                                @ {{ (track.bitrate / 1024) | format_number }} kbps
+                            {% endif %}
+                        </td>
                         {% if track.invalid %}
                             <td>{{ invalid_label(track.invalid) }}</td>
                         {% else %}
@@ -186,29 +195,28 @@
                     </tr>
                 {% endfor %}
             </tbody>
+        </table>
+        </div>
+        <div class="table-responsive">
+        <table class="table table-condensed">
             {% if files %}
                 <tbody class="other-files-header">
                     <tr>
-                        <th class="indent">&nbsp;</th>
-                        <th class="other-files-header-title" colspan="4">
-                            Other ({{ files|count }} Files)
-                        </th>
-                        <th>
+                        <th class="other-files-header-title">
+                            {{ files|count }} Other Files
                             <a class="btn btn-default btn-xs collapsed other-files-toggle" data-toggle="collapse" href="#other_files_{{ index }}">
                                 <i class="fa fa-angle-down in"></i>
                                 <i class="fa fa-angle-up out"></i>
                             </a>
                         </th>
-                        <th class="indent"></th>
                     </tr>
                 </tbody>
                 <tbody class="other-files collapse" id="other_files_{{ index }}">
                     {% for item in files %}
                     <tr>
-                        <td colspan="1" class="indent">&nbsp;</td>
-                        <td colspan="6">
+                        <td>
                             {% if item.isdir %}
-                                <i class="fa fa-folder-open-alt"></i>
+                                <i class="fa fa-folder-open-o"></i>
                             {% elif item.track %}
                                 <i class="fa fa-music"></i>
                             {% else %}
@@ -246,13 +254,10 @@
                     </tr>
                     {% endfor %}
                 </tbody>
+            </table>
+            </div>
             {% endif %}
             {% set index = index + 1 %}
         {% endfor %}
-        <tfoot>
-            <tr>
-                <td colspan="7">&nbsp;</td>
-            </tr>
-        </tfoot>
-    </table>
+    </div>
 {% endmacro %}

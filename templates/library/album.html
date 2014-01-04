@@ -29,7 +29,8 @@
         <a
             accesskey="a"
             class="queue add add-album btn-sm btn btn-primary"
-            title="Queue all"
+            title="Queue whole album"
+            rel="tooltip"
             href="/queue/add/
                 {%- for track in album.tracks -%}
                     {{ track.id }},

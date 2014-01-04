@@ -100,6 +100,7 @@ class Track(Base):
     album = relationship("Album", lazy='joined', innerjoin=False)
     artist = relationship("Artist", lazy='joined', innerjoin=False)
     upload_user = relationship("User", lazy='joined', innerjoin=False)
+    paths = relationship("TrackPath", cascade='delete', order_by="TrackPath.path")
 
     def __init__(self, hash):
         self.hash = hash
@@ -287,7 +288,7 @@ class TrackPath(Base):
     dir = Column(BLOB)
     track_id = Column(Integer, ForeignKey('tracks.id'))
 
-    track = relationship("Track", backref=backref('paths', cascade="all,delete", order_by=id))
+    track = relationship("Track")
 
     def __init__(self, path):
         self.path = path

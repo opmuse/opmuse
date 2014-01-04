@@ -56,7 +56,7 @@
 
     <div class="clear"></div>
 
-    <table class="table table-striped table-bordered table-condensed">
+    <table class="table table-striped">
         <tr>
             <th>Invalid</th>
             <td>
@@ -181,7 +181,7 @@
             Track has exact duplicates (e.g. the same hash), you could remove all but one of them.
         </p>
     {% endif %}
-    <table class="table table-striped table-bordered table-condensed">
+    <table class="table table-striped table-condensed">
         <tr>
             <th>File</th>
             <th>Modified</th>
@@ -190,6 +190,13 @@
             <tr>
                 <td>
                     {{ path.pretty_path }}
+                    {% if loop.index == 1 and track.paths|length > 1 %}
+                        <span class="label label-info"
+                            title="This is the track we use for streaming, listings etc."
+                            rel="tooltip">
+                            <i class="fa fa-check"></i>
+                        </span>
+                    {% endif %}
                 </td>
                 <td>
                     {{ path.path_modified }}

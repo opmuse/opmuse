@@ -38,9 +38,11 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function($, inheritance) 
             that.internalInit();
         },
         internalInit: function () {
-            $("table.dir_table .other-files-header .other-files-header-title").click(function () {
-                $(this).closest(".other-files-header").find(".other-files-toggle").click();
-                return false;
+            $(".dir_table .other-files-header .other-files-header-title").click(function (event) {
+                // avoid recursion caused by bubbling
+                if ($(event.target).is(".other-files-header-title")) {
+                    $(this).closest(".other-files-header").find(".other-files-toggle").click();
+                }
             });
         }
     });
