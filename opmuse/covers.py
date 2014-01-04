@@ -42,7 +42,7 @@ class Covers:
     DEFAULT_WIDTH = 220
     DEFAULT_HEIGHT = 220
     DEFAULT_GRAVITY = 'center'
-    LARGE_WIDTH = 700
+    LARGE_WIDTH = 650
     LARGE_HEIGHT = 325
     LARGE_GRAVITY = 'north'
 
