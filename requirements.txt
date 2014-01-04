@@ -11,4 +11,3 @@ ws4py==0.3.2
 Unidecode>=0.04.13,<0.05
 vendor/discogs_client.tar.bz2
 alembic>=0.6.1,<0.7
-vendor/sqlalchemy-utils.tar.bz2
