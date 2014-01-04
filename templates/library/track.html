@@ -62,6 +62,10 @@
             <td>
                 {% if track.invalid %}
                     {{ tracks.invalid_label(track.invalid) }}
+
+                    {% if track.invalid_msg %}
+                        ({{ track.invalid_msg }})
+                    {% endif %}
                 {% else %}
                     N/A
                 {% endif %}
