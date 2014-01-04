@@ -32,6 +32,9 @@ from opmuse.utils import memoize
 index_names = ['Artist', 'Album', 'Track']
 write_handlers = {}
 
+for index_name in index_names:
+    write_handlers[index_name] = None
+
 INDEXDIR = os.path.join(
     os.path.abspath(os.path.dirname(__file__)),
     '..', 'cache', 'index'
@@ -85,26 +88,56 @@ class Search:
 
     def delete_track(self, track):
         write_handler = write_handlers["Track"]
+
+        if write_handler is None:
+            log("Write handler for Track isn't initialized")
+            return
+
         write_handler.delete_document(track.id)
 
     def delete_album(self, album):
         write_handler = write_handlers["Album"]
+
+        if write_handler is None:
+            log("Write handler for Album isn't initialized")
+            return
+
         write_handler.delete_document(album.id)
 
     def delete_artist(self, artist):
         write_handler = write_handlers["Artist"]
+
+        if write_handler is None:
+            log("Write handler for Artist isn't initialized")
+            return
+
         write_handler.delete_document(artist.id)
 
     def add_track(self, track):
         write_handler = write_handlers["Track"]
+
+        if write_handler is None:
+            log("Write handler for Track isn't initialized")
+            return
+
         write_handler.update_document(str(track.id), name = track.name)
 
     def add_album(self, album):
         write_handler = write_handlers["Album"]
+
+        if write_handler is None:
+            log("Write handler for Album isn't initialized")
+            return
+
         write_handler.update_document(str(album.id), name = album.name)
 
     def add_artist(self, artist):
         write_handler = write_handlers["Artist"]
+
+        if write_handler is None:
+            log("Write handler for Artist isn't initialized")
+            return
+
         write_handler.update_document(str(artist.id), name = artist.name)
 
     def query_track(self, query, exact = False, exact_metaphone = False):
