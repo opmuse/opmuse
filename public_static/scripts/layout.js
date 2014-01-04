@@ -104,14 +104,24 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
             }
 
             this.panel = new Panel(this);
+            this.overlayed = 0;
         },
         showOverlay: function () {
+            this.overlayed++;
+
             $("body").addClass("overlayed");
             $("#overlay").removeClass("hide").addClass("transparent");
         },
         hideOverlay: function() {
-            $("body").removeClass("overlayed");
-            $("#overlay").addClass("hide").removeClass("transparent");
+            this.overlayed--;
+
+            // i.e. to avoid overlay being removed on panel close when it might
+            // have been shown on ajax load but not finished. e.g. two calls
+            // to showOverlay() needs two calls to hideOverlay() to actually hide it.
+            if (this.overlayed === 0) {
+                $("body").removeClass("overlayed");
+                $("#overlay").addClass("hide").removeClass("transparent");
+            }
         },
     });
 
