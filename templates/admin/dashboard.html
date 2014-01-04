@@ -1,0 +1,89 @@
+{% extends "body.html" %}
+
+{% set subnav_file_path = "partials/admin-nav.html" %}
+
+{% block title  %}
+    Admin - Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% set tracks = request.library_dao.get_track_count() %}
+        {% set invalid = request.library_dao.get_invalid_track_count() %}
+        {% set albums = request.library_dao.get_album_count() %}
+        {% set artists = request.library_dao.get_artist_count() %}
+        {% set scanning = request.library.scanning %}
+        <div class="dashboard-box panel panel-{{ "primary" if scanning else "info" }}">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon fa fa-book"></i>
+                    Library
+                </h2>
+            </div>
+            <div class="panel-body">
+                {% if scanning %}
+                    {% set track_paths = request.library_dao.get_track_path_count() %}
+                    {% set files_found = request.library.files_found %}
+                    <p>
+                        We're currently scanning for new tracks.
+                        {% if files_found %}
+                            {{ track_paths|format_number }} of {{ files_found|format_number }}
+                            ({{ ((track_paths / files_found) * 100)|round(1) }}%) files scanned.
+                        {% endif %}
+                    </p>
+                    {% if files_found %}
+                        <div class="progress progress-striped active">
+                            <span class="progress-bar"
+                                style="width: {{ (track_paths / files_found) * 100 }}%">
+                            </span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                <p>
+                    You have <strong>{{ tracks|format_number }}</strong> tracks
+                    (<strong>{{ invalid|format_number }}</strong> invalid,
+                    {{ "%0.f" % ((invalid / tracks if tracks > 0 else 0) * 100) }}%),
+                    <strong>{{ albums|format_number }}</strong>
+                    albums and <strong>{{ artists|format_number }}</strong> artists.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="dashboard-box panel panel-{{ "primary" if request.bgtask.running > 0 else "info" }}">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon fa fa-cogs"></i>
+                    Background Tasks
+                </h2>
+            </div>
+            <div class="panel-body">
+                <p>
+                    There are <strong>{{ request.bgtask.queue.qsize() }}</strong> tasks in queue. Below you can see what the threads
+                    are currently working on.
+                </p>
+                <table class="table">
+                    {% for thread in request.bgtask.threads %}
+                        <tr class="{{ "success" if thread.item and thread.item.name != 'idle' else '' }}">
+                            <th>{{ loop.index }}</th>
+                            <td>
+                                {% if thread.item and thread.item.name != 'idle' %}
+                                    {{ thread.item.name }}
+                                {% else %}
+                                    Waiting for work.
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if thread.item and thread.item.name != 'idle' %}
+                                    {{ thread.item.started|pretty_date("") }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

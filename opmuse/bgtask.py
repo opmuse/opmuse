@@ -45,8 +45,16 @@ class QueueItem:
         self.args = args
         self.kwargs = kwargs
 
+        if hasattr(func, "bgtask_name"):
+            self.name = func.bgtask_name.format(*args)
+        else:
+            self.name = "%r %r %r" % (func, args, kwargs)
+
+        self.started = None
+        self.done = None
+
     def values(self):
-        return self.priority, self.delay, self.func, self.args, self.kwargs
+        return self.name, self.priority, self.delay, self.func, self.args, self.kwargs
 
     def __eq__(self, other):
         return other.priority == self.priority
@@ -64,6 +72,7 @@ class BackgroundTaskPlugin(SimplePlugin):
         self.start_threads = 6
         self.bus.subscribe("bind_background_task", self.bind_background_task)
         self.running = 0
+        self.done = queue.Queue()
 
     def bind_background_task(self):
         return self
@@ -78,19 +87,17 @@ class BackgroundTaskPlugin(SimplePlugin):
                 debug("Starting bgtask thread #%d" % number)
 
                 thread = threading.Thread(target=self.run, args=(number, ), name='idle')
+                thread.item = None
                 thread.start()
 
                 self.threads.append(thread)
 
     start.priority = 90
 
-    def size(self):
-        return self.queue.qsize()
-
     def stop(self):
         self._running = "drain"
 
-        log("Draining bgtasks, %d items left." % self.size())
+        log("Draining bgtasks, %d items left." % self.queue.qsize())
 
         if self.threads:
             for thread in self.threads:
@@ -108,7 +115,8 @@ class BackgroundTaskPlugin(SimplePlugin):
         while self._running:
             try:
                 try:
-                    priority, delay, func, args, kwargs = self.queue.get(block=True, timeout=2).values()
+                    item = self.queue.get(block=True, timeout=2)
+                    name, priority, delay, func, args, kwargs = item.values()
                 except queue.Empty:
                     if self._running == "drain":
                         return
@@ -117,12 +125,10 @@ class BackgroundTaskPlugin(SimplePlugin):
                 else:
                     thread = threading.current_thread()
 
-                    thread.started = time.time()
+                    item.started = time.time()
 
-                    if hasattr(func, "bgtask_name"):
-                        thread.name = func.bgtask_name.format(*args)
-                    else:
-                        thread.name = "%r %r %r" % (func, args, kwargs)
+                    thread.item = item
+                    thread.name = name
 
                     self.running += 1
 
@@ -150,9 +156,18 @@ class BackgroundTaskPlugin(SimplePlugin):
 
                     self.queue.task_done()
 
+                    item.done = time.time()
+
                     thread.name = 'idle'
 
                     self.running -= 1
+
+                    thread.item = None
+
+                    self.done.put(item)
+
+                    if self.done.qsize() > 20:
+                        self.done.get()
             except:
                 log("Error in bgtask thread #%d %r." % (number, self), traceback=True)
 

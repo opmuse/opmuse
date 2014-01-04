@@ -111,8 +111,8 @@ def format_number(number):
     return locale.format('%d', number, grouping=True)
 
 
-def pretty_date(date):
-    return _pretty_date(date)
+def pretty_date(date, ago="ago"):
+    return _pretty_date(date, ago=ago)
 
 
 def nl2p(string):

@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
-def pretty_date(time):
+def pretty_date(time, ago="ago"):
     now = datetime.now()
 
     if time is None:
@@ -27,7 +27,10 @@ def pretty_date(time):
         time = int(time)
 
     if type(time) is int or type(time) is float:
-        diff = now - datetime.fromtimestamp(time)
+        if time > 3600 * 24 * 365 * 10:
+            diff = now - datetime.fromtimestamp(time)
+        else:
+            diff = timedelta(seconds=time)
     elif isinstance(time, datetime):
         diff = now - time
     else:
@@ -39,27 +42,28 @@ def pretty_date(time):
     if day_diff < 0:
         return ''
 
+    if len(ago) > 0:
+        ago = " %s" % ago
+
     if day_diff == 0:
-        if second_diff < 10:
-            return "just now"
-        elif second_diff < 60:
-            return "%d seconds ago" % second_diff
+        if second_diff < 60:
+            return "%d seconds%s" % (second_diff, ago)
         elif second_diff < 120:
-            return "a minute ago"
+            return "a minute%s" % ago
         elif second_diff < 3600:
-            return "%d minutes ago" % (second_diff / 60)
+            return "%d minutes%s" % ((second_diff / 60), ago)
         elif second_diff < 7200:
-            return "an hour ago"
+            return "an hour%s" % ago
         elif second_diff < 86400:
-            return "%d hours ago" % (second_diff / 3600)
+            return "%d hours%s" % ((second_diff / 3600), ago)
     else:
         if day_diff == 1:
-            return "1 day ago"
+            return "1 day%s" % ago
         elif day_diff < 7:
-            return "%d days ago" % day_diff
+            return "%d days%s" % (day_diff, ago)
         elif day_diff < 31:
-            return "%d weeks ago" % (day_diff / 7)
+            return "%d weeks%s" % ((day_diff / 7), ago)
         elif day_diff < 365:
-            return "%d months ago" % (day_diff / 30)
+            return "%d months%s" % ((day_diff / 30), ago)
 
-    return "%d years ago" % (day_diff / 365)
+    return "%d years%s" % ((day_diff / 365), ago)

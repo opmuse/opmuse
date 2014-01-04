@@ -99,6 +99,8 @@ class Lastfm:
                 error
             ))
 
+    update_now_playing.bgtask_name = "Lastfm update now playing"
+
     def scrobble(self, user, session_key, seconds, **args):
         if session_key is None:
             return
@@ -138,6 +140,8 @@ class Lastfm:
                 args['title'],
                 error
             ))
+
+    scrobble.bgtask_name = "Lastfm scrobble track for {0}"
 
     def track_to_args(self, track):
 

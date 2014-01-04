@@ -1374,6 +1374,28 @@ class Library:
         return hierarchy
 
 
+class Admin:
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    def default(self):
+        raise HTTPRedirect('/admin/dashboard')
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.jinja(filename='admin/dashboard.html')
+    def dashboard(self):
+        return {}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.jinja(filename='admin/bgtasks.html')
+    def bgtasks(self):
+        return {}
+
+
 class Dashboard:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -1630,6 +1652,7 @@ class Root:
     library = Library()
     ws = WsController()
     dashboard = Dashboard()
+    admin = Admin()
     stream = Stream()
 
     @cherrypy.expose

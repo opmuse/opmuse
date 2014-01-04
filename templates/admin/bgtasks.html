@@ -1,0 +1,86 @@
+{% extends "body.html" %}
+
+{% set subnav_file_path = "partials/admin-nav.html" %}
+
+{% block title  %}
+    Admin - Background Tasks
+{% endblock %}
+
+{% block content %}
+    <p>
+        Background tasks are time consuming tasks like fetching album covers, wikipedia articles for artist, albums etc.
+    </p>
+    <p>
+        <strong>Queue</strong> is a list of what's in the queue to be worked on, <strong>Working</strong> what the
+        worker threads are working on and <strong>Done</strong> the last 20 tasks that are finished.
+    </p>
+
+    <h3>Done ({{ request.bgtask.done.qsize() }})</h3>
+
+    <table class="table table-striped">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Duration</th>
+            <th>Done</th>
+        </tr>
+        {% for item in request.bgtask.done.queue %}
+            <tr>
+                <th>{{ loop.index }}</th>
+                <td>
+                    {{ item.name }}
+                </td>
+                <td>
+                    {{ (item.done - item.started)|pretty_date("") }}
+                </td>
+                <td>
+                    {{ item.done|pretty_date }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Working ({{ request.bgtask.running }})</h3>
+
+    <table class="table table-striped">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Start</th>
+        </tr>
+        {% for thread in request.bgtask.threads %}
+            <tr>
+                <th>{{ loop.index }}</th>
+                <td>
+                    {% if thread.item and thread.item.name != 'idle' %}
+                        {{ thread.item.name }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    {% if thread.item and thread.item.name != 'idle' %}
+                        {{ thread.item.started|pretty_date("") }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Queue ({{ request.bgtask.queue.qsize() }})</h3>
+
+    <table class="table table-striped">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+        </tr>
+        {% for item in request.bgtask.queue.queue %}
+            <tr>
+                <th>{{ loop.index }}</th>
+                <td>
+                    {{ item.name }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

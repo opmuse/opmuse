@@ -214,6 +214,8 @@ class Covers:
 
         ws.emit_all('covers.album.update', album.id)
 
+    fetch_album_cover.bgtask_name = "Fetch cover for album {0}"
+
     def fetch_artist_cover(self, artist_id):
         artist = get_database().query(Artist).filter_by(id=artist_id).one()
 
@@ -283,6 +285,8 @@ class Covers:
         get_database().commit()
 
         ws.emit_all('covers.artist.update', artist.id)
+
+    fetch_artist_cover.bgtask_name = "Fetch cover for artist {0}"
 
     def retrieve_and_resize(self, image_url):
         image_ext = os.path.splitext(image_url)[1]

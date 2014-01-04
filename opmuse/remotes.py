@@ -64,7 +64,7 @@ class Remotes:
 
         ws.emit_all('remotes.user.fetched', id)
 
-    _fetch_user.bgtask_name = "Fetching lastfm info for user {1}"
+    _fetch_user.bgtask_name = "Fetch lastfm info for user {1}"
 
     def get_user(self, user):
         key = Remotes.USER_KEY_FORMAT % user.id
@@ -91,7 +91,7 @@ class Remotes:
 
         ws.emit_all('remotes.track.fetched', id)
 
-    _fetch_track.bgtask_name = "Fetching info for track {1} by {3} on {2}"
+    _fetch_track.bgtask_name = "Fetch info for track {1} by {3} on {2}"
 
     def get_track(self, track):
         key = Remotes.TRACK_KEY_FORMAT % track.id
@@ -125,7 +125,7 @@ class Remotes:
 
         ws.emit_all('remotes.album.fetched', id)
 
-    _fetch_album.bgtask_name = "Fetching info for album {1} by {2}"
+    _fetch_album.bgtask_name = "Fetch info for album {1} by {2}"
 
     def get_album(self, album):
         key = Remotes.ALBUM_KEY_FORMAT % album.id
@@ -155,7 +155,7 @@ class Remotes:
 
         ws.emit_all('remotes.artist.fetched', id)
 
-    _fetch_artist.bgtask_name = "Fetching info for artist {1}"
+    _fetch_artist.bgtask_name = "Fetch info for artist {1}"
 
     def get_artist(self, artist):
         key = Remotes.ARTIST_KEY_FORMAT % artist.id

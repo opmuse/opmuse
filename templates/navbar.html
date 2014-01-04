@@ -17,9 +17,6 @@
         </div>
         <div class="navbar-collapse collapse">
             <div id="navbar-main" >
-                {% if authenticated %}
-
-                {% endif %}
                 <ul class="nav navbar-nav">
                     {% if authenticated %}
                         <li class="{{ "active" if request.path_info|startswith("/dashboard") else '' }}">
@@ -31,6 +28,11 @@
                         <li class="{{ "active" if request.path_info|startswith("/users") else '' }}">
                             <a href="/users/you/settings">Users</a>
                         </li>
+                        {% if is_granted("admin") %}
+                            <li class="{{ "active" if request.path_info|startswith("/admin") else '' }}">
+                                <a href="/admin/dashboard">Admin</a>
+                            </li>
+                        {% endif %}
                         <li class="visible-xs">
                             <a href="/logout?came_from={{ current_url|urlencode }}">
                                 Sign out {{ request.user.login }}
