@@ -31,7 +31,7 @@ from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedToo
 from opmuse.search import WhooshPlugin
 from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
-from opmuse.bgtask import BackgroundTaskQueue
+from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
 
 tempfile.tempdir = os.path.abspath(os.path.join(
@@ -47,6 +47,7 @@ def configure():
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
     cherrypy.tools.authorize = AuthorizeTool()
     cherrypy.tools.library = LibraryTool()
+    cherrypy.tools.backgroundtask = BackgroundTaskTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = multi_headers_tool
     cherrypy.tools.cgitb_log_err = cgitb_log_err_tool
@@ -63,6 +64,7 @@ def configure():
             'tools.database.on': True,
             'tools.jinjaauthenticated.on': True,
             'tools.library.on': True,
+            'tools.backgroundtask.on': True,
             'tools.jinjaenv.on': True,
             'tools.authenticated.on': True,
         }, '/ws': {
@@ -148,7 +150,7 @@ def configure():
     cherrypy.engine.cache = CachePlugin(cherrypy.engine)
     cherrypy.engine.cache.subscribe()
 
-    cherrypy.engine.bgtask = BackgroundTaskQueue(cherrypy.engine)
+    cherrypy.engine.bgtask = BackgroundTaskPlugin(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
 
     if 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:

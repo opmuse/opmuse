@@ -19,7 +19,6 @@ import queue
 import threading
 import cherrypy
 import logging
-import inspect
 import time
 from functools import total_ordering
 from cherrypy.process.plugins import SimplePlugin
@@ -56,16 +55,21 @@ class QueueItem:
         return other.priority < self.priority
 
 
-class BackgroundTaskQueue(SimplePlugin):
+class BackgroundTaskPlugin(SimplePlugin):
     def __init__(self, bus):
         SimplePlugin.__init__(self, bus)
 
         self.queue = queue.PriorityQueue()
         self.threads = None
         self.start_threads = 6
+        self.bus.subscribe("bind_background_task", self.bind_background_task)
+        self.running = 0
+
+    def bind_background_task(self):
+        return self
 
     def start(self):
-        self.running = True
+        self._running = True
 
         if not self.threads:
             self.threads = []
@@ -73,17 +77,20 @@ class BackgroundTaskQueue(SimplePlugin):
             for number in range(0, self.start_threads):
                 debug("Starting bgtask thread #%d" % number)
 
-                thread = threading.Thread(target=self.run, args=(number, ))
+                thread = threading.Thread(target=self.run, args=(number, ), name='idle')
                 thread.start()
 
                 self.threads.append(thread)
 
     start.priority = 90
 
-    def stop(self):
-        self.running = "drain"
+    def size(self):
+        return self.queue.qsize()
 
-        log("Draining bgtasks, %d items left." % self.queue.qsize())
+    def stop(self):
+        self._running = "drain"
+
+        log("Draining bgtasks, %d items left." % self.size())
 
         if self.threads:
             for thread in self.threads:
@@ -93,21 +100,32 @@ class BackgroundTaskQueue(SimplePlugin):
 
         log("Done draining bgtasks.")
 
-        self.running = False
+        self._running = False
 
     stop.priority = 90
 
     def run(self, number):
-        while self.running:
+        while self._running:
             try:
                 try:
                     priority, delay, func, args, kwargs = self.queue.get(block=True, timeout=2).values()
                 except queue.Empty:
-                    if self.running == "drain":
+                    if self._running == "drain":
                         return
 
                     continue
                 else:
+                    thread = threading.current_thread()
+
+                    thread.started = time.time()
+
+                    if hasattr(func, "bgtask_name"):
+                        thread.name = func.bgtask_name.format(*args)
+                    else:
+                        thread.name = "%r %r %r" % (func, args, kwargs)
+
+                    self.running += 1
+
                     if delay is not None:
                         debug("Delaying bgtask for %ds in thread #%d %r with priority %d, args %r and kwargs %r." %
                               (delay, number, func, priority, args, kwargs))
@@ -131,6 +149,10 @@ class BackgroundTaskQueue(SimplePlugin):
                         bgtask_data.database = None
 
                     self.queue.task_done()
+
+                    thread.name = 'idle'
+
+                    self.running -= 1
             except:
                 log("Error in bgtask thread #%d %r." % (number, self), traceback=True)
 
@@ -146,3 +168,13 @@ class BackgroundTaskQueue(SimplePlugin):
             for this task.
         """
         self.queue.put(QueueItem(priority, delay, func, args, kwargs))
+
+
+class BackgroundTaskTool(cherrypy.Tool):
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'on_start_resource',
+                               self.bind_background_task, priority=10)
+
+    def bind_background_task(self):
+        binds = cherrypy.engine.publish('bind_background_task')
+        cherrypy.request.bgtask = binds[0]

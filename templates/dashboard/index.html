@@ -213,6 +213,39 @@
                         </p>
                     </div>
                 </div>
+                <div class="dashboard-box panel panel-{{ "primary" if request.bgtask.running > 0 else "info" }}">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <i class="icon fa fa-cogs"></i>
+                            Background Tasks
+                        </h2>
+                    </div>
+                    <div class="panel-body">
+                        <p>
+                            There are <strong>{{ request.bgtask.size() }}</strong> tasks in queue. Below you can see what the threads
+                            are currently working on.
+                        </p>
+                        <table class="table">
+                            {% for thread in request.bgtask.threads %}
+                                <tr class="{{ "success" if thread.name != 'idle' else '' }}">
+                                    <th>{{ loop.index }}</th>
+                                    <td>
+                                        {% if thread.name != 'idle' %}
+                                            {{ thread.name }}
+                                        {% else %}
+                                            Waiting for work.
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if thread.name != 'idle' %}
+                                            {{ thread.started|pretty_date }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
