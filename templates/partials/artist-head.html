@@ -109,7 +109,7 @@
                 <div class="tab-pane" id="wikipediatab_{{ index }}_{{ loop.index }}">
                     <div class="wikipedia-content">
                     {{ print_cover(album, artists[0]) }}
-                    {{ wikipedia.summary }}
+                    {{ wikipedia.summary|safe }}
                     </div>
                     <p class="wikipedia-footer">
                         ... continue reading at
@@ -136,7 +136,7 @@
             <div class="tab-pane" id="lastfmtab_{{ index }}">
                 <div class="lastfm-content">
                     {{ print_cover(album, artists[0]) }}
-                    {{ remotes.lastfm.bio|nl2p }}
+                    {{ remotes.lastfm.bio|nl2p|safe }}
                 </div>
             </div>
         {% endif %}
@@ -147,7 +147,7 @@
                     <div class="google-content">
                         {{ print_cover(album, artists[0]) }}
                         <p>
-                            {{ hit.content }}
+                            {{ hit.content|safe }}
                         </p>
                     </div>
                     <p class="google-footer">
