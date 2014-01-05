@@ -180,7 +180,7 @@ class Remotes:
 
         ws.emit_all('remotes.tag.fetched', tag_name)
 
-    _fetch_tag.bgtask_name = "Fetching info for tag {0}"
+    _fetch_tag.bgtask_name = "Fetch info for tag {0}"
 
     def get_tag(self, tag_name):
         key = Remotes.TAG_KEY_FORMAT % tag_name

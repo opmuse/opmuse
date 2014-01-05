@@ -9,6 +9,32 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6">
+        <div class="dashboard-box configuration-box panel panel-info">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon fa fa-wrench"></i>
+                    Configuration
+                </h2>
+            </div>
+            <div class="panel-body">
+                <dl class="dl-horizontal">
+                    <dt>library.path</dt>
+                    <dd>{{ request.app.config.opmuse['library.path'] }}</dd>
+                    <dt>library.fs.structure</dt>
+                    <dd>{{ request.app.config.opmuse['library.fs.structure'] }}</dd>
+                    <dt>lastfm.key</dt>
+                    <dd>
+                        {% set lastfm_key = request.app.config.opmuse['lastfm.key'] %}
+
+                        {% if lastfm_key %}
+                            <a href="http://www.last.fm/api/account/{{ lastfm_key }}">{{ lastfm_key }}</a>
+                        {% endif %}
+                    </dd>
+                    <dt>lastfm.secret</dt>
+                    <dd>{{ request.app.config.opmuse['lastfm.secret'] }}</dd>
+                </dl>
+            </div>
+        </div>
         {% set tracks = request.library_dao.get_track_count() %}
         {% set invalid = request.library_dao.get_invalid_track_count() %}
         {% set albums = request.library_dao.get_album_count() %}
