@@ -184,7 +184,7 @@
                         <td class="hidden-xs">
                             {{ track.pretty_format }}
                             {% if track.bitrate %}
-                                @ {{ (track.bitrate / 1024) | format_number }} kbps
+                                @ {{ (track.bitrate / 1024) | format_number }} kbits/s
                             {% endif %}
                         </td>
                         {% if track.invalid %}

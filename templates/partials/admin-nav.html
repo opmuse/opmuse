@@ -2,6 +2,9 @@
     <li class="{{ "active" if request.path_info|startswith("/admin/dashboard") else '' }}">
         <a href="/admin/dashboard">Dashboard</a>
     </li>
+    <li class="{{ "active" if request.path_info|startswith("/admin/cache") else '' }}">
+        <a href="/admin/cache">Cache</a>
+    </li>
     <li class="{{ "active" if request.path_info|startswith("/admin/bgtasks") else '' }}">
         <a href="/admin/bgtasks">Background Tasks</a>
     </li>

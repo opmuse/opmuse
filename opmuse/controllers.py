@@ -53,6 +53,7 @@ from opmuse.covers import covers
 from opmuse.jinja import render_template
 from opmuse.database import get_database
 from opmuse.cache import cache
+from opmuse.sizeof import total_size
 
 
 class Edit:
@@ -1386,7 +1387,9 @@ class Admin:
     @cherrypy.tools.authorize(roles=['admin'])
     @cherrypy.tools.jinja(filename='admin/dashboard.html')
     def dashboard(self):
-        return {}
+        return {
+            'cache_size': cache.storage.size()
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -1394,6 +1397,26 @@ class Admin:
     @cherrypy.tools.jinja(filename='admin/bgtasks.html')
     def bgtasks(self):
         return {}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.jinja(filename='admin/cache.html')
+    def cache(self):
+        values = []
+
+        total_bytes = 0
+
+        for key, item in cache.storage.values():
+            bytes = total_size(item['value'])
+            total_bytes += bytes
+            values.append((key, bytes, type(item['value']), item['updated']))
+
+        return {
+            'values': values,
+            'size': cache.storage.size(),
+            'total_bytes': total_bytes
+        }
 
 
 class Dashboard:

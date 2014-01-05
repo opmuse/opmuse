@@ -75,6 +75,17 @@
                 </p>
             </div>
         </div>
+        <div class="dashboard-box panel panel-info">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon fa fa-floppy-o"></i>
+                    Cache
+                </h2>
+            </div>
+            <div class="panel-body">
+                There are <strong>{{ cache_size }}</strong> objects in the cache.
+            </div>
+        </div>
     </div>
     <div class="col-md-6">
         <div class="dashboard-box panel panel-{{ "primary" if request.bgtask.running > 0 else "info" }}">

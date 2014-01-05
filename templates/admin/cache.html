@@ -1,0 +1,34 @@
+{% extends "body.html" %}
+
+{% set subnav_file_path = "partials/admin-nav.html" %}
+
+{% block title  %}
+    Admin - Cache
+{% endblock %}
+
+{% block content %}
+    <p>Cache objects are stored in memory and persisted regurarly and on shutdown and restored on start.</p>
+
+    <p>Estimated size of the cache is <strong>{{ total_bytes|format_bytes(1) }}</strong>.</p>
+
+    <h3>Objects ({{ size }})</h3>
+
+    <table class="table table-striped">
+        <tr>
+            <th>Key</th>
+            <th>Size</th>
+            <th>Type</th>
+            <th>Updated</th>
+        </tr>
+        {% for key, bytes, type, updated in values %}
+            <tr>
+                <td>
+                    {{ key }}
+                </td>
+                <td>{{ bytes|format_bytes(0) }}</td>
+                <td>{{ type }}</td>
+                <td>{{ updated|pretty_date }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
