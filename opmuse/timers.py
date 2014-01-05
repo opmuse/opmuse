@@ -105,7 +105,7 @@ def timers_end():
     query_time = cherrypy.request._timers_query_time
 
     log_timers("request ended: %f query time, %d queries, %f total time." %
-        (query_time, total_queries, total_time))
+               (query_time, total_queries, total_time))
 
     log_timers("modules' query times:")
 
