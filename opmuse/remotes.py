@@ -23,7 +23,7 @@ from opmuse.google import google
 from opmuse.ws import ws
 from opmuse.discogs import discogs
 from opmuse.database import get_database
-from opmuse.library import Artist
+from opmuse.library import Artist, Album, Track
 
 
 class Remotes:
@@ -76,22 +76,25 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.TRACK_AGE):
             cache.keep(key)
-            album_name = track.album.name if track.album is not None else None
-            artist_name = track.artist.name if track.artist is not None else None
-            cherrypy.engine.bgtask.put(self._fetch_track, 10, track.id, track.name, album_name, artist_name)
+            cherrypy.engine.bgtask.put(self._fetch_track, 10, track.id)
 
-    def _fetch_track(self, id, name, album_name, artist_name):
+    def _fetch_track(self, id):
         key = Remotes.TRACK_KEY_FORMAT % id
 
+        track_entity = get_database().query(Track).filter(Track.id == id).one()
+
+        album_name = track_entity.album.name if track_entity.album is not None else None
+        artist_name = track_entity.artist.name if track_entity.artist is not None else None
+
         track = {
-            'wikipedia': wikipedia.get_track(artist_name, album_name, name)
+            'wikipedia': wikipedia.get_track(artist_name, album_name, track_entity.name)
         }
 
         cache.set(key, track)
 
         ws.emit_all('remotes.track.fetched', id)
 
-    _fetch_track.bgtask_name = "Fetch info for track {1} by {3} on {2}"
+    _fetch_track.bgtask_name = "Fetch info for track {0}"
 
     def get_track(self, track):
         key = Remotes.TRACK_KEY_FORMAT % track.id
@@ -103,29 +106,28 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.ALBUM_AGE):
             cache.keep(key)
+            cherrypy.engine.bgtask.put(self._fetch_album, 11, album.id)
 
-            # TODO just take first artist when querying for album...
-            if len(album.artists) > 0:
-                artist_name = album.artists[0].name
-            else:
-                artist_name = None
-
-            cherrypy.engine.bgtask.put(self._fetch_album, 11, album.id, album.name,
-                                       artist_name)
-
-    def _fetch_album(self, id, name, artist_name):
+    def _fetch_album(self, id):
         key = Remotes.ALBUM_KEY_FORMAT % id
 
+        album_entity = get_database().query(Album).filter(Album.id == id).one()
+
+        if len(album_entity.artists) > 0:
+            artist_name = album_entity.artists[0].name
+        else:
+            artist_name = None
+
         album = {
-            'wikipedia': wikipedia.get_album(artist_name, name),
-            'lastfm': lastfm.get_album(artist_name, name)
+            'wikipedia': wikipedia.get_album(artist_name, album_entity.name),
+            'lastfm': lastfm.get_album(artist_name, album_entity.name)
         }
 
         cache.set(key, album)
 
-        ws.emit_all('remotes.album.fetched', id)
+        ws.emit_all('remotes.album.fetched', id, [track.id for track in album_entity.tracks])
 
-    _fetch_album.bgtask_name = "Fetch info for album {1} by {2}"
+    _fetch_album.bgtask_name = "Fetch info for album {0}"
 
     def get_album(self, album):
         key = Remotes.ALBUM_KEY_FORMAT % album.id
@@ -137,25 +139,27 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.ARTIST_AGE):
             cache.keep(key)
-            cherrypy.engine.bgtask.put(self._fetch_artist, 12, artist.id, artist.name)
+            cherrypy.engine.bgtask.put(self._fetch_artist, 12, artist.id)
 
-    def _fetch_artist(self, id, name):
+    def _fetch_artist(self, id):
         key = Remotes.ARTIST_KEY_FORMAT % id
 
         artist_entity = get_database().query(Artist).filter(Artist.id == id).one()
 
         artist = {
-            'wikipedia': wikipedia.get_artist(name),
-            'lastfm': lastfm.get_artist(name),
+            'wikipedia': wikipedia.get_artist(artist_entity.name),
+            'lastfm': lastfm.get_artist(artist_entity.name),
             'google': google.get_artist_search(artist_entity),
-            'discogs': discogs.get_artist(name)
+            'discogs': discogs.get_artist(artist_entity.name)
         }
 
         cache.set(key, artist)
 
-        ws.emit_all('remotes.artist.fetched', id)
+        ws.emit_all('remotes.artist.fetched', id,
+                    [album.id for album in artist_entity.albums],
+                    [track.id for track in artist_entity.tracks])
 
-    _fetch_artist.bgtask_name = "Fetch info for artist {1}"
+    _fetch_artist.bgtask_name = "Fetch info for artist {0}"
 
     def get_artist(self, artist):
         key = Remotes.ARTIST_KEY_FORMAT % artist.id
