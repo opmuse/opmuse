@@ -77,7 +77,7 @@
 {% macro print_cover(album, artist) %}
     <figure class="effeckt-caption" data-effeckt-type="quarter-appear">
         {% if album is defined and album %}
-            {{ covers.album_large(album) }}
+            {{ covers.album_big(album) }}
         {% elif artist %}
             {{ covers.artist_large(artist) }}
         {% endif %}

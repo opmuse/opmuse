@@ -1,8 +1,11 @@
-@album-width: 220px;
-@album-height: @album-width;
+@cover-width: 220px;
+@cover-height: @cover-width;
 
-@album-large-width: 650px;
-@album-large-height: 325px;
+@cover-big-width: 325px;
+@cover-big-height: 325px;
+
+@cover-large-width: 650px;
+@cover-large-height: 325px;
 
 .artists,
 .albums {
@@ -18,20 +21,32 @@
     .artist,
     .album {
         margin: 0 auto;
-        width: @album-width;
+        width: @cover-width;
         margin: 8px 0 8px 5%;
         display: inline-block;
 
+        .artist-desc {
+            h3 {
+                margin: 4px 0 4px 0;
+            }
+        }
+
+        .album-desc {
+            p,
+            h3 {
+                margin: 4px 0 4px 8px;
+            }
+        }
+
         .artist-desc,
         .album-desc {
-            width: @album-width + 10;
+            width: @cover-width + 10;
 
             h3 {
                 line-height: 26px;
             }
 
             h3, p {
-                margin: 4px 0 4px 8px;
                 white-space: nowrap;
                 clear: both;
                 overflow: hidden;
@@ -143,8 +158,8 @@
 .cover-container {
     display: block;
     position: relative;
-    width: @album-width + 14;
-    height: @album-width + 14;
+    width: @cover-width + 14;
+    height: @cover-width + 14;
 
     &:hover {
         .remove-cover {
@@ -172,8 +187,8 @@
         right: 0;
         top: 0;
 
-        width: @album-width + 14;
-        height: @album-width + 14;
+        width: @cover-width + 14;
+        height: @cover-width + 14;
 
         .transition(.7s);
 
@@ -188,16 +203,26 @@
         z-index: 10;
     }
 
+    &.cover-big {
+        width: @cover-big-width;
+        height: @cover-big-height;
+
+        img {
+            width: @cover-big-width;
+            height: @cover-big-height;
+        }
+    }
+
     &.cover-large {
-        width: @album-large-width;
-        height: @album-large-height;
+        width: @cover-large-width;
+        height: @cover-large-height;
 
         img {
             background-position: 0 0;
             background-image: url(/static/images/cover_large_placeholder.png);
 
-            width: @album-large-width;
-            height: @album-large-height;
+            width: @cover-large-width;
+            height: @cover-large-height;
         }
     }
 }

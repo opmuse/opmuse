@@ -1,3 +1,7 @@
+{% macro album_big(album, width = 325, height = 325) %}
+    {{ _album(album, width, height, "img-thumbnail", "cover-big", "default") }}
+{% endmacro %}
+
 {% macro album_large(album, width = 650, height = 325) %}
     {{ _album(album, width, height, "img-rounded", "cover-large", "large") }}
 {% endmacro %}
@@ -31,7 +35,7 @@
     {{ _artist(artist, width, height, "img-rounded", "cover-large", "large") }}
 {% endmacro %}
 
-{% macro artist(artist, cover_size = 220, cover_class = "img-thumbnail") %}
+{% macro artist(artist, cover_size = 220 + 14, cover_class = "img-rounded") %}
     {{ _artist(artist, cover_size, cover_size, cover_class, "", "default") }}
 {% endmacro %}
 

@@ -39,8 +39,8 @@ def log(msg, traceback=False):
 
 
 class Covers:
-    DEFAULT_WIDTH = 220
-    DEFAULT_HEIGHT = 220
+    DEFAULT_WIDTH = 325
+    DEFAULT_HEIGHT = 325
     DEFAULT_GRAVITY = 'center'
     LARGE_WIDTH = 650
     LARGE_HEIGHT = 325
