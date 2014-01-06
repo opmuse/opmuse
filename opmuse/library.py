@@ -241,10 +241,7 @@ class Album(Base):
             if re.search(r'\b%s$' % re.escape(match), self.name):
                 return True
 
-        if self.track_count is None:
-            return False
-
-        return not (self.track_count > 6 or self.duration >= 60 * 20)
+        return not (self.track_count > 6 or self.duration is not None and self.duration >= 60 * 20)
 
     @hybrid_property
     def is_va(self):
