@@ -103,7 +103,7 @@ When you do a git pull some of these might be required.
 
   - We trust the data provided to us.
 
-    i.e. Names are always case-sensitive. We don't try to be smart and remove leading spaces or anything, if your collection isn't tagged correctly you will suffer.
+    i.e. Names are always case-sensitive. We don't try to be smart and remove leading spaces or anything, if your collection isn't tagged and organized correctly it will be presented as such.
 
   - We care about structure.
 
