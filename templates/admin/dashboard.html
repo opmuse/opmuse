@@ -52,19 +52,21 @@
                     {% set track_paths = request.library_dao.get_track_path_count() %}
                     {% set files_found = request.library.files_found %}
                     <p>
-                        We're currently scanning for new tracks.
+                        We're scanning for updated, removed and new tracks.
                         {% if files_found %}
-                            {{ track_paths|format_number }} of {{ files_found|format_number }}
-                            ({{ ((track_paths / files_found) * 100)|round(1) }}%) files scanned.
+                            <strong>
+                                {{ track_paths|format_number }} of {{ files_found|format_number }}
+                                ({{ ((track_paths / files_found) * 100)|round(1) }}%) files found have been scanned.
+                            </strong>
+                        {% else %}
+                            <strong>Currently looking for files to scan.</strong>
                         {% endif %}
                     </p>
-                    {% if files_found %}
-                        <div class="progress progress-striped active">
-                            <span class="progress-bar"
-                                style="width: {{ (track_paths / files_found) * 100 }}%">
-                            </span>
-                        </div>
-                    {% endif %}
+                    <div class="progress progress-striped active">
+                        <span class="progress-bar"
+                            style="width: {{ (track_paths / files_found) * 100 if files_found else 0 }}%">
+                        </span>
+                    </div>
                 {% endif %}
                 <p>
                     You have <strong>{{ tracks|format_number }}</strong> tracks
