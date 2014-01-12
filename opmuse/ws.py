@@ -17,8 +17,12 @@
 
 import json
 import cherrypy
+import threading
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
+
+
+ws_data = threading.local()
 
 
 def log(msg):
@@ -92,10 +96,16 @@ class Ws:
 
     def get_ws_user(self, id = None, login = None):
         if id is None:
-            id = cherrypy.request.user.id
+            if hasattr(ws_data, 'user_id'):
+                id = ws_data.user_id
+            else:
+                id = cherrypy.request.user.id
 
         if login is None:
-            login = cherrypy.request.user.login
+            if hasattr(ws_data, 'login'):
+                id = ws_data.login
+            else:
+                login = cherrypy.request.user.login
 
         if id not in self._ws_users:
             self._ws_users[id] = WsUser(id, login)
@@ -135,16 +145,12 @@ class Ws:
                 }, handler)
         else:
             if ws_user is None:
-                user = cherrypy.request.user
+                ws_user = self.get_ws_user()
 
-                if user.id in self._ws_users:
-                    ws_user = self._ws_users[user.id]
-
-            if ws_user is not None:
-                ws_user.emit({
-                    'event': event,
-                    'args': args
-                })
+            ws_user.emit({
+                'event': event,
+                'args': args
+            })
 
     def emit_all(self, event, *args):
         self.emit(event, *args, handler = self._all_handlers)
