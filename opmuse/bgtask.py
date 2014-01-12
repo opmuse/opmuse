@@ -22,7 +22,7 @@ import logging
 import time
 from functools import total_ordering
 from cherrypy.process.plugins import SimplePlugin
-from opmuse.database import get_session
+from opmuse.database import get_session, database_data
 
 
 def debug(msg):
@@ -31,9 +31,6 @@ def debug(msg):
 
 def log(msg, traceback=False):
     cherrypy.log(msg, context='bgtask', traceback=traceback)
-
-
-bgtask_data = threading.local()
 
 
 @total_ordering
@@ -141,18 +138,18 @@ class BackgroundTaskPlugin(SimplePlugin):
                     debug("Running bgtask in thread #%d %r with priority %d, args %r and kwargs %r." %
                           (number, func, priority, args, kwargs))
 
-                    bgtask_data.database = get_session()
+                    database_data.database = get_session()
 
                     func(*args, **kwargs)
 
                     try:
-                        bgtask_data.database.commit()
+                        database_data.database.commit()
                     except:
-                        bgtask_data.database.rollback()
+                        database_data.database.rollback()
                         raise
                     finally:
-                        bgtask_data.database.remove()
-                        bgtask_data.database = None
+                        database_data.database.remove()
+                        database_data.database = None
 
                     self.queue.task_done()
 
