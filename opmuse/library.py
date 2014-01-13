@@ -1473,6 +1473,14 @@ class LibraryDao:
     def get_artist_count(self):
         return get_database().query(func.count(Artist.id)).scalar()
 
+    def get_track_duration(self):
+        return (get_database().query(func.sum(Track.duration))
+                .filter(Track.scanned).scalar())
+
+    def get_track_size(self):
+        return (get_database().query(func.sum(Track.size))
+                .filter(Track.scanned).scalar())
+
     def get_track_count(self):
         return (get_database().query(func.count(Track.id))
                 .filter(Track.scanned).scalar())

@@ -35,12 +35,7 @@
                 </dl>
             </div>
         </div>
-        {% set tracks = request.library_dao.get_track_count() %}
-        {% set invalid = request.library_dao.get_invalid_track_count() %}
-        {% set albums = request.library_dao.get_album_count() %}
-        {% set artists = request.library_dao.get_artist_count() %}
-        {% set scanning = request.library.scanning %}
-        <div class="dashboard-box panel panel-{{ "primary" if scanning else "info" }}">
+        <div class="dashboard-box panel panel-{{ "primary" if stats.scanning else "info" }}">
             <div class="panel-heading">
                 <h2 class="panel-title">
                     <i class="icon fa fa-book"></i>
@@ -48,15 +43,13 @@
                 </h2>
             </div>
             <div class="panel-body">
-                {% if scanning %}
-                    {% set track_paths = request.library_dao.get_track_path_count() %}
-                    {% set files_found = request.library.files_found %}
+                {% if stats.scanning %}
                     <p>
                         We're scanning for updated, removed and new tracks.
-                        {% if files_found %}
+                        {% if stats.files_found %}
                             <strong>
-                                {{ track_paths|format_number }} of {{ files_found|format_number }}
-                                ({{ ((track_paths / files_found) * 100)|round(1) }}%) files found have been scanned.
+                                {{ stats.track_paths|format_number }} of {{ stats.files_found|format_number }}
+                                ({{ ((stats.track_paths / stats.files_found) * 100)|round(1) }}%) files found have been scanned.
                             </strong>
                         {% else %}
                             <strong>Currently looking for files to scan.</strong>
@@ -64,16 +57,89 @@
                     </p>
                     <div class="progress progress-striped active">
                         <span class="progress-bar"
-                            style="width: {{ (track_paths / files_found) * 100 if files_found else 0 }}%">
+                            style="width: {{ (stats.track_paths / stats.files_found) * 100 if stats.files_found else 0 }}%">
                         </span>
                     </div>
                 {% endif %}
                 <p>
-                    You have <strong>{{ tracks|format_number }}</strong> tracks
-                    (<strong>{{ invalid|format_number }}</strong> invalid,
-                    {{ "%0.f" % ((invalid / tracks if tracks > 0 else 0) * 100) }}%),
-                    <strong>{{ albums|format_number }}</strong>
-                    albums and <strong>{{ artists|format_number }}</strong> artists.
+                    You have <strong>{{ stats.tracks|format_number }}</strong> tracks,
+                    <strong>{{ stats.albums|format_number }}</strong>
+                    albums and <strong>{{ stats.artists|format_number }}</strong> artists.
+                </p>
+            </div>
+        </div>
+        <div class="dashboard-box panel panel-info">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon fa fa-bar-chart-o"></i>
+                    Statistics
+                </h2>
+            </div>
+            <div class="panel-body">
+                <p>
+                    Here's some dumb stats for ya'll.
+                </p>
+                <p>
+                    You have <strong>{{ stats.duration|pretty_date("") }}</strong> of play time and
+                    <strong>{{ stats.size|format_bytes }}</strong> of tracks.
+                </p>
+                <dl>
+                    <dt>Formats by track duration</dt>
+                    <dd>
+                        <div class="progress">
+                            {% for format, duration, size, count in formats %}
+                                <div class="progress-bar progress-bar-{{ loop.cycle("success", "info", "warning", "danger") }}"
+                                    rel="tooltip" title="{{ duration|pretty_date("") }}"
+                                    style="width: {{ (duration / stats.duration) * 100 }}%">
+                                    <span>{{ format|pretty_format }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </dd>
+                    <dt>Invalid tracks</dt>
+                    <dd>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success"
+                                rel="tooltip" title="{{ (stats.tracks - stats.invalid)|format_number }} tracks"
+                                style="width: {{ ((stats.tracks - stats.invalid) / stats.tracks) * 100 }}%">
+                            </div>
+                            <div class="progress-bar progress-bar-danger"
+                                rel="tooltip" title="{{ stats.invalid|format_number }} tracks"
+                                style="width: {{ (stats.invalid / stats.tracks) * 100 }}%">
+                            </div>
+                        </div>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="dashboard-box panel panel-info">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="icon fa fa-hdd-o"></i>
+                    Filesystem
+                </h2>
+            </div>
+            <div class="panel-body">
+                <p>
+                    There are <strong>{{ disk.free|format_bytes }}</strong> of
+                    <strong>{{ disk.total|format_bytes }}</strong> free on <strong>{{ disk.path }}</strong>:
+                </p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-info"
+                        rel="tooltip" title="{{ (disk.free - stats.size)|format_bytes }} of other usage
+                            (files outside of opmuse and other library files such as covers)."
+                        style="width: {{ ((disk.free - stats.size) / disk.total) * 100 }}%"></div>
+                    <div class="progress-bar progress-bar-success"
+                        rel="tooltip" title="{{ stats.size|format_bytes }} of track usage (tracks in opmuse library)."
+                        style="width: {{ (stats.size / disk.total) * 100 }}%"></div>
+                </div>
+                <p>
+                    With an average track duration of <strong>{{ (stats.duration / stats.tracks)|format_seconds }}</strong>
+                    and an average track size of <strong>{{ (stats.size / stats.tracks)|format_bytes }}</strong> you
+                    could fit another <strong>{{ (disk.free / (stats.size / stats.tracks))|format_number }}</strong>
+                    tracks on this disk.
                 </p>
             </div>
         </div>
@@ -88,8 +154,6 @@
                 There are <strong>{{ cache_size }}</strong> objects in the cache.
             </div>
         </div>
-    </div>
-    <div class="col-md-6">
         <div class="dashboard-box panel panel-{{ "primary" if request.bgtask.running > 0 else "info" }}">
             <div class="panel-heading">
                 <h2 class="panel-title">

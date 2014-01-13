@@ -1387,8 +1387,39 @@ class Admin:
     @cherrypy.tools.authorize(roles=['admin'])
     @cherrypy.tools.jinja(filename='admin/dashboard.html')
     def dashboard(self):
+        library_path = cherrypy.request.app.config.get('opmuse').get('library.path')
+
+        stat = os.statvfs(os.path.realpath(library_path))
+
+        disk = {
+            'path': library_path,
+            'free': stat.f_frsize * stat.f_bavail,
+            'total': stat.f_frsize * stat.f_blocks
+        }
+
+        formats = (get_database().query(Track.format, func.sum(Track.duration),
+                                 func.sum(Track.size), func.count(Track.format))
+                                 .group_by(Track.format).all())
+
+        cherrypy.request.firepy(formats)
+
+        stats = {
+            'tracks': library_dao.get_track_count(),
+            'invalid': library_dao.get_invalid_track_count(),
+            'albums': library_dao.get_album_count(),
+            'artists': library_dao.get_artist_count(),
+            'track_paths': library_dao.get_track_path_count(),
+            'duration': library_dao.get_track_duration(),
+            'size': library_dao.get_track_size(),
+            'scanning': cherrypy.request.library.scanning,
+            'files_found': cherrypy.request.library.files_found
+        }
+
         return {
-            'cache_size': cache.storage.size()
+            'cache_size': cache.storage.size(),
+            'disk': disk,
+            'stats': stats,
+            'formats': formats
         }
 
     @cherrypy.expose
