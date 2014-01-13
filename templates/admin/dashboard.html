@@ -88,11 +88,13 @@
                     <dd>
                         <div class="progress">
                             {% for format, duration, size, count in formats %}
-                                <div class="progress-bar progress-bar-{{ loop.cycle("success", "info", "warning", "danger") }}"
-                                    rel="tooltip" title="{{ duration|pretty_date("") }}"
-                                    style="width: {{ (duration / stats.duration) * 100 }}%">
-                                    <span>{{ format|pretty_format }}</span>
-                                </div>
+                                {% if duration %}
+                                    <div class="progress-bar progress-bar-{{ loop.cycle("success", "info", "warning", "danger") }}"
+                                        rel="tooltip" title="{{ duration|pretty_date("") }}"
+                                        style="width: {{ (duration / stats.duration) * 100 }}%">
+                                        <span>{{ format|pretty_format }}</span>
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
                     </dd>
