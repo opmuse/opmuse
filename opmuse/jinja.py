@@ -28,7 +28,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from urllib.parse import quote
 from opmuse.security import is_granted as _is_granted
 from opmuse.pretty import pretty_date as _pretty_date
-from opmuse.library import TrackStructureParser
+from opmuse.library import TrackStructureParser, Library
 from opmuse.queues import queue_dao
 
 VISIBLE_WS = "\u2423"
@@ -42,6 +42,10 @@ def pagination_pages(page, pages, size):
         return list(set(range(1, size + 1)) |
                     set(range(max(1, page - size + 1), min(page + size, pages + 1))) |
                     set(range(pages - size + 1, pages + 1)))
+
+
+def pretty_format(format):
+    return Library.pretty_format(format)
 
 
 def is_granted(role):
@@ -214,6 +218,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['startswith'] = startswith
         self.env.filters['track_path'] = track_path
         self.env.filters['round'] = round
+        self.env.filters['pretty_format'] = pretty_format
 
         self.env.globals['pagination_pages'] = pagination_pages
         self.env.globals['rand_id'] = rand_id
