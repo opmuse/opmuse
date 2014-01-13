@@ -1401,8 +1401,6 @@ class Admin:
                                  func.sum(Track.size), func.count(Track.format))
                                  .group_by(Track.format).all())
 
-        cherrypy.request.firepy(formats)
-
         stats = {
             'tracks': library_dao.get_track_count(),
             'invalid': library_dao.get_invalid_track_count(),
