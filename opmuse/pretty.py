@@ -16,6 +16,7 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 
 def pretty_date(time, ago="ago"):
@@ -25,6 +26,8 @@ def pretty_date(time, ago="ago"):
         time = 0
     elif type(time) is str:
         time = int(time)
+    elif isinstance(time, Decimal):
+        time = float(time)
 
     if type(time) is int or type(time) is float:
         if time > 3600 * 24 * 365 * 10:
@@ -34,7 +37,7 @@ def pretty_date(time, ago="ago"):
     elif isinstance(time, datetime):
         diff = now - time
     else:
-        raise ValueError("Unsupported time value.")
+        raise ValueError("Unsupported time value %s." % type(time).__name__)
 
     second_diff = diff.seconds
     day_diff = diff.days
