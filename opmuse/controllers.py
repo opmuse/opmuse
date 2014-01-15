@@ -491,18 +491,18 @@ class Upload:
 
 
 class You:
-
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='users/you_lastfm.html')
+    @cherrypy.tools.jinja(filename='you/index.html')
     @cherrypy.tools.authenticated(needs_auth=True)
-    def lastfm(self):
+    def default(self):
+        user = cherrypy.request.user
 
         auth_url = authenticated_user = new_auth = None
         need_config = False
 
         cache_key = 'you_lastfm_session_key_%d' % cherrypy.request.user.id
 
-        if cherrypy.request.user.lastfm_session_key is None:
+        if user.lastfm_session_key is None:
             session_key = cache.get(cache_key)
 
             if session_key is not None:
@@ -511,11 +511,10 @@ class You:
 
                 if key is not None:
                     cache.set(cache_key, None)
-                    cherrypy.request.user.lastfm_session_key = key
-                    cherrypy.request.user.lastfm_user = lastfm.get_authenticated_user_name()
+                    user.lastfm_session_key = key
+                    user.lastfm_user = lastfm.get_authenticated_user_name()
                     auth_url = None
                     new_auth = True
-                    raise HTTPRedirect('/users/you/lastfm')
             else:
                 try:
                     session_key = SessionKey()
@@ -524,21 +523,18 @@ class You:
                 except LastfmError:
                     need_config = True
 
+        remotes.update_user(user)
+
         return {
+            "user": user,
             'need_config': need_config,
             'auth_url': auth_url,
             'new_auth': new_auth
         }
 
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='users/you_settings.html')
     @cherrypy.tools.authenticated(needs_auth=True)
-    def settings(self):
-        return {"user": cherrypy.request.user}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def settings_submit(self, login = None, mail = None, password1 = None, password2 = None):
+    def submit(self, login = None, mail = None, password1 = None, password2 = None):
 
         user = cherrypy.request.user
 
@@ -562,7 +558,7 @@ class You:
                 user.password = hash_password(password1, user.salt)
                 messages.success('Your password was changed.')
 
-        raise HTTPRedirect('/users/you/settings')
+        raise HTTPRedirect('/you')
 
 
 class UsersUsers:
@@ -620,7 +616,6 @@ class UsersUsers:
 
 
 class Users:
-    you = You()
     users = UsersUsers()
 
     @staticmethod
@@ -1701,6 +1696,7 @@ class Root:
     queue = Queue()
     remove = Remove()
     users = Users()
+    you = You()
     library = Library()
     ws = WsController()
     dashboard = Dashboard()
