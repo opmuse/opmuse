@@ -1,9 +1,0 @@
-<ul class="you-nav nav nav-pills">
-    <li class="{{ "active" if request.path_info|startswith("/users/you/settings") else '' }}">
-        <a href="/users/you/settings">Settings</a>
-    </li>
-    <li class="{{ "active" if request.path_info == "/users/you/lastfm" else '' }}">
-        <a href="/users/you/lastfm">Lastfm</a>
-    </li>
-</ul>
-

@@ -1302,7 +1302,7 @@ class LibraryProcess:
         # Disallow certain slug values that will conflict with urls.
         # Would be nice if this was automatic (search through controllers for all top-level url components).
         if string in ('library', 'users', 'upload', 'logout', 'login', 'search',
-                      'queue', 'cover', 'font', 'va', 'unknown', 'download'):
+                      'queue', 'cover', 'font', 'va', 'unknown', 'download', 'you'):
             index += 1
             return LibraryProcess.slugify(string, index)
 
