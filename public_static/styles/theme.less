@@ -73,10 +73,14 @@
     .btn-hover-style(@btn-warning-bg);
 }
 
+.navbar-style(@bg) {
+    #gradient > .vertical-three-colors(lighten(@bg, 6%), @bg, 70%, darken(@bg, 4%));
+    border-bottom: 1px solid darken(@bg, 20%);
+}
+
 .navbar-inverse {
     .navbar-main {
-        #gradient > .vertical-three-colors(lighten(@navbar-inverse-bg, 6%), @navbar-inverse-bg, 70%, darken(@navbar-inverse-bg, 4%));
-        border-bottom: 1px solid darken(@navbar-inverse-bg, 20%);
+        .navbar-style(@navbar-inverse-bg);
     }
 
     .navbar-sub {

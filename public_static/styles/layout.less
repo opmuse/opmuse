@@ -225,6 +225,8 @@ body {
 }
 
 .navbar {
+    border: none;
+
     .navbar-search {
         margin-left: 10px;
         margin-top: 7px;
@@ -245,11 +247,48 @@ body {
         color: @white;
     }
 
-    .logout {
-        margin: 8px 8px 3px 0;
+    .navbar-you {
+        .navbar-style(darken(@brand-info, 16%));
+        border-bottom: none;
+        padding-right: 6px;
+
+        color: @white;
+
+        &.navbar-nav > .open {
+            > a, > a:focus, > a:hover {
+                .navbar-style(darken(@brand-info, 23%));
+                border-bottom: none;
+            }
+        }
+
+        &.navbar-nav > li > a {
+            color: @white;
+        }
+
+        img {
+            margin-right: 6px;
+            float: left;
+        }
+
+        .dropdown-menu {
+            background-color: darken(@brand-info, 10%);
+            color: @white;
+
+            > li {
+                > a {
+                    color: @white;
+
+                    &:hover, &:focus {
+                        color: @white;
+                        background-color: darken(@brand-info, 20%);
+                    }
+                }
+            }
+        }
     }
 
     .navbar-main {
+        border: none;
         box-shadow: none;
     }
 

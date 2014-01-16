@@ -28,7 +28,7 @@
                         <li class="{{ "active" if request.path_info|startswith("/users") else '' }}">
                             <a href="/users/users">Users</a>
                         </li>
-                        <li class="{{ "active" if request.path_info|startswith("/you") else '' }}">
+                        <li class="visible-xs {{ "active" if request.path_info|startswith("/you") else '' }}">
                             <a href="/you">You</a>
                         </li>
                         {% if is_granted("admin") %}
@@ -37,8 +37,8 @@
                             </li>
                         {% endif %}
                         <li class="visible-xs">
-                            <a href="/logout?came_from={{ current_url|urlencode }}">
-                                Sign out {{ request.user.login }}
+                            <a class="logout" href="/logout?came_from={{ current_url|urlencode }}">
+                                Sign out
                             </a>
                         </li>
                         <li class="navbar-search">
@@ -55,12 +55,24 @@
                     {% endif %}
                 </ul>
                 {% if authenticated %}
-                    <div class="nav navbar-nav navbar-right">
-                        <a class="logout btn btn-info btn-sm navbar-btn visible-lg visible-md visible-sm"
-                            href="/logout?came_from={{ current_url|urlencode }}">
-                            <i class="fa fa-sign-out"></i> Sign out {{ request.user.login -}}
-                        </a>
-                    </div>
+                    <ul class="nav navbar-nav navbar-right navbar-you visible-lg visible-md visible-sm">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <img class="img-rounded" src="{{ request.user.gravatar_xsmall }}" alt="{{ request.user.login }}'s Gravatar" />
+                                {{ request.user.login }} <i class="fa fa-caret-down"></i>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="/you"><i class="fa fa-user"></i> Profile</a>
+                                </li>
+                                <li>
+                                    <a class="logout" href="/logout?came_from={{ current_url|urlencode }}">
+                                        <i class="fa fa-sign-out"></i> Sign out
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
                 {% endif %}
             </div>
             <div id="navbar-sub" class="navbar-sub">
