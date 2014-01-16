@@ -2,6 +2,9 @@
     <li class="{{ "active" if request.path_info|startswith("/admin/dashboard") else '' }}">
         <a href="/admin/dashboard">Dashboard</a>
     </li>
+    <li class="{{ "active" if request.path_info|startswith("/admin/users") else '' }}">
+        <a href="/admin/users">Users</a>
+    </li>
     <li class="{{ "active" if request.path_info|startswith("/admin/cache") else '' }}">
         <a href="/admin/cache">Cache</a>
     </li>

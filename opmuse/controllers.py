@@ -561,99 +561,29 @@ class You:
         raise HTTPRedirect('/you')
 
 
-class UsersUsers:
+class Users:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='users/users.html')
-    def default(self):
+    @cherrypy.tools.jinja(filename='users/index.html')
+    def default(self, *args):
+        if len(args) == 1:
+            raise cherrypy.InternalRedirect('/users/user/%s' % args[0])
 
+        roles = (get_database().query(Role).order_by(Role.name).all())
         users = (get_database().query(User).order_by(User.login).all())
 
         for user in users:
             remotes.update_user(user)
 
-        return {'users': users}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    def add_submit(self, login = None, mail = None, roles = None, password1 = None, password2 = None):
-
-        Users._validate_user_params(login, mail, roles, password1, password2)
-
-        if roles is None:
-            roles = []
-
-        if isinstance(roles, str):
-            roles = [roles]
-
-        salt = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
-        password = hash_password(password1, salt)
-
-        user = User(login, password, mail, salt)
-
-        get_database().add(user)
-
-        for role in get_database().query(Role).filter(Role.id.in_(roles)):
-            role.users.append(user)
-
-        get_database().commit()
-
-        messages.success('User was added.')
-
-        raise HTTPRedirect('/users/users')
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    @cherrypy.tools.jinja(filename='users/users_add.html')
-    def add(self):
-        roles = (get_database().query(Role).order_by(Role.name).all())
-
         return {
+            'users': users,
             'roles': roles
         }
 
-
-class Users:
-    users = UsersUsers()
-
-    @staticmethod
-    def _validate_user_params(login = None, mail = None, roles = None, password1 = None, password2 = None):
-        if login is None or len(login) < 3:
-            messages.warning('Login must be at least 3 chars.')
-            raise cherrypy.HTTPError(status=409)
-
-        if mail is None or len(mail) < 3:
-            messages.warning('Mail must be at least 3 chars.')
-            raise cherrypy.HTTPError(status=409)
-            return
-
-        if password1 is not None and password2 is not None:
-            if password1 != password2:
-                messages.warning('The passwords do not match.')
-                raise cherrypy.HTTPError(status=409)
-
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='users/roles.html')
-    def roles(self):
-        roles = (get_database().query(Role).order_by(Role.name).all())
-
-        return {'roles': roles}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def user(self, login, action = None):
-        if action == "edit":
-            raise cherrypy.InternalRedirect('/users/user_edit/%s' % login)
-        else:
-            raise cherrypy.InternalRedirect('/users/user_view/%s' % login)
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='users/user_view.html')
-    def user_view(self, login):
+    @cherrypy.tools.jinja(filename='users/user.html')
+    def user(self, login):
         try:
             user = (get_database().query(User)
                     .filter_by(login=login)
@@ -668,61 +598,6 @@ class Users:
             'user': user,
             'remotes_user': remotes_user
         }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    @cherrypy.tools.jinja(filename='users/user_edit.html')
-    def user_edit(self, login):
-        try:
-            user = (get_database().query(User)
-                    .filter_by(login=login)
-                    .order_by(User.login).one())
-        except NoResultFound:
-            raise cherrypy.NotFound()
-
-        roles = (get_database().query(Role).order_by(Role.name).all())
-
-        return {
-            'user': user,
-            'roles': roles
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    def user_edit_submit(self, user_id, login = None, mail = None, roles = None,
-                         password1 = None, password2 = None):
-        try:
-            user = (get_database().query(User)
-                    .filter_by(id=user_id).one())
-        except NoResultFound:
-            raise cherrypy.NotFound()
-
-        Users._validate_user_params(login, mail, roles, password1, password2)
-
-        if roles is None:
-            roles = []
-
-        if isinstance(roles, str):
-            roles = [roles]
-
-        password = hash_password(password1, user.salt)
-
-        user.login = login
-        user.mail = mail
-        user.password = password
-
-        user.roles[:] = []
-
-        for role in get_database().query(Role).filter(Role.id.in_(roles)):
-            role.users.append(user)
-
-        get_database().commit()
-
-        messages.success('User was edited.')
-
-        raise HTTPRedirect('/users/users')
 
 
 class Queue:
@@ -1369,8 +1244,136 @@ class Library:
 
         return hierarchy
 
+class AdminUsers:
+    @staticmethod
+    def _validate_user_params(login = None, mail = None, roles = None, password1 = None, password2 = None):
+        if login is None or len(login) < 3:
+            messages.warning('Login must be at least 3 chars.')
+            raise cherrypy.HTTPError(status=409)
+
+        if mail is None or len(mail) < 3:
+            messages.warning('Mail must be at least 3 chars.')
+            raise cherrypy.HTTPError(status=409)
+            return
+
+        if password1 is not None and password2 is not None:
+            if password1 != password2:
+                messages.warning('The passwords do not match.')
+                raise cherrypy.HTTPError(status=409)
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='admin/users.html')
+    def default(self):
+        roles = (get_database().query(Role).order_by(Role.name).all())
+        users = (get_database().query(User).order_by(User.login).all())
+
+        for user in users:
+            remotes.update_user(user)
+
+        return {
+            'users': users,
+            'roles': roles
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='admin/users_add.html')
+    def add(self):
+        roles = (get_database().query(Role).order_by(Role.name).all())
+
+        return {
+            'roles': roles
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    def add_submit(self, login = None, mail = None, roles = None, password1 = None, password2 = None):
+
+        AdminUsers._validate_user_params(login, mail, roles, password1, password2)
+
+        if roles is None:
+            roles = []
+
+        if isinstance(roles, str):
+            roles = [roles]
+
+        salt = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
+        password = hash_password(password1, salt)
+
+        user = User(login, password, mail, salt)
+
+        get_database().add(user)
+
+        for role in get_database().query(Role).filter(Role.id.in_(roles)):
+            role.users.append(user)
+
+        get_database().commit()
+
+        messages.success('User was added.')
+
+        raise HTTPRedirect('/admin/users')
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.jinja(filename='admin/users_edit.html')
+    def edit(self, login):
+        try:
+            user = (get_database().query(User)
+                    .filter_by(login=login)
+                    .order_by(User.login).one())
+        except NoResultFound:
+            raise cherrypy.NotFound()
+
+        roles = (get_database().query(Role).order_by(Role.name).all())
+
+        return {
+            'user': user,
+            'roles': roles
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    def edit_submit(self, user_id, login = None, mail = None, roles = None,
+                         password1 = None, password2 = None):
+        try:
+            user = (get_database().query(User)
+                    .filter_by(id=user_id).one())
+        except NoResultFound:
+            raise cherrypy.NotFound()
+
+        AdminUsers._validate_user_params(login, mail, roles, password1, password2)
+
+        if roles is None:
+            roles = []
+
+        if isinstance(roles, str):
+            roles = [roles]
+
+        password = hash_password(password1, user.salt)
+
+        user.login = login
+        user.mail = mail
+        user.password = password
+
+        user.roles[:] = []
+
+        for role in get_database().query(Role).filter(Role.id.in_(roles)):
+            role.users.append(user)
+
+        get_database().commit()
+
+        messages.success('User was edited.')
+
+        raise HTTPRedirect('/admin/users')
+
 
 class Admin:
+    users = AdminUsers()
+
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])

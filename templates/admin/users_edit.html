@@ -1,0 +1,79 @@
+{% extends "body.html" %}
+
+{% set subnav_file_path = "partials/admin-nav.html" %}
+
+{% block title %}
+    Admin - User - {{ user.login }}
+{% endblock %}
+
+{% block content %}
+<h2 class="col-xs-offset-2">Edit User</h2>
+
+<form method="post" action="/admin/users/edit_submit/{{ user.id }}" class="users-add-form form-horizontal clear">
+    <div class="form-group">
+        <label class="col-xs-2 control-label" for="login-input">Login</label>
+        <div class="col-xs-4">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                <input class="form-control" autocomplete="off" type="text" name="login" id="login-input"
+                    placeholder="Login" value="{{ user.login }}" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-2 control-label" for="mail-input">Mail</label>
+        <div class="col-xs-4">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                <input class="form-control" autocomplete="off" type="email" name="mail" id="mail-input"
+                    placeholder="login@example.com" value="{{ user.mail }}" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-2 control-label" for="mail-input">Roles</label>
+        <div class="col-xs-4">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-group"></i></span>
+                <select class="form-control" multiple="multiple" autocomplete="off" name="roles" id="roles-input">
+                    {% for role in roles %}
+                        <option {{ "selected" if role in user.roles else "" }}
+                            value="{{ role.id }}">
+                            {{ role.name }}
+                        </options>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-2 control-label" for="password1">Password</label>
+        <div class="col-xs-4">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-key"></i></span>
+                <input class="form-control" autocomplete="off" type="password" name="password1" id="password1"
+                    placeholder="Password" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-2 control-label" for="password2"></label>
+        <div class="col-xs-4">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-key"></i></span>
+                <input class="form-control" autocomplete="off" type="password" name="password2" id="password2"
+                    placeholder="Confirm Password" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-offset-2 col-xs-4">
+            <button type="submit" class="pull-right btn btn-default">
+                <i class="fa fa-pencil"></i>
+                Edit User
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+

@@ -1,0 +1,40 @@
+{% extends "body.html" %}
+
+{% block main_class %}users-container{% endblock %}
+
+{% block title  %}
+    Users
+{% endblock %}
+
+{% block content %}
+<div id="users">
+    <div class="row">
+        <div class="col-xs-12">
+            <p>List of users.</p>
+
+            <hr />
+
+            <table class="table table-striped">
+                <tr>
+                    <th>Name</th>
+                </tr>
+                {% for user in users %}
+                <tr>
+                    <td class="name">
+                        <a href="/users/{{ user.login }}">
+                            {% if user.gravatar %}
+                            <img class="img-rounded" src="{{ user.gravatar_xsmall }}" alt="{{ user.login }}'s Gravatar" />
+                            {% endif %}
+                        </a>
+                        <a href="/users/{{ user.login }}">
+                            {{ user.login }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
