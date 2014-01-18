@@ -28,8 +28,8 @@
                         <li class="{{ "active" if request.path_info|startswith("/users") else '' }}">
                             <a href="/users">Users</a>
                         </li>
-                        <li class="visible-xs {{ "active" if request.path_info|startswith("/you") else '' }}">
-                            <a href="/you">You</a>
+                        <li class="visible-xs {{ "active" if request.path_info|startswith("/settings") else '' }}">
+                            <a href="/settings">Settings</a>
                         </li>
                         {% if is_granted("admin") %}
                             <li class="{{ "active" if request.path_info|startswith("/admin") else '' }}">
@@ -63,7 +63,10 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="/you"><i class="fa fa-user"></i> Profile</a>
+                                    <a href="/settings"><i class="fa fa-wrench"></i> Settings</a>
+                                </li>
+                                <li>
+                                    <a href="/users/{{ request.user.login }}"><i class="fa fa-user"></i> Profile</a>
                                 </li>
                                 <li>
                                     <a class="logout" href="/logout?came_from={{ current_url|urlencode }}">

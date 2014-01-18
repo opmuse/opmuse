@@ -490,9 +490,9 @@ class Upload:
         return {'hierarchy': hierarchy, 'messages': messages}
 
 
-class You:
+class Settings:
     @cherrypy.expose
-    @cherrypy.tools.jinja(filename='you/index.html')
+    @cherrypy.tools.jinja(filename='settings/index.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     def default(self):
         user = cherrypy.request.user
@@ -500,7 +500,7 @@ class You:
         auth_url = authenticated_user = new_auth = None
         need_config = False
 
-        cache_key = 'you_lastfm_session_key_%d' % cherrypy.request.user.id
+        cache_key = 'settings_lastfm_session_key_%d' % cherrypy.request.user.id
 
         if user.lastfm_session_key is None:
             session_key = cache.get(cache_key)
@@ -558,7 +558,7 @@ class You:
                 user.password = hash_password(password1, user.salt)
                 messages.success('Your password was changed.')
 
-        raise HTTPRedirect('/you')
+        raise HTTPRedirect('/settings')
 
 
 class Users:
@@ -1699,7 +1699,7 @@ class Root:
     queue = Queue()
     remove = Remove()
     users = Users()
-    you = You()
+    settings = Settings()
     library = Library()
     ws = WsController()
     dashboard = Dashboard()
