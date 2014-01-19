@@ -156,6 +156,10 @@
             </td>
         </tr>
         <tr>
+            <th>Genre</th>
+            <td>{{ track.genre if track.genre else "N/A" }}</td>
+        </tr>
+        <tr>
             <th>Size</th>
             <td>{{ track.size|format_bytes }}</td>
         </tr>

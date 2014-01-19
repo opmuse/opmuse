@@ -90,6 +90,7 @@ class Track(Base):
     bitrate = Column(Integer)
     sample_rate = Column(Integer)
     mode = Column(String(16))
+    genre = Column(String(128))
     size = Column(BigInteger)
     invalid = Column(String(32), index=True)
     invalid_msg = Column(String(255))
@@ -335,6 +336,7 @@ class FileMetadata:
         self.size = args[13]
         self.sample_rate = args[14]
         self.mode = args[15]
+        self.genre = args[16]
 
         self.metadatas = args
 
@@ -406,7 +408,7 @@ class MutagenParser(TagParser):
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
             log("Got '%s' when parsing '%s'" % (error, filename.decode('utf8', 'replace')))
-            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], "Mutagen: %s" % error) + ((None, ) * 6)))
+            return FileMetadata(*(((None, ) * 8) + (['broken_tags'], "Mutagen: %s" % error) + ((None, ) * 7)))
 
         artist = str(tag['artist'][0]) if 'artist' in tag else None
         album = str(tag['album'][0]) if 'album' in tag else None
@@ -431,6 +433,14 @@ class MutagenParser(TagParser):
             elif tag.info.channels == 1:
                 mode = 'mono'
 
+        genre = str(','.join(tag['genre'])) if 'genre' in tag and len(tag['genre']) > 0 else None
+
+        if genre is not None:
+            genre = genre.strip()
+
+            if len(genre) == 0:
+                genre = None
+
         if artist is not None and len(artist) == 0:
             artist = None
 
@@ -454,7 +464,7 @@ class MutagenParser(TagParser):
 
         return FileMetadata(artist, album, track, duration, number, None, date,
                             bitrate, invalid, None, None, None, disc, None,
-                            sample_rate, mode)
+                            sample_rate, mode, genre)
 
     def get_tag(self, filename):
         raise NotImplementedError()
@@ -540,7 +550,7 @@ class PathParser(TagParser):
             try:
                 filename = filename.decode('latin1')
             except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 16)
+                return FileMetadata(*(None, ) * 17)
 
         track_name = os.path.splitext(os.path.basename(filename))[0]
         track_name = track_name.replace("_", " ")
@@ -640,7 +650,7 @@ class PathParser(TagParser):
 
         return FileMetadata(artist, album, track_name, None, number, added, None, None,
                             invalid, None, album_cover_path, artist_cover_path, disc, size,
-                            None, None)
+                            None, None, None)
 
     @staticmethod
     def match_in_dir(match_files, files):
@@ -1167,6 +1177,7 @@ class LibraryProcess:
         track.bitrate = metadata.bitrate
         track.sample_rate = metadata.sample_rate
         track.mode = metadata.mode
+        track.genre = metadata.genre
         track.size = metadata.size
         track.disc = metadata.disc
 
