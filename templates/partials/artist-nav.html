@@ -55,18 +55,35 @@
                         <h3 class="panel-title">
                             <i class="fa fa-microphone"></i> |
                             {{ artist.name }}
+                            {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz and
+                                remotes_artist.musicbrainz.country %}
+                                <img class="country-icon" title="{{ remotes_artist.musicbrainz.country|country }}"
+                                    src="/static/images/country-icons/{{ remotes_artist.musicbrainz.country|lower }}.png">
+                            {% endif %}
                         </h3>
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item">
                             Artist on
+                            {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz and
+                                'official homepage' in remotes_artist.musicbrainz.relations and remotes_artist.musicbrainz.relations['official homepage'] %}
+                                <a href="{{ remotes_artist.musicbrainz.relations['official homepage'][0] }}">Official</a>,
+                            {% endif %}
                             {% if remotes_artist is defined and remotes_artist %}
                                 {% if remotes_artist.lastfm and remotes_artist.lastfm.url %}
                                     <a href="{{ remotes_artist.lastfm.url }}">Lastfm</a>,
                                 {% endif %}
                             {% endif %}
-                            <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
-                                Discogs</a>,
+                            {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz %}
+                                <a href="http://musicbrainz.org/artist/{{ remotes_artist.musicbrainz.id }}">Musicbrainz</a>,
+                            {% endif %}
+                            {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz and
+                                'discogs' in remotes_artist.musicbrainz.relations and remotes_artist.musicbrainz.relations.discogs %}
+                                <a href="{{ remotes_artist.musicbrainz.relations.discogs[0] }}">Discogs</a>,
+                            {% else %}
+                                <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
+                                    Discogs</a>,
+                            {% endif %}
                             <a href="https://rateyourmusic.com/search?searchtype=a&searchterm={{ artist.name|urlencode }}"
                                 title="Rate Your Music">RYM</a>,
                             <a href='http://www.google.com/search?q={{ '"' ~ artist.name|urlencode ~ '"' }}'>

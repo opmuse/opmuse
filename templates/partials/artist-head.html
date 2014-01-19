@@ -1,5 +1,11 @@
 {% import "macros/urls.html" as urls %}
 
+{% macro print_artist_alias(name) %}
+    <span class="artists-names-aka">
+        (aka <span class="aka-name">{{ name }}</span>)
+    </span>
+{% endmacro %}
+
 {% macro print_artists(artists, print_by, max_artists = 3) %}
     <span class="artists-names"
         {% if artists|length > max_artists %}
@@ -29,6 +35,19 @@
             {% endif %}
         {%- endfor %}
     </span>
+    {% if artists|length == 1 %}
+        {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz %}
+            {% if remotes_artist.musicbrainz.name|lower != artists[0].name|lower %}
+                {{ print_artist_alias(remotes_artist.musicbrainz.name) }}
+            {% elif remotes_artist.musicbrainz.aliases|length > 0 %}
+                {% set alias = remotes_artist.musicbrainz.aliases[0] %}
+
+                {% if alias != artists[0].name %}
+                    {{ print_artist_alias(alias) }}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
 {% endmacro %}
 
 {% macro print_articles_nav(type, remotes, index) %}

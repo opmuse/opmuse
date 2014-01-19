@@ -22,6 +22,7 @@ from opmuse.lastfm import lastfm
 from opmuse.google import google
 from opmuse.ws import ws
 from opmuse.discogs import discogs
+from opmuse.musicbrainz import musicbrainz
 from opmuse.database import get_database
 from opmuse.library import Artist, Album, Track
 
@@ -150,7 +151,8 @@ class Remotes:
             'wikipedia': wikipedia.get_artist(artist_entity.name),
             'lastfm': lastfm.get_artist(artist_entity.name),
             'google': google.get_artist_search(artist_entity),
-            'discogs': discogs.get_artist(artist_entity.name)
+            'discogs': discogs.get_artist(artist_entity.name),
+            'musicbrainz': musicbrainz.get_artist(artist_entity)
         }
 
         cache.set(key, artist)
