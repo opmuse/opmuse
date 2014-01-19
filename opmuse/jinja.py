@@ -20,18 +20,22 @@ import cherrypy
 import re
 import random
 import locale
+import pycountry
 from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
 from cherrypy._cpdispatch import PageHandler
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from urllib.parse import quote
 from opmuse.security import is_granted as _is_granted
 from opmuse.pretty import pretty_date as _pretty_date
 from opmuse.library import TrackStructureParser, Library
-from opmuse.queues import queue_dao
 
 VISIBLE_WS = "\u2423"
+
+
+def country(code):
+    data = pycountry.countries.get(alpha2=code)
+    return data.name
 
 
 # implemented with the help of http://codereview.stackexchange.com/a/15239
@@ -219,6 +223,7 @@ class JinjaPlugin(SimplePlugin):
         self.env.filters['track_path'] = track_path
         self.env.filters['round'] = round
         self.env.filters['pretty_format'] = pretty_format
+        self.env.filters['country'] = country
 
         self.env.globals['pagination_pages'] = pagination_pages
         self.env.globals['rand_id'] = rand_id
