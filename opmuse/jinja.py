@@ -82,6 +82,9 @@ def show_ws(string):
 
 
 def format_bytes(bytes, precision=2):
+    if bytes is None:
+        bytes = 0
+
     bytes = int(bytes)
 
     suffixes = ['B', 'KB', 'MB', 'GB', 'TB']
