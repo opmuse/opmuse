@@ -117,8 +117,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domRead
             // but not firefox
             setTimeout(function () {
                 $(window).bind('popstate', function (event) {
-
-                    href = document.location.pathname + document.location.search;
+                    var href = document.location.pathname + document.location.search;
 
                     if (that.activeRequest !== null) {
                         that.activeRequest.abort();
