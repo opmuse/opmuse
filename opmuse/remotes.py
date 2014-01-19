@@ -121,7 +121,8 @@ class Remotes:
 
         album = {
             'wikipedia': wikipedia.get_album(artist_name, album_entity.name),
-            'lastfm': lastfm.get_album(artist_name, album_entity.name)
+            'lastfm': lastfm.get_album(artist_name, album_entity.name),
+            'musicbrainz': musicbrainz.get_album(album_entity)
         }
 
         cache.set(key, album)

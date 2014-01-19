@@ -18,8 +18,16 @@
                                 <a href="{{ remotes_album.lastfm.url }}">Lastfm</a>,
                             {% endif %}
                         {% endif %}
-                        <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
-                            Discogs</a>,
+                        {% if remotes_album is defined and remotes_album and remotes_album.musicbrainz %}
+                            <a href="http://musicbrainz.org/release/{{ remotes_album.musicbrainz.id }}">Musicbrainz</a>,
+                        {% endif %}
+                        {% if remotes_album is defined and remotes_album and remotes_album.musicbrainz and
+                            'discogs' in remotes_album.musicbrainz.urls and remotes_album.musicbrainz.urls.discogs %}
+                            <a href="{{ remotes_album.musicbrainz.urls.discogs[0] }}">Discogs</a>,
+                        {% else %}
+                            <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
+                                Discogs</a>,
+                        {% endif %}
                         <a href="https://rateyourmusic.com/search?searchtype=l&searchterm={{ album.name|urlencode }}"
                             title="Rate Your Music">RYM</a>,
                         <a href='http://www.google.com/search?q="{{ album.name|urlencode }}"'>
@@ -66,8 +74,8 @@
                         <li class="list-group-item">
                             Artist on
                             {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz and
-                                'official homepage' in remotes_artist.musicbrainz.relations and remotes_artist.musicbrainz.relations['official homepage'] %}
-                                <a href="{{ remotes_artist.musicbrainz.relations['official homepage'][0] }}">Official</a>,
+                                'official homepage' in remotes_artist.musicbrainz.urls and remotes_artist.musicbrainz.urls['official homepage'] %}
+                                <a href="{{ remotes_artist.musicbrainz.urls['official homepage'][0] }}">Official</a>,
                             {% endif %}
                             {% if remotes_artist is defined and remotes_artist %}
                                 {% if remotes_artist.lastfm and remotes_artist.lastfm.url %}
@@ -78,8 +86,8 @@
                                 <a href="http://musicbrainz.org/artist/{{ remotes_artist.musicbrainz.id }}">Musicbrainz</a>,
                             {% endif %}
                             {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz and
-                                'discogs' in remotes_artist.musicbrainz.relations and remotes_artist.musicbrainz.relations.discogs %}
-                                <a href="{{ remotes_artist.musicbrainz.relations.discogs[0] }}">Discogs</a>,
+                                'discogs' in remotes_artist.musicbrainz.urls and remotes_artist.musicbrainz.urls.discogs %}
+                                <a href="{{ remotes_artist.musicbrainz.urls.discogs[0] }}">Discogs</a>,
                             {% else %}
                                 <a href="http://www.discogs.com/search?q={{ artist.name |urlencode }}&type=artist">
                                     Discogs</a>,

@@ -3,6 +3,39 @@ import musicbrainzngs as mb
 mb.set_useragent("opmuse", "DEV", "http://opmu.se/")
 
 class Musicbrainz:
+    def get_album(self, album_entity):
+        artistname = album_entity.artists[0].name if len(album_entity.artists) > 0 else None
+        result = mb.search_releases(release=album_entity.name, artistname=artistname)
+
+        if len(result['release-list']) == 0:
+            return None
+
+        release = mb.get_release_by_id(result['release-list'][0]['id'],
+                                       includes=['release-rels', 'url-rels'])['release']
+
+        translit = None
+
+        if 'release-relation-list' in release:
+            for release_rel in release['release-relation-list']:
+                if release_rel['type'] == 'transl-tracklisting':
+                    translit = release_rel['release']['title']
+                    break
+
+        urls = {}
+
+        if 'url-relation-list' in release:
+            for url in release['url-relation-list']:
+                if url['type'] not in urls:
+                    urls[url['type']] = []
+
+                urls[url['type']].append(url['target'])
+
+        return {
+            'id': release['id'],
+            'translit': translit,
+            'urls': urls
+        }
+
     def get_artist(self, artist_entity):
         result = mb.search_artists(artist=artist_entity.name, alias=artist_entity.name)
 
@@ -117,14 +150,14 @@ class Musicbrainz:
             for alias in artist['alias-list']:
                 aliases.append(alias['alias'])
 
-        relations = {}
+        urls = {}
 
         if 'url-relation-list' in artist:
             for url in artist['url-relation-list']:
-                if url['type'] not in relations:
-                    relations[url['type']] = []
+                if url['type'] not in urls:
+                    urls[url['type']] = []
 
-                relations[url['type']].append(url['target'])
+                urls[url['type']].append(url['target'])
 
         country = None
 
@@ -135,7 +168,7 @@ class Musicbrainz:
             'id': artist['id'],
             'name': artist['name'],
             'aliases': aliases,
-            'relations': relations,
+            'urls': urls,
             'country': country
         }
 
