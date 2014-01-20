@@ -48,8 +48,8 @@ class Musicbrainz:
             aliases = []
             if 'alias-list' in _artist:
                 for alias in _artist['alias-list']:
-                    aliases.append(alias['alias'])
-                    aliases.append(alias['sort-name'])
+                    aliases.append(alias['alias'].lower())
+                    aliases.append(alias['sort-name'].lower())
 
             if (_artist['name'].lower() != artist_name and _artist['sort-name'].lower() != artist_name and
                 artist_name not in aliases):
