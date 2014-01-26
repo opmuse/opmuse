@@ -112,13 +112,19 @@
                                 Google</a>.
                         </li>
                         {% endif %}
-                        <li class="list-group-item">
-                            {% if remotes_artist is defined and remotes_artist %}
-                                {% if remotes_artist.lastfm and remotes_artist.lastfm.listeners %}
-                                    <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
-                                {% endif %}
-                            {% endif %}
-                        </li>
+                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm and
+                            remotes_artist.lastfm.listeners %}
+                            <li class="list-group-item">
+                                <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
+                            </li>
+                        {% endif %}
+                        {% if remotes_user is defined and remotes_user and remotes_user.lastfm and remotes_user.lastfm.artists and
+                            artist.name.lower() in remotes_user.lastfm.artists %}
+                            <li class="list-group-item">
+                                <strong>{{ remotes_user.lastfm.artists[artist.name.lower()].playcount|format_number }}</strong>
+                                Lastfm Plays by <a href="/users/{{ user.login }}">{{ user.login }}</a>.
+                            </li>
+                        {% endif %}
                         {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm and remotes_artist.lastfm.tags|count > 0 %}
                             <li class="list-group-item">
                                 {% for tag in remotes_artist.lastfm.tags %}

@@ -1163,7 +1163,10 @@ class Library:
 
         dir_tracks = self._dir_tracks(artist.no_album_tracks)
 
+        remotes_user = remotes.get_user(cherrypy.request.user)
+
         return {
+            'remotes_user': remotes_user,
             'dir_tracks': dir_tracks,
             'artist': artist,
             'album_groups': album_groups,

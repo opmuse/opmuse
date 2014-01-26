@@ -172,6 +172,7 @@ class Lastfm:
         try:
             network = self.get_network(session_key)
             user = network.get_user(user_name)
+            user_library = user.get_library()
 
             recent_tracks = []
 
@@ -188,8 +189,20 @@ class Lastfm:
                     "timestamp": playedTrack.timestamp
                 })
 
+            artists = {}
+
+            for artist in user_library.get_artists(limit=10000):
+                name = artist.item.get_name()
+
+                artists[name.lower()] = {
+                    "name": name,
+                    "playcount": artist.playcount,
+                    "tagcount": artist.tagcount
+                }
+
             return {
                 'recent_tracks': recent_tracks,
+                'artists': artists,
                 'url': user.get_url(),
                 'playcount': user.get_playcount(),
                 'top_artists_month': self.get_top_artists('1month', user_name, 1, 500, session_key),
