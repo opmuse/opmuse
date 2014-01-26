@@ -55,17 +55,21 @@ class WriteHandler:
     def delete_document(self, id):
         self._deletes.append(id)
 
-    def update_document(self, id, name):
-        self._updates[id] = name
+    def update_document(self, id, name, slug, filename = None):
+        self._updates[id] = (name, slug, filename)
 
     def commit(self):
         updates = deletes = 0
         with self.index.writer() as writer:
             while len(self._updates) > 0:
-                id, name = self._updates.popitem()
+                id, values = self._updates.popitem()
+                name, slug, filename = values
+
                 writer.add_document(
                     id = id, name=name, stemmed_name=name, metaphone_name=name,
-                    exact_name=name, exact_metaphone_name=name
+                    exact_name=name, exact_metaphone_name=name,
+                    filename = filename,
+                    slug = slug
                 )
                 updates += 1
 
@@ -120,7 +124,13 @@ class Search:
             log("Write handler for Track isn't initialized")
             return
 
-        write_handler.update_document(str(track.id), name = track.name)
+        filename = ""
+
+        for path in track.paths:
+            name = os.path.splitext(path.filename)[0]
+            filename = "%s %s" % (filename, name)
+
+        write_handler.update_document(str(track.id), name = track.name, slug = track.slug, filename = filename)
 
     def add_album(self, album):
         write_handler = write_handlers["Album"]
@@ -129,7 +139,7 @@ class Search:
             log("Write handler for Album isn't initialized")
             return
 
-        write_handler.update_document(str(album.id), name = album.name)
+        write_handler.update_document(str(album.id), name = album.name, slug = album.slug)
 
     def add_artist(self, artist):
         write_handler = write_handlers["Artist"]
@@ -138,7 +148,7 @@ class Search:
             log("Write handler for Artist isn't initialized")
             return
 
-        write_handler.update_document(str(artist.id), name = artist.name)
+        write_handler.update_document(str(artist.id), name = artist.name, slug = artist.slug)
 
     def query_track(self, query, exact = False, exact_metaphone = False):
         results = self._query("Track", query, exact, exact_metaphone)
@@ -193,7 +203,9 @@ class Search:
             terms = [
                 QueryParser("name", write_handler.index.schema).parse(query),
                 QueryParser("metaphone_name", write_handler.index.schema).parse(query),
-                QueryParser("stemmed_name", write_handler.index.schema).parse(query)
+                QueryParser("stemmed_name", write_handler.index.schema).parse(query),
+                QueryParser("filename", write_handler.index.schema).parse(query),
+                QueryParser("slug", write_handler.index.schema).parse(query),
             ]
 
         results = (write_handler.index.searcher()
@@ -243,7 +255,13 @@ class WhooshPlugin(Monitor):
                     ),
                     exact_metaphone_name = whoosh.fields.TEXT(
                         analyzer=IDTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
-                    )
+                    ),
+                    slug = whoosh.fields.TEXT(
+                        analyzer=RegexTokenizer(r"[^_]+") | LowercaseFilter()
+                    ),
+                    filename = whoosh.fields.TEXT(
+                        analyzer=RegexTokenizer(r"[^ \t\r\n_\.]+") | LowercaseFilter()
+                    ),
                 )
 
                 index = whoosh.index.create_in(index_path, schema)
