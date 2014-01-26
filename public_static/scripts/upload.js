@@ -49,6 +49,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 that.internalInit();
             });
 
+            this.totalSize = 0;
+            this.totalLoaded = 0;
+
             that.internalInit();
         },
         internalInit: function () {
@@ -64,7 +67,6 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 multipart: false,
                 add: function (event, data) {
                     $.each(data.files, function () {
-
                         var file = this;
 
                         var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl").data('file', file);
@@ -138,6 +140,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
 
                         $("#fileupload .files").append(fileDom);
 
+                        that.totalSize += file.size;
+
                         that.files.push({
                             file: file,
                             dom: fileDom
@@ -145,7 +149,23 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                     });
                 },
                 progress: function (event, data) {
+                    var loaded = $(data.fileDom).data('loaded');
+
+                    if (typeof loaded == 'undefined' || loaded === null) {
+                        loaded = 0;
+                    }
+
+                    $(data.fileDom).data('loaded', data.loaded);
+
+                    that.totalLoaded += data.loaded - loaded;
+
                     var progress = parseInt((data.loaded / data.total) * 100, 10);
+                    var totalProgress = parseInt((that.totalLoaded / that.totalSize) * 100, 10);
+
+                    $('.total-progress.progress').addClass('active').find('.progress-bar').eq(0).css(
+                        'width',
+                        totalProgress + '%'
+                    );
 
                     $(data.fileDom).find('.progress').addClass('active').find('.progress-bar').eq(0).css(
                         'width',
@@ -182,6 +202,15 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 return false;
             });
         },
+        done: function () {
+            this.totalSize = 0;
+            this.totalLoaded = 0;
+
+            setTimeout(function () {
+                $('.total-progress.progress').removeClass('active').find('.progress-bar')
+                    .eq(0).css('width', '0%');
+            }, 3000);
+        },
         send: function (start) {
             var that = this;
 
@@ -202,7 +231,6 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
             that.names = [];
 
             for (var index = 0; index < count; index++) {
-
                 if (index >= that.files.length) {
                     break;
                 }
@@ -218,7 +246,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
 
                 that.activeUploads++;
 
-                (function (file) {
+                var done = false;
+
+                if (index == that.files.length - 1) {
+                    done = true;
+                }
+
+                (function (file, done) {
                     $('#fileupload').fileupload('send', { files: file.file, url: url, fileDom: file.dom })
                         .success(function (result, textStatus, jqXHR) {
                             that.activeUploads--;
@@ -241,7 +275,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                                 resultDom.find('.message')
                             );
 
-                            that.send();
+                            if (done) {
+                                that.done();
+                            } else {
+                                that.send();
+                            }
                         }).error(function (jqXHR, textStatus, errorThrown) {
                             that.activeUploads--;
 
@@ -257,9 +295,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                                 content: $(jqXHR.responseText).find("#content").contents()
                             });
 
-                            that.send();
+                            if (done) {
+                                that.done();
+                            } else {
+                                that.send();
+                            }
                         });
-                })(file);
+                })(file, done);
             }
         }
     });
