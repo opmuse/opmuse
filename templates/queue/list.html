@@ -13,7 +13,7 @@
     {%- if info.album -%}
         {%- if html -%}
             <a href="{{ urls.album_url(info.album) }}">
-        {%- endif %} {{ info.album.name|show_ws }}
+        {%- endif %} {{ info.album.name|show_ws }} ({{ info.album.date if info.album.date else 'N/A' }})
         {%- if html -%}
             </a>
         {%- endif -%}
