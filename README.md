@@ -42,8 +42,7 @@ you're on Windows you're on your own.
 
     $ git clone https://github.com/opmuse/opmuse.git
     $ cd opmuse
-    $ git submodule init
-    $ git submodule update
+    $ git submodule update --init --recursive
     $ virtualenv -p python3.3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
@@ -79,8 +78,7 @@ Then you start the whole debacle with
 
 When you do a git pull some of these might be required.
 
-    $ git submodule init
-    $ git submodule update
+    $ git submodule update --init --recursive
 
     $ merge config/opmuse.dist.ini config/opmuse.ini
 
