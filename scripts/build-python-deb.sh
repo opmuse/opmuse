@@ -42,7 +42,7 @@ fi
 
 if [[ $package_version != "none" ]]; then
     package_install=${package_install}${package_version}
-then
+fi
 
 args+=(-s python -t deb $package_install)
 
