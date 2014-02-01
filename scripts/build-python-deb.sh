@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-if [[ $# -ne 4 && $# -ne 5 ]]; then
-    echo "Usage: $(basename $0) repo dist package_file package_name [--no-prefix]"
+if [[ $# -ne 5 && $# -ne 6 ]]; then
+    echo "Usage: $(basename $0) repo dist package_file package_name package_version [--no-prefix]"
     exit 1
 fi
 
@@ -9,8 +9,9 @@ repo=$1
 dist=$2
 package_file=$3
 package_name=${4:l}
+package_version=$5
 
-if [[ $5 == "--no-prefix" ]]; then
+if [[ $6 == "--no-prefix" ]]; then
     prefix=0
 else
     prefix=1
@@ -38,6 +39,10 @@ if [[ $package_file == "none" ]]; then
 else
     package_install=$package_file
 fi
+
+if [[ $package_version != "none" ]]; then
+    package_install=${package_install}${package_version}
+then
 
 args+=(-s python -t deb $package_install)
 
