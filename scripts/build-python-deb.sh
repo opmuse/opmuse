@@ -8,7 +8,7 @@ fi
 repo=$1
 dist=$2
 package_file=$3
-package_name=$4
+package_name=${4:l}
 
 if [[ $5 == "--no-prefix" ]]; then
     prefix=0
