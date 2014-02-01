@@ -1247,6 +1247,7 @@ class Library:
 
         return hierarchy
 
+
 class AdminUsers:
     @staticmethod
     def _validate_user_params(login = None, mail = None, roles = None, password1 = None, password2 = None):
@@ -1341,7 +1342,7 @@ class AdminUsers:
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
     def edit_submit(self, user_id, login = None, mail = None, roles = None,
-                         password1 = None, password2 = None):
+                    password1 = None, password2 = None):
         try:
             user = (get_database().query(User)
                     .filter_by(id=user_id).one())
@@ -1399,8 +1400,7 @@ class Admin:
         }
 
         formats = (get_database().query(Track.format, func.sum(Track.duration),
-                                 func.sum(Track.size), func.count(Track.format))
-                                 .group_by(Track.format).all())
+                                        func.sum(Track.size), func.count(Track.format)).group_by(Track.format).all())
 
         stats = {
             'tracks': library_dao.get_track_count(),

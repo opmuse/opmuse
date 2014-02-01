@@ -2,6 +2,7 @@ import musicbrainzngs as mb
 
 mb.set_useragent("opmuse", "DEV", "http://opmu.se/")
 
+
 class Musicbrainz:
     def get_album(self, album_entity):
         artistname = album_entity.artists[0].name if len(album_entity.artists) > 0 else None
