@@ -41,9 +41,7 @@ fi
 
 args+=(-s python -t deb $package_install)
 
-if [[ -z ${full_package_name}*.deb ]]; then
-    rm ${full_package_name}*.deb
-fi
+rm ${full_package_name}*.deb 2> /dev/null
 
 reprepro -b $repo remove $dist $full_package_name
 
