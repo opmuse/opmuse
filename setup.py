@@ -34,7 +34,7 @@ setup(
     dependency_links=dependency_links,
     entry_points={
         'console_scripts': [
-            'opmuse = opmuse.boot'
+            'opmuse-console = opmuse.commands'
         ]
     },
     classifiers=[
