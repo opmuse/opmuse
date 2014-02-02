@@ -19,6 +19,7 @@ import os
 import shutil
 import argparse
 import subprocess
+import sys
 from sqlalchemy.exc import ProgrammingError
 from alembic.config import Config
 from alembic import command
@@ -52,7 +53,7 @@ def command_whoosh(action=None):
 def command_cherrypy(*args):
     try:
         process = subprocess.Popen([
-            'python', 'opmuse/boot.py'
+            sys.executable, 'opmuse/boot.py'
         ] + list(args), cwd=root_path)
 
         process.wait()
