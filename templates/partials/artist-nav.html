@@ -143,15 +143,6 @@
                                 {% endfor %}
                             </li>
                         {% endif %}
-                        {% if remotes_artist is defined and remotes_artist and remotes_artist.discogs.aliases|count > 0 %}
-                            <li class="list-group-item">
-                                {% for alias in remotes_artist.discogs.aliases %}
-                                    <span class="label label-primary" title="Discog Alias, {{ alias }}">
-                                        <a href="/search/{{ alias|urlencode }}/artist">{{ alias }}</a>
-                                    </span>
-                                {% endfor %}
-                            </li>
-                        {% endif %}
                     </ul>
                 </div>
             </div>

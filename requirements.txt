@@ -10,7 +10,6 @@ mutagenx ==1.22
 rarfile ==2.6
 ws4py ==0.3.2
 Unidecode >=0.04.13,<0.05
-vendor/discogs_client.tar.bz2
 alembic >=0.6.1,<0.7
 musicbrainzngs ==0.4
 pycountry ==1.3
