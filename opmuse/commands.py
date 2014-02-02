@@ -27,7 +27,7 @@ from opmuse.database import Base, get_engine, get_database_name, get_database_ty
 from opmuse.library import TrackPath, Track, Artist, Album
 from opmuse.queues import Queue
 from opmuse.cache import CacheObject
-from search import INDEXDIR
+from opmuse.search import INDEXDIR
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
