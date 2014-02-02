@@ -62,6 +62,11 @@ def configure():
     if not exists(config_file):
         parser.error('Configuration is missing (%s).' % config_file)
 
+    staticdir = join(abspath(dirname(__file__)), '..', 'public_static')
+
+    if not exists(staticdir):
+        staticdir = '/usr/share/opmuse/public_static'
+
     app_config = {
         '/': {
             'tools.cgitb_log_err.on': True,
@@ -80,8 +85,7 @@ def configure():
             'tools.jinjaauthenticated.on': False,
             'tools.database.on': False,
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': join(abspath(dirname(__file__)),
-                                        '..', 'public_static'),
+            'tools.staticdir.dir': staticdir
         },
         '/library/upload/add': {
             'response.timeout': 3600

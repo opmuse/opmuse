@@ -27,6 +27,22 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 
+
+def get_datafiles(src, dest):
+    datafiles = []
+
+    for root, dirs, files in os.walk(src):
+        if len(files) == 0:
+            continue
+
+        datafiles.append((
+            os.path.join(dest, root),
+            [os.path.join(root, f) for f in files]
+        ))
+
+    return datafiles
+
+
 install_requires = []
 dependency_links = []
 
@@ -61,8 +77,8 @@ setup(
         ]
     },
     data_files=[
-        ('/etc/opmuse', ['build/opmuse.ini'])
-    ],
+        ('/etc/opmuse', ['build/opmuse.ini']),
+    ] + get_datafiles('public_static', '/usr/share/opmuse'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
