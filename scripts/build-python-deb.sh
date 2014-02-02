@@ -5,6 +5,10 @@ if [[ $# -ne 5 && $# -ne 6 ]]; then
     exit 1
 fi
 
+# for fpm/pip so it doesn't fail just because we already have
+# the requirement globally
+export PIP_FORCE_REINSTALL=1
+
 repo=$1
 dist=$2
 package_file=$3
