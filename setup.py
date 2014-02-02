@@ -2,6 +2,7 @@ import sys
 import os.path
 import re
 import subprocess
+import shutil
 from setuptools import setup
 from pip.req import parse_requirements
 
@@ -20,6 +21,11 @@ for install_require in parse_requirements('requirements.txt'):
     else:
         raise Exception("Couldn't parse requirement from requirements.txt")
 
+if not os.path.exists('build'):
+    os.mkdir('build')
+
+shutil.copyfile('config/opmuse.dist.ini', 'build/opmuse.ini')
+
 setup(
     name="opmuse",
     version=git_version,
@@ -37,6 +43,9 @@ setup(
             'opmuse-console = opmuse.commands:main'
         ]
     },
+    data_files=[
+        ('/etc/opmuse', ['build/opmuse.ini'])
+    ],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",

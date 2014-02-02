@@ -22,7 +22,7 @@ import subprocess
 import cherrypy
 import tempfile
 import locale
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, exists
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.security import repozewho_pipeline, AuthenticatedTool, AuthorizeTool
@@ -55,6 +55,12 @@ def configure():
     import opmuse.controllers
 
     config_file = join(abspath(dirname(__file__)), '..', 'config', 'opmuse.ini')
+
+    if not exists(config_file):
+        config_file = '/etc/opmuse/opmuse.ini'
+
+    if not exists(config_file):
+        parser.error('Configuration is missing (%s).' % config_file)
 
     app_config = {
         '/': {
