@@ -34,6 +34,12 @@ root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
 
 
+def command_less():
+    from opmuse.utils import less_compiler
+    less_compiler.compile()
+    print("compiled main.css")
+
+
 def command_whoosh(action=None):
     if action == "drop":
         for file in os.listdir(INDEXDIR):
@@ -106,7 +112,7 @@ def command_database(action=None):
 
 
 def main():
-    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh'), help='Command to run.')
+    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less'), help='Command to run.')
     parser.add_argument('additional', nargs='*', help='Additional arguments.')
 
     args = parser.parse_args()

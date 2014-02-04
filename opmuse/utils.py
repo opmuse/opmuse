@@ -23,19 +23,35 @@ import subprocess
 from cherrypy.process.plugins import Monitor
 
 
+class LessCompiler:
+    def __init__(self):
+        self.stylespath = os.path.join(os.path.dirname(__file__), '..', 'public_static', 'styles')
+
+    def compile(self):
+        lesspath = os.path.join(os.path.dirname(__file__), '..', 'vendor', 'less.js')
+
+        subprocess.call([
+            os.path.join(lesspath, 'bin', 'lessc'),
+            os.path.join(self.stylespath, 'main.less'),
+            os.path.join(self.stylespath, 'main.css')
+        ], cwd=self.stylespath)
+
+
+less_compiler = LessCompiler()
+
+
 class LessReloader(Monitor):
     def __init__(self, bus):
         Monitor.__init__(self, bus, self.run, frequency = .5)
 
         self._files = {}
-        self._stylespath = os.path.join(os.path.dirname(__file__), '..', 'public_static', 'styles')
 
     def start(self):
         Monitor.start(self)
-        self.compile()
+        less_compiler.compile()
 
     def run(self):
-        for path, dirnames, filenames in os.walk(self._stylespath):
+        for path, dirnames, filenames in os.walk(less_compiler.stylespath):
             for filename in filenames:
                 if filename[-4:] != 'less':
                     continue
@@ -48,18 +64,10 @@ class LessReloader(Monitor):
 
                     if mtime > old_mtime:
                         cherrypy.log('%s changed, recompiling main.css' % filename)
-                        self.compile()
+                        less_compiler.compile()
 
                 self._files[filepath] = mtime
 
-    def compile(self):
-        lesspath = os.path.join(os.path.dirname(__file__), '..', 'vendor', 'less.js')
-
-        subprocess.call([
-            os.path.join(lesspath, 'bin', 'lessc'),
-            os.path.join(self._stylespath, 'main.less'),
-            os.path.join(self._stylespath, 'main.css')
-        ], cwd=self._stylespath)
 
 
 class HTTPRedirect(cherrypy.HTTPRedirect):
