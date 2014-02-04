@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-if [[ $# -ne 6 && $# -ne 7 ]]; then
-    echo "Usage: $(basename $0) repo dist package_file package_name package_version package_deps [--no-prefix]"
+if [[ $# -ne 7 && $# -ne 8 ]]; then
+    echo "Usage: $(basename $0) repo dist package_file package_name package_version package_deps package_confs [--no-prefix]"
     exit 1
 fi
 
@@ -15,8 +15,9 @@ package_file=$3
 package_name=${4:l}
 package_version=$5
 package_deps=$6
+package_confs=$7
 
-if [[ $7 == "--no-prefix" ]]; then
+if [[ $8 == "--no-prefix" ]]; then
     prefix=0
 else
     prefix=1
@@ -45,6 +46,16 @@ if [[ $package_deps != "none" ]]; then
     for dep in $deps; do
         args+=(
             --depends $dep
+        )
+    done
+fi
+
+if [[ $package_confs != "none" ]]; then
+    confs=("${(s/,/)package_confs}")
+
+    for conf in $confs; do
+        args+=(
+            --config-files $conf
         )
     done
 fi
