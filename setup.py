@@ -59,7 +59,7 @@ def get_datafiles(src, dest, exclude_exts=[]):
 
 
 if not os.path.exists("build/templates"):
-    print("You need to run "console jinja compile" before you build.")
+    print('You need to run "console jinja compile" before you build.')
     sys.exit(1)
 
 
@@ -95,7 +95,8 @@ setup(
     dependency_links=dependency_links,
     entry_points={
         'console_scripts': [
-            'opmuse-console = opmuse.commands:main'
+            'opmuse-console = opmuse.commands:main',
+            'opmuse-boot = opmuse.boot:main'
         ]
     },
     data_files=[

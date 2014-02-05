@@ -179,7 +179,7 @@ def boot():
     cherrypy.engine.block()
 
 
-if __name__ == '__main__':
+def main():
     locale.setlocale(locale.LC_ALL, 'en_US.utf8')
 
     import argparse
@@ -249,3 +249,7 @@ if __name__ == '__main__':
         app.wsgiapp.pipeline.append(('profile', profile_pipeline))
 
     boot()
+
+
+if __name__ == '__main__':
+    main()
