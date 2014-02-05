@@ -93,7 +93,9 @@ setup(
     },
     data_files=[
         ('/etc/opmuse', ['build/opmuse.ini']),
-    ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less']),
+        ('/usr/share/opmuse', ['alembic.ini']),
+    ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less']) +
+        get_datafiles('database', '/usr/share/opmuse'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",

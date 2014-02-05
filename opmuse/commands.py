@@ -69,7 +69,13 @@ def command_cherrypy(*args):
 
 
 def command_database(action=None):
-    alembic_config = Config(os.path.join("alembic.ini"))
+    config_path = os.path.join(root_path, "alembic.ini")
+
+    if not os.path.exists(config_path):
+        config_path = "/usr/share/opmuse/alembic.conf"
+
+    alembic_config = Config(config_path)
+
     database_type = get_database_type()
 
     if action == "create":
