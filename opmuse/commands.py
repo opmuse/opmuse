@@ -72,7 +72,7 @@ def command_database(action=None):
     config_path = os.path.join(root_path, "alembic.ini")
 
     if not os.path.exists(config_path):
-        config_path = "/usr/share/opmuse/alembic.conf"
+        config_path = "/usr/share/opmuse/alembic.ini"
 
     alembic_config = Config(config_path)
 
