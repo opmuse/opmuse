@@ -20,6 +20,7 @@ import os.path
 import re
 import subprocess
 import shutil
+import fileinput
 from setuptools import setup
 from pip.req import parse_requirements
 from opmuse.utils import less_compiler
@@ -78,6 +79,12 @@ if not os.path.exists('build'):
     os.mkdir('build')
 
 shutil.copyfile('config/opmuse.dist.ini', 'build/opmuse.ini')
+
+for line in fileinput.input("build/opmuse.ini", inplace=True):
+    if re.match(r'environment\s*=', line):
+        sys.stdout.write("environment = 'production'\n")
+    else:
+        sys.stdout.write(line)
 
 less_compiler.compile()
 
