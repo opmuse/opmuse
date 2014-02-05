@@ -8,6 +8,9 @@ config = context.config
 
 cherrypy_config_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                                     '..', 'config', 'opmuse.ini')
+if not os.path.exists(cherrypy_config_file):
+    cherrypy_config_file = '/etc/opmuse/opmuse.ini'
+
 cherrypy_config = ConfigParser()
 cherrypy_config.read(cherrypy_config_file)
 
