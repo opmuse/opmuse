@@ -21,14 +21,17 @@ import subprocess
 import shutil
 from setuptools import setup
 from pip.req import parse_requirements
+from opmuse.utils import less_compiler
+from opmuse.jinja import get_jinja_env
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 
-
 def get_datafiles(src, dest, exclude_exts=[]):
     datafiles = []
+
+    src_comps = len([comp for comp in os.path.split(src) if comp != ""])
 
     for root, dirs, files in os.walk(src):
         if len(files) == 0:
@@ -48,11 +51,12 @@ def get_datafiles(src, dest, exclude_exts=[]):
             continue
 
         datafiles.append((
-            os.path.join(dest, root),
+            os.path.join(dest, os.path.join(*(os.path.split(root)[src_comps - 1:]))),
             included_files
         ))
 
     return datafiles
+
 
 
 install_requires = []
@@ -66,13 +70,17 @@ for install_require in parse_requirements('requirements.txt'):
     else:
         raise Exception("Couldn't parse requirement from requirements.txt")
 
-if not os.path.exists('build'):
-    os.mkdir('build')
+if os.path.exists('build'):
+    shutil.rmtree('build')
+
+os.mkdir('build')
 
 shutil.copyfile('config/opmuse.dist.ini', 'build/opmuse.ini')
 
-from opmuse.utils import less_compiler
 less_compiler.compile()
+
+jinja_env = get_jinja_env()
+jinja_env.compile_templates('build/templates', zip=None)
 
 setup(
     name="opmuse",
@@ -95,7 +103,8 @@ setup(
         ('/etc/opmuse', ['build/opmuse.ini']),
         ('/usr/share/opmuse', ['alembic.ini']),
     ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less']) +
-        get_datafiles('database', '/usr/share/opmuse'),
+        get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
+        get_datafiles('build/templates', '/usr/share/opmuse'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",

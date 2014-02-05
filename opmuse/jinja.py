@@ -25,12 +25,56 @@ from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
 from cherrypy._cpdispatch import PageHandler
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, ModuleLoader, StrictUndefined
 from opmuse.security import is_granted as _is_granted
 from opmuse.pretty import pretty_date as _pretty_date
 from opmuse.library import TrackStructureParser, Library
 
 VISIBLE_WS = "\u2423"
+
+
+def get_jinja_env():
+    auto_reload = cherrypy.config.get('jinja.auto_reload')
+
+    if auto_reload is None:
+        auto_reload = True
+
+    template_path = os.path.join(os.path.dirname(__file__), '..', 'templates')
+
+    if os.path.exists(template_path):
+        loader = FileSystemLoader(template_path)
+    else:
+        loader = ModuleLoader('/usr/share/opmuse/templates/')
+
+    env = Environment(
+        loader=loader,
+        extensions=['jinja2.ext.loopcontrols', 'jinja2.ext.do', 'jinja2.ext.autoescape'],
+        autoescape=guess_autoescape,
+        undefined=StrictUndefined,
+        auto_reload=auto_reload,
+        cache_size=-1
+    )
+
+    env.filters['nl2p'] = nl2p
+    env.filters['format_seconds'] = format_seconds
+    env.filters['format_seconds_alt'] = format_seconds_alt
+    env.filters['pretty_date'] = pretty_date
+    env.filters['format_number'] = format_number
+    env.filters['show_ws'] = show_ws
+    env.filters['format_bytes'] = format_bytes
+    env.filters['json'] = json
+    env.filters['startswith'] = startswith
+    env.filters['track_path'] = track_path
+    env.filters['round'] = round
+    env.filters['pretty_format'] = pretty_format
+    env.filters['country'] = country
+
+    env.globals['pagination_pages'] = pagination_pages
+    env.globals['rand_id'] = rand_id
+    env.globals['is_granted'] = is_granted
+    env.globals['render'] = render
+
+    return env
 
 
 def country(code):
@@ -195,43 +239,7 @@ class JinjaPlugin(SimplePlugin):
         self.bus.subscribe("bind_jinja", self.bind_jinja)
 
     def start(self):
-        auto_reload = cherrypy.config.get('jinja.auto_reload')
-
-        if auto_reload is None:
-            auto_reload = True
-
-        self.env = Environment(
-            loader=FileSystemLoader(
-                os.path.join(
-                    os.path.abspath(os.path.dirname(__file__)),
-                    '..', 'templates'
-                )
-            ),
-            extensions=['jinja2.ext.loopcontrols', 'jinja2.ext.do', 'jinja2.ext.autoescape'],
-            autoescape=guess_autoescape,
-            undefined=StrictUndefined,
-            auto_reload=auto_reload,
-            cache_size=-1
-        )
-
-        self.env.filters['nl2p'] = nl2p
-        self.env.filters['format_seconds'] = format_seconds
-        self.env.filters['format_seconds_alt'] = format_seconds_alt
-        self.env.filters['pretty_date'] = pretty_date
-        self.env.filters['format_number'] = format_number
-        self.env.filters['show_ws'] = show_ws
-        self.env.filters['format_bytes'] = format_bytes
-        self.env.filters['json'] = json
-        self.env.filters['startswith'] = startswith
-        self.env.filters['track_path'] = track_path
-        self.env.filters['round'] = round
-        self.env.filters['pretty_format'] = pretty_format
-        self.env.filters['country'] = country
-
-        self.env.globals['pagination_pages'] = pagination_pages
-        self.env.globals['rand_id'] = rand_id
-        self.env.globals['is_granted'] = is_granted
-        self.env.globals['render'] = render
+        self.env = get_jinja_env()
 
     start.priority = 130
 
