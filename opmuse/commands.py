@@ -34,6 +34,22 @@ root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
 
 
+def command_jinja(action=None, path=None):
+    if action == "compile":
+        if path is None:
+            parser.error('Needs to provide a path.')
+
+        from opmuse.jinja import get_jinja_env
+        jinja_env = get_jinja_env()
+
+        if os.path.exists(path):
+            shutil.rmtree(path)
+
+        jinja_env.compile_templates(path, zip=None)
+    else:
+        parser.error('Needs to provide a valid action (compile).')
+
+
 def command_less():
     from opmuse.utils import less_compiler
     less_compiler.compile()
@@ -118,7 +134,7 @@ def command_database(action=None):
 
 
 def main():
-    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less'), help='Command to run.')
+    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less', 'jinja'), help='Command to run.')
     parser.add_argument('additional', nargs='*', help='Additional arguments.')
 
     args = parser.parse_args()

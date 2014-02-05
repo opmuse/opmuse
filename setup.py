@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import os.path
 import re
 import subprocess
@@ -22,7 +23,6 @@ import shutil
 from setuptools import setup
 from pip.req import parse_requirements
 from opmuse.utils import less_compiler
-from opmuse.jinja import get_jinja_env
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
@@ -58,6 +58,10 @@ def get_datafiles(src, dest, exclude_exts=[]):
     return datafiles
 
 
+if not os.path.exists("build/templates"):
+    print("You need to run "console jinja compile" before you build.")
+    sys.exit(1)
+
 
 install_requires = []
 dependency_links = []
@@ -70,17 +74,12 @@ for install_require in parse_requirements('requirements.txt'):
     else:
         raise Exception("Couldn't parse requirement from requirements.txt")
 
-if os.path.exists('build'):
-    shutil.rmtree('build')
-
-os.mkdir('build')
+if not os.path.exists('build'):
+    os.mkdir('build')
 
 shutil.copyfile('config/opmuse.dist.ini', 'build/opmuse.ini')
 
 less_compiler.compile()
-
-jinja_env = get_jinja_env()
-jinja_env.compile_templates('build/templates', zip=None)
 
 setup(
     name="opmuse",
