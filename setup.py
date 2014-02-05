@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import os.path
 import re
 import subprocess
@@ -28,16 +27,29 @@ git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).str
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 
 
-def get_datafiles(src, dest):
+def get_datafiles(src, dest, exclude_exts=[]):
     datafiles = []
 
     for root, dirs, files in os.walk(src):
         if len(files) == 0:
             continue
 
+        included_files = []
+
+        for f in files:
+            path, ext = os.path.splitext(f)
+
+            if ext in exclude_exts:
+                continue
+
+            included_files.append(os.path.join(root, f))
+
+        if len(included_files) == 0:
+            continue
+
         datafiles.append((
             os.path.join(dest, root),
-            [os.path.join(root, f) for f in files]
+            included_files
         ))
 
     return datafiles
@@ -59,6 +71,9 @@ if not os.path.exists('build'):
 
 shutil.copyfile('config/opmuse.dist.ini', 'build/opmuse.ini')
 
+from opmuse.utils import less_compiler
+less_compiler.compile()
+
 setup(
     name="opmuse",
     version=git_version,
@@ -78,7 +93,7 @@ setup(
     },
     data_files=[
         ('/etc/opmuse', ['build/opmuse.ini']),
-    ] + get_datafiles('public_static', '/usr/share/opmuse'),
+    ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less']),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",

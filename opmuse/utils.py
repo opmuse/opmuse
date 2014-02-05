@@ -45,12 +45,26 @@ class LessReloader(Monitor):
         Monitor.__init__(self, bus, self.run, frequency = .5)
 
         self._files = {}
+        self.enable = False
 
     def start(self):
         Monitor.start(self)
+
+        self.enable = cherrypy.config.get('less_reloader.enable')
+
+        if self.enable is None:
+            self.enable = True
+
+        if not self.enable:
+            return
+
         less_compiler.compile()
+        cherrypy.log('compiled main.css')
 
     def run(self):
+        if not self.enable:
+            return
+
         for path, dirnames, filenames in os.walk(less_compiler.stylespath):
             for filename in filenames:
                 if filename[-4:] != 'less':

@@ -15,10 +15,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import os
 import logging
-import subprocess
 import cherrypy
 import tempfile
 import locale
@@ -112,6 +110,7 @@ def configure():
     cherrypy.config.update(config)
 
     cherrypy._cpconfig.environments['production']['jinja.auto_reload'] = False
+    cherrypy._cpconfig.environments['production']['less_reloader.enable'] = False
 
     if 'ssl_server.enabled' in cherrypy.config and cherrypy.config['ssl_server.enabled']:
         socket_host = cherrypy.config['ssl_server.socket_host']
@@ -143,6 +142,7 @@ def configure():
         ssl_server.subscribe()
 
     WebSocketPlugin(cherrypy.engine).subscribe()
+
     LessReloader(cherrypy.engine).subscribe()
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
