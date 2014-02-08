@@ -29,12 +29,12 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 
-def get_datafiles(src, dest, exclude_exts=[]):
+def get_datafiles(src, dest, exclude_exts=[], followlinks=False):
     datafiles = []
 
     src_comps = len([comp for comp in os.path.split(src) if comp != ""])
 
-    for root, dirs, files in os.walk(src):
+    for root, dirs, files in os.walk(src, followlinks=followlinks):
         if len(files) == 0:
             continue
 
@@ -109,7 +109,7 @@ setup(
     data_files=[
         ('/etc/opmuse', ['build/opmuse.ini']),
         ('/usr/share/opmuse', ['alembic.ini']),
-    ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less']) +
+    ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less'], followlinks=True) +
         get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
         get_datafiles('build/templates', '/usr/share/opmuse'),
     classifiers=[
