@@ -6,24 +6,34 @@ A web application to play, organize and share your music library.
 
 ### Using
 
-**This whole section is under development and will not work as advertised!** The
-only way we distribute right now is through our Debian apt repository. Other
-than if you feel comfortable enough to set everything up from the git repository
-yourself. Take a look at *Developing* if so.
+**This whole section is under development and will not work as advertised!**
 
-#### Debian Repository
+The only way we distribute right now is through our Apt repository. If you're
+not running a Debian based distribution you'll have to set up everything
+yourself. Take a look at *Developing* for some help with that.
 
-Some of the required packages are in sid/jessie and some we provide ourselves.
+We've tested this with Debian Jessie. But other Debian based distros (Ubuntu
+etc) should work too as long as they have all the dependencies we don't already
+provide ourselves through our Apt repository.
 
-Add the key
+#### Add Apt Repository
+
+Add the key and the repository.
 
     $ wget http://apt.opmu.se/opmuse.pub
     $ apt-key add opmuse.pub
-
-Add the repository
-
     $ echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
     $ apt-get update
+
+##### Additional Requirements for Debian Jessie
+
+The deb-multimedia repo is required for ffmpeg.
+
+    $ apt-get install deb-multimedia-keyring
+    $ echo "deb http://www.deb-multimedia.org jessie main non-free" > /etc/apt/sources.list.d/deb-multimedia.list
+    $ apt-get update
+
+#### Install opmuse
 
 Install opmuse
 
