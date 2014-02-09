@@ -4,7 +4,7 @@
 
 getent passwd $USER > /dev/null
 
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
     adduser --quiet --system --no-create-home --home $CACHEDIR --shell /usr/sbin/nologin $USER
 fi
 
