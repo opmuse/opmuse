@@ -1,7 +1,8 @@
 #!/bin/zsh
 
-if [[ $# -ne 7 && $# -ne 8 ]]; then
-    echo "Usage: $(basename $0) repo dist package_file package_name package_version package_deps package_confs [--no-prefix]"
+if [[ $# -ne 11 && $# -ne 12 ]]; then
+    echo -n "Usage: $(basename $0) repo dist package_file package_name package_version "
+    echo "package_before package_after package_deps package_confs package_init package_default [--no-prefix]"
     exit 1
 fi
 
@@ -14,10 +15,14 @@ dist=$2
 package_file=$3
 package_name=${4:l}
 package_version=$5
-package_deps=$6
-package_confs=$7
+package_before=$6
+package_after=$7
+package_deps=$8
+package_confs=$9
+package_init=$10
+package_default=$11
 
-if [[ $8 == "--no-prefix" ]]; then
+if [[ $12 == "--no-prefix" ]]; then
     prefix=0
 else
     prefix=1
@@ -40,6 +45,18 @@ else
     full_package_name=$package_name
 fi
 
+if [[ $package_before != "none" ]]; then
+    args+=(
+        --before-install $package_before
+    )
+fi
+
+if [[ $package_after != "none" ]]; then
+    args+=(
+        --after-install $package_after
+    )
+fi
+
 if [[ $package_deps != "none" ]]; then
     deps=("${(s/,/)package_deps}")
 
@@ -58,6 +75,18 @@ if [[ $package_confs != "none" ]]; then
             --config-files $conf
         )
     done
+fi
+
+if [[ $package_init != "none" ]]; then
+    args+=(
+        --deb-init $package_init
+    )
+fi
+
+if [[ $package_default != "none" ]]; then
+    args+=(
+        --deb-default $package_default
+    )
 fi
 
 if [[ $package_file == "none" ]]; then

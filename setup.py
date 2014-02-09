@@ -86,6 +86,16 @@ for line in fileinput.input("build/opmuse.ini", inplace=True):
     else:
         sys.stdout.write(line)
 
+if not os.path.exists('build/init'):
+    os.mkdir('build/init')
+
+shutil.copyfile('scripts/debian-init.sh', 'build/init/opmuse')
+
+if not os.path.exists('build/default'):
+    os.mkdir('build/default')
+
+shutil.copyfile('scripts/debian-default', 'build/default/opmuse')
+
 less_compiler.compile()
 
 setup(
@@ -107,7 +117,10 @@ setup(
         ]
     },
     data_files=[
+        ('/etc/init.d', ['build/init/opmuse']),
+        ('/etc/default', ['build/default/opmuse']),
         ('/var/cache/opmuse', ['cache/.keep']),
+        ('/var/log/opmuse', ['log/.keep']),
         ('/etc/opmuse', ['build/opmuse.ini']),
         ('/usr/share/opmuse', ['alembic.ini']),
     ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less'], followlinks=True) +

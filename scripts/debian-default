@@ -1,0 +1,5 @@
+USER=opmuse
+LOGDIR=/var/log/opmuse
+CACHEDIR=/var/cache/opmuse
+ENVIRONMENT=production
+PIDFILE=/var/run/opmuse.pid
