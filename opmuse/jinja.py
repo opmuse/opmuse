@@ -34,7 +34,7 @@ VISIBLE_WS = "\u2423"
 
 
 def get_jinja_env():
-    auto_reload = cherrypy.config.get('jinja.auto_reload')
+    auto_reload = cherrypy.config['opmuse'].get('jinja.auto_reload')
 
     if auto_reload is None:
         auto_reload = True

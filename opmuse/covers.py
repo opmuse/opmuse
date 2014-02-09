@@ -28,7 +28,6 @@ from opmuse.ws import ws
 from opmuse.image import image as image_service
 from opmuse.library import library_dao
 from opmuse.library import Artist, Album
-from opmuse.lastfm import lastfm
 from opmuse.google import google
 from opmuse.database import get_database
 from opmuse.remotes import remotes
@@ -45,6 +44,19 @@ class Covers:
     LARGE_WIDTH = 650
     LARGE_HEIGHT = 325
     LARGE_GRAVITY = 'north'
+
+    def _mktemp(self, suffix):
+        cache_path = cherrypy.config['opmuse'].get('cache.path')
+        dir = os.path.join(cache_path, 'covers')
+
+        if not os.path.exists(dir):
+            os.mkdir(dir)
+
+        fd, path = tempfile.mkstemp(suffix, dir=dir)
+
+        os.close(fd)
+
+        return path
 
     def refresh(self, type, slug):
         if type not in ['album', 'artist']:
@@ -113,8 +125,8 @@ class Covers:
         if entity.cover_path is not None:
             if entity.cover is None:
                 cover_ext = os.path.splitext(entity.cover_path)[1].decode('utf8')
-                temp_cover = tempfile.mktemp(cover_ext).encode('utf8')
-                temp_cover_large = tempfile.mktemp(cover_ext).encode('utf8')
+                temp_cover = self._mktemp(cover_ext).encode('utf8')
+                temp_cover_large = self._mktemp(cover_ext).encode('utf8')
 
                 cover = image_service.resize(entity.cover_path, temp_cover,
                                              Covers.DEFAULT_WIDTH, Covers.DEFAULT_HEIGHT,
@@ -293,7 +305,7 @@ class Covers:
 
         album_dirs = set()
 
-        temp_image = tempfile.mktemp(image_ext).encode('utf8')
+        temp_image = self._mktemp(image_ext).encode('utf8')
 
         try:
             fp_from = urlopen(image_url)
@@ -331,7 +343,7 @@ class Covers:
 
         offset = self._get_image_offset(width, height, gravity)
 
-        resize_temp_image = tempfile.mktemp(image_ext).encode('utf8')
+        resize_temp_image = self._mktemp(image_ext).encode('utf8')
 
         if not image_service.resize(temp_image, resize_temp_image, width, height, gravity, offset):
             os.remove(temp_image)

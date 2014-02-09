@@ -43,7 +43,7 @@ from opmuse.lastfm import SessionKey, lastfm, LastfmError
 from opmuse.library import (Album, Artist, Track, TrackPath, library_dao,
                             Library as LibraryService, TrackStructureParser)
 from opmuse.security import User, Role, hash_password
-from opmuse.messages import messages
+from opmuse.messages import messages as messages_service
 from opmuse.utils import HTTPRedirect
 from opmuse.search import search
 from opmuse.ws import WsController
@@ -355,7 +355,12 @@ class Upload:
         ext = os.path.splitext(filename)[1].lower()[1:]
         basename = os.path.splitext(filename)[0]
 
-        tempdir = tempfile.mkdtemp()
+        cache_path = os.path.join(cherrypy.config['opmuse'].get('cache.path'), 'upload')
+
+        if not os.path.exists(cache_path):
+            os.mkdir(cache_path)
+
+        tempdir = tempfile.mkdtemp(dir=cache_path)
 
         path = os.path.join(tempdir, filename)
 
@@ -497,7 +502,7 @@ class Settings:
     def default(self):
         user = cherrypy.request.user
 
-        auth_url = authenticated_user = new_auth = None
+        auth_url = new_auth = None
         need_config = False
 
         cache_key = 'settings_lastfm_session_key_%d' % cherrypy.request.user.id
@@ -549,14 +554,14 @@ class Settings:
 
         if mail is not None and user.mail != mail:
             user.mail = mail
-            messages.success('Your mail was changed.')
+            messages_service.success('Your mail was changed.')
 
         if password1 is not None and password2 is not None:
             if password1 != password2:
-                messages.warning('The passwords do not match.')
+                messages_service.warning('The passwords do not match.')
             else:
                 user.password = hash_password(password1, user.salt)
-                messages.success('Your password was changed.')
+                messages_service.success('Your password was changed.')
 
         raise HTTPRedirect('/settings')
 
@@ -1252,17 +1257,17 @@ class AdminUsers:
     @staticmethod
     def _validate_user_params(login = None, mail = None, roles = None, password1 = None, password2 = None):
         if login is None or len(login) < 3:
-            messages.warning('Login must be at least 3 chars.')
+            messages_service.warning('Login must be at least 3 chars.')
             raise cherrypy.HTTPError(status=409)
 
         if mail is None or len(mail) < 3:
-            messages.warning('Mail must be at least 3 chars.')
+            messages_service.warning('Mail must be at least 3 chars.')
             raise cherrypy.HTTPError(status=409)
             return
 
         if password1 is not None and password2 is not None:
             if password1 != password2:
-                messages.warning('The passwords do not match.')
+                messages_service.warning('The passwords do not match.')
                 raise cherrypy.HTTPError(status=409)
 
     @cherrypy.expose
@@ -1315,7 +1320,7 @@ class AdminUsers:
 
         get_database().commit()
 
-        messages.success('User was added.')
+        messages_service.success('User was added.')
 
         raise HTTPRedirect('/admin/users')
 
@@ -1370,7 +1375,7 @@ class AdminUsers:
 
         get_database().commit()
 
-        messages.success('User was edited.')
+        messages_service.success('User was edited.')
 
         raise HTTPRedirect('/admin/users')
 

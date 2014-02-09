@@ -28,7 +28,7 @@ from opmuse.database import Base, get_engine, get_database_name, get_database_ty
 from opmuse.library import TrackPath, Track, Artist, Album
 from opmuse.queues import Queue
 from opmuse.cache import CacheObject
-from opmuse.search import INDEXDIR
+from opmuse.search import search
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
@@ -58,11 +58,14 @@ def command_less():
 
 def command_whoosh(action=None):
     if action == "drop":
-        for file in os.listdir(INDEXDIR):
+        if not os.path.exists(search.index_dir):
+            return
+
+        for file in os.listdir(search.index_dir):
             if file[0:1] == ".":
                 continue
 
-            path = os.path.join(INDEXDIR, file)
+            path = os.path.join(search.index_dir, file)
 
             if os.path.isfile(path):
                 os.unlink(path)

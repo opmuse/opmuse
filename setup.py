@@ -78,6 +78,9 @@ for install_require in parse_requirements('requirements.txt'):
 if not os.path.exists('build'):
     os.mkdir('build')
 
+with open('build/.keep', "w+") as f:
+    pass
+
 shutil.copyfile('config/opmuse.dist.ini', 'build/opmuse.ini')
 
 for line in fileinput.input("build/opmuse.ini", inplace=True):
@@ -107,6 +110,7 @@ setup(
         ]
     },
     data_files=[
+        ('/var/cache/opmuse', ['build/.keep']),
         ('/etc/opmuse', ['build/opmuse.ini']),
         ('/usr/share/opmuse', ['alembic.ini']),
     ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less'], followlinks=True) +

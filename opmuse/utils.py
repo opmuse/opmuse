@@ -50,7 +50,7 @@ class LessReloader(Monitor):
     def start(self):
         Monitor.start(self)
 
-        self.enable = cherrypy.config.get('less_reloader.enable')
+        self.enable = cherrypy.config['opmuse'].get('less_reloader.enable')
 
         if self.enable is None:
             self.enable = True
@@ -107,7 +107,11 @@ def cgitb_log_err():
 def profile_pipeline(app):
     from repoze.profile import ProfileMiddleware
 
-    profile_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'cache', 'profile')
+    cache_path = cherrypy.config['opmuse'].get('cache.path')
+    profile_path = os.path.join(cache_path, 'profile')
+
+    if not os.path.exists(profile_path):
+        os.mkdir(profile_path)
 
     return ProfileMiddleware(
         app,

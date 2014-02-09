@@ -35,10 +35,6 @@ write_handlers = {}
 for index_name in index_names:
     write_handlers[index_name] = None
 
-INDEXDIR = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)),
-    '..', 'cache', 'index'
-)
 
 
 def log(msg):
@@ -89,6 +85,11 @@ class WriteHandler:
 
 
 class Search:
+
+    @property
+    def index_dir(self):
+        cache_path = cherrypy.config['opmuse'].get('cache.path')
+        return os.path.join(cache_path, 'index')
 
     def delete_track(self, track):
         write_handler = write_handlers["Track"]
@@ -231,7 +232,7 @@ class WhooshPlugin(Monitor):
 
     def start(self):
         for index_name in index_names:
-            index_path = os.path.join(INDEXDIR, index_name)
+            index_path = os.path.join(search.index_dir, index_name)
 
             if whoosh.index.exists_in(index_path):
                 index = whoosh.index.open_dir(index_path)

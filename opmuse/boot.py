@@ -18,7 +18,6 @@
 import os
 import logging
 import cherrypy
-import tempfile
 import locale
 from os.path import join, abspath, dirname, exists
 from opmuse.library import LibraryPlugin, LibraryTool
@@ -31,10 +30,6 @@ from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
-
-tempfile.tempdir = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '..', 'cache', 'upload'
-))
 
 
 def configure():
@@ -107,10 +102,15 @@ def configure():
 
     config['error_page.default'] = opmuse.controllers.Root.handle_error
 
+    config['opmuse'] = {}
+    config['opmuse']['cache.path'] = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'cache'))
+
     cherrypy.config.update(config)
 
-    cherrypy._cpconfig.environments['production']['jinja.auto_reload'] = False
-    cherrypy._cpconfig.environments['production']['less_reloader.enable'] = False
+    cherrypy._cpconfig.environments['production']['opmuse'] = {}
+    cherrypy._cpconfig.environments['production']['opmuse']['jinja.auto_reload'] = False
+    cherrypy._cpconfig.environments['production']['opmuse']['less_reloader.enable'] = False
+    cherrypy._cpconfig.environments['production']['opmuse']['cache.path'] = '/var/cache/opmuse'
 
     if 'ssl_server.enabled' in cherrypy.config and cherrypy.config['ssl_server.enabled']:
         socket_host = cherrypy.config['ssl_server.socket_host']
