@@ -20,7 +20,7 @@ import cherrypy
 from cherrypy.process.plugins import Monitor
 import whoosh.index
 import whoosh.fields
-from whoosh.writing import BufferedWriter, IndexingError
+from whoosh.writing import IndexingError
 from whoosh.analysis import (RegexTokenizer, SpaceSeparatedTokenizer,
                              LowercaseFilter, StemFilter, DoubleMetaphoneFilter, IDTokenizer)
 from whoosh.qparser import QueryParser
@@ -34,7 +34,6 @@ write_handlers = {}
 
 for index_name in index_names:
     write_handlers[index_name] = None
-
 
 
 def log(msg):
