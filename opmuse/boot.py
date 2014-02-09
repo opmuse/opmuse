@@ -186,6 +186,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='opmuse')
     parser.add_argument('-d', '--daemon', action='store_true', help='Run as daemon')
+    parser.add_argument('-pf', '--pidfile', action='store', help='Path to pid file.')
     parser.add_argument('-p', '--profile', action='store_true', help='Run repoze.profile, access it at /__profile__')
     parser.add_argument('-l', '--log', action='store', help='Log file location.')
     parser.add_argument('-le', '--errorlog', action='store', help='Log error messages in this separate file.')
@@ -243,6 +244,10 @@ def main():
         from cherrypy.process.plugins import Daemonizer, DropPrivileges
         Daemonizer(cherrypy.engine).subscribe()
         DropPrivileges(cherrypy.engine, uid=args.user, umask=0o022).subscribe()
+
+    if args.pidfile is not None:
+        from cherrypy.process.plugins import PIDFile
+        PIDFile(cherrypy.engine, args.pidfile).subscribe()
 
     if args.profile:
         from opmuse.utils import profile_pipeline
