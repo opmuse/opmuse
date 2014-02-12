@@ -34,3 +34,6 @@
 [submodule "vendor/Effeckt.css"]
 	path = vendor/Effeckt.css
 	url = https://github.com/h5bp/Effeckt.css.git
+[submodule "vendor/r.js"]
+	path = vendor/r.js
+	url = https://github.com/jrburke/r.js.git

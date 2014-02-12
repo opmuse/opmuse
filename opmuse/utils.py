@@ -19,25 +19,8 @@ import os
 import cherrypy
 import json
 import sys
-import subprocess
+from opmuse.less_compiler import less_compiler
 from cherrypy.process.plugins import Monitor
-
-
-class LessCompiler:
-    def __init__(self):
-        self.stylespath = os.path.join(os.path.dirname(__file__), '..', 'public_static', 'styles')
-
-    def compile(self):
-        lesspath = os.path.join(os.path.dirname(__file__), '..', 'vendor', 'less.js')
-
-        subprocess.call([
-            os.path.join(lesspath, 'bin', 'lessc'),
-            os.path.join(self.stylespath, 'main.less'),
-            os.path.join(self.stylespath, 'main.css')
-        ], cwd=self.stylespath)
-
-
-less_compiler = LessCompiler()
 
 
 class LessReloader(Monitor):

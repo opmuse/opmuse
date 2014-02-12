@@ -19,9 +19,17 @@
 
 "use strict";
 
-window.require = {
+var version;
+
+if (typeof opmuseGlobals != 'undefined' && opmuseGlobals !== null) {
+    version = opmuseGlobals.version;
+} else {
+    version = 1;
+}
+
+var require = {
     baseUrl: "/static/scripts/",
-    urlArgs: "version=" + window.opmuseGlobals.version,
+    urlArgs: "version=" + version,
     paths: {
         'jquery.nanoscroller': 'lib/jquery.nanoscroller',
         'jquery.fileupload': 'lib/jquery.fileupload',

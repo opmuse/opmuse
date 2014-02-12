@@ -23,7 +23,7 @@ import shutil
 import fileinput
 from setuptools import setup
 from pip.req import parse_requirements
-from opmuse.utils import less_compiler
+from opmuse.less_compiler import less_compiler
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
@@ -52,7 +52,7 @@ def get_datafiles(src, dest, exclude_exts=[], followlinks=False):
             continue
 
         datafiles.append((
-            os.path.join(dest, os.path.join(*(os.path.split(root)[src_comps - 1:]))),
+            os.path.join(dest, os.path.join(*(root.split('/')[src_comps - 1:]))),
             included_files
         ))
 
@@ -86,7 +86,9 @@ for line in fileinput.input("build/opmuse.ini", inplace=True):
     else:
         sys.stdout.write(line)
 
-less_compiler.compile()
+less_compiler.compile('build/main.css')
+
+subprocess.call(['node', 'vendor/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
 
 setup(
     name="opmuse",
@@ -111,7 +113,12 @@ setup(
         ('/var/log/opmuse', ['log/.keep']),
         ('/etc/opmuse', ['build/opmuse.ini']),
         ('/usr/share/opmuse', ['alembic.ini']),
-    ] + get_datafiles('public_static', '/usr/share/opmuse', exclude_exts=['.less'], followlinks=True) +
+        ('/usr/share/opmuse/public_static/styles', ['build/main.css']),
+        ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'public_static/scripts/init.js']),
+        ('/usr/share/opmuse/public_static/scripts/lib', ['public_static/scripts/lib/require.js']),
+    ] + get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
+        get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
+        get_datafiles('public_static/styles/lib', '/usr/share/opmuse/public_static/styles') +
         get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
         get_datafiles('build/templates', '/usr/share/opmuse'),
     classifiers=[
