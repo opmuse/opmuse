@@ -118,7 +118,7 @@ setup(
         ('/usr/share/opmuse/public_static/scripts/lib', ['public_static/scripts/lib/require.js']),
     ] + get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
         get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
-        get_datafiles('public_static/styles/lib', '/usr/share/opmuse/public_static/styles') +
+        get_datafiles('public_static/styles/lib', '/usr/share/opmuse/public_static/') +
         get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
         get_datafiles('build/templates', '/usr/share/opmuse'),
     classifiers=[
