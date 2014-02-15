@@ -21,6 +21,7 @@ import re
 import subprocess
 import shutil
 import fileinput
+from itertools import chain
 from setuptools import setup
 from pip.req import parse_requirements
 from opmuse.less_compiler import less_compiler
@@ -65,13 +66,15 @@ if not os.path.exists("build/templates"):
 
 
 install_requires = []
-dependency_links = []
 
-for install_require in parse_requirements('requirements.txt'):
+for install_require in chain(parse_requirements('requirements.txt'), parse_requirements('mysql-requirements.txt')):
     if install_require.req is not None:
         install_requires.append(str(install_require.req))
     elif install_require.url is not None:
-        dependency_links.append(git_url % re.sub(r'^file://%s/' % project_root, '', install_require.url))
+        if install_require.url[-23:] == "vendor/oursql-0.9.4.zip":
+            install_requires.append("oursql==0.9.4")
+        else:
+            raise Exception("Don't know how to parse %s" % install_require.url)
     else:
         raise Exception("Couldn't parse requirement from requirements.txt")
 
@@ -111,7 +114,6 @@ setup(
     url="http://opmu.se/",
     license="AGPLv3+",
     install_requires=install_requires,
-    dependency_links=dependency_links,
     entry_points={
         'console_scripts': [
             'opmuse-console = opmuse.commands:main',

@@ -2,7 +2,7 @@
 
 . /etc/dbconfig-common/opmuse.conf
 
-if [ $dbc_dbserver = '' ]; then
+if [ "$dbc_dbserver" = '' ] ; then
     dbc_dbserver='localhost'
 fi
 

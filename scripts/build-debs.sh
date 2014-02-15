@@ -1,5 +1,12 @@
 #!/bin/zsh
 
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $(basename $0) repo"
+    exit 1
+fi
+
+repo=$1
+
 function build_git() {
     rm -rf $1
     git clone -b $2 $3
@@ -9,15 +16,38 @@ function build_git() {
         sed -i 's/tag_build\s*=[^=]*/tag_build=/' $1/setup.cfg
     fi
 
-    ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master $1/setup.py $1 none none none none none none none none
+    ./scripts/build-python-deb.sh $repo master $1/setup.py $1 none none none none none none none none
 }
 
-reprepro -b /var/www/apt.opmu.se/apt/debian/ deleteunreferenced
+reprepro -b $repo deleteunreferenced
 
 # build deb packages from requirements.txt except the broken ones, they're
 # built further down...
-grep -iEv "repoze\.who|jinja2|alembic|zope\.interface|mako|^#" requirements.txt | while read -A req; do
-    ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master none $req[1] $req[2] none none none none none none none
+grep -iEv "repoze\.who|jinja2|alembic|zope\.interface|mako|^#" requirements.txt mysql-requirements.txt | \
+while read -A req; do
+    if [[ -f $req[1] ]]; then
+        if [[ $req[1] =~ "\.zip$" ]]; then
+            dir=${req[1]/\//_}
+
+            if [[ -d $dir ]]; then
+                rm -rf $dir
+            fi
+
+            unzip $req[1] -d $dir
+
+            if [[ -f $dir/**/setup.py ]]; then
+                ./scripts/build-python-deb.sh $repo master $dir/**/setup.py none none none none none none none none none
+            else
+                echo "Couldn't find setup.py for $req"
+                exit 1
+            fi
+        else
+            echo "Don't know how to build $req"
+            exit 1
+        fi
+    else
+        ./scripts/build-python-deb.sh $repo master none $req[1] $req[2] none none none none none none none
+    fi
 done
 
 # these packages pypi builds are broken but building from git works, so let's
@@ -29,8 +59,7 @@ build_git zope.interface 4.0.5 https://github.com/zopefoundation/zope.interface.
 build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
 
 # build opmuse deb package
-./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master setup.py opmuse none \
-    scripts/debian-before-install.sh scripts/debian-after-install.sh \
-    python3.3,ffmpeg,imagemagick,unrar,mysql-server,debconf,dbconfig-common /etc/opmuse/opmuse.ini \
-    scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf --no-prefix
+./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
+    scripts/debian-after-install.sh python3.3,ffmpeg,imagemagick,unrar,mysql-server,debconf,dbconfig-common \
+    /etc/opmuse/opmuse.ini scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf --no-prefix
 
