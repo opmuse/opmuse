@@ -9,7 +9,7 @@ function build_git() {
         sed -i 's/tag_build\s*=[^=]*/tag_build=/' $1/setup.cfg
     fi
 
-    ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master $1/setup.py $1 none none none none none none none
+    ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master $1/setup.py $1 none none none none none none none none
 }
 
 reprepro -b /var/www/apt.opmu.se/apt/debian/ deleteunreferenced
@@ -17,7 +17,7 @@ reprepro -b /var/www/apt.opmu.se/apt/debian/ deleteunreferenced
 # build deb packages from requirements.txt except the broken ones, they're
 # built further down...
 grep -iEv "repoze\.who|jinja2|alembic|zope\.interface|mako|^#" requirements.txt | while read -A req; do
-    ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master none $req[1] $req[2] none none none none none none
+    ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master none $req[1] $req[2] none none none none none none none
 done
 
 # these packages pypi builds are broken but building from git works, so let's
@@ -30,6 +30,7 @@ build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master setup.py opmuse none \
-    scripts/debian-before-install.sh scripts/debian-after-install.sh python3.3,ffmpeg,imagemagick,unrar,debconf \
-    /etc/opmuse/opmuse.ini scripts/debian-init/opmuse scripts/debian-default/opmuse --no-prefix
+    scripts/debian-before-install.sh scripts/debian-after-install.sh \
+    python3.3,ffmpeg,imagemagick,unrar,debconf,dbconfig-common /etc/opmuse/opmuse.ini \
+    scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf --no-prefix
 

@@ -1,8 +1,9 @@
 #!/bin/zsh
 
-if [[ $# -ne 11 && $# -ne 12 ]]; then
+if [[ $# -ne 12 && $# -ne 13 ]]; then
     echo -n "Usage: $(basename $0) repo dist package_file package_name package_version "
-    echo "package_before package_after package_deps package_confs package_init package_default [--no-prefix]"
+    echo -n "package_before package_after package_deps package_confs package_init "
+    echo "package_default package_debconf [--no-prefix]"
     exit 1
 fi
 
@@ -21,8 +22,9 @@ package_deps=$8
 package_confs=$9
 package_init=$10
 package_default=$11
+package_debconf=$12
 
-if [[ $12 == "--no-prefix" ]]; then
+if [[ $13 == "--no-prefix" ]]; then
     prefix=0
 else
     prefix=1
@@ -86,6 +88,12 @@ fi
 if [[ $package_default != "none" ]]; then
     args+=(
         --deb-default $package_default
+    )
+fi
+
+if [[ $package_debconf != "none" ]]; then
+    args+=(
+        --deb-config $package_debconf
     )
 fi
 
