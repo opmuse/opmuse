@@ -11,10 +11,6 @@ chown $USER $LOGDIR $CACHEDIR
 . /usr/share/debconf/confmodule
 . /usr/share/dbconfig-common/dpkg/postinst.mysql
 
-dbc_generate_include_owner="opmuse"
-dbc_generate_include_perms="0640"
-dbc_generate_include=template:/etc/opmuse/dbconfig.conf
-
 if ! dbc_go opmuse $@ ; then
     echo 'Automatic configuration using dbconfig-common failed!'
 fi

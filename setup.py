@@ -90,6 +90,16 @@ less_compiler.compile('build/main.css')
 
 subprocess.call(['node', 'vendor/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
 
+if not os.path.exists('build/debian-dbconfig-install'):
+    os.mkdir('build/debian-dbconfig-install')
+
+shutil.copyfile('scripts/debian-dbconfig-install-mysql', 'build/debian-dbconfig-install/mysql')
+
+if not os.path.exists('build/debian-dbconfig-upgrade-mysql'):
+    os.mkdir('build/debian-dbconfig-upgrade-mysql')
+
+shutil.copyfile('scripts/debian-dbconfig-upgrade-mysql', 'build/debian-dbconfig-upgrade-mysql/all')
+
 setup(
     name="opmuse",
     version=git_version,
@@ -109,6 +119,10 @@ setup(
         ]
     },
     data_files=[
+        # debian specific
+        ('/usr/share/dbconfig-common/scripts/opmuse/install/', ['build/debian-dbconfig-install/mysql']),
+        ('/usr/share/dbconfig-common/scripts/opmuse/upgrade/mysql/', ['build/debian-dbconfig-upgrade-mysql/all']),
+        # global
         ('/var/cache/opmuse', ['cache/.keep']),
         ('/var/log/opmuse', ['log/.keep']),
         ('/etc/opmuse', ['build/opmuse.ini']),

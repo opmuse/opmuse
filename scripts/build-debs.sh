@@ -31,6 +31,6 @@ build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
 # build opmuse deb package
 ./scripts/build-python-deb.sh /var/www/apt.opmu.se/apt/debian master setup.py opmuse none \
     scripts/debian-before-install.sh scripts/debian-after-install.sh \
-    python3.3,ffmpeg,imagemagick,unrar,debconf,dbconfig-common /etc/opmuse/opmuse.ini \
+    python3.3,ffmpeg,imagemagick,unrar,mysql-server,debconf,dbconfig-common /etc/opmuse/opmuse.ini \
     scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf --no-prefix
 

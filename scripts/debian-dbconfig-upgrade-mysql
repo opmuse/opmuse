@@ -1,0 +1,3 @@
+#!/bin/sh
+
+opmuse-console database update

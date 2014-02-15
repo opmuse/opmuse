@@ -101,7 +101,7 @@ def command_database(action=None):
         if database_type == "mysql":
             try:
                 engine = get_engine(no_database=True)
-                engine.execute("CREATE DATABASE %s" % get_database_name())
+                engine.execute("CREATE DATABASE IF NOT EXISTS %s" % get_database_name())
             except ProgrammingError as e:
                 parser.error('Error occured while creating database: %s' % e)
 
