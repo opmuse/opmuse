@@ -35,7 +35,7 @@ while read -A req; do
 
             unzip $req[1] -d $dir
 
-            if [[ -f $dir/**/setup.py ]]; then
+            if [[ -f $(print $dir/**/setup.py) ]]; then
                 ./scripts/build-python-deb.sh $repo master $dir/**/setup.py none none none none none none none none none
             else
                 echo "Couldn't find setup.py for $req"
