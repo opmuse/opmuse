@@ -30,6 +30,12 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 
+
+def copy(src, dst):
+    shutil.copyfile(src, dst)
+    shutil.copymode(src, dst)
+
+
 def get_datafiles(src, dest, exclude_exts=[], followlinks=False):
     datafiles = []
 
@@ -81,7 +87,7 @@ for install_require in chain(parse_requirements('requirements.txt'), parse_requi
 if not os.path.exists('build'):
     os.mkdir('build')
 
-shutil.copyfile('config/opmuse.dist.ini', 'build/opmuse.ini')
+copy('config/opmuse.dist.ini', 'build/opmuse.ini')
 
 for line in fileinput.input("build/opmuse.ini", inplace=True):
     if re.match(r'environment\s*=', line):
@@ -96,12 +102,12 @@ subprocess.call(['node', 'vendor/r.js/dist/r.js', '-o', 'scripts/build-requirejs
 if not os.path.exists('build/debian-dbconfig-install'):
     os.mkdir('build/debian-dbconfig-install')
 
-shutil.copyfile('scripts/debian-dbconfig-install-mysql', 'build/debian-dbconfig-install/mysql')
+copy('scripts/debian-dbconfig-install-mysql', 'build/debian-dbconfig-install/mysql')
 
 if not os.path.exists('build/debian-dbconfig-upgrade-mysql'):
     os.mkdir('build/debian-dbconfig-upgrade-mysql')
 
-shutil.copyfile('scripts/debian-dbconfig-upgrade-mysql', 'build/debian-dbconfig-upgrade-mysql/all')
+copy('scripts/debian-dbconfig-upgrade-mysql', 'build/debian-dbconfig-upgrade-mysql/all')
 
 setup(
     name="opmuse",
