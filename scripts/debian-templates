@@ -1,0 +1,20 @@
+Template: opmuse/library_path
+Type: string
+Default: /var/cache/opmuse/music
+Description: Where will you store your music and/or where do you have your music today?
+
+Template: opmuse/library_path_perms
+Type: boolean
+Description: Should we automatically fix the permissions of the specified path?
+ For upload, cover download and other features to work opmuse needs write
+ permission to the library path. Should we automatically fix this now?
+
+Template: opmuse/socket_host
+Type: string
+Default: 0.0.0.0
+Description: On which address should opmuse run?
+
+Template: opmuse/socket_port
+Type: string
+Default: 8080
+Description: On which port should opmuse run?

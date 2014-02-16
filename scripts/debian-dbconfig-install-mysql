@@ -8,6 +8,6 @@ fi
 
 dsn="mysql+oursql:\/\/$dbc_dbuser:$dbc_dbpass@$dbc_dbserver\/$dbc_dbname"
 
-sed -i "s/^[ ]*database\.url[^=]*=.*/database.url = '$dsn'/" /etc/opmuse/opmuse.ini
+sed -i "s/^[ ]*\(database\.url[^=]*=\).*/\1 '$dsn'/" /etc/opmuse/opmuse.ini
 
 opmuse-console database create
