@@ -40,6 +40,9 @@ if [ "$library_path_perms" = "true" ]; then
     chown -R $USER $library_path
 fi
 
+# escape forward slash
+library_path=$(echo $library_path | sed 's/[\/&]/\\&/g')
+
 sed -i "s/^[ ]*\(library\.path[^=]*=\).*/\1 '$library_path'/" /etc/opmuse/opmuse.ini
 sed -i "s/^[#]*\(server\.socket_host[^=]*=\).*/\1 '$socket_host'/" /etc/opmuse/opmuse.ini
 sed -i "s/^[#]*\(server\.socket_port[^=]*=\).*/\1 '$socket_port'/" /etc/opmuse/opmuse.ini
