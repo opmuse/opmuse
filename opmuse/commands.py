@@ -172,7 +172,7 @@ def command_user(action=None, *args):
             database.add(user)
 
             if role is not None:
-                role = database.query(Role).filter(Role.name==role).one()
+                role = database.query(Role).filter(Role.name == role).one()
                 role.users.append(user)
 
             database.commit()
