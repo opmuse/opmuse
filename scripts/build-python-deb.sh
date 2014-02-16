@@ -1,9 +1,9 @@
 #!/bin/zsh
 
-if [[ $# -ne 13 && $# -ne 14 ]]; then
+if [[ $# -ne 15 && $# -ne 16 ]]; then
     echo -n "Usage: $(basename $0) repo dist package_file package_name package_version "
-    echo -n "package_before package_after package_deps package_confs package_init "
-    echo "package_default package_debconf package_templates [--no-prefix]"
+    echo -n "package_before package_after package_deps package_confs package_init package_default "
+    echo "package_debconf package_templates package_before_remove package_after_remove [--no-prefix]"
     exit 1
 fi
 
@@ -24,8 +24,10 @@ package_init=$10
 package_default=$11
 package_debconf=$12
 package_templates=$13
+package_before_remove=$14
+package_after_remove=$15
 
-if [[ $14 == "--no-prefix" ]]; then
+if [[ $16 == "--no-prefix" ]]; then
     prefix=0
 else
     prefix=1
@@ -101,6 +103,18 @@ fi
 if [[ $package_templates != "none" ]]; then
     args+=(
         --deb-templates $package_templates
+    )
+fi
+
+if [[ $package_before_remove != "none" ]]; then
+    args+=(
+        --before-remove $package_before_remove
+    )
+fi
+
+if [[ $package_after_remove != "none" ]]; then
+    args+=(
+        --after-remove $package_after_remove
     )
 fi
 
