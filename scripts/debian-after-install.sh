@@ -15,4 +15,23 @@ if ! dbc_go opmuse $@ ; then
     echo 'Automatic configuration using dbconfig-common failed!'
 fi
 
+if [ "$1" = "configure" ]; then
+    db_version 2.0
+
+    # only on a new install
+    if [ "$2" = "" ]; then
+        db_get opmuse/user_name
+        user_name=$RET
+
+        db_get opmuse/user_mail
+        user_mail=$RET
+
+        db_get opmuse/user_pass
+        user_pass=$RET
+
+        opmuse-console user add_role admin
+        opmuse-console user add "$user_name" "$user_pass" "$user_mail" admin
+    fi
+fi
+
 /etc/init.d/opmuse start

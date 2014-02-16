@@ -14,7 +14,16 @@ fi
 db_version 2.0
 
 db_input critical opmuse/library_path || true
+db_go
+
 db_input critical opmuse/library_path_perms || true
+db_go
+
+db_input critical opmuse/user_name || true
+db_input critical opmuse/user_mail || true
+db_input critical opmuse/user_pass || true
+db_go
+
 db_input high opmuse/socket_host || true
 db_input high opmuse/socket_port || true
 db_go

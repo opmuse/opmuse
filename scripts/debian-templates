@@ -18,3 +18,12 @@ Template: opmuse/socket_port
 Type: string
 Default: 8080
 Description: On which port should opmuse run?
+
+Template: opmuse/user_name
+Type: string
+Default: admin
+Description: You need to add a default user, what should its login be?
+
+Template: opmuse/user_pass
+Type: password
+Description: Provide a password for the user.
