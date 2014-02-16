@@ -20,12 +20,15 @@ import shutil
 import argparse
 import subprocess
 import sys
+import string
+import random
 from sqlalchemy.exc import ProgrammingError
 from alembic.config import Config
 from alembic import command
 from opmuse.boot import configure
-from opmuse.database import Base, get_engine, get_database_name, get_database_type
+from opmuse.database import Base, get_engine, get_database_name, get_database_type, get_raw_session
 from opmuse.library import TrackPath, Track, Artist, Album
+from opmuse.security import User, Role, hash_password
 from opmuse.queues import Queue
 from opmuse.cache import CacheObject
 from opmuse.search import search
@@ -136,8 +139,52 @@ def command_database(action=None):
         parser.error('Needs to provide a valid action (create, update, drop, fixtures, reset).')
 
 
+def command_user(action=None, *args):
+    if action == "add_role":
+        if len(args) >= 1:
+            name = args[0]
+
+            database = get_raw_session()
+
+            role = Role(name)
+
+            database.add(role)
+            database.commit()
+        else:
+            parser.error('Needs to provide a name.')
+    elif action == "add":
+        if len(args) >= 3:
+            login = args[0]
+            password = args[1]
+            mail = args[2]
+
+            if len(args) >= 4:
+                role = args[3]
+            else:
+                role = None
+
+            database = get_raw_session()
+
+            salt = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
+
+            user = User(login, hash_password(password, salt), mail, salt)
+
+            database.add(user)
+
+            if role is not None:
+                role = database.query(Role).filter(Role.name==role).one()
+                role.users.append(user)
+
+            database.commit()
+        else:
+            parser.error('Needs to provide a login, password, mail and optionally role.')
+    else:
+        parser.error('Needs to provide a valid action (add, add_role).')
+
+
 def main():
-    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less', 'jinja'), help='Command to run.')
+    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less', 'jinja', 'user'),
+                        help='Command to run.')
     parser.add_argument('additional', nargs='*', help='Additional arguments.')
 
     args = parser.parse_args()
