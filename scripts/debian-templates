@@ -24,6 +24,11 @@ Type: string
 Default: admin
 Description: You need to add a default user, what should its login be?
 
+Template: opmuse/user_mail
+Type: string
+Default: user@example.com
+Description: Provide a mail address for the user.
+
 Template: opmuse/user_pass
 Type: password
 Description: Provide a password for the user.
