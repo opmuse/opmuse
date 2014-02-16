@@ -13,8 +13,8 @@ fi
 
 db_version 2.0
 
-db_input high opmuse/library_path || true
-db_input medium opmuse/library_path_perms || true
+db_input critical opmuse/library_path || true
+db_input critical opmuse/library_path_perms || true
 db_input high opmuse/socket_host || true
 db_input high opmuse/socket_port || true
 db_go
@@ -45,4 +45,4 @@ library_path=$(echo $library_path | sed 's/[\/&]/\\&/g')
 
 sed -i "s/^[ ]*\(library\.path[^=]*=\).*/\1 '$library_path'/" /etc/opmuse/opmuse.ini
 sed -i "s/^[#]*\(server\.socket_host[^=]*=\).*/\1 '$socket_host'/" /etc/opmuse/opmuse.ini
-sed -i "s/^[#]*\(server\.socket_port[^=]*=\).*/\1 '$socket_port'/" /etc/opmuse/opmuse.ini
+sed -i "s/^[#]*\(server\.socket_port[^=]*=\).*/\1 $socket_port/" /etc/opmuse/opmuse.ini
