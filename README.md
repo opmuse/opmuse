@@ -12,6 +12,8 @@ The only way we distribute right now is through our Apt repository. If you're
 not running a Debian based distribution you'll have to set up everything
 yourself. Take a look at *Developing* for some help with that.
 
+Also note that we only support MySQL in the package right now. If you want SQLite support you'll have to look at *Developing*.
+
 We've tested this with Debian Jessie. But other Debian based distros (Ubuntu
 etc) should work too as long as they have all the dependencies we don't already
 provide ourselves through our Apt repository.
@@ -25,13 +27,15 @@ Add the key and the repository.
     $ echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
     $ apt-get update
 
-##### Additional Requirements for Debian Jessie
+#### for Debian Jessie
 
 The deb-multimedia repo is required for ffmpeg.
 
-    $ apt-get install deb-multimedia-keyring
     $ echo "deb http://www.deb-multimedia.org jessie main non-free" > /etc/apt/sources.list.d/deb-multimedia.list
     $ apt-get update
+    $ apt-get install deb-multimedia-keyring
+
+Also, you need to add non-free for unrar.
 
 #### Install opmuse
 
