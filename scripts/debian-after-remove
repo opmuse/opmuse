@@ -2,5 +2,14 @@
 
 if [ "$1" = "purge" -a -e /usr/share/debconf/confmodule ]; then
     . /usr/share/debconf/confmodule
+
+    if [ -f /usr/share/dbconfig-common/dpkg/postrm.mysql ]; then
+        . /usr/share/dbconfig-common/dpkg/postrm.mysql
+
+        if ! dbc_go phpmyadmin $@ ; then
+            echo 'Automatic configuration using dbconfig-common failed!'
+        fi
+    fi
+
     db_purge
 fi

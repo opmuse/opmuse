@@ -1,3 +1,10 @@
 #!/bin/sh
 
+. /usr/share/debconf/confmodule
+. /usr/share/dbconfig-common/dpkg/prerm.mysql
+
+if ! dbc_go phpmyadmin $@ ; then
+    echo 'Automatic configuration using dbconfig-common failed!'
+fi
+
 /etc/init.d/opmuse stop
