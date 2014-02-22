@@ -36,3 +36,5 @@ fi
 
 update-rc.d opmuse defaults
 invoke-rc.d opmuse start
+
+db_stop
