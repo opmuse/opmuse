@@ -22,6 +22,7 @@ import subprocess
 import sys
 import string
 import random
+import cherrypy
 from sqlalchemy.exc import ProgrammingError
 from alembic.config import Config
 from alembic import command
@@ -190,6 +191,13 @@ def main():
     args = parser.parse_args()
 
     configure()
+
+    cmd = os.path.basename(sys.argv[0])
+
+    if cmd == "opmuse-console":
+        cherrypy.config.update({
+            'environment': 'production'
+        })
 
     globals()["command_%s" % args.command](*args.additional)
 
