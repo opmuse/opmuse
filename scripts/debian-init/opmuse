@@ -47,7 +47,7 @@ case $1 in
     start)
         log_daemon_msg "Starting opmuse" "opmuse"
 
-        if kill -0 $(cat $PIDFILE) > /dev/null 2>&1; then
+        if [ -f $PIDFILE ] && kill -0 $(cat $PIDFILE) > /dev/null 2>&1; then
             log_progress_msg "already running"
         else
             start
