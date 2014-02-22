@@ -44,6 +44,8 @@ class LessReloader(Monitor):
         less_compiler.compile()
         cherrypy.log('compiled main.css')
 
+    start.priority = 80
+
     def run(self):
         if not self.enable:
             return

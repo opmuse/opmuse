@@ -141,6 +141,7 @@ def configure():
         ssl_server.ssl_certificate_chain = ssl_certificate_chain
         ssl_server.subscribe()
 
+    WebSocketPlugin.start.priority = 80
     WebSocketPlugin(cherrypy.engine).subscribe()
 
     LessReloader(cherrypy.engine).subscribe()
