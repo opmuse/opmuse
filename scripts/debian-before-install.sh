@@ -1,6 +1,4 @@
 #!/bin/sh
 
-if [ -x /etc/init.d/opmuse ]; then
-    /etc/init.d/opmuse stop
-fi
+invoke-rc.d opmuse stop 2> /dev/null || true
 

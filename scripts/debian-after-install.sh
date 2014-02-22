@@ -34,4 +34,5 @@ if [ "$1" = "configure" ]; then
     fi
 fi
 
-/etc/init.d/opmuse start
+update-rc.d opmuse defaults
+invoke-rc.d opmuse start

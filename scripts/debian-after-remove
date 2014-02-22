@@ -12,4 +12,6 @@ if [ "$1" = "purge" -a -e /usr/share/debconf/confmodule ]; then
     fi
 
     db_purge
+
+    update-rc.d opmuse remove
 fi
