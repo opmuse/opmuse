@@ -24,7 +24,7 @@ waitpid() {
 waitkill() {
     if [ -f $1 ]; then
         PID=$(cat $1)
-        kill $PID
+        kill $PID 2> /dev/null || true
         waitpid $PID
     fi
 }
