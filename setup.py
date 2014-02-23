@@ -20,6 +20,8 @@ import os.path
 import re
 import subprocess
 import shutil
+import fileinput
+from configparser import ConfigParser
 from itertools import chain
 from setuptools import setup
 from pip.req import parse_requirements
@@ -83,24 +85,42 @@ for install_require in chain(parse_requirements('requirements.txt'), parse_requi
     else:
         raise Exception("Couldn't parse requirement from requirements.txt")
 
-if not os.path.exists('build'):
-    os.mkdir('build')
 
-copy('config/opmuse.dist.ini', 'build/opmuse.ini')
+def build():
+    config = ConfigParser()
+    config.read('setup.cfg')
 
-less_compiler.compile('build/main.css')
+    if not os.path.exists('build'):
+        os.mkdir('build')
 
-subprocess.call(['node', 'vendor/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
+    copy('config/opmuse.dist.ini', 'build/opmuse.ini')
 
-if not os.path.exists('build/debian-dbconfig-install'):
-    os.mkdir('build/debian-dbconfig-install')
+    for line in fileinput.input("build/opmuse.ini", inplace=True):
+        if re.match(r'[#]*lastfm\.key\s*=', line):
+            sys.stdout.write("lastfm.key = '%s'\n" % config['global']['lastfm.key'])
+        elif re.match(r'[#]*lastfm\.secret\s*=', line):
+            sys.stdout.write("lastfm.secret = '%s'\n" % config['global']['lastfm.secret'])
+        else:
+            sys.stdout.write(line)
 
-copy('scripts/debian-dbconfig-install-mysql', 'build/debian-dbconfig-install/mysql')
+    less_compiler.compile('build/main.css')
 
-if not os.path.exists('build/debian-dbconfig-upgrade-mysql'):
-    os.mkdir('build/debian-dbconfig-upgrade-mysql')
+    subprocess.call(['node', 'vendor/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
 
-copy('scripts/debian-dbconfig-upgrade-mysql', 'build/debian-dbconfig-upgrade-mysql/all')
+    if not os.path.exists('build/debian-dbconfig-install'):
+        os.mkdir('build/debian-dbconfig-install')
+
+    copy('scripts/debian-dbconfig-install-mysql', 'build/debian-dbconfig-install/mysql')
+
+    if not os.path.exists('build/debian-dbconfig-upgrade-mysql'):
+        os.mkdir('build/debian-dbconfig-upgrade-mysql')
+
+    copy('scripts/debian-dbconfig-upgrade-mysql', 'build/debian-dbconfig-upgrade-mysql/all')
+
+
+if len(sys.argv) == 1 or sys.argv[1] != 'setopt':
+    build()
+
 
 setup(
     name="opmuse",

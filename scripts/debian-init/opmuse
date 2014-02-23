@@ -68,6 +68,7 @@ case $1 in
     restart)
         log_daemon_msg "Stopping opmuse" "opmuse"
         stop
+        log_end_msg 0
         log_daemon_msg "Starting opmuse" "opmuse"
         start
         log_end_msg 0
