@@ -6,17 +6,14 @@ A web application to play, organize and share your music library.
 
 ### Using
 
-**This whole section is under development and will not work as advertised!**
+The only way we distribute right now is through our Apt repository. If this
+isn't an option for you you'll have to set up everything yourself. Take a look
+at *Developing* for some help with that. Also note that we only support MySQL in
+the package right now. If you want SQLite support you'll also have to look at
+*Developing*.
 
-The only way we distribute right now is through our Apt repository. If you're
-not running a Debian based distribution you'll have to set up everything
-yourself. Take a look at *Developing* for some help with that.
-
-Also note that we only support MySQL in the package right now. If you want SQLite support you'll have to look at *Developing*.
-
-We've tested this with Debian Jessie. But other Debian based distros (Ubuntu
-etc) should work too as long as they have all the dependencies we don't already
-provide ourselves through our Apt repository.
+We've only tested this with **Debian Jessie**. For other Debian based distros
+you're on your own.
 
 #### Add Apt Repository
 
@@ -27,15 +24,13 @@ Add the key and the repository.
     $ echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
     $ apt-get update
 
-#### for Debian Jessie
-
 The deb-multimedia repo is required for ffmpeg.
 
     $ echo "deb http://www.deb-multimedia.org jessie main non-free" > /etc/apt/sources.list.d/deb-multimedia.list
     $ apt-get update
     $ apt-get install deb-multimedia-keyring
 
-Also, you need to add non-free for unrar.
+Also, you need to add the non-free component in /etc/apt/sources.list for unrar.
 
 #### Install opmuse
 
