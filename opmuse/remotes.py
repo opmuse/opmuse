@@ -16,6 +16,7 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 import cherrypy
+from sqlalchemy.orm.exc import NoResultFound
 from opmuse.cache import cache
 from opmuse.wikipedia import wikipedia
 from opmuse.lastfm import lastfm
@@ -81,7 +82,12 @@ class Remotes:
     def _fetch_track(self, id):
         key = Remotes.TRACK_KEY_FORMAT % id
 
-        track_entity = get_database().query(Track).filter(Track.id == id).one()
+        try:
+            track_entity = get_database().query(Track).filter(Track.id == id).one()
+        except NoResultFound:
+            # track was probably removed, edited and therefor recreated. either
+            # way we just ignore it in either which case
+            return
 
         album_name = track_entity.album.name if track_entity.album is not None else None
         artist_name = track_entity.artist.name if track_entity.artist is not None else None
