@@ -3,7 +3,19 @@ What is opmuse?
 
 <img align="right" src="https://github.com/opmuse/opmuse/raw/master/assets/opossum-readme.png" />
 
-A web application to play, organize and share your music library.
+opmuse is a web application to play, organize and share your music library.
+
+Our doctrine is that we don't exclusively store metdata about you library. We
+never generate data exclusively in opmuse. We trust the data provided for us. We
+care about structure.
+
+What this means is that artist, album and title are always stored as tags on the
+file (id3 or otherwise), album covers are stored in the album folder. We submit
+a users played tracks to last.fm. Names are always case-sensitive, we don't try
+to be smart and remove leading spaces or anything, if your collection isn't
+tagged correctly it will be presented as such. We have a configurable structure
+and if a files location doesn't correspond to its tags we mark it as invalid and
+provide facilities for fixing this.
 
 Using
 -----
@@ -106,25 +118,6 @@ When you do a git pull some of these might be required.
 
     $ ./console database reset # will initiate rescan, might not be required
     $ ./console database update
-
-Our Doctrine
-------------
-
-  - We don't exclusively store metadata about your library.
-
-    i.e. artist, album, title are always stored as actual tags on the file. Album covers are stored on the filesystem etc.
-
-  - Data generated exclusively in opmuse is worthless.
-
-    i.e. A users played tracks are submitted to last.fm
-
-  - We trust the data provided to us.
-
-    i.e. Names are always case-sensitive. We don't try to be smart and remove leading spaces or anything, if your collection isn't tagged and organized correctly it will be presented as such.
-
-  - We care about structure.
-
-    i.e. If a file's location doesn't correspond to its tags we mark it as invalid and provide facilities for fixing this.
 
 Here's opmuse
 -------------
