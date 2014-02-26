@@ -29,7 +29,7 @@ the package right now. If you want SQLite support you'll also have to look at
 We've only tested this with **Debian Jessie** and **Ubuntu Saucy**. For other
 Debian based distros you're on your own.
 
-### Add Apt Repository
+### Add repo
 
 Add the key and the repository.
 
@@ -38,7 +38,7 @@ Add the key and the repository.
     $ echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
     $ apt-get update
 
-### For Debian Jessie
+#### For Debian Jessie
 
 The deb-multimedia repo is required for ffmpeg.
 
@@ -48,7 +48,7 @@ The deb-multimedia repo is required for ffmpeg.
 
 Also, you need to add the non-free component in /etc/apt/sources.list for unrar.
 
-### For Ubuntu Saucy
+#### For Ubuntu Saucy
 
 No additional actions required.
 
@@ -57,6 +57,11 @@ No additional actions required.
 Finally, install opmuse
 
     $ apt-get install opmuse
+
+This is opmuse
+--------------
+
+![A screenshot](https://github.com/opmuse/opmuse/raw/master/screen1.png)
 
 Developing
 ----------
@@ -118,10 +123,3 @@ When you do a git pull some of these might be required.
 
     $ ./console database reset # will initiate rescan, might not be required
     $ ./console database update
-
-Here's opmuse
--------------
-
-This is a taste of what it looks like, hopefully it's not too outdated at time of viewing.
-
-![A screenshot.](https://github.com/opmuse/opmuse/raw/master/screen1.png)
