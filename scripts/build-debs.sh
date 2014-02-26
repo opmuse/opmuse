@@ -58,7 +58,9 @@ build_git repoze.who 2.2 https://github.com/repoze/repoze.who.git
 build_git jinja2 2.7.2 https://github.com/mitsuhiko/jinja2.git
 build_git alembic rel_0_6_2 https://bitbucket.org/zzzeek/alembic.git
 build_git zope.interface 4.0.5 https://github.com/zopefoundation/zope.interface.git
-build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
+
+# don't build and always use the distributions version
+#build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
