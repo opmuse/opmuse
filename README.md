@@ -1,10 +1,12 @@
-### What is opmuse?
+What is opmuse?
+---------------
 
 <img align="right" src="https://github.com/opmuse/opmuse/raw/master/assets/opossum-readme.png" />
 
 A web application to play, organize and share your music library.
 
-### Using
+Using
+-----
 
 The only way we distribute right now is through our Apt repository. If this
 isn't an option for you you'll have to set up everything yourself. Take a look
@@ -12,10 +14,10 @@ at *Developing* for some help with that. Also note that we only support MySQL in
 the package right now. If you want SQLite support you'll also have to look at
 *Developing*.
 
-We've only tested this with **Debian Jessie**. For other Debian based distros
-you're on your own.
+We've only tested this with **Debian Jessie** and **Ubuntu Saucy**. For other
+Debian based distros you're on your own.
 
-#### Add Apt Repository
+### Add Apt Repository
 
 Add the key and the repository.
 
@@ -23,6 +25,8 @@ Add the key and the repository.
     $ apt-key add opmuse.pub
     $ echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
     $ apt-get update
+
+### For Debian Jessie
 
 The deb-multimedia repo is required for ffmpeg.
 
@@ -32,22 +36,27 @@ The deb-multimedia repo is required for ffmpeg.
 
 Also, you need to add the non-free component in /etc/apt/sources.list for unrar.
 
-#### Install opmuse
+### For Ubuntu Saucy
 
-Install opmuse
+No additional actions required.
+
+### Install opmuse
+
+Finally, install opmuse
 
     $ apt-get install opmuse
 
-### Developing
+Developing
+----------
 
-#### Requirements
+### Requirements
 
 You need **python 3.3**, **ffmpeg**, **ImageMagick**, **nodejs** (for less.js)
 and a Linux environment. This has only been tested on Debian and Exherbo but
 most other Linux distros should do as well as other similar \*nix OSes. If
 you're on Windows you're on your own.
 
-#### Install
+### Install
 
     $ git clone https://github.com/opmuse/opmuse.git
     $ cd opmuse
@@ -83,7 +92,7 @@ Then you start the whole debacle with
 
     $ ./console cherrypy
 
-#### Upgrading
+### Upgrading
 
 When you do a git pull some of these might be required.
 
@@ -98,7 +107,8 @@ When you do a git pull some of these might be required.
     $ ./console database reset # will initiate rescan, might not be required
     $ ./console database update
 
-### Our Doctrine
+Our Doctrine
+------------
 
   - We don't exclusively store metadata about your library.
 
@@ -116,7 +126,8 @@ When you do a git pull some of these might be required.
 
     i.e. If a file's location doesn't correspond to its tags we mark it as invalid and provide facilities for fixing this.
 
-### Here's opmuse
+Here's opmuse
+-------------
 
 This is a taste of what it looks like, hopefully it's not too outdated at time of viewing.
 
