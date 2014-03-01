@@ -418,12 +418,17 @@ class Upload:
 
                 zip.extractall(tempdir)
 
+                os.remove(path)
+
                 for name in zip.namelist():
-                    # ignore hidden files, e.g. OSX archive weird and such
-                    if name.startswith("."):
+                    namepath = os.path.join(tempdir, name)
+
+                    # ignore hidden files, e.g. OSX archive weirdness and such
+                    if name.startswith(".") or os.path.split(name)[0] == "__MACOSX":
+                        shutil.rmtree(namepath)
                         continue
 
-                    paths.append(os.path.join(tempdir, name).encode('utf8'))
+                    paths.append(namepath.encode('utf8'))
 
             except Exception as error:
                 messages.append("%s: %s" % (os.path.basename(path), error))
@@ -443,11 +448,16 @@ class Upload:
 
                     rar.extractall(tempdir)
 
+                    os.remove(path)
+
                     for name in rar.namelist():
+                        namepath = os.path.join(tempdir, name)
+
                         if name.startswith("."):
+                            shutil.rmtree(namepath)
                             continue
 
-                        paths.append(os.path.join(tempdir, name).encode('utf8'))
+                        paths.append(namepath.encode('utf8'))
 
             except Exception as error:
                 messages.append("%s: %s" % (os.path.basename(path), error))
