@@ -12,6 +12,7 @@ fi
 export PIP_FORCE_REINSTALL=1
 
 export PIP_UPGRADE=1
+export PIP_IGNORE_INSTALLED=1
 
 repo=$1
 dist=$2
