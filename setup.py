@@ -16,7 +16,7 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import os.path
+import os
 import re
 import subprocess
 import shutil
@@ -30,7 +30,7 @@ from opmuse.less_compiler import less_compiler
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
-
+on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
 
 def copy(src, dst):
     shutil.copyfile(src, dst)
@@ -67,8 +67,7 @@ def get_datafiles(src, dest, exclude_exts=[], followlinks=False):
     return datafiles
 
 
-# don't require this for "python setup.py install"
-if (len(sys.argv) > 1 and sys.argv[1] != 'install' or len(sys.argv) == 1) and not os.path.exists("build/templates"):
+if not on_readthedocs and not os.path.exists("build/templates"):
     print('You need to run "console jinja compile" before you build.')
     sys.exit(1)
 
@@ -118,10 +117,29 @@ def build():
 
     copy('scripts/debian-dbconfig-upgrade-mysql', 'build/debian-dbconfig-upgrade-mysql/all')
 
+if on_readthedocs:
+    data_files = []
+else:
+    data_files = ([
+        # debian specific
+        ('/usr/share/dbconfig-common/scripts/opmuse/install/', ['build/debian-dbconfig-install/mysql']),
+        ('/usr/share/dbconfig-common/scripts/opmuse/upgrade/mysql/', ['build/debian-dbconfig-upgrade-mysql/all']),
+        # global
+        ('/var/cache/opmuse', ['cache/.keep']),
+        ('/var/log/opmuse', ['log/.keep']),
+        ('/etc/opmuse', ['build/opmuse.ini']),
+        ('/usr/share/opmuse', ['alembic.ini']),
+        ('/usr/share/opmuse/public_static/styles', ['build/main.css']),
+        ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'public_static/scripts/init.js']),
+        ('/usr/share/opmuse/public_static/scripts/lib', ['public_static/scripts/lib/require.js'])] +
+        get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
+        get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
+        get_datafiles('public_static/styles/lib', '/usr/share/opmuse/public_static/') +
+        get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
+        get_datafiles('build/templates', '/usr/share/opmuse'))
 
-if len(sys.argv) == 1 or sys.argv[1] != 'setopt':
+if not on_readthedocs and (len(sys.argv) == 1 or sys.argv[1] != 'setopt'):
     build()
-
 
 setup(
     name="opmuse",
@@ -140,23 +158,7 @@ setup(
             'opmuse-boot = opmuse.boot:main'
         ]
     },
-    data_files=[
-        # debian specific
-        ('/usr/share/dbconfig-common/scripts/opmuse/install/', ['build/debian-dbconfig-install/mysql']),
-        ('/usr/share/dbconfig-common/scripts/opmuse/upgrade/mysql/', ['build/debian-dbconfig-upgrade-mysql/all']),
-        # global
-        ('/var/cache/opmuse', ['cache/.keep']),
-        ('/var/log/opmuse', ['log/.keep']),
-        ('/etc/opmuse', ['build/opmuse.ini']),
-        ('/usr/share/opmuse', ['alembic.ini']),
-        ('/usr/share/opmuse/public_static/styles', ['build/main.css']),
-        ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'public_static/scripts/init.js']),
-        ('/usr/share/opmuse/public_static/scripts/lib', ['public_static/scripts/lib/require.js']),
-    ] + get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
-        get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
-        get_datafiles('public_static/styles/lib', '/usr/share/opmuse/public_static/') +
-        get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
-        get_datafiles('build/templates', '/usr/share/opmuse'),
+    data_files=data_files,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
