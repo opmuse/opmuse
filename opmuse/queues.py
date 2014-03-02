@@ -29,6 +29,9 @@ from opmuse.ws import ws
 from opmuse.utils import memoize
 
 
+__all__ = ["Queue", "QueueEvents", "QueueDao", "queue_dao", "queue_events"]
+
+
 class Queue(Base):
     __tablename__ = 'queues'
 

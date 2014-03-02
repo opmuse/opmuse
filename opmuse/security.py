@@ -34,6 +34,11 @@ from repoze.who._compat import get_cookies
 from opmuse.database import Base, get_session, get_database
 
 
+__all__ = ["Role", "User", "is_authenticated", "is_granted", "AuthenticatedTool", "AuthorizeTool",
+"DatabaseAuthenticator", "AuthTktQueryStringIdentifier", "UserSecretAuthTktCookiePlugin", "hash_password",
+"repozewho_pipeline"]
+
+
 class Role(Base):
     __tablename__ = 'roles'
 

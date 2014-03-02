@@ -56,6 +56,10 @@ from opmuse.cache import cache
 from opmuse.sizeof import total_size
 
 
+__all__ = ['Edit', 'Remove', 'Search', 'Upload', 'Settings', 'Users', 'Queue', 'Styles', 'Library', 'AdminUsers',
+'Admin', 'Dashboard', 'Stream', 'Root']
+
+
 class Edit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit.html')
