@@ -1,4 +1,5 @@
-/config/opmuse.ini
+/config/*
+/docs/_build/*
 /virtualenv/*
 /build/*
 /public_static/styles/*.css
