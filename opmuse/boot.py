@@ -32,7 +32,7 @@ from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
 
 
-def configure():
+def configure(skip_config=False):
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
     cherrypy.tools.jinja = Jinja()
@@ -52,7 +52,7 @@ def configure():
     if not exists(config_file):
         config_file = '/etc/opmuse/opmuse.ini'
 
-    if not exists(config_file):
+    if not skip_config and not exists(config_file):
         parser.error('Configuration is missing (%s).' % config_file)
 
     staticdir = join(abspath(dirname(__file__)), '..', 'public_static')
@@ -90,11 +90,15 @@ def configure():
 
     app = cherrypy.tree.mount(opmuse.controllers.Root(), '/', app_config)
 
-    app.merge(config_file)
+    if not skip_config:
+        app.merge(config_file)
 
     app.wsgiapp.pipeline.append(('repoze.who', repozewho_pipeline))
 
-    config = cherrypy._cpconfig.Config(file=config_file)
+    if skip_config:
+        config = cherrypy._cpconfig.Config()
+    else:
+        config = cherrypy._cpconfig.Config(file=config_file)
 
     # 5 gigabyte file upload limit
     config['server.max_request_body_size'] = 1024 ** 3 * 5
@@ -164,7 +168,7 @@ def configure():
     cherrypy.engine.bgtask = BackgroundTaskPlugin(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
 
-    if 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:
+    if 'opmuse' in app.config and 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:
         cherrypy.log.error_log.setLevel(logging.DEBUG)
 
     return app

@@ -24,7 +24,7 @@ on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
 sys.path.insert(0, os.path.abspath('..'))
 
 import opmuse.boot
-opmuse.boot.configure()
+opmuse.boot.configure(skip_config=True)
 
 # -- General configuration ------------------------------------------------
 
