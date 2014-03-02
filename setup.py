@@ -79,7 +79,12 @@ for install_require in chain(parse_requirements('requirements.txt'), parse_requi
         install_requires.append(str(install_require.req))
     elif install_require.url is not None:
         if install_require.url[-23:] == "vendor/oursql-0.9.4.zip":
-            install_requires.append("oursql==0.9.4")
+            if on_readthedocs:
+                # ignore oursql when on readthedocs because it isn't needed for
+                # building the docs
+                continue
+            else:
+                install_requires.append("oursql==0.9.4")
         else:
             raise Exception("Don't know how to parse %s" % install_require.url)
     else:
