@@ -19,7 +19,6 @@ import cherrypy
 import re
 import os
 import base64
-import mmh3
 import io
 import datetime
 import math
@@ -1339,6 +1338,7 @@ class LibraryProcess:
 
     @staticmethod
     def get_hash(filename):
+        import mmh3
 
         byte_size = 1024 * 128
 

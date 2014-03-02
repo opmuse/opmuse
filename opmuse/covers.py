@@ -19,7 +19,6 @@ import os
 import mimetypes
 import cherrypy
 import base64
-import mmh3
 import tempfile
 import time
 from urllib.request import urlopen
@@ -140,6 +139,8 @@ class Covers:
                                                    Covers.LARGE_GRAVITY, large_offset)
 
                 if cover and cover_large:
+                    import mmh3
+
                     with open(temp_cover, 'rb') as file:
                         entity.cover = file.read()
                         entity.cover_hash = base64.b64encode(mmh3.hash_bytes(entity.cover))
@@ -218,6 +219,8 @@ class Covers:
 
             album.cover_path = cover_dest
 
+        import mmh3
+
         album.cover = resize_cover
         album.cover_large = resize_cover_large
         album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
@@ -289,6 +292,8 @@ class Covers:
                     file.write(cover)
 
             artist.cover_path = cover_dest
+
+        import mmh3
 
         artist.cover = resize_cover
         artist.cover_large = resize_cover_large
