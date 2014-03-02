@@ -67,7 +67,8 @@ def get_datafiles(src, dest, exclude_exts=[], followlinks=False):
     return datafiles
 
 
-if not os.path.exists("build/templates"):
+# don't require this for "python setup.py install"
+if (len(sys.argv) > 1 and sys.argv[1] != 'install' or len(sys.argv) == 1) and not os.path.exists("build/templates"):
     print('You need to run "console jinja compile" before you build.')
     sys.exit(1)
 
