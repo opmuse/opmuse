@@ -52,10 +52,10 @@ import mutagenx as mutagen
 
 
 __all__ = ['FileMetadata', 'library_dao', 'ApeParser', 'TrackStructureParser', 'Artist', 'OggParser',
-'StringBinaryType', 'LibraryDao', 'mutagen', 'IntegrityError', 'MpcParser', 'StructureParser',
-'LibraryProcess', 'reader', 'TagParser', 'Library', 'Id3Parser', 'WmaParser', 'Album', 'LibraryTool', 'TagReader',
-'PathParser', 'Mp4Parser', 'MutagenParser', 'MetadataStructureParser', 'TrackPath', 'FlacParser', 'Track',
-'LibraryPlugin']
+           'StringBinaryType', 'LibraryDao', 'mutagen', 'IntegrityError', 'MpcParser', 'StructureParser',
+           'LibraryProcess', 'reader', 'TagParser', 'Library', 'Id3Parser', 'WmaParser', 'Album', 'LibraryTool',
+           'TagReader', 'PathParser', 'Mp4Parser', 'MutagenParser', 'MetadataStructureParser', 'TrackPath',
+           'FlacParser', 'Track', 'LibraryPlugin']
 
 
 class StringBinaryType(TypeDecorator):

@@ -57,7 +57,7 @@ from opmuse.sizeof import total_size
 
 
 __all__ = ['Edit', 'Remove', 'Search', 'Upload', 'Settings', 'Users', 'Queue', 'Styles', 'Library', 'AdminUsers',
-'Admin', 'Dashboard', 'Stream', 'Root']
+           'Admin', 'Dashboard', 'Stream', 'Root']
 
 
 class Edit:
