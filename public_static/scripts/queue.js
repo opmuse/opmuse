@@ -299,10 +299,6 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             this.coverUrl = '/queue/cover';
             this.updateUrl = '/queue/update';
 
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
             $('#queue').on('ajaxifyInit', function (event) {
                 that.initNanoScroller();
             });
@@ -342,6 +338,14 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 return false;
             });
 
+            $('#collapse-queue')
+                .off('click.queue')
+                .on('click.queue', function (event) {
+                $('#queue').toggleClass('collapsed');
+                $("#queue .nano").nanoScroller();
+                return false;
+            });
+
             $('#clear-queue, #clear-played-queue, #shuffle-queue')
                 .off('click.queue')
                 .on('click.queue', function (event) {
@@ -367,7 +371,12 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 },
                 beforeStop: function (event, ui) {
                     if (items !== null) {
-                        $(ui.item).after(items);
+                        if ($(ui.item).prev('.album').length > 0) {
+                            $(ui.item).nextUntil('.album', '.track').last().after(items);
+                        } else {
+                            $(ui.item).after(items);
+                        }
+
                         items = null;
                     }
                 },

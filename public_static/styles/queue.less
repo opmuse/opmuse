@@ -166,6 +166,14 @@
 #queue {
     padding: 1px 0 0 0;
 
+    &.collapsed {
+        .tracks {
+            > .track {
+                display: none;
+            }
+        }
+    }
+
     .tracks-wrapper {
         background-image: url('/static/images/stressed_linen.png');
         height: 332px;

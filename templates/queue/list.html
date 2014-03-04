@@ -47,10 +47,17 @@
             rel="tooltip"
             title="This will shuffle everything after the currently playing song."
             id="shuffle-queue"
-            class="btn btn-xs btn-info"
+            class="btn btn-xs btn-warning"
             href="/queue/shuffle">
             <i class="fa fa-random"></i>
-            Shuffle
+        </a>
+        <a
+            rel="tooltip"
+            title="This will collapse all headers to make sorting easier."
+            id="collapse-queue"
+            class="btn btn-xs btn-success"
+            href="#">
+            <i class="fa fa-caret-square-o-down"></i>
         </a>
     </div>
 
@@ -65,7 +72,6 @@
                 <p>The one thing you need to do is put your player on repeat for the one track the playlist will contain.</p>"
             data-delay="1000" class="open-stream open btn btn-info btn-xs" target="_blank" href="/play.m3u">
             <i class="fa fa-download"></i>
-            Open in External Player
         </a>
     </div>
 
