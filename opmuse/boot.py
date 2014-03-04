@@ -19,6 +19,7 @@ import os
 import logging
 import cherrypy
 import locale
+import sys
 from os.path import join, abspath, dirname, exists
 from opmuse.library import LibraryPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
@@ -53,7 +54,8 @@ def configure(skip_config=False):
         config_file = '/etc/opmuse/opmuse.ini'
 
     if not skip_config and not exists(config_file):
-        parser.error('Configuration is missing (%s).' % config_file)
+        print('Configuration is missing!')
+        sys.exit(1)
 
     staticdir = join(abspath(dirname(__file__)), '..', 'public_static')
 
