@@ -94,7 +94,7 @@ class BackgroundTaskPlugin(SimplePlugin):
     def stop(self):
         self._running = "drain"
 
-        log("Draining bgtasks, %d items left." % self.queue.qsize())
+        log("Draining bgtasks, %d items in queue, %s running." % (self.queue.qsize(), self.running))
 
         if self.threads:
             for thread in self.threads:
