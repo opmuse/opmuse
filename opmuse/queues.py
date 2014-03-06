@@ -119,7 +119,8 @@ class QueueEvents:
             hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None):
             queue_current = queue_dao.get_queue(cherrypy.request.queue_current_id)
 
-            queue_dao.update_queue(queue_current.id, playing = False)
+            if queue_current is not None:
+                queue_dao.update_queue(queue_current.id, playing = False)
 
             if queue_current is not None and queue_current.current:
                 if not hasattr(cherrypy.request, 'queues_done') or not cherrypy.request.queues_done:
