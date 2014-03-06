@@ -16,6 +16,7 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 import musicbrainzngs as mb
+from musicbrainzngs.musicbrainz import ResponseError
 
 mb.set_useragent("opmuse", "DEV", "http://opmu.se/")
 
@@ -23,7 +24,11 @@ mb.set_useragent("opmuse", "DEV", "http://opmu.se/")
 class Musicbrainz:
     def get_album(self, album_entity):
         artistname = album_entity.artists[0].name if len(album_entity.artists) > 0 else None
-        result = mb.search_releases(release=album_entity.name, artistname=artistname)
+
+        try:
+            result = mb.search_releases(release=album_entity.name, artistname=artistname)
+        except ResponseError:
+            return None
 
         if len(result['release-list']) == 0:
             return None
@@ -55,7 +60,10 @@ class Musicbrainz:
         }
 
     def get_artist(self, artist_entity):
-        result = mb.search_artists(artist=artist_entity.name, alias=artist_entity.name)
+        try:
+            result = mb.search_artists(artist=artist_entity.name, alias=artist_entity.name)
+        except ResponseError:
+            return None
 
         artists = []
 
