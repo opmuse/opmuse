@@ -16,7 +16,8 @@ function build_git() {
         sed -i 's/tag_build\s*=[^=]*/tag_build=/' $1/setup.cfg
     fi
 
-    ./scripts/build-python-deb.sh $repo master $1/setup.py $1 none none none none none none none none none none
+    ./scripts/build-python-deb.sh $repo master $1/setup.py $1 none none none \
+        none none none none none none none none
 }
 
 reprepro -b $repo deleteunreferenced
@@ -38,7 +39,8 @@ while read -A req; do
             name=$(echo ${req[1]:t} | sed "s/^\([^-]\+\)-.*/\1/")
 
             if [[ -f $(print $dir/**/setup.py) ]]; then
-                ./scripts/build-python-deb.sh $repo master $dir/**/setup.py $name none none none none none none none none none none
+                ./scripts/build-python-deb.sh $repo master $dir/**/setup.py $name \
+                    none none none none none none none none none none none
             else
                 echo "Couldn't find setup.py for $req"
                 exit 1
@@ -48,7 +50,8 @@ while read -A req; do
             exit 1
         fi
     else
-        ./scripts/build-python-deb.sh $repo master none $req[1] $req[2] none none none none none none none none none
+        ./scripts/build-python-deb.sh $repo master none $req[3] $req[2] none \
+            none none none none none none none none none
     fi
 done
 
