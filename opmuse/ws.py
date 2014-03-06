@@ -25,8 +25,8 @@ from ws4py.websocket import WebSocket
 ws_data = threading.local()
 
 
-def log(msg):
-    cherrypy.log(msg, context='ws')
+def log(msg, traceback=False):
+    cherrypy.log(msg, context='ws', traceback=traceback)
 
 
 class WebSocketHandler(WebSocket):
@@ -79,7 +79,7 @@ class WsUser:
         try:
             handler.send(json.dumps(message))
         except Exception as error:
-            log('Error occured while sending "%s" to %s: %s' % (message, handler.user['login'], error))
+            log('Error occured while sending "%s" to %s' % (message, handler.user['login']), traceback=True)
 
 
 class Ws:
