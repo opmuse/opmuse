@@ -351,7 +351,8 @@ class Covers:
         resize_temp_image = self._mktemp(image_ext).encode('utf8')
 
         if not image_service.resize(temp_image, resize_temp_image, width, height, gravity, offset):
-            os.remove(temp_image)
+            if os.path.exists(temp_image):
+                os.remove(temp_image)
 
             if os.path.exists(resize_temp_image):
                 os.remove(resize_temp_image)
