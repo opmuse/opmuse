@@ -1505,7 +1505,7 @@ class Dashboard:
 
         top_artists = Dashboard.get_top_artists(all_users)
         recent_tracks = Dashboard.get_recent_tracks(all_users)
-        new_albums = Dashboard.get_new_albums(16, 0)
+        new_albums = Dashboard.get_new_albums(6, 0)
 
         now = datetime.datetime.now()
 
@@ -1563,7 +1563,7 @@ class Dashboard:
                 .all())
 
     @staticmethod
-    def get_top_artists(all_users):
+    def get_top_artists(all_users, limit = 12):
         top_artists = OrderedDict({})
 
         index = 0
@@ -1587,7 +1587,7 @@ class Dashboard:
                     if len(results) > 0:
                         top_artists[results[0]] = None
 
-                    if len(top_artists) >= 24:
+                    if len(top_artists) >= limit:
                         stop = True
                         break
             if stop:
@@ -1600,7 +1600,7 @@ class Dashboard:
         return top_artists
 
     @staticmethod
-    def get_recent_tracks(all_users):
+    def get_recent_tracks(all_users, limit = 6):
         all_recent_tracks = []
 
         for user in all_users:
@@ -1643,7 +1643,7 @@ class Dashboard:
                 'user': user
             })
 
-            if len(recent_tracks) > 24:
+            if len(recent_tracks) == limit:
                 break
 
         return recent_tracks
