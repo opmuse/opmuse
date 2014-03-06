@@ -50,7 +50,7 @@ while read -A req; do
             exit 1
         fi
     else
-        ./scripts/build-python-deb.sh $repo master none $req[3] $req[2] none \
+        ./scripts/build-python-deb.sh $repo master none $req[1] $req[2] none \
             none none none none none none none none none
     fi
 done
