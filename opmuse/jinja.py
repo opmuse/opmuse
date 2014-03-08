@@ -26,6 +26,7 @@ from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
 from cherrypy._cpdispatch import PageHandler
 from jinja2 import Environment, FileSystemLoader, ModuleLoader, StrictUndefined
+import opmuse
 from opmuse.security import is_granted as _is_granted
 from opmuse.pretty import pretty_date as _pretty_date
 from opmuse.library import TrackStructureParser, Library
@@ -73,6 +74,7 @@ def get_jinja_env():
     env.globals['rand_id'] = rand_id
     env.globals['is_granted'] = is_granted
     env.globals['render'] = render
+    env.globals['opmuse_version'] = opmuse.__version__
 
     return env
 

@@ -17,8 +17,9 @@
 
 import musicbrainzngs as mb
 from musicbrainzngs.musicbrainz import ResponseError
+import opmuse
 
-mb.set_useragent("opmuse", "DEV", "http://opmu.se/")
+mb.set_useragent("opmuse", opmuse.__version__, "http://opmu.se/")
 
 
 class Musicbrainz:
