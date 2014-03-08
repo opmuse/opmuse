@@ -50,6 +50,9 @@ class WebSocketHandler(WebSocket):
         ws.receive(data['event'], data['args'], self)
 
     def closed(self, code, reason=None):
+        self.cleanup()
+
+    def cleanup(self):
         ws.cleanup(self)
 
 
@@ -81,8 +84,11 @@ class WsUser:
     def send(message, handler):
         try:
             handler.send(json.dumps(message))
-        except Exception as error:
-            log('Error occured while sending "%s" to %s' % (message, handler.user['login']), traceback=True)
+        except Exception:
+            log('Error occured while sending "%s" to %s, cleaning up socket.\n' %
+                (message, handler.user['login']), traceback=True)
+
+            handler.cleanup()
 
 
 class Ws:
@@ -98,6 +104,10 @@ class Ws:
         return self.get_ws_user(handler.user['id'], handler.user['login'])
 
     def get_ws_user(self, id = None, login = None):
+        """
+        Get current ws user as specified for thread or by cherrypy.request
+        """
+
         if id is None:
             if hasattr(ws_data, 'user_id'):
                 id = ws_data.user_id
@@ -106,7 +116,7 @@ class Ws:
 
         if login is None:
             if hasattr(ws_data, 'login'):
-                id = ws_data.login
+                login = ws_data.login
             else:
                 login = cherrypy.request.user.login
 
@@ -126,15 +136,19 @@ class Ws:
         self._all_handlers.append(handler)
 
     def cleanup(self, handler):
-        if handler.user is None:
-            return
-
-        if handler.user['id'] in self._ws_users:
+        if handler.user is not None and handler.user['id'] in self._ws_users:
             self._ws_users[handler.user['id']].remove_handler(handler)
 
-        self._all_handlers.remove(handler)
+        try:
+            self._all_handlers.remove(handler)
+        except:
+            pass
 
     def emit(self, event, *args, handler = None, ws_user = None):
+        """
+        Sends to active user in thread, or specific user or handler.
+        """
+
         if handler is not None:
             if not isinstance(handler, list):
                 handlers = [handler]
@@ -156,10 +170,15 @@ class Ws:
             })
 
     def emit_all(self, event, *args):
+        """
+        Sends to all sockets, e.g. all tabs/windows for all logged in users.
+        """
+
         self.emit(event, *args, handler = self._all_handlers)
 
     def receive(self, event, args, handler):
         ws_user = self.get_ws_user_by_handler(handler)
+
         if event in self._events:
             for callback in self._events[event]:
                 callback(*args, ws_user = ws_user)
