@@ -33,7 +33,7 @@ from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
 
 
-def configure(skip_config=False):
+def configure(skip_config=False, environment=None):
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
     cherrypy.tools.jinja = Jinja()
@@ -80,7 +80,9 @@ def configure(skip_config=False):
             'tools.jinjaauthenticated.on': False,
             'tools.database.on': False,
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': staticdir
+            'tools.staticdir.dir': staticdir,
+            'tools.expires.on': False,
+            'tools.expires.secs': 3600 * 24 * 30
         },
         '/library/upload/add': {
             'response.timeout': 3600
@@ -89,6 +91,9 @@ def configure(skip_config=False):
             'response.timeout': 3600
         },
     }
+
+    if environment == "production":
+        app_config['/static']['tools.expires.on'] = True
 
     app = cherrypy.tree.mount(opmuse.controllers.Root(), '/', app_config)
 
@@ -204,7 +209,7 @@ def main():
 
     args = parser.parse_args()
 
-    app = configure()
+    app = configure(environment=args.env)
 
     if args.timers:
         from opmuse.timers import timers_start_tool, timers_end_tool
