@@ -583,6 +583,10 @@ class PathParser(TagParser):
         track_dir_files = []
 
         for file in os.listdir(track_dir):
+            # ignore media files
+            if Library.is_supported(file):
+                continue
+
             track_dir_files.append(os.path.join(track_dir, file))
 
         album_cover_match = []
@@ -664,9 +668,10 @@ class PathParser(TagParser):
 
         for match_file in match_files:
             for file in files:
-                if re.match(match_file, file, flags = re.IGNORECASE):
-                    match = os.path.abspath(file)
+                if re.match(match_file, os.path.basename(file), flags = re.IGNORECASE):
+                    match = file
                     break
+
             if match is not None:
                 break
 
