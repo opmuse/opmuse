@@ -160,6 +160,19 @@ class QueueEvents:
 
 class QueueDao:
     @memoize
+    def get_playing_track(self, user_id):
+        try:
+            return (get_database()
+                    .query(Track)
+                    .join(Queue, Track.id == Queue.track_id)
+                    .join(User, Queue.user_id == User.id)
+                    .filter(and_(User.id == user_id, Queue.current, Queue.playing))
+                    .group_by(Track.id)
+                    .limit(1)
+                    .one())
+        except NoResultFound:
+            return None
+
     def get_current_track(self, user_id):
         try:
             return (get_database()

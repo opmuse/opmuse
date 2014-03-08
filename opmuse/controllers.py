@@ -1488,7 +1488,7 @@ class Dashboard:
             users.append({
                 'remotes_user': remotes_user,
                 'user': user,
-                'current_track': queue_dao.get_current_track(user.id)
+                'playing_track': queue_dao.get_playing_track(user.id)
             })
 
         remotes.update_user(cherrypy.request.user)
@@ -1497,7 +1497,7 @@ class Dashboard:
 
         current_user = {
             'user': cherrypy.request.user,
-            'current_track': queue_dao.get_current_track(cherrypy.request.user.id),
+            'playing_track': queue_dao.get_playing_track(cherrypy.request.user.id),
             'remotes_user': remotes_user,
         }
 

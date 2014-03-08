@@ -25,9 +25,9 @@
                         Played <strong>{{ user.remotes_user.lastfm.playcount|format_number }}</strong> tracks.
                     {% endif %}
                 {% endif %}
-                {% if user.current_track %}
-                    {% set track = user.current_track %}
-                    Currently playing <strong>{{ track.name }}</strong>
+                {% if user.playing_track %}
+                    {% set track = user.playing_track %}
+                    Playing <strong><a href="{{ urls.track_url(track) }}">{{ track.name }}</a></strong>
                     {% if track.artist %}
                         by <strong><a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name }}</a></strong>
                     {% endif %}.
