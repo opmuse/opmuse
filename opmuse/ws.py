@@ -18,9 +18,12 @@
 import json
 import cherrypy
 import threading
+import wsaccel
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
 
+
+wsaccel.patch_ws4py()
 
 ws_data = threading.local()
 
