@@ -100,6 +100,12 @@ def build():
 
     copy('config/opmuse.dist.ini', 'build/opmuse.ini')
 
+    for line in fileinput.input("opmuse/__init__.py", inplace=True):
+        if re.match(r'^__version__\s*=', line):
+            sys.stdout.write("__version__ = '%s'\n" % git_version)
+        else:
+            sys.stdout.write(line)
+
     for line in fileinput.input("build/opmuse.ini", inplace=True):
         if re.match(r'[#]*lastfm\.key\s*=', line):
             sys.stdout.write("lastfm.key = '%s'\n" % config['global']['lastfm.key'])

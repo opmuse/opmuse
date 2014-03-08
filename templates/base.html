@@ -7,12 +7,11 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-        {% set version = request.app.config.opmuse.version %}
         {% set ws_port = request.app.config.opmuse['ws.port'] if 'ws.port' in request.app.config.opmuse else None %}
 
         <script type="text/javascript">
             window.opmuseGlobals = {
-                version: {{ version }},
+                version: '{{ opmuse_version }}',
                 authenticated: {{ "true" if request.user else "false" }},
                 ws_port: {{ ws_port if ws_port else "null" }}
             };
@@ -20,18 +19,18 @@
 
         <link
             rel="stylesheet"
-            href="/static/styles/main.css?version={{ version }}"
+            href="/static/styles/main.css?version={{ opmuse_version }}"
             type="text/css" />
 
         <link href="/static/images/favicon.png?version=2" rel="shortcut icon" />
 
         <link rel="apple-touch-icon" href="/static/images/opossum-white.png"/> 
 
-        <script src="/static/scripts/init.js?version={{ version }}"></script>
+        <script src="/static/scripts/init.js?version={{ opmuse_version }}"></script>
 
         <script
             data-main="/static/scripts/main.js"
-            src="/static/scripts/lib/require.js?version={{ version }}">
+            src="/static/scripts/lib/require.js?version={{ opmuse_version }}">
         </script>
     </head>
     <body lang="en">
