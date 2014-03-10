@@ -78,6 +78,10 @@
 {% if is_granted('admin') %}
     <div class="modal" id="{{ modalId }}" tabindex="-1" role="dialog"
         aria-labelledby="removeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+        </div>
     </div>
 {% endif %}
 {% endmacro %}
