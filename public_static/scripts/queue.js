@@ -299,6 +299,12 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             this.coverUrl = '/queue/cover';
             this.updateUrl = '/queue/update';
 
+            this.buttonSelectors = '#queue .remove, #clear-queue, #clear-played-queue, #shuffle-queue, .queue.add';
+
+            $('#main').on('ajaxifyInit', function (event) {
+                that.reload();
+            });
+
             $('#queue').on('ajaxifyInit', function (event) {
                 that.initNanoScroller();
             });
@@ -322,39 +328,26 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
         internalInit: function () {
             var that = this;
 
-            $('.queue.add')
-                .off('click.queue')
-                .on('click.queue', function (event) {
-                var url = $(this).attr('href');
-                $.ajax(url);
-                return false;
-            });
+            $(document).on('click.queue', that.buttonSelectors,
+                function (event) {
+                    var url = $(this).attr('href');
+                    $.ajax(url);
+                    return false;
+                }
+            );
 
-            $('#queue .remove')
-                .off('click.queue')
-                .on("click.queue", function (event) {
-                var url = $(this).attr('href');
-                $.ajax(url);
-                return false;
-            });
-
-            $('#collapse-queue')
-                .off('click.queue')
-                .on('click.queue', function (event) {
+            $(document).on('click', '#collapse-queue', function (event) {
                 $('#queue').toggleClass('collapsed');
                 $("#queue .nano").nanoScroller();
                 return false;
             });
 
-            $('#clear-queue, #clear-played-queue, #shuffle-queue')
-                .off('click.queue')
-                .on('click.queue', function (event) {
-                var url = $(this).attr('href');
-                $.ajax(url);
-                return false;
-            });
+            that.reload();
+        },
+        reload: function () {
+            var that = this;
 
-            $('.open-stream').data('ajaxify', false);
+            $(that.buttonSelectors + ', #collapse-queue , .open-stream').data('ajaxify', false);
 
             var items = null;
 
@@ -408,7 +401,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
                 success: function (data) {
                     ajaxify.setInDom("#queue", data);
                     ajaxify.load('#queue');
-                    that.internalInit();
+                    that.reload();
                 }
             });
         },
