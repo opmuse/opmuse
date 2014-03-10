@@ -24,7 +24,7 @@ reprepro -b $repo deleteunreferenced
 
 # build deb packages from requirements.txt except the broken ones, they're
 # built further down...
-grep -hiEv "repoze\.who|jinja2|alembic|zope\.interface|mako|^#" requirements.txt mysql-requirements.txt | \
+grep -hiEv "repoze\.who|jinja2|alembic|zope\.interface|mako|watchdog|^#" requirements.txt mysql-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
         if [[ $req[1] =~ "\.zip$" ]]; then
@@ -61,6 +61,7 @@ build_git repoze.who 2.2 https://github.com/repoze/repoze.who.git
 build_git jinja2 2.7.2 https://github.com/mitsuhiko/jinja2.git
 build_git alembic rel_0_6_2 https://bitbucket.org/zzzeek/alembic.git
 build_git zope.interface 4.0.5 https://github.com/zopefoundation/zope.interface.git
+build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
 
 # don't build and always use the distributions version
 #build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
