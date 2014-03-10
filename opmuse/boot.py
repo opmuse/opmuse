@@ -21,7 +21,7 @@ import cherrypy
 import locale
 import sys
 from os.path import join, abspath, dirname, exists
-from opmuse.library import LibraryPlugin, LibraryTool
+from opmuse.library import LibraryPlugin, LibraryWatchdogPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.security import repozewho_pipeline, AuthenticatedTool, AuthorizeTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
@@ -165,6 +165,9 @@ def configure(skip_config=False, environment=None):
 
     cherrypy.engine.library = LibraryPlugin(cherrypy.engine)
     cherrypy.engine.library.subscribe()
+
+    cherrypy.engine.library_watchdog = LibraryWatchdogPlugin(cherrypy.engine)
+    cherrypy.engine.library_watchdog.subscribe()
 
     cherrypy.engine.whoosh = WhooshPlugin(cherrypy.engine)
     cherrypy.engine.whoosh.subscribe()

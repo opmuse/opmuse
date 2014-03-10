@@ -25,6 +25,8 @@ import math
 import shutil
 import time
 import random
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
@@ -35,7 +37,7 @@ from sqlalchemy.orm import relationship, backref, deferred, validates, column_pr
 from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import cpu_count
 from threading import Thread
-from opmuse.database import Base, get_session, get_database_type, get_database
+from opmuse.database import Base, get_session, get_database_type, get_database, database_data
 from opmuse.image import image
 from opmuse.search import search
 from unidecode import unidecode
@@ -129,6 +131,14 @@ class Track(Base):
             if self.format == "audio/ogg":
                 # vorbis aq 3
                 return self.bitrate < 110000
+
+        return False
+
+    @hybrid_property
+    def exists(self):
+        for path in self.paths:
+            if path.exists:
+                return True
 
         return False
 
@@ -318,8 +328,16 @@ class TrackPath(Base):
         return "%s/" % os.path.dirname(pretty_path)
 
     @hybrid_property
+    def exists(self):
+        return os.path.exists(self.path)
+
+    @hybrid_property
     def path_modified(self):
+        if not os.path.exists(self.path):
+            return None
+
         stat = os.stat(self.path)
+
         return datetime.datetime.fromtimestamp(stat.st_mtime)
 
 
@@ -1037,6 +1055,9 @@ class Library:
 
     @staticmethod
     def is_supported(filename):
+        if filename is None:
+            return False
+
         return os.path.splitext(filename)[1].lower()[1:] in Library.SUPPORTED
 
 
@@ -1524,14 +1545,11 @@ class LibraryDao:
                 .order_by(Track.number)
                 .order_by(Track.name).all())
 
-    def add_files(self, filenames, move = False, remove_dirs = True, artist_name_override = None,
-                  artist_name_fallback = None):
+    def add_files(self, filenames, move = False, remove_dirs = True,
+                  artist_name_override = None, artist_name_fallback = None):
         paths = []
-
         messages = []
-
         old_dirs = set()
-
         moved_dirs = set()
 
         for filename in filenames:
@@ -1582,6 +1600,8 @@ class LibraryDao:
                         messages.append('The file "%s" already exists.' % path.decode('utf8', 'replace'))
                         continue
 
+                    cherrypy.engine.library_watchdog.add_ignores([filename, path])
+
                     shutil.move(filename, path)
 
                     old_dirs.add(old_dirname)
@@ -1624,6 +1644,9 @@ class LibraryDao:
         new_dirs = set()
 
         for dir in dirs:
+            if not os.path.exists(dir):
+                continue
+
             if len(os.listdir(dir)) == 0:
                 os.rmdir(dir)
                 new_dirs.add(os.path.dirname(dir))
@@ -1649,6 +1672,38 @@ class LibraryDao:
         except NoResultFound:
             pass
 
+    def remove_paths(self, paths, remove = True):
+        dirs = set()
+        tracks = set()
+
+        for path in paths:
+            try:
+                track_path = get_database().query(TrackPath).filter_by(path=path).one()
+            except NoResultFound:
+                continue
+
+            dirs.add(os.path.dirname(path))
+
+            if remove:
+                cherrypy.engine.library_watchdog.add_ignores(path)
+                os.remove(path)
+
+            tracks.add(track_path.track)
+
+            get_database().delete(track_path)
+
+        get_database().commit()
+
+        for track in tracks:
+            path_count = get_database().query(TrackPath).filter_by(track_id=track.id).count()
+
+            if path_count == 0:
+                self.delete_track(track)
+
+        get_database().commit()
+
+        self.remove_empty_dirs(dirs)
+
     def remove(self, id):
         track = get_database().query(Track).filter_by(id=id).one()
 
@@ -1656,6 +1711,7 @@ class LibraryDao:
 
         for path in track.paths:
             dirs.add(os.path.dirname(path.path))
+            cherrypy.engine.library_watchdog.add_ignores(path.path)
             os.remove(path.path)
 
         album = track.album
@@ -1701,6 +1757,155 @@ class LibraryDao:
 
 
 library_dao = LibraryDao()
+
+
+class WatchdogEventHandler(FileSystemEventHandler):
+    def __init__(self):
+        FileSystemEventHandler.__init__(self)
+
+        log("Watchdog watching for changes.")
+
+        self.added = set()
+        self.removed = set()
+
+        self.ignores = set()
+
+    def on_moved(self, event):
+        FileSystemEventHandler.on_moved(self, event)
+
+        if event.is_directory:
+            return
+
+        if not self.ignore(event.src_path) and Library.is_supported(event.src_path):
+            self.removed.add(event.src_path)
+
+        if not self.ignore(event.dest_path) and Library.is_supported(event.dest_path):
+            self.added.add(event.dest_path)
+
+    def on_created(self, event):
+        FileSystemEventHandler.on_created(self, event)
+
+        if event.is_directory or self.ignore(event.src_path) or not Library.is_supported(event.src_path):
+            return
+
+        self.added.add(event.src_path)
+
+    def on_deleted(self, event):
+        FileSystemEventHandler.on_deleted(self, event)
+
+        if event.is_directory or self.ignore(event.src_path) or not Library.is_supported(event.src_path):
+            return
+
+        self.removed.add(event.src_path)
+
+    def on_modified(self, event):
+        FileSystemEventHandler.on_modified(self, event)
+
+        if event.is_directory or self.ignore(event.src_path) or not Library.is_supported(event.src_path):
+            return
+
+        self.added.add(event.src_path)
+
+    def pop_added(self):
+        return self._pop_set(self.added)
+
+    def pop_removed(self):
+        return self._pop_set(self.removed)
+
+    def ignore(self, ignore):
+        try:
+            self.ignores.remove(ignore)
+            return True
+        except KeyError:
+            return False
+
+    def add_ignores(self, ignores):
+        if not isinstance(ignores, list):
+            ignores = [ignores]
+
+        for ignore in ignores:
+            self.ignores.add(ignore)
+
+    @staticmethod
+    def _pop_set(collection):
+        result = []
+
+        if len(collection) == 0:
+            return result
+
+        while True:
+            try:
+                file = collection.pop()
+                result.append(file)
+            except KeyError:
+                break
+
+        return result
+
+
+class LibraryWatchdogPlugin(SimplePlugin):
+
+    def __init__(self, bus):
+        SimplePlugin.__init__(self, bus)
+
+        self.event_handler = None
+
+    def start(self):
+        config = cherrypy.tree.apps[''].config['opmuse']
+
+        def run(self, library_path):
+            self.event_handler = WatchdogEventHandler()
+
+            observer = Observer()
+            observer.schedule(self.event_handler, library_path, recursive=True)
+            observer.start()
+
+            try:
+                while True:
+                    database_data.database = get_session()
+
+                    removed = self.event_handler.pop_removed()
+
+                    if len(removed) > 0:
+                        log("Watchdog removing %d files." % len(removed))
+                        library_dao.remove_paths(removed, remove = False)
+
+                    added = self.event_handler.pop_added()
+
+                    if len(added) > 0:
+                        log("Watchdog adding %d files." % len(added))
+                        tracks, add_files_messages = library_dao.add_files(added, move = False, remove_dirs = False)
+
+                    try:
+                        database_data.database.commit()
+                    except:
+                        database_data.database.rollback()
+                        raise
+                    finally:
+                        database_data.database.remove()
+                        database_data.database = None
+
+                    time.sleep(5)
+            except KeyboardInterrupt:
+                observer.stop()
+
+            observer.join()
+
+        self.thread = Thread(
+            name="LibraryWatchdog",
+            target=run,
+            args=(self, os.path.abspath(config['library.path']))
+        )
+
+        self.thread.start()
+
+    start.priority = 115
+
+    def stop(self):
+        self.thread = None
+
+    def add_ignores(self, ignores):
+        self.event_handler.add_ignores(ignores)
 
 
 class LibraryPlugin(SimplePlugin):

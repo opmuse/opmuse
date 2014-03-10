@@ -825,6 +825,9 @@ class Library:
             if track.album is not None:
                 album_covers.add(track.album.cover_path)
 
+            if len(track.paths) == 0:
+                continue
+
             dir = track.paths[0].dir
 
             if dir not in dir_tracks:
@@ -839,6 +842,9 @@ class Library:
             dir_tracks[dir]['tracks'].append(track)
 
         for dir, item in dir_tracks.items():
+            if not os.path.exists(dir):
+                continue
+
             for file in os.listdir(dir):
                 file = os.path.join(dir, file)
 

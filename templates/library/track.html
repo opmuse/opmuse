@@ -27,10 +27,19 @@
 {% endblock %}
 
 {% block content %}
+
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
 {% import "macros/tracks.html" as tracks %}
+
 <div id="track">
+    {% if not track.exists %}
+        <p class="alert alert-danger">
+            There's no working file for this track, it's about to be removed!
+        </p>
+    {% endif %}
+
     {% set album = track.album %}
+
     {% if track.artist %}
         {% set artists = [track.artist] %}
     {% else %}
@@ -203,7 +212,11 @@
                     {% endif %}
                 </td>
                 <td>
-                    {{ path.path_modified }}
+                    {% if path.path_modified %}
+                        {{ path.path_modified }}
+                    {% else %}
+                        N/A
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
