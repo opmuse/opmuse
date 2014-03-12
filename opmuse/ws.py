@@ -18,14 +18,24 @@
 import json
 import cherrypy
 import threading
-import wsaccel
-from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
+from ws4py.server.cherrypyserver import (WebSocketPlugin as BaseWebSocketPlugin,
+                                         WebSocketTool as BaseWebSocketTool)
 from ws4py.websocket import WebSocket
 
 
-wsaccel.patch_ws4py()
-
 ws_data = threading.local()
+
+
+class WebSocketTool(BaseWebSocketTool):
+    pass
+
+
+class WebSocketPlugin(BaseWebSocketPlugin):
+    def __init__(self, bus):
+        import wsaccel
+        wsaccel.patch_ws4py()
+
+        BaseWebSocketPlugin.__init__(self, bus)
 
 
 def log(msg, traceback=False):
