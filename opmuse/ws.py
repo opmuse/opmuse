@@ -32,8 +32,13 @@ class WebSocketTool(BaseWebSocketTool):
 
 class WebSocketPlugin(BaseWebSocketPlugin):
     def __init__(self, bus):
-        import wsaccel
-        wsaccel.patch_ws4py()
+        try:
+            import wsaccel
+            wsaccel.patch_ws4py()
+        except ImportError:
+            # wsaccel isn't a requirement. also, this occurs when docs are
+            # built on readthedocs.org
+            pass
 
         BaseWebSocketPlugin.__init__(self, bus)
 
