@@ -202,7 +202,7 @@ def format_seconds_alt(seconds):
         hour_str = ""
 
     if hours == 0 and minutes == 0 and seconds == 0 or seconds > 0:
-        second_str = "%ds " % seconds
+        second_str = "%ds" % seconds
     else:
         second_str = ""
 

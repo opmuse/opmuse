@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-def setup(self):
+def setup_db(self):
     db_path = 'opmuse.db'
 
     if os.path.exists(db_path):
@@ -19,5 +19,5 @@ def setup(self):
     self.session = get_raw_session(create_all = True)
 
 
-def teardown(self):
+def teardown_db(self):
     self.session.close()

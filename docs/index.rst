@@ -18,6 +18,7 @@ Index
 
    contributing
    gettingstarted
+   testing
    reference
 
 Issue tracker & IRC channel

@@ -1,18 +1,28 @@
 import os
 from opmuse.library import Library, Artist
-from main import setup, teardown
+from main import setup_db, teardown_db
 from nose.tools import with_setup
 
-@with_setup(setup, teardown)
+
+def library_start():
+    library = Library(os.path.join(os.path.dirname(__file__), "../sample_library"))
+    library.start()
+
+
+@with_setup(setup_db, teardown_db)
 class TestLibrary:
     def test_tracks(self):
 
-        library = Library(os.path.join(os.path.dirname(__file__), "../sample_library"))
-        library.start()
+        library_start()
 
-        artist = session.query(Artist).one()
+        artists = self.session.query(Artist).order_by(Artist.name).all()
 
-        assert artist.name == "opmuse"
-        assert artist.albums[0].name == "opmuse"
-        assert artist.albums[0].tracks[0].name == "opmuse"
+        assert len(artists) == 2
 
+        assert artists[0].name == "opmuse"
+        assert artists[0].albums[0].name == "opmuse"
+        assert artists[0].albums[0].tracks[0].name == "opmuse"
+
+        assert artists[1].name == "opmuse mp3"
+        assert artists[1].albums[0].name == "opmuse mp3"
+        assert artists[1].albums[0].tracks[0].name == "opmuse mp3"
