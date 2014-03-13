@@ -71,8 +71,7 @@ class TestTranscoding:
         start = time.time()
 
         for data in transcoding.transcode(track_generator()):
-            #assert base64.b64encode(mmh3.hash_bytes(data)) == b'pTa3VmlFwk97KUduwWglZA=='
-            assert round(time.time() - start, 1) == 2.0
+            assert round(time.time() - start) == 2
             assert magic.from_buffer(data) == b"Ogg data, Vorbis audio, stereo, 44100 Hz, ~64000 bps"
             break
         else:
@@ -85,24 +84,14 @@ class TestTranscoding:
         start = time.time()
 
         for data in transcoding.transcode(track_generator()):
-            assert round(time.time() - start, 1) == 2.0
+            assert round(time.time() - start) == 2
             assert magic.from_buffer(data) == (b'Audio file with ID3 version 2.4.0, contains: MPEG ADTS,' +
                                                b' layer III, v1, 128 kbps, 44.1 kHz, JntStereo')
             break
         else:
             assert False
 
-        # test skipping, 10s forward
-        def track_generator():
-            yield self.session.query(Track).filter(Track.name=="opmuse").one(), 10
-
-        start = time.time()
-
-        for data in transcoding.transcode(track_generator()):
-            #assert base64.b64encode(mmh3.hash_bytes(data)) == b'QCwNc7YNH4ecSBIZvH1qZQ=='
-            break
-        else:
-            assert False
+        # TODO test skipping
 
         # test ogg to mp3
         def track_generator():
