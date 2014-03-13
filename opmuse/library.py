@@ -319,8 +319,13 @@ class TrackPath(Base):
 
     @hybrid_property
     def pretty_path(self):
-        library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
-        return self.path.decode('utf8', 'replace')[len(library_path) + 1:]
+        path = self.path.decode('utf8', 'replace')
+
+        if cherrypy.request.app is not None:
+            library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
+            return path[len(library_path) + 1:]
+        else:
+            return path
 
     @hybrid_property
     def pretty_dir(self):

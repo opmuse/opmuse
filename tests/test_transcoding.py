@@ -1,4 +1,8 @@
-from opmuse.transcoding import transcoding, CopyFFMPEGTranscoder, OggFFMPEGTranscoder
+import time
+import magic
+import mmh3
+import base64
+from opmuse.transcoding import transcoding, CopyFFMPEGTranscoder, OggFFMPEGTranscoder, Mp3FFMPEGTranscoder
 from opmuse.library import Track
 from test_library import library_start
 from main import setup_db, teardown_db
@@ -56,3 +60,71 @@ class TestTranscoding:
 
         assert format == "audio/mp3"
         assert transcoder == CopyFFMPEGTranscoder
+
+    def test_transcode(self):
+        library_start()
+
+        # test ogg
+        def track_generator():
+            yield self.session.query(Track).filter(Track.name=="opmuse").one(), 0
+
+        start = time.time()
+
+        for data in transcoding.transcode(track_generator()):
+            #assert base64.b64encode(mmh3.hash_bytes(data)) == b'pTa3VmlFwk97KUduwWglZA=='
+            assert round(time.time() - start, 1) == 2.0
+            assert magic.from_buffer(data) == b"Ogg data, Vorbis audio, stereo, 44100 Hz, ~64000 bps"
+            break
+        else:
+            assert False
+
+        # test mp3
+        def track_generator():
+            yield self.session.query(Track).filter(Track.name=="opmuse mp3").one(), 0
+
+        start = time.time()
+
+        for data in transcoding.transcode(track_generator()):
+            assert round(time.time() - start, 1) == 2.0
+            assert magic.from_buffer(data) == (b'Audio file with ID3 version 2.4.0, contains: MPEG ADTS,' +
+                                               b' layer III, v1, 128 kbps, 44.1 kHz, JntStereo')
+            break
+        else:
+            assert False
+
+        # test skipping, 10s forward
+        def track_generator():
+            yield self.session.query(Track).filter(Track.name=="opmuse").one(), 10
+
+        start = time.time()
+
+        for data in transcoding.transcode(track_generator()):
+            #assert base64.b64encode(mmh3.hash_bytes(data)) == b'QCwNc7YNH4ecSBIZvH1qZQ=='
+            break
+        else:
+            assert False
+
+        # test ogg to mp3
+        def track_generator():
+            yield self.session.query(Track).filter(Track.name=="opmuse").one(), 0
+
+        start = time.time()
+
+        for data in transcoding.transcode(track_generator(), Mp3FFMPEGTranscoder):
+            assert magic.from_buffer(data) == (b'Audio file with ID3 version 2.4.0, contains: MPEG ADTS,' +
+                                               b' layer III, v1, 320 kbps, 44.1 kHz, JntStereo')
+            break
+        else:
+            assert False
+
+        # test mp3 to ogg
+        def track_generator():
+            yield self.session.query(Track).filter(Track.name=="opmuse mp3").one(), 0
+
+        start = time.time()
+
+        for data in transcoding.transcode(track_generator(), OggFFMPEGTranscoder):
+            assert magic.from_buffer(data) == b'Ogg data, Vorbis audio, stereo, 44100 Hz, ~192000 bps'
+            break
+        else:
+            assert False

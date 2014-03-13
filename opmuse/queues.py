@@ -78,9 +78,15 @@ class QueueEvents:
 
     def transcoding_progress(self, progress, transcoder, track):
         ws_user = ws.get_ws_user()
-        ws_user.set('queue.current_progress', progress)
 
-        user_agent = cherrypy.request.headers['User-Agent']
+        if ws_user is not None:
+            ws_user.set('queue.current_progress', progress)
+
+        if 'User-Agent' in cherrypy.request.headers:
+            user_agent = cherrypy.request.headers['User-Agent']
+        else:
+            user_agent = None
+
         format = transcoder.__class__.outputs()
 
         ws.emit('queue.progress', progress, self.serialize_track(track), user_agent, format)
@@ -94,11 +100,17 @@ class QueueEvents:
 
         track = self.serialize_track(track)
 
-        user_agent = cherrypy.request.headers['User-Agent']
+        if 'User-Agent' in cherrypy.request.headers:
+            user_agent = cherrypy.request.headers['User-Agent']
+        else:
+            user_agent = None
+
         format = transcoder.__class__.outputs()
 
         ws_user = ws.get_ws_user()
-        ws_user.set('queue.current_track', track)
+
+        if ws_user is not None:
+            ws_user.set('queue.current_track', track)
 
         ws.emit('queue.start', track, user_agent, format)
 

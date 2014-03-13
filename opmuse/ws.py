@@ -126,8 +126,10 @@ class Ws:
         if id is None:
             if hasattr(ws_data, 'user_id'):
                 id = ws_data.user_id
-            else:
+            elif hasattr(cherrypy.request, 'user'):
                 id = cherrypy.request.user.id
+            else:
+                return None
 
         if login is None:
             if hasattr(ws_data, 'login'):
@@ -179,10 +181,16 @@ class Ws:
             if ws_user is None:
                 ws_user = self.get_ws_user()
 
-            ws_user.emit({
+            message = {
                 'event': event,
                 'args': args
-            })
+            }
+
+            if ws_user is None:
+                log("Couldn't send %s, ignoring." % message)
+                return
+
+            ws_user.emit(message)
 
     def emit_all(self, event, *args):
         """

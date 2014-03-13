@@ -92,7 +92,10 @@ class FFMPEGTranscoder(Transcoder):
         self.success = False
         self.error = None
 
-        ffmpeg_cmd = cherrypy.request.app.config.get('opmuse').get('transcoding.ffmpeg_cmd')
+        if cherrypy.request.app is not None:
+            ffmpeg_cmd = cherrypy.request.app.config.get('opmuse').get('transcoding.ffmpeg_cmd')
+        else:
+            ffmpeg_cmd = None
 
         if ffmpeg_cmd is not None:
             self.ffmpeg_cmd = ffmpeg_cmd

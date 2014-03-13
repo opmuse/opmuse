@@ -1664,6 +1664,9 @@ class Stream:
         cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
 
     def transcoding_start(self, transcoder, track):
+        if 'User-Agent' not in cherrypy.request.headers:
+            return
+
         Stream.STREAM_PLAYING[cherrypy.request.user.id] = cherrypy.request.headers['User-Agent']
 
     def transcoding_end(self, track, transcoder):

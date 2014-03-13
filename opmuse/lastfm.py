@@ -50,6 +50,9 @@ class Lastfm:
         cherrypy.request.lastfm_progress = progress
 
     def transcoding_start(self, transcoder, track):
+        if not hasattr(cherrypy.request, 'user'):
+            return
+
         session_key = cherrypy.request.user.lastfm_session_key
         cherrypy.engine.bgtask.put(self.update_now_playing, 30, session_key, **self.track_to_args(track))
 
