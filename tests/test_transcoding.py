@@ -1,4 +1,3 @@
-import time
 import magic
 import mmh3
 import base64
@@ -68,10 +67,7 @@ class TestTranscoding:
         def track_generator():
             yield self.session.query(Track).filter(Track.name=="opmuse").one(), 0
 
-        start = time.time()
-
         for data in transcoding.transcode(track_generator()):
-            assert round(time.time() - start) == 2
             assert magic.from_buffer(data) == b"Ogg data, Vorbis audio, stereo, 44100 Hz, ~64000 bps"
             break
         else:
@@ -81,10 +77,7 @@ class TestTranscoding:
         def track_generator():
             yield self.session.query(Track).filter(Track.name=="opmuse mp3").one(), 0
 
-        start = time.time()
-
         for data in transcoding.transcode(track_generator()):
-            assert round(time.time() - start) == 2
             assert magic.from_buffer(data) == (b'Audio file with ID3 version 2.4.0, contains: MPEG ADTS,' +
                                                b' layer III, v1, 128 kbps, 44.1 kHz, JntStereo')
             break
@@ -97,8 +90,6 @@ class TestTranscoding:
         def track_generator():
             yield self.session.query(Track).filter(Track.name=="opmuse").one(), 0
 
-        start = time.time()
-
         for data in transcoding.transcode(track_generator(), Mp3FFMPEGTranscoder):
             assert magic.from_buffer(data) == (b'Audio file with ID3 version 2.4.0, contains: MPEG ADTS,' +
                                                b' layer III, v1, 320 kbps, 44.1 kHz, JntStereo')
@@ -109,8 +100,6 @@ class TestTranscoding:
         # test mp3 to ogg
         def track_generator():
             yield self.session.query(Track).filter(Track.name=="opmuse mp3").one(), 0
-
-        start = time.time()
 
         for data in transcoding.transcode(track_generator(), OggFFMPEGTranscoder):
             assert magic.from_buffer(data) == b'Ogg data, Vorbis audio, stereo, 44100 Hz, ~192000 bps'
