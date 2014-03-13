@@ -24,6 +24,7 @@ import fcntl
 import select
 import logging
 import signal
+from subprocess import TimeoutExpired
 
 
 def debug(msg):
@@ -153,13 +154,23 @@ class FFMPEGTranscoder(Transcoder):
         return self.transcode
 
     def __exit__(self, type, value, traceback):
-        self.process.wait()
+        try:
+            self.process.wait(10)
+        except TimeoutExpired:
+            self.process.send_signal(signal.SIGTERM)
+            self.process.stdout.read()
+            self.process.wait()
 
         cherrypy.request.transcoding_process = None
 
         if self.process.returncode != 0:
             stderr_lines = self.stderr.decode('utf8', 'replace').split("\n")
-            stderr_lines.remove("")
+
+            try:
+                stderr_lines.remove("")
+            except ValueError:
+                pass
+
             self.error = stderr_lines[-1]
 
             log('ffmpeg returned non-zero status "%d" and "%s".' % (self.process.returncode, self.error))
