@@ -89,7 +89,11 @@ class WsUser:
         self.handlers.append(handler)
 
     def remove_handler(self, handler):
-        self.handlers.remove(handler)
+        try:
+            self.handlers.remove(handler)
+            return True
+        except ValueError:
+            return False
 
     def emit(self, message):
         for handler in self.handlers:
