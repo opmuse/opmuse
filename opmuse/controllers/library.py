@@ -1,66 +1,29 @@
-# Copyright 2012-2014 Mattias Fliesberg
-#
-# This file is part of opmuse.
-#
-# opmuse is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# opmuse is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
-
 import os
-import re
-import datetime
-import cherrypy
-import tempfile
-import shutil
-import rarfile
-import random
-import math
 import time
-import mimetypes
-import string
-from datetime import timedelta
+import datetime
+import re
+import math
+import rarfile
+import shutil
+import tempfile
+import cherrypy
+from collections import OrderedDict
 from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
-from repoze.who.api import get_api
-from repoze.who._compat import get_cookies
-from collections import OrderedDict
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import joinedload, undefer
+from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, or_
-from opmuse.queues import queue_dao
-from opmuse.transcoding import transcoding
-from opmuse.lastfm import SessionKey, lastfm, LastfmError
-from opmuse.library import (Album, Artist, Track, TrackPath, library_dao,
-                            Library as LibraryService, TrackStructureParser)
-from opmuse.security import User, Role, hash_password
-from opmuse.messages import messages as messages_service
+from opmuse.database import get_database
+from opmuse.library import (library_dao, TrackPath, TrackStructureParser, Album,
+                            Track, Artist, Library as LibraryService)
 from opmuse.utils import HTTPRedirect
 from opmuse.search import search
-from opmuse.ws import WsController
-from opmuse.wikipedia import wikipedia
-from opmuse.remotes import remotes
-from opmuse.covers import covers
-from opmuse.jinja import render_template
-from opmuse.database import get_database
 from opmuse.cache import cache
-from opmuse.sizeof import total_size
+from opmuse.remotes import remotes
 
 
-__all__ = ['Edit', 'Remove', 'Search', 'Upload', 'Settings', 'Users', 'Queue', 'Styles', 'Library', 'AdminUsers',
-           'Admin', 'Dashboard', 'Stream', 'Root']
-
-
-class Edit:
+class LibraryEdit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit.html')
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -119,7 +82,7 @@ class Edit:
 
         tracks, messages = library_dao.update_tracks_tags(update_tracks, move)
 
-        tracks = Edit._sort_tracks(tracks)
+        tracks = LibraryEdit._sort_tracks(tracks)
 
         hierarchy = Library._produce_track_hierarchy(tracks)
 
@@ -156,7 +119,7 @@ class Edit:
             filenames, move = True, remove_dirs = True, artist_name_override = artist_name
         )
 
-        tracks = Edit._sort_tracks(tracks)
+        tracks = LibraryEdit._sort_tracks(tracks)
 
         hierarchy = Library._produce_track_hierarchy(tracks)
 
@@ -171,10 +134,10 @@ class Edit:
                       track.name))
 
 
-class Remove:
+class LibraryRemove:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='remove/modal.html')
+    @cherrypy.tools.jinja(filename='library/remove_modal.html')
     def modal(self, ids, title = None):
         ids = ids.split(',')
 
@@ -209,7 +172,7 @@ class Remove:
             raise HTTPRedirect('/library/albums')
 
 
-class Search:
+class LibrarySearch:
     CACHE_RECENT_KEY = "search_recent"
     MAX_RECENT = 10
 
@@ -281,16 +244,16 @@ class Search:
                 for track in tracks:
                     raise HTTPRedirect('/library/track/%s' % track.slug)
 
-            if cache.has(Search.CACHE_RECENT_KEY):
-                recent_searches = cache.get(Search.CACHE_RECENT_KEY)
+            if cache.has(LibrarySearch.CACHE_RECENT_KEY):
+                recent_searches = cache.get(LibrarySearch.CACHE_RECENT_KEY)
             else:
-                cache.set(Search.CACHE_RECENT_KEY, recent_searches)
+                cache.set(LibrarySearch.CACHE_RECENT_KEY, recent_searches)
 
             if type is None and len(entities) > 0:
                 if len(recent_searches) == 0 or query != recent_searches[0][0]:
                     recent_searches.insert(0, (query, datetime.datetime.now(), cherrypy.request.user.login))
 
-                    if len(recent_searches) > Search.MAX_RECENT:
+                    if len(recent_searches) > LibrarySearch.MAX_RECENT:
                         recent_searches.pop()
 
             entities = sorted(entities, key=lambda entity: entity.__SEARCH_SCORE, reverse=True)
@@ -314,7 +277,7 @@ class Search:
         }
 
 
-class Upload:
+class LibraryUpload:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload.html')
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -509,233 +472,11 @@ class Upload:
         return {'hierarchy': hierarchy, 'messages': messages}
 
 
-class Settings:
-    @cherrypy.expose
-    @cherrypy.tools.jinja(filename='settings/index.html')
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def default(self):
-        user = cherrypy.request.user
-
-        auth_url = new_auth = None
-        need_config = False
-
-        cache_key = 'settings_lastfm_session_key_%d' % cherrypy.request.user.id
-
-        if user.lastfm_session_key is None:
-            session_key = cache.get(cache_key)
-
-            if session_key is not None:
-                auth_url = session_key.get_auth_url()
-                key = session_key.get_session_key()
-
-                if key is not None:
-                    cache.set(cache_key, None)
-                    user.lastfm_session_key = key
-                    user.lastfm_user = lastfm.get_authenticated_user_name()
-                    auth_url = None
-                    new_auth = True
-            else:
-                try:
-                    session_key = SessionKey()
-                    auth_url = session_key.get_auth_url()
-                    cache.set(cache_key, session_key)
-                except LastfmError:
-                    need_config = True
-
-        remotes.update_user(user)
-
-        return {
-            "user": user,
-            'need_config': need_config,
-            'auth_url': auth_url,
-            'new_auth': new_auth
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def submit(self, login = None, mail = None, password1 = None, password2 = None):
-
-        user = cherrypy.request.user
-
-        if mail == '':
-            mail = None
-
-        if password1 == '':
-            password1 = None
-
-        if password2 == '':
-            password2 = None
-
-        if mail is not None and user.mail != mail:
-            user.mail = mail
-            messages_service.success('Your mail was changed.')
-
-        if password1 is not None and password2 is not None:
-            if password1 != password2:
-                messages_service.warning('The passwords do not match.')
-            else:
-                user.password = hash_password(password1, user.salt)
-                messages_service.success('Your password was changed.')
-
-        raise HTTPRedirect('/settings')
-
-
-class Users:
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='users/index.html')
-    def default(self, *args):
-        if len(args) == 1:
-            raise cherrypy.InternalRedirect('/users/user/%s' % args[0])
-
-        roles = (get_database().query(Role).order_by(Role.name).all())
-        users = (get_database().query(User).order_by(User.login).all())
-
-        for user in users:
-            remotes.update_user(user)
-
-        return {
-            'users': users,
-            'roles': roles
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='users/user.html')
-    def user(self, login):
-        try:
-            user = (get_database().query(User)
-                    .filter_by(login=login)
-                    .order_by(User.login).one())
-        except NoResultFound:
-            raise cherrypy.NotFound()
-
-        remotes.update_user(user)
-        remotes_user = remotes.get_user(user)
-
-        return {
-            'user': user,
-            'remotes_user': remotes_user
-        }
-
-
-class Queue:
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='queue/player.html')
-    def player(self):
-        user = cherrypy.request.user
-        queues, queue_info = queue_dao.get_queues(user.id)
-        queue_current_track = queue_dao.get_current_track(user.id)
-
-        return {
-            'queues': queues,
-            'queue_info': queue_info,
-            'queue_current_track': queue_current_track
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.json_in()
-    @cherrypy.tools.json_out()
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def update(self):
-        queues = cherrypy.request.json['queues']
-
-        updates = []
-
-        for index, queue_id in enumerate(queues):
-            updates.append((queue_id, {'index': index}))
-
-        queue_dao.update_queues(updates)
-
-        return {}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='queue/cover.html')
-    def cover(self):
-        user = cherrypy.request.user
-        queue_current_track = queue_dao.get_current_track(user.id)
-
-        return {
-            'queue_current_track': queue_current_track
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='queue/list.html')
-    def list(self):
-        user = cherrypy.request.user
-        queues, queue_info = queue_dao.get_queues(user.id)
-        queue_current_track = queue_dao.get_current_track(user.id)
-
-        return {
-            'queues': queues,
-            'queue_info': queue_info,
-            'queue_current_track': queue_current_track
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def add_album(self, id):
-        queue_dao.add_album_tracks(id)
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def add(self, ids):
-        queue_dao.add_tracks(ids.split(','))
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def shuffle(self):
-        queue_dao.shuffle()
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def remove(self, ids):
-        queue_dao.remove(ids.split(','))
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def clear(self, what = None):
-        if what is not None and what == 'played':
-            queue_dao.clear_played()
-        else:
-            queue_dao.clear()
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def stop(self):
-        queue_dao.reset_current()
-
-
-class Styles:
-    @cherrypy.expose
-    def default(self, *args, **kwargs):
-        file = os.path.join(*args)
-        cherrypy.response.headers['Content-Type'] = 'text/css'
-
-        path = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
-            '..', 'public_static', 'styles'
-        )
-
-        csspath = os.path.join(path, file)
-
-        if os.path.exists(csspath):
-            return cherrypy.lib.static.serve_file(csspath)
-
-        ext = os.path.splitext(file)
-        lesspath = os.path.join(path, "%s%s" % (ext[0], ".less"))
-
-        return cherrypy.lib.static.serve_file(lesspath)
-
-
 class Library:
-    search = Search()
-    upload = Upload()
-    edit = Edit()
+    search = LibrarySearch()
+    upload = LibraryUpload()
+    edit = LibraryEdit()
+    remove = LibraryRemove()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -1271,648 +1012,3 @@ class Library:
                     }
 
         return hierarchy
-
-
-class AdminUsers:
-    @staticmethod
-    def _validate_user_params(login = None, mail = None, roles = None, password1 = None, password2 = None):
-        if login is None or len(login) < 3:
-            messages_service.warning('Login must be at least 3 chars.')
-            raise cherrypy.HTTPError(status=409)
-
-        if mail is None or len(mail) < 3:
-            messages_service.warning('Mail must be at least 3 chars.')
-            raise cherrypy.HTTPError(status=409)
-            return
-
-        if password1 is not None and password2 is not None:
-            if password1 != password2:
-                messages_service.warning('The passwords do not match.')
-                raise cherrypy.HTTPError(status=409)
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='admin/users.html')
-    def default(self):
-        roles = (get_database().query(Role).order_by(Role.name).all())
-        users = (get_database().query(User).order_by(User.login).all())
-
-        for user in users:
-            remotes.update_user(user)
-
-        return {
-            'users': users,
-            'roles': roles
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='admin/users_add.html')
-    def add(self):
-        roles = (get_database().query(Role).order_by(Role.name).all())
-
-        return {
-            'roles': roles
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    def add_submit(self, login = None, mail = None, roles = None, password1 = None, password2 = None):
-
-        AdminUsers._validate_user_params(login, mail, roles, password1, password2)
-
-        if roles is None:
-            roles = []
-
-        if isinstance(roles, str):
-            roles = [roles]
-
-        salt = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(64))
-        password = hash_password(password1, salt)
-
-        user = User(login, password, mail, salt)
-
-        get_database().add(user)
-
-        for role in get_database().query(Role).filter(Role.id.in_(roles)):
-            role.users.append(user)
-
-        get_database().commit()
-
-        messages_service.success('User was added.')
-
-        raise HTTPRedirect('/admin/users')
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    @cherrypy.tools.jinja(filename='admin/users_edit.html')
-    def edit(self, login):
-        try:
-            user = (get_database().query(User)
-                    .filter_by(login=login)
-                    .order_by(User.login).one())
-        except NoResultFound:
-            raise cherrypy.NotFound()
-
-        roles = (get_database().query(Role).order_by(Role.name).all())
-
-        return {
-            'user': user,
-            'roles': roles
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    def edit_submit(self, user_id, login = None, mail = None, roles = None,
-                    password1 = None, password2 = None):
-        try:
-            user = (get_database().query(User)
-                    .filter_by(id=user_id).one())
-        except NoResultFound:
-            raise cherrypy.NotFound()
-
-        AdminUsers._validate_user_params(login, mail, roles, password1, password2)
-
-        if roles is None:
-            roles = []
-
-        if isinstance(roles, str):
-            roles = [roles]
-
-        password = hash_password(password1, user.salt)
-
-        user.login = login
-        user.mail = mail
-        user.password = password
-
-        user.roles[:] = []
-
-        for role in get_database().query(Role).filter(Role.id.in_(roles)):
-            role.users.append(user)
-
-        get_database().commit()
-
-        messages_service.success('User was edited.')
-
-        raise HTTPRedirect('/admin/users')
-
-
-class Admin:
-    users = AdminUsers()
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    def default(self):
-        raise HTTPRedirect('/admin/dashboard')
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    @cherrypy.tools.jinja(filename='admin/dashboard.html')
-    def dashboard(self):
-        library_path = cherrypy.request.app.config.get('opmuse').get('library.path')
-
-        stat = os.statvfs(os.path.realpath(library_path))
-
-        disk = {
-            'path': library_path,
-            'free': stat.f_frsize * stat.f_bavail,
-            'total': stat.f_frsize * stat.f_blocks
-        }
-
-        formats = (get_database().query(Track.format, func.sum(Track.duration),
-                                        func.sum(Track.size), func.count(Track.format)).group_by(Track.format).all())
-
-        stats = {
-            'tracks': library_dao.get_track_count(),
-            'invalid': library_dao.get_invalid_track_count(),
-            'albums': library_dao.get_album_count(),
-            'artists': library_dao.get_artist_count(),
-            'track_paths': library_dao.get_track_path_count(),
-            'duration': library_dao.get_track_duration(),
-            'size': library_dao.get_track_size(),
-            'scanning': cherrypy.request.library.scanning,
-            'files_found': cherrypy.request.library.files_found
-        }
-
-        return {
-            'cache_size': cache.storage.size(),
-            'disk': disk,
-            'stats': stats,
-            'formats': formats
-        }
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    @cherrypy.tools.jinja(filename='admin/bgtasks.html')
-    def bgtasks(self):
-        return {}
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    @cherrypy.tools.jinja(filename='admin/cache.html')
-    def cache(self):
-        values = []
-
-        total_bytes = 0
-
-        for key, item in cache.storage.values():
-            bytes = total_size(item['value'])
-            total_bytes += bytes
-            values.append((key, bytes, type(item['value']), item['updated']))
-
-        return {
-            'values': values,
-            'size': cache.storage.size(),
-            'total_bytes': total_bytes
-        }
-
-
-class Dashboard:
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='dashboard/index.html')
-    def default(self):
-        users = []
-
-        for user in (get_database()
-                     .query(User)
-                     .order_by(User.login)
-                     .filter(User.id != cherrypy.request.user.id)
-                     .limit(8).all()):
-
-            remotes.update_user(user)
-
-            remotes_user = remotes.get_user(user)
-
-            users.append({
-                'remotes_user': remotes_user,
-                'user': user,
-                'playing_track': queue_dao.get_playing_track(user.id)
-            })
-
-        remotes.update_user(cherrypy.request.user)
-
-        remotes_user = remotes.get_user(cherrypy.request.user)
-
-        current_user = {
-            'user': cherrypy.request.user,
-            'playing_track': queue_dao.get_playing_track(cherrypy.request.user.id),
-            'remotes_user': remotes_user,
-        }
-
-        all_users = [current_user] + users
-
-        top_artists = Dashboard.get_top_artists(all_users)
-        recent_tracks = Dashboard.get_recent_tracks(all_users)
-        new_albums = Dashboard.get_new_albums(6, 0)
-
-        now = datetime.datetime.now()
-
-        day_format = "%Y-%m-%d"
-
-        today = now.strftime(day_format)
-        yesterday = (now - timedelta(days=1)).strftime(day_format)
-        week = now.isocalendar()[0:1]
-
-        for recent_track in recent_tracks:
-            track = recent_track['track']
-
-            if track is None:
-                continue
-
-            user = recent_track['user']
-
-            if 'played_times' not in user:
-                user['played_times'] = {
-                    'today': 0,
-                    'yesterday': 0,
-                    'week': 0
-                }
-
-            track_datetime = datetime.datetime.fromtimestamp(int(recent_track['timestamp']))
-
-            if track_datetime.strftime(day_format) == yesterday:
-                user['played_times']['yesterday'] += track.duration
-
-            if track_datetime.strftime(day_format) == today:
-                user['played_times']['today'] += track.duration
-
-            if track_datetime.isocalendar()[0:1] == week:
-                user['played_times']['week'] += track.duration
-
-        return {
-            'current_user': current_user,
-            'users': users,
-            'top_artists': top_artists,
-            'recent_tracks': recent_tracks,
-            'new_albums': new_albums
-        }
-
-    @staticmethod
-    def get_new_albums(limit, offset):
-        return (get_database()
-                .query(Album)
-                .options(joinedload(Album.tracks))
-                .options(undefer(Album.artist_count))
-                .join(Track, Album.id == Track.album_id)
-                .group_by(Album.id)
-                .order_by(func.max(Track.added).desc())
-                .limit(limit)
-                .offset(offset)
-                .all())
-
-    @staticmethod
-    def get_top_artists(all_users, limit = 12):
-        top_artists = OrderedDict({})
-
-        index = 0
-
-        while True:
-            stop = True
-
-            for user in all_users:
-                if user['remotes_user'] is None or user['remotes_user']['lastfm'] is None:
-                    continue
-
-                top = user['remotes_user']['lastfm']['top_artists_month']
-
-                if top is not None and index < len(top):
-                    stop = False
-
-                    artist = top[index]
-
-                    results = search.query_artist(artist['name'], exact=True)
-
-                    if len(results) > 0:
-                        top_artists[results[0]] = None
-
-                    if len(top_artists) >= limit:
-                        stop = True
-                        break
-            if stop:
-                break
-
-            index += 1
-
-        top_artists = list(top_artists.keys())
-
-        return top_artists
-
-    @staticmethod
-    def get_recent_tracks(all_users, limit = 6):
-        all_recent_tracks = []
-
-        for user in all_users:
-            if user['remotes_user'] is None or user['remotes_user']['lastfm'] is None:
-                continue
-
-            recent_tracks = []
-
-            for recent_track in user['remotes_user']['lastfm']['recent_tracks']:
-                recent_tracks.append((user, recent_track))
-
-            all_recent_tracks += recent_tracks
-
-        all_recent_tracks = sorted(all_recent_tracks,
-                                   key=lambda recent_track: recent_track[1]['timestamp'], reverse=True)
-
-        recent_tracks = []
-
-        for user, recent_track in all_recent_tracks:
-            results = search.query_artist(recent_track['artist'], exact=True)
-
-            track = artist = None
-
-            if len(results) > 0:
-                artist = results[0]
-
-                results = search.query_track(recent_track['name'], exact=True)
-
-                if len(results) > 0:
-                    for result in results:
-                        if result.artist.id == artist.id:
-                            track = result
-
-            recent_tracks.append({
-                'artist': artist,
-                'track': track,
-                'artist_name': recent_track['artist'],
-                'name': recent_track['name'],
-                'timestamp': recent_track['timestamp'],
-                'user': user
-            })
-
-            if len(recent_tracks) == limit:
-                break
-
-        return recent_tracks
-
-
-class Stream:
-
-    STREAM_PLAYING = {}
-
-    def __init__(self):
-        cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
-        cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
-
-    def transcoding_start(self, transcoder, track):
-        if 'User-Agent' not in cherrypy.request.headers:
-            return
-
-        Stream.STREAM_PLAYING[cherrypy.request.user.id] = cherrypy.request.headers['User-Agent']
-
-    def transcoding_end(self, track, transcoder):
-        Stream.STREAM_PLAYING[cherrypy.request.user.id] = None
-
-    @cherrypy.expose
-    @cherrypy.tools.transcodingsubprocess()
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.config(**{'response.stream': True})
-    def default(self, **kwargs):
-
-        user = cherrypy.request.user
-
-        remotes.update_user(user)
-
-        if 'dead' in kwargs and kwargs['dead'] == 'true':
-            raise cherrypy.HTTPError(status=503)
-
-        user_agent = cherrypy.request.headers['User-Agent']
-
-        # allow only one streaming client at once, or weird things might occur
-        if (user.id in Stream.STREAM_PLAYING and Stream.STREAM_PLAYING[user.id] is not None and
-            Stream.STREAM_PLAYING[user.id] != user_agent):
-            raise cherrypy.HTTPError(status=503)
-
-        queue = queue_dao.get_next(user.id)
-
-        if queue is None:
-            raise cherrypy.HTTPError(status=409)
-
-        transcoder, format = transcoding.determine_transcoder(
-            queue.track,
-            user_agent,
-            [accept.value for accept in cherrypy.request.headers.elements('Accept')]
-        )
-
-        cherrypy.log(
-            '%s is streaming "%s" in %s (original was %s) with "%s"' %
-            (user.login, queue.track, format, queue.track.format, user_agent)
-        )
-
-        cherrypy.response.headers['Content-Type'] = format
-
-        def track_generator():
-            yield queue.track, queue.current_seconds
-
-        return transcoding.transcode(track_generator(), transcoder)
-
-
-class Root:
-    @staticmethod
-    def handle_error(status, message, traceback, version):
-        return render_template("error.html", {
-            'status': status,
-            'message': message,
-            'traceback': traceback,
-            'version': version
-        })
-
-    styles = Styles()
-    queue = Queue()
-    remove = Remove()
-    users = Users()
-    settings = Settings()
-    library = Library()
-    ws = WsController()
-    dashboard = Dashboard()
-    admin = Admin()
-    stream = Stream()
-
-    @cherrypy.expose
-    def __profile__(self, *args, **kwargs):
-        return b'Profiler is disabled, enable it with --profile'
-
-    @cherrypy.expose
-    @cherrypy.tools.expires(secs=3600 * 24 * 30, force=True)
-    @cherrypy.tools.authenticated(needs_auth=True)
-    # TODO add some extra security to this function... maybe
-    def download(self, file):
-        library_path = library_dao.get_library_path()
-
-        ext = os.path.splitext(file)
-
-        content_type = mimetypes.types_map.get(ext[1], None)
-
-        # viewable in most browsers
-        if content_type in ('image/jpeg', "image/png", "image/gif", 'application/pdf',
-                            'text/x-nfo', 'text/plain', 'text/x-sfv', 'audio/x-mpegurl'):
-            disposition = None
-
-            if content_type in ('text/x-nfo', 'text/x-sfv', 'audio/x-mpegurl'):
-                content_type = 'text/plain'
-
-        # download...
-        else:
-            disposition = 'attachement'
-            content_type = None
-
-        return cherrypy.lib.static.serve_file(os.path.join(library_path, file),
-                                              content_type=content_type, disposition=disposition)
-
-    @cherrypy.expose
-    def search(self, *args, **kwargs):
-        if len(args) > 1:
-            raise cherrypy.InternalRedirect('/library/search/%s/%s' % (args[0], args[1]))
-        elif len(args) > 0:
-            raise cherrypy.InternalRedirect('/library/search/%s' % args[0])
-        else:
-            raise cherrypy.InternalRedirect('/library/search')
-
-    @cherrypy.expose
-    def default(self, *args, **kwargs):
-        if len(args) == 1:
-            raise cherrypy.InternalRedirect('/library/artist/%s' % args[0])
-        elif len(args) == 2:
-            raise cherrypy.InternalRedirect('/library/album/%s/%s' % (args[0], args[1]))
-
-        raise cherrypy.NotFound()
-
-    @cherrypy.expose
-    @cherrypy.tools.multiheaders()
-    def logout(self, came_from = None):
-        who_api = get_api(cherrypy.request.wsgi_environ)
-
-        headers = who_api.forget()
-
-        cherrypy.response.multiheaders = headers
-
-        raise HTTPRedirect('/?came_from=%s' % came_from)
-
-    @cherrypy.expose
-    @cherrypy.tools.jinja(filename='login.html')
-    @cherrypy.tools.multiheaders()
-    def login(self, login = None, password = None, came_from = None):
-        if login is not None and password is not None:
-            who_api = get_api(cherrypy.request.wsgi_environ)
-
-            creds = {
-                'login': login,
-                'password': password
-            }
-
-            authenticated, headers = who_api.login(creds)
-
-            if authenticated:
-
-                if cherrypy.response.header_list is None:
-                    cherrypy.response.header_list = []
-
-                cherrypy.response.multiheaders = headers
-
-                if came_from is not None and came_from != "None":
-                    raise HTTPRedirect(came_from)
-                else:
-                    raise HTTPRedirect('/')
-
-        return {}
-
-    @cherrypy.expose
-    def index(self, came_from = None):
-        if cherrypy.request.user is None:
-            raise cherrypy.InternalRedirect('/index_unauth?came_from=%s' % came_from)
-        else:
-            raise cherrypy.InternalRedirect('/index_auth')
-
-    @cherrypy.expose
-    @cherrypy.tools.jinja(filename='index_unauth.html')
-    def index_unauth(self, came_from = None):
-        if 'Referer' not in cherrypy.request.headers:
-            raise HTTPRedirect('/login')
-
-        return {}
-
-    @cherrypy.expose
-    def index_auth(self):
-        raise cherrypy.InternalRedirect('/dashboard')
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
-    def cover_refresh(self, type, slug):
-        try:
-            covers.refresh(type, slug)
-        except ValueError:
-            raise cherrypy.NotFound()
-
-        return b''
-
-    @cherrypy.expose
-    @cherrypy.tools.expires(secs=3600 * 24 * 30, force=True)
-    @cherrypy.tools.authenticated(needs_auth=True)
-    def cover(self, type, slug, hash = None, refresh = None, size="default"):
-        try:
-            mime, cover = covers.get_cover(type, slug, size)
-        except ValueError:
-            raise cherrypy.NotFound()
-
-        if cover is None:
-            cherrypy.response.headers['Content-Type'] = 'image/png'
-
-            if size == "large":
-                placeholder = 'cover_large_placeholder.png'
-            else:
-                placeholder = 'cover_placeholder.png'
-
-            return cherrypy.lib.static.serve_file(os.path.join(
-                os.path.abspath(os.path.dirname(__file__)),
-                '..', 'public_static', 'images', placeholder
-            ))
-        else:
-            cherrypy.response.headers['Content-Type'] = mime
-
-            return cover
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='play.m3u')
-    def play_m3u(self):
-        cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
-
-        cookies = get_cookies(cherrypy.request.wsgi_environ)
-        # TODO use "cookie_name" prop from authtkt plugin...
-        auth_tkt = cookies.get('auth_tkt').value
-
-        stream_ssl = cherrypy.request.app.config.get('opmuse').get('stream.ssl')
-
-        if stream_ssl is False:
-            scheme = 'http'
-        else:
-            scheme = cherrypy.request.scheme
-
-        forwarded_host = cherrypy.request.headers.get('X-Forwarded-Host')
-
-        if forwarded_host is not None:
-            host = forwarded_host.split(",")[0].strip()
-        else:
-            host = cherrypy.request.headers.get('host')
-
-        if stream_ssl is False:
-            if ':' in host:
-                host = host[:host.index(':')]
-
-            host = '%s:%s' % (host, cherrypy.config['server.socket_port'])
-
-        url = "%s://%s/stream?auth_tkt=%s" % (scheme, host, auth_tkt)
-
-        cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=play.m3u'
-
-        return {'url': url}

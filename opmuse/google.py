@@ -19,7 +19,6 @@ import json
 import urllib.parse
 import urllib.request
 import os
-import opmuse.remotes
 
 
 class Google:
@@ -27,7 +26,10 @@ class Google:
     SEARCH_URL = 'https://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s'
 
     def get_artist_search(self, artist):
-        remotes_artist = opmuse.remotes.remotes.get_artist(artist)
+        # import here to avoid circular import
+        from opmuse.remotes import remotes
+
+        remotes_artist = remotes.get_artist(artist)
 
         tags = self._tags(remotes_artist)
 
@@ -36,7 +38,10 @@ class Google:
         return self.search("-discogs.com -wikipedia.org -last.fm %s" % query)
 
     def get_album_images(self, album):
-        remotes_album = opmuse.remotes.remotes.get_album(album)
+        # import here to avoid circular import
+        from opmuse.remotes import remotes
+
+        remotes_album = remotes.get_album(album)
 
         tags = self._tags(remotes_album)
 
@@ -51,7 +56,10 @@ class Google:
         return self.images(query)
 
     def get_artist_images(self, artist):
-        remotes_artist = opmuse.remotes.remotes.get_artist(artist)
+        # import here to avoid circular import
+        from opmuse.remotes import remotes
+
+        remotes_artist = remotes.get_artist(artist)
 
         tags = self._tags(remotes_artist)
 

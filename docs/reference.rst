@@ -4,11 +4,18 @@ Reference
 .. toctree::
    :maxdepth: 2
 
+   reference.opmuse.controllers.admin
+   reference.opmuse.controllers.dashboard
+   reference.opmuse.controllers.library
+   reference.opmuse.controllers.main
+   reference.opmuse.controllers.queue
+   reference.opmuse.controllers.settings
+   reference.opmuse.controllers.stream
+   reference.opmuse.controllers.users
    reference.opmuse.bgtask
    reference.opmuse.boot
    reference.opmuse.cache
    reference.opmuse.commands
-   reference.opmuse.controllers
    reference.opmuse.covers
    reference.opmuse.database
    reference.opmuse.fixtures

@@ -46,7 +46,8 @@ def configure(skip_config=False, environment=None):
     cherrypy.tools.multiheaders = multi_headers_tool
     cherrypy.tools.cgitb_log_err = cgitb_log_err_tool
     cherrypy.tools.websocket = WebSocketTool()
-    import opmuse.controllers
+
+    from opmuse.controllers.main import Root
 
     config_file = join(abspath(dirname(__file__)), '..', 'config', 'opmuse.ini')
 
@@ -95,7 +96,7 @@ def configure(skip_config=False, environment=None):
     if environment == "production":
         app_config['/static']['tools.expires.on'] = True
 
-    app = cherrypy.tree.mount(opmuse.controllers.Root(), '/', app_config)
+    app = cherrypy.tree.mount(Root(), '/', app_config)
 
     if not skip_config:
         app.merge(config_file)
@@ -111,7 +112,7 @@ def configure(skip_config=False, environment=None):
     config['server.max_request_body_size'] = 1024 ** 3 * 5
     config['engine.timeout_monitor.frequency'] = 60 * 5
 
-    config['error_page.default'] = opmuse.controllers.Root.handle_error
+    config['error_page.default'] = Root.handle_error
 
     config['opmuse'] = {}
     config['opmuse']['cache.path'] = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'cache'))
