@@ -7,6 +7,6 @@
 /opmuse.db
 /opmuse.db-journal
 *.pyc
-/tests/opmuse.db
+/opmuse/test/opmuse.db
 /cache/*
 /log/*

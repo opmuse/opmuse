@@ -10,4 +10,4 @@ setup a dev environment according to :doc:`gettingstarted` first.
 
     $ source virtualenv/bin/activate
     $ pip install -r dev-requirements.txt
-    $ nosetests -w tests/
+    $ nosetests -w opmuse/test/

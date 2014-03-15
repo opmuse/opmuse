@@ -1,11 +1,11 @@
 import os
 from opmuse.library import Library, Artist
-from main import setup_db, teardown_db
+from . import setup_db, teardown_db
 from nose.tools import with_setup
 
 
 def library_start():
-    library = Library(os.path.join(os.path.dirname(__file__), "../sample_library"))
+    library = Library(os.path.join(os.path.dirname(__file__), "../../sample_library"))
     library.start()
 
 

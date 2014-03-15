@@ -3,8 +3,8 @@ import mmh3
 import base64
 from opmuse.transcoding import transcoding, CopyFFMPEGTranscoder, OggFFMPEGTranscoder, Mp3FFMPEGTranscoder
 from opmuse.library import Track
-from test_library import library_start
-from main import setup_db, teardown_db
+from .test_library import library_start
+from . import setup_db, teardown_db
 from nose.tools import with_setup
 
 @with_setup(setup_db, teardown_db)
