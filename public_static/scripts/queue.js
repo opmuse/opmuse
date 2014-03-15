@@ -268,13 +268,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
         },
         unload: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {
-                this.player.src = '/stream?dead=true';
+                this.player.src = '/play/stream?dead=true';
             }
         },
         load: function () {
             if (typeof this.player != 'undefined' && this.player !== null) {
                 // stupid cache bustin because firefox seems to refuse to not cache
-                this.player.src = '/stream?b=' + Math.random();
+                this.player.src = '/play/stream?b=' + Math.random();
             }
         }
     });

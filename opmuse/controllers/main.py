@@ -19,11 +19,9 @@ import os
 import cherrypy
 import mimetypes
 from repoze.who.api import get_api
-from repoze.who._compat import get_cookies
 from opmuse.library import library_dao
 from opmuse.utils import HTTPRedirect
 from opmuse.ws import WsController
-from opmuse.covers import covers
 from opmuse.jinja import render_template
 from opmuse.controllers.queue import Queue
 from opmuse.controllers.users import Users
@@ -31,8 +29,8 @@ from opmuse.controllers.settings import Settings
 from opmuse.controllers.library import Library
 from opmuse.controllers.dashboard import Dashboard
 from opmuse.controllers.admin import Admin
-from opmuse.controllers.stream import Stream
 from opmuse.controllers.cover import Cover
+from opmuse.controllers.play import Play
 
 
 class Styles:
@@ -75,8 +73,8 @@ class Root:
     ws = WsController()
     dashboard = Dashboard()
     admin = Admin()
-    stream = Stream()
     cover = Cover()
+    play = Play()
 
     @cherrypy.expose
     def __profile__(self, *args, **kwargs):
@@ -184,39 +182,3 @@ class Root:
     @cherrypy.expose
     def index_auth(self):
         raise cherrypy.InternalRedirect('/dashboard')
-
-    @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.jinja(filename='play.m3u')
-    def play_m3u(self):
-        cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
-
-        cookies = get_cookies(cherrypy.request.wsgi_environ)
-        # TODO use "cookie_name" prop from authtkt plugin...
-        auth_tkt = cookies.get('auth_tkt').value
-
-        stream_ssl = cherrypy.request.app.config.get('opmuse').get('stream.ssl')
-
-        if stream_ssl is False:
-            scheme = 'http'
-        else:
-            scheme = cherrypy.request.scheme
-
-        forwarded_host = cherrypy.request.headers.get('X-Forwarded-Host')
-
-        if forwarded_host is not None:
-            host = forwarded_host.split(",")[0].strip()
-        else:
-            host = cherrypy.request.headers.get('host')
-
-        if stream_ssl is False:
-            if ':' in host:
-                host = host[:host.index(':')]
-
-            host = '%s:%s' % (host, cherrypy.config['server.socket_port'])
-
-        url = "%s://%s/stream?auth_tkt=%s" % (scheme, host, auth_tkt)
-
-        cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=play.m3u'
-
-        return {'url': url}
