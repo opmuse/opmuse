@@ -69,7 +69,7 @@
                         {{ album_queue_btn(album) }}
                         {% if is_granted('admin') %}
                             <a class="remove-cover btn btn-default btn-sm"
-                                href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                                href="/cover/refresh/album/{{ album.slug|urlencode }}">
                                 <i class="fa fa-refresh"></i>
                             </a>
                         {% endif %}

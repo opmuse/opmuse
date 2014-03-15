@@ -92,12 +92,12 @@
                 {% if is_granted('admin') %}
                     {% if album is defined and album %}
                         <a class="remove-cover btn btn-default btn-sm"
-                            href="/cover_refresh/album/{{ album.slug|urlencode }}">
+                            href="/cover/refresh/album/{{ album.slug|urlencode }}">
                             <i class="fa fa-refresh"></i> Update Album Cover
                         </a>
                     {% elif artist %}
                         <a class="remove-cover btn btn-default btn-sm"
-                            href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
+                            href="/cover/refresh/artist/{{ artist.slug|urlencode }}">
                             <i class="fa fa-refresh"></i> Update Artist Cover
                         </a>
                     {% endif %}

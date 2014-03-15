@@ -25,7 +25,7 @@
                 <div class="right">
                     {% if is_granted('admin') %}
                         <a class="remove-cover btn btn-default btn-sm"
-                            href="/cover_refresh/artist/{{ artist.slug|urlencode }}">
+                            href="/cover/refresh/artist/{{ artist.slug|urlencode }}">
                             <i class="fa fa-refresh"></i>
                         </a>
                     {% endif %}
