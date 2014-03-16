@@ -1,6 +1,7 @@
 import locale
 from opmuse.jinja import (show_ws, format_bytes, format_number, nl2p,
-                         format_seconds_alt, format_seconds)
+                          format_seconds_alt, format_seconds)
+
 
 class TestJinja:
     def test_show_ws(self):
