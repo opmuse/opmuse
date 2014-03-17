@@ -223,6 +223,7 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
             return
 
         self.secret = self.get_secret(environ)
+
         return AuthTktCookiePlugin.identify(self, environ)
 
     def get_secret(self, environ, identity = None):

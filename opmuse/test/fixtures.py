@@ -21,8 +21,9 @@ from opmuse.database import get_raw_session
 from opmuse.security import User, Role, hash_password
 
 
-def run_fixtures():
-    database = get_raw_session()
+def run_fixtures(database=None):
+    if database is None:
+        database = get_raw_session()
 
     # begin fixtures
 

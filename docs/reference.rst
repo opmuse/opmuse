@@ -18,7 +18,6 @@ Reference
    reference.opmuse.commands
    reference.opmuse.covers
    reference.opmuse.database
-   reference.opmuse.fixtures
    reference.opmuse.google
    reference.opmuse.image
    reference.opmuse.jinja

@@ -125,7 +125,7 @@ def command_database(action=None):
         engine.execute("DROP DATABASE IF EXISTS %s" % get_database_name())
         command_whoosh("drop")
     elif action == "fixtures":
-        from opmuse.fixtures import run_fixtures
+        from opmuse.test.fixtures import run_fixtures
         run_fixtures()
     elif action == "reset":
         engine = get_engine()
