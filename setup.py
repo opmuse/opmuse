@@ -155,7 +155,7 @@ if not on_readthedocs and (len(sys.argv) == 1 or sys.argv[1] != 'setopt'):
 setup(
     name="opmuse",
     version=git_version,
-    packages=['opmuse'],
+    packages=['opmuse', 'opmuse.controllers'],
     description="A web application to play, organize and share your music library.",
     long_description=open('README.md', 'r').read(),
     author="Mattias Fliesberg",
