@@ -104,8 +104,8 @@ class WsUser:
         try:
             handler.send(json.dumps(message))
         except Exception:
-            log('Error occured while sending "%s" to %s, cleaning up socket.\n' %
-                (message, handler.user['login']), traceback=True)
+            log('Error occured while sending to %s@%s, cleaning up socket, payload %s.\n' %
+                (handler.user['login'], '%s:%d' % handler.peer_address, message), traceback=True)
 
             handler.cleanup()
 
