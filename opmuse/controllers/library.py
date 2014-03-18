@@ -256,7 +256,7 @@ class LibrarySearch:
                     if len(recent_searches) > LibrarySearch.MAX_RECENT:
                         recent_searches.pop()
 
-            entities = sorted(entities, key=lambda entity: entity.__SEARCH_SCORE, reverse=True)
+            entities = sorted(entities, key=lambda entity: entity._SEARCH_SCORE, reverse=True)
 
             hierarchy = Library._produce_track_hierarchy(entities)
 
