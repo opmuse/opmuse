@@ -227,6 +227,10 @@ class Album(Base):
     format = column_property(select([func.max(Track.format)])
                              .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
+    disc_count = column_property(select([func.count(distinct(Track.disc))])
+                                 .where(Track.album_id == id)
+                                 .correlate_except(Track), deferred=True)
+
     track_count = column_property(select([func.count(Track.id)])
                                   .where(Track.album_id == id).correlate_except(Track), deferred=True)
 

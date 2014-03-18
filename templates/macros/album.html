@@ -50,7 +50,11 @@
                     <div class="left">
                         <dl>
                             <dt>Tracks</dt>
-                            <dd>{{ album.track_count }}</dd>
+                            <dd>{{ album.track_count }}
+                            {% if album.disc_count > 1 %}
+                                ({{ album.disc_count }} discs)
+                            {% endif %}
+                            </dd>
                         </dl>
                         <dl>
                             <dt>Duration</dt>
