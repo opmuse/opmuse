@@ -64,6 +64,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
             $('#fileupload').data('initialized', true);
 
             $('#fileupload').fileupload({
+                singleFileUploads: false,
                 multipart: false,
                 add: function (event, data) {
                     $.each(data.files, function () {
@@ -121,9 +122,18 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                         } else {
                             var audioFile = fileDom.find('[name=audio_file]');
 
-                            var prevFile = $("#fileupload .files > .audio-file:visible").eq(-1).data('file');
+                            var prevFile = null;
 
-                            if (typeof prevFile != 'undefined' && prevFile !== null) {
+                            $(data.files).each(function () {
+                                var file = this;
+
+                                if (that.audio.indexOf(file.type) != -1) {
+                                    prevFile = file;
+                                    return false;
+                                }
+                            });
+
+                            if (prevFile !== null) {
                                 audioFile.val(prevFile.name);
                             }
 
