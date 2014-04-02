@@ -91,10 +91,10 @@ class Covers:
         if type == "album":
             entity = library_dao.get_album_by_slug(slug)
 
-            remotes.update_album(entity)
-
             if entity is None:
                 raise ValueError('Entity not found')
+
+            remotes.update_album(entity)
 
             for artist in entity.artists:
                 if artist.cover_path is None or not os.path.exists(artist.cover_path):
@@ -110,10 +110,10 @@ class Covers:
         elif type == "artist":
             entity = library_dao.get_artist_by_slug(slug)
 
-            remotes.update_artist(entity)
-
             if entity is None:
                 raise ValueError('Entity not found')
+
+            remotes.update_artist(entity)
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
                 cherrypy.engine.bgtask.put(self.fetch_artist_cover, 9, entity.id)
