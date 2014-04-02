@@ -21,6 +21,7 @@ import cherrypy
 import base64
 import tempfile
 import time
+from sqlalchemy.orm.exc import NoResultFound
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from opmuse.ws import ws
@@ -158,7 +159,10 @@ class Covers:
         return None, None
 
     def fetch_album_cover(self, album_id):
-        album = get_database().query(Album).filter_by(id=album_id).one()
+        try:
+            album = get_database().query(Album).filter_by(id=album_id).one()
+        except NoResultFound:
+            return
 
         remotes_album = None
         tries = 0
@@ -232,7 +236,10 @@ class Covers:
     fetch_album_cover.bgtask_name = "Fetch cover for album {0}"
 
     def fetch_artist_cover(self, artist_id):
-        artist = get_database().query(Artist).filter_by(id=artist_id).one()
+        try:
+            artist = get_database().query(Artist).filter_by(id=artist_id).one()
+        except NoResultFound:
+            return
 
         remotes_artist = None
         tries = 0
