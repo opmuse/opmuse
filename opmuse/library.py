@@ -33,12 +33,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
                         DateTime, Boolean, func, TypeDecorator, Index, distinct, select)
 from sqlalchemy.dialects import mysql
-from sqlalchemy.orm import relationship, backref, deferred, validates, column_property, joinedload
+from sqlalchemy.orm import relationship, deferred, validates, column_property
 from sqlalchemy.ext.hybrid import hybrid_property
 from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_database_type, get_database, database_data
-from opmuse.image import image
 from opmuse.search import search
 from unidecode import unidecode
 import mutagenx.mp3

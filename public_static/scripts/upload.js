@@ -67,10 +67,16 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                 singleFileUploads: false,
                 multipart: false,
                 add: function (event, data) {
+                    var files = [];
+
+                    var artistNameFallback = sprintf('Unknown Artist %d', Math.floor(Math.random() * 1000));
+
                     $.each(data.files, function () {
                         var file = this;
 
                         var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl").data('file', file);
+
+                        fileDom.data('artistNameFallback', artistNameFallback);
 
                         fileDom.find('.filename').text(file.name);
 
@@ -100,6 +106,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                         if (that.archives.indexOf(file.type) != -1) {
                             fileDom.find('[name=archive_password]').show();
                             fileDom.addClass('archive-file');
+
+                            files.unshift([fileDom, file]);
                         } else if (that.audio.indexOf(file.type) != -1) {
                             fileDom.addClass('audio-file');
 
@@ -108,17 +116,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                             $("#fileupload .files > .other-file:visible").each(function () {
                                 var audioFile = $(this).find('[name=audio_file]');
 
-                                var value = audioFile.val();
-
-                                if (value === '') {
-                                    audioFile.val(file.name);
-                                }
-
                                 audioFile.typeahead('destroy');
                                 audioFile.typeahead({
                                     local: that.names
                                 });
                             });
+
+                            files.unshift([fileDom, file]);
                         } else {
                             var audioFile = fileDom.find('[name=audio_file]');
 
@@ -145,18 +149,26 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
                             audioFile.typeahead({
                                 local: that.names
                             });
+
+                            files.push([fileDom, file]);
                         }
 
+                        that.totalSize += file.size;
+                    });
+
+                    for (var index in files) {
+                        var file = files[index];
+
+                        var fileDom = file[0];
+                        file = file[1];
 
                         $("#fileupload .files").append(fileDom);
-
-                        that.totalSize += file.size;
 
                         that.files.push({
                             file: file,
                             dom: fileDom
                         });
-                    });
+                    }
                 },
                 progress: function (event, data) {
                     var loaded = $(data.fileDom).data('loaded');
@@ -224,19 +236,29 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
         send: function (start) {
             var that = this;
 
-            var count = null;
+            // first start the session in the backend, then start the actual upload
+            if (start === true) {
+                $.ajax(sprintf("%s?session=%d", $("#fileupload").data('url-start'), that.session), {
+                    success: function (data, textStatus, xhr) {
+                        that.send();
+                    },
+                    error: function (xhr) {
+                        $('.total-progress.progress').addClass('progress-bar-danger')
+                        .popover({
+                            html: true,
+                            trigger: "hover",
+                            placement: 'bottom',
+                            container: "#upload",
+                            title: "Error occured while starting upload.",
+                            content: $(xhr.responseText).find("#content").contents()
+                        });
+                    },
+                });
 
-            // we start with 1 and when that's finished we use parallelUploads
-            // the reason is we need to know that the first one is done before
-            // running the subsequent ones because we do some init stuff in that
-            // one.
-            if (typeof start != 'undefined' && start) {
-                start = true;
-                count = 1;
-            } else {
-                start = false;
-                count = that.parallelUploads - that.activeUploads;
+                return;
             }
+
+            var count = that.parallelUploads - that.activeUploads;
 
             that.names = [];
 
@@ -249,10 +271,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
 
                 var archivePassword = $(file.dom).find('[name=archive_password]').val();
                 var audioFile = $(file.dom).find('[name=audio_file]').val();
+                var artistNameFallback = $(file.dom).data('artistNameFallback');
 
-                var url = sprintf("%s?archive_password=%s&audio_file=%s&start=%s&session=%d",
-                    $("#fileupload").attr("action"), encodeURIComponent(archivePassword), encodeURIComponent(audioFile),
-                    start ? "true" : "false", that.session);
+                var url = sprintf("%s?archive_password=%s&audio_file=%s&session=%d&artist_name_fallback=%s",
+                    $("#fileupload").attr("action"), encodeURIComponent(archivePassword),
+                    encodeURIComponent(audioFile), that.session, encodeURIComponent(artistNameFallback));
 
                 that.activeUploads++;
 

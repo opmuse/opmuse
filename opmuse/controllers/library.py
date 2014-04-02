@@ -278,6 +278,8 @@ class LibrarySearch:
 
 
 class LibraryUpload:
+    CACHE_KEY = "UPLOAD_TRACKS_%d_%s"
+
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload.html')
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -286,23 +288,30 @@ class LibraryUpload:
         return {}
 
     @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.authorize(roles=['admin'])
+    def start(self, session = None):
+        cache_key = LibraryUpload.CACHE_KEY % (cherrypy.request.user.id, session)
+
+        all_tracks = []
+
+        cache.set(cache_key, all_tracks)
+
+        return b''
+
+    @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload_add.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def add(self, archive_password = None, audio_file = None, start = "false", session = None):
-
-        CACHE_KEY = "UPLOAD_TRACKS_%d_%s" % (cherrypy.request.user.id, session)
+    def add(self, archive_password = None, audio_file = None, session = None, artist_name_fallback = None):
+        cache_key = LibraryUpload.CACHE_KEY % (cherrypy.request.user.id, session)
 
         all_tracks = None
 
-        if start == "true":
-            all_tracks = []
-            cache.set(CACHE_KEY, all_tracks)
+        if not cache.has(cache_key):
+            raise cherrypy.HTTPError(status=409)
         else:
-            if not cache.has(CACHE_KEY):
-                raise cherrypy.HTTPError(status=409)
-            else:
-                all_tracks = cache.get(CACHE_KEY)
+            all_tracks = cache.get(cache_key)
 
         if audio_file is not None and len(audio_file) == 0:
             audio_file = None
@@ -339,8 +348,6 @@ class LibraryUpload:
 
         with open(path, 'wb') as fileobj:
             fileobj.write(cherrypy.request.rfile.read())
-
-        artist_name_fallback = None
 
         # this file is a regular file that belongs to an audio_file
         if audio_file is not None:
@@ -431,13 +438,6 @@ class LibraryUpload:
 
         # this is a plain audio file
         else:
-            for comp in basename.split('-'):
-                comp = comp.strip()
-
-                if not re.search(r'^[0-9]+$', comp):
-                    artist_name_fallback = comp
-                    break
-
             paths.append(path.encode('utf8'))
 
         for path in paths:
