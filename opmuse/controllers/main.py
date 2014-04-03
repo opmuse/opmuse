@@ -33,28 +33,6 @@ from opmuse.controllers.cover import Cover
 from opmuse.controllers.play import Play
 
 
-class Styles:
-    @cherrypy.expose
-    def default(self, *args, **kwargs):
-        file = os.path.join(*args)
-        cherrypy.response.headers['Content-Type'] = 'text/css'
-
-        path = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
-            '..', 'public_static', 'styles'
-        )
-
-        csspath = os.path.join(path, file)
-
-        if os.path.exists(csspath):
-            return cherrypy.lib.static.serve_file(csspath)
-
-        ext = os.path.splitext(file)
-        lesspath = os.path.join(path, "%s%s" % (ext[0], ".less"))
-
-        return cherrypy.lib.static.serve_file(lesspath)
-
-
 class Root:
     @staticmethod
     def handle_error(status, message, traceback, version):
@@ -65,7 +43,6 @@ class Root:
             'version': version
         })
 
-    styles = Styles()
     queue = Queue()
     users = Users()
     settings = Settings()
