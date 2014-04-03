@@ -115,7 +115,8 @@ class SqlAlchemyTool(cherrypy.Tool):
                                self.bind_session, priority=10)
 
         self.session = scoped_session(sessionmaker(autoflush=True,
-                                                   autocommit=False))
+                                                   autocommit=False,
+                                                   expire_on_commit=False))
 
     def _setup(self):
         cherrypy.Tool._setup(self)
