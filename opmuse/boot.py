@@ -33,6 +33,15 @@ from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
 
 
+def get_staticdir():
+    staticdir = join(abspath(dirname(__file__)), '..', 'public_static')
+
+    if not exists(staticdir):
+        staticdir = '/usr/share/opmuse/public_static'
+
+    return staticdir
+
+
 def configure(skip_config=False, environment=None):
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
@@ -58,11 +67,6 @@ def configure(skip_config=False, environment=None):
         print('Configuration is missing!')
         sys.exit(1)
 
-    staticdir = join(abspath(dirname(__file__)), '..', 'public_static')
-
-    if not exists(staticdir):
-        staticdir = '/usr/share/opmuse/public_static'
-
     app_config = {
         '/': {
             'tools.cgitb_log_err.on': True,
@@ -81,7 +85,7 @@ def configure(skip_config=False, environment=None):
             'tools.jinjaauthenticated.on': False,
             'tools.database.on': False,
             'tools.staticdir.on': True,
-            'tools.staticdir.dir': staticdir,
+            'tools.staticdir.dir': get_staticdir(),
             'tools.expires.on': False,
             'tools.expires.secs': 3600 * 24 * 30
         },

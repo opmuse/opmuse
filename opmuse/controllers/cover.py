@@ -1,6 +1,7 @@
 import os
 import cherrypy
 from opmuse.covers import covers
+from opmuse.boot import get_staticdir
 
 
 class Cover:
@@ -8,8 +9,6 @@ class Cover:
     @cherrypy.tools.expires(secs=3600 * 24 * 30, force=True)
     @cherrypy.tools.authenticated(needs_auth=True)
     def default(self, type, slug, hash = None, refresh = None, size="default"):
-        images_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'public_static', 'images')
-
         try:
             mime, cover = covers.get_cover(type, slug, size)
         except ValueError:
@@ -20,6 +19,8 @@ class Cover:
                 placeholder = 'cover_large_placeholder.png'
             else:
                 placeholder = 'cover_placeholder.png'
+
+            images_path = os.path.join(get_staticdir(), 'images')
 
             return cherrypy.lib.static.serve_file(os.path.join(images_path, placeholder))
         else:
