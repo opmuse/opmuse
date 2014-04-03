@@ -930,8 +930,10 @@ class Library:
 
     def __init__(self, path):
         self.scanning = False
+        self.running = None
         self.files_found = None
         self._path = path
+        self.threads = []
 
     @staticmethod
     def pretty_format(format):
@@ -955,10 +957,10 @@ class Library:
         return format
 
     def start(self):
-
         start_time = time.time()
 
         self.scanning = True
+        self.running = True
 
         self._database_type = get_database_type()
         self._database = get_session()
@@ -998,8 +1000,6 @@ class Library:
 
         log("%d files found" % index)
 
-        threads = []
-
         # sqlite doesn't support threaded writes so just run one thread if
         # that's what we have
         if self._database_type == 'sqlite':
@@ -1020,46 +1020,57 @@ class Library:
             to_process.append(filename)
 
             if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                p = Thread(target=LibraryProcess, args = (self._path, to_process, None, no),
+                p = Thread(target=LibraryProcess, args = (self._path, to_process, None, no, None, self),
                            name="LibraryProcess_%d" % no)
                 p.start()
 
                 log("Spawned library thread %d with ident %s)." % (no, p.ident))
 
-                threads.append(p)
+                self.threads.append(p)
 
                 to_process = []
                 no += 1
 
         log("Spawned %d library thread(s)." % thread_num)
 
-        for thread in threads:
+        for thread in self.threads:
             thread.join()
 
-        # remove tracks without any paths (e.g. removed since previous search)
-        #
-        # because if the file moved it will be found by the hash and just have
-        # the new path readded as opposed to when it was completely removed
-        # from the library path
-        for track in self._database.query(Track).all():
-            if len(track.paths) == 0:
-                library_dao.delete_track(track, self._database)
+        self.threads = []
 
-        # remove albums without tracks
-        for album in self._database.query(Album).all():
-            if len(album.tracks) == 0:
-                library_dao.delete_album(album, self._database)
+        if self.running:
+            # remove tracks without any paths (e.g. removed since previous search)
+            #
+            # because if the file moved it will be found by the hash and just have
+            # the new path readded as opposed to when it was completely removed
+            # from the library path
+            for track in self._database.query(Track).all():
+                if len(track.paths) == 0:
+                    library_dao.delete_track(track, self._database)
 
-        # remove artists without tracks
-        for artist in self._database.query(Artist).all():
-            if len(artist.tracks) == 0:
-                library_dao.delete_artist(artist, self._database)
+            # remove albums without tracks
+            for album in self._database.query(Album).all():
+                if len(album.tracks) == 0:
+                    library_dao.delete_album(album, self._database)
+
+            # remove artists without tracks
+            for artist in self._database.query(Artist).all():
+                if len(artist.tracks) == 0:
+                    library_dao.delete_artist(artist, self._database)
 
         self._database.remove()
 
         self.scanning = False
+        self.running = False
 
         log("Done updating library, in %d seconds." % (time.time() - start_time))
+
+    def stop(self):
+        if self.running:
+            self.running = False
+
+            for thread in self.threads:
+                thread.join()
 
     @staticmethod
     def is_supported(filename):
@@ -1070,8 +1081,7 @@ class Library:
 
 
 class LibraryProcess:
-
-    def __init__(self, path, queue, database = None, no = -1, tracks = None):
+    def __init__(self, path, queue, database = None, no = -1, tracks = None, library = None):
 
         self._path = path
         self.no = no
@@ -1085,8 +1095,14 @@ class LibraryProcess:
             self._database = database
 
         count = 1
+        processed = 0
         start = time.time()
+
         for filename in queue:
+            if library is not None and library.running is False:
+                log('Process %d aborted.' % self.no)
+                break
+
             track = self.process(filename)
 
             if tracks is not None:
@@ -1099,11 +1115,12 @@ class LibraryProcess:
                 count = 0
 
             count += 1
+            processed += 1
 
         if database is None:
             self._database.remove()
 
-        log('Process %d is done processing %d files.' % (self.no, len(queue)))
+        log('Process %d is done processing %d out of %d files.' % (self.no, processed, len(queue)))
 
     def process(self, filename):
 
@@ -1857,8 +1874,11 @@ class LibraryWatchdogPlugin(SimplePlugin):
         SimplePlugin.__init__(self, bus)
 
         self.event_handler = None
+        self.running = None
 
     def start(self):
+        self.running = True
+
         config = cherrypy.tree.apps[''].config['opmuse']
 
         def run(self, library_path):
@@ -1868,33 +1888,32 @@ class LibraryWatchdogPlugin(SimplePlugin):
             observer.schedule(self.event_handler, library_path, recursive=True)
             observer.start()
 
-            try:
-                while True:
-                    database_data.database = get_session()
+            while self.running:
+                database_data.database = get_session()
 
-                    removed = self.event_handler.pop_removed()
+                removed = self.event_handler.pop_removed()
 
-                    if len(removed) > 0:
-                        log("Watchdog removing %d files." % len(removed))
-                        library_dao.remove_paths(removed, remove = False)
+                if len(removed) > 0:
+                    log("Watchdog removing %d files." % len(removed))
+                    library_dao.remove_paths(removed, remove = False)
 
-                    added = self.event_handler.pop_added()
+                added = self.event_handler.pop_added()
 
-                    if len(added) > 0:
-                        log("Watchdog adding %d files." % len(added))
-                        tracks, add_files_messages = library_dao.add_files(added, move = False, remove_dirs = False)
+                if len(added) > 0:
+                    log("Watchdog adding %d files." % len(added))
+                    tracks, add_files_messages = library_dao.add_files(added, move = False, remove_dirs = False)
 
-                    try:
-                        database_data.database.commit()
-                    except:
-                        database_data.database.rollback()
-                        raise
-                    finally:
-                        database_data.database.remove()
-                        database_data.database = None
+                try:
+                    database_data.database.commit()
+                except:
+                    database_data.database.rollback()
+                    raise
+                finally:
+                    database_data.database.remove()
+                    database_data.database = None
 
-                    time.sleep(5)
-            except KeyboardInterrupt:
+                time.sleep(5)
+            else:
                 observer.stop()
 
             observer.join()
@@ -1910,6 +1929,10 @@ class LibraryWatchdogPlugin(SimplePlugin):
     start.priority = 115
 
     def stop(self):
+        if self.running:
+            self.running = False
+            self.thread.join()
+
         self.thread = None
 
     def add_ignores(self, ignores):
@@ -1944,6 +1967,8 @@ class LibraryPlugin(SimplePlugin):
         return self.library
 
     def stop(self):
+        self.library.stop()
+        self.thread.join()
         self.library = None
         self.thread = None
 
