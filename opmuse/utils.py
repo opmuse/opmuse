@@ -50,7 +50,9 @@ class LessReloader(Monitor):
         if not self.enable:
             return
 
-        for path, dirnames, filenames in os.walk(less_compiler.stylespath):
+        from opmuse.boot import get_staticdir
+
+        for path, dirnames, filenames in os.walk(os.path.join(get_staticdir(), 'styles')):
             for filename in filenames:
                 if filename[-4:] != 'less':
                     continue

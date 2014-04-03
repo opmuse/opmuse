@@ -3,22 +3,23 @@ import subprocess
 
 
 class LessCompiler:
-    def __init__(self):
-        self.stylespath = os.path.join(os.path.dirname(__file__), '..', 'public_static', 'styles')
-
     def compile(self, path=None):
+        from opmuse.boot import get_staticdir
+
+        stylespath = os.path.join(get_staticdir(), 'styles')
+
         lesspath = os.path.join(os.path.dirname(__file__), '..', 'vendor', 'less.js')
 
         if path is None:
-            path = os.path.join(self.stylespath, 'main.css')
+            path = os.path.join(stylespath, 'main.css')
         else:
             path = os.path.join(os.getcwd(), path)
 
         subprocess.call([
             os.path.join(lesspath, 'bin', 'lessc'),
-            os.path.join(self.stylespath, 'main.less'),
+            os.path.join(stylespath, 'main.less'),
             path
-        ], cwd=self.stylespath)
+        ], cwd=stylespath)
 
 
 less_compiler = LessCompiler()
