@@ -26,7 +26,7 @@ git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).str
 sys.path.insert(0, os.path.abspath('..'))
 
 import opmuse.boot
-opmuse.boot.configure(skip_config=True)
+opmuse.boot.configure(config_file=False)
 
 # -- General configuration ------------------------------------------------
 

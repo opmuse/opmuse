@@ -42,7 +42,7 @@ def get_staticdir():
     return staticdir
 
 
-def configure(skip_config=False, environment=None):
+def configure(config_file=None, environment=None):
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
     cherrypy.tools.jinja = Jinja()
@@ -58,12 +58,13 @@ def configure(skip_config=False, environment=None):
 
     from opmuse.controllers.main import Root
 
-    config_file = join(abspath(dirname(__file__)), '..', 'config', 'opmuse.ini')
+    if config_file is None:
+        config_file = join(abspath(dirname(__file__)), '..', 'config', 'opmuse.ini')
 
-    if not exists(config_file):
+    if config_file is not False and not exists(config_file):
         config_file = '/etc/opmuse/opmuse.ini'
 
-    if not skip_config and not exists(config_file):
+    if config_file and not exists(config_file):
         print('Configuration is missing!')
         sys.exit(1)
 
@@ -102,12 +103,12 @@ def configure(skip_config=False, environment=None):
 
     app = cherrypy.tree.mount(Root(), '/', app_config)
 
-    if not skip_config:
+    if config_file:
         app.merge(config_file)
 
     app.wsgiapp.pipeline.append(('repoze.who', repozewho_pipeline))
 
-    if skip_config:
+    if config_file is False:
         config = cherrypy._cpconfig.Config()
     else:
         config = cherrypy._cpconfig.Config(file=config_file)
