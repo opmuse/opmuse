@@ -44,7 +44,8 @@ require([
     'remotes',
     'filters',
     'dir_table',
-    'navbar'
+    'navbar',
+    'modernizr'
     ], function($) {
 
     $.ajaxSetup({

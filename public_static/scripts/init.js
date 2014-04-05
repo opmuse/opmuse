@@ -41,7 +41,8 @@ var require = {
         'moment': 'lib/moment',
         'matchMedia': 'lib/matchMedia',
         'jquery.ui': 'lib/jquery.ui',
-        'typeahead': 'lib/typeahead'
+        'typeahead': 'lib/typeahead',
+        'modernizr': 'lib/modernizr'
     },
     shim: {
         'typeahead': ['jquery'],

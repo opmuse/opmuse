@@ -37,3 +37,6 @@
 [submodule "vendor/r.js"]
 	path = vendor/r.js
 	url = https://github.com/jrburke/r.js.git
+[submodule "vendor/Modernizr"]
+	path = vendor/Modernizr
+	url = https://github.com/Modernizr/Modernizr
