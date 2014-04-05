@@ -1,0 +1,34 @@
+{% import "macros/album.html" as album_macros %}
+
+<div class="left">
+    <dl>
+        <dt>Tracks</dt>
+        <dd>{{ album.track_count }}
+        {% if album.disc_count > 1 %}
+            ({{ album.disc_count }} discs)
+        {% endif %}
+        </dd>
+    </dl>
+    <dl>
+        <dt>Duration</dt>
+        <dd>{{ album.duration|format_seconds }}</dd>
+    </dl>
+    <dl>
+        <dt>Added</dt>
+        <dd>{{ album.added|pretty_date }}</dd>
+    </dl>
+    <dl>
+        <dt>Format</dt>
+        <dd>{{ album.pretty_format }}</dd>
+    </dl>
+</div>
+<div class="right">
+    {{ album_macros.album_queue_btn(album) }}
+
+    {% if is_granted('admin') %}
+        <a class="remove-cover btn btn-default btn-sm" data-ajaxify="false"
+            href="/cover/refresh/album/{{ album.slug|urlencode }}">
+            <i class="fa fa-refresh"></i>
+        </a>
+    {% endif %}
+</div>

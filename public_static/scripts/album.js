@@ -49,6 +49,22 @@ define(['jquery', 'inheritance', 'modernizr', 'domReady!'], function($, inherita
                     return false;
                 });
             }
+
+            $(".album figure, .artist figure").on('mouseover', function (event) {
+                if ($(this).data('shown') !== true) {
+                    var content = $(this).find('*[data-href]');
+
+                    $.ajax(content.data('href'), {
+                        success: function (data, textStatus, xhr) {
+                            content.html(data);
+                        },
+                        error: function (xhr) {
+                        }
+                    });
+                }
+
+                $(this).data('shown', true);
+            });
         }
     });
 

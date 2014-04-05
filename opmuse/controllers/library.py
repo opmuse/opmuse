@@ -514,6 +514,32 @@ class Library:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='library/artist_caption.html')
+    def artist_caption(self, artist_id):
+        artist = library_dao.get_artist(artist_id)
+
+        if artist is None:
+            raise cherrypy.NotFound()
+
+        return {
+            'artist': artist
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    @cherrypy.tools.jinja(filename='library/album_caption.html')
+    def album_caption(self, album_id):
+        album = library_dao.get_album(album_id)
+
+        if album is None:
+            raise cherrypy.NotFound()
+
+        return {
+            'album': album
+        }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/album.html')
     def album(self, artist_slug, album_slug):
         try:

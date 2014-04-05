@@ -7,35 +7,16 @@
             {{ covers.artist(artist) }}
         </a>
         <figcaption>
-            <div class="effeckt-figcaption-wrap">
-                <div class="left">
-                    <dl>
-                        <dt>Albums</dt>
-                        <dd>{{ artist.album_count }}</dd>
-                    </dl>
-                    <dl>
-                        <dt>VAs</dt>
-                        <dd>{{ artist.va_count }}</dd>
-                    </dl>
-                    <dl>
-                        <dt>Added</dt>
-                        <dd>{{ artist.added|pretty_date }}</dd>
-                    </dl>
-                </div>
-                <div class="right">
-                    {% if is_granted('admin') %}
-                        <a class="remove-cover btn btn-default btn-sm"
-                            href="/cover/refresh/artist/{{ artist.slug|urlencode }}">
-                            <i class="fa fa-refresh"></i>
-                        </a>
-                    {% endif %}
-                </div>
+            <div class="effeckt-figcaption-wrap" data-href="/library/artist_caption/{{ artist.id }}">
+                <i class="loader fa fa-spin fa-spinner"></i>
             </div>
         </figcaption>
     </figure>
     <div class="artist-desc">
         <h3 class="artist-name">
-            {{ artist.name|show_ws }}
+            <a href="/{{ artist.slug|urlencode }}">
+                {{ artist.name|show_ws }}
+            </a>
         </h3>
     </div>
 </div>

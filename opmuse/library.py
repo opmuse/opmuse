@@ -1679,9 +1679,21 @@ class LibraryDao:
         if len(new_dirs) > 0:
             self.remove_empty_dirs(new_dirs)
 
+    def get_album(self, id):
+        try:
+            return get_database().query(Album).filter_by(id=id).one()
+        except NoResultFound:
+            pass
+
     def get_album_by_slug(self, slug):
         try:
             return get_database().query(Album).filter_by(slug=slug).one()
+        except NoResultFound:
+            pass
+
+    def get_artist(self, id):
+        try:
+            return get_database().query(Artist).filter_by(id=id).one()
         except NoResultFound:
             pass
 

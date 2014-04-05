@@ -28,7 +28,7 @@
 {% endmacro %}
 
 {% macro album_queue_btn(album) %}
-    <a class="queue add add-album btn btn-primary btn-sm"
+    <a class="queue add add-album btn btn-primary btn-sm" data-ajaxify="false"
         href="/queue/add_album/{{ album.id }}">
         <i class="fa fa-headphones"></i>
     </a>
@@ -46,38 +46,8 @@
                 {{ covers.album(album) }}
             </a>
             <figcaption>
-                <div class="effeckt-figcaption-wrap">
-                    <div class="left">
-                        <dl>
-                            <dt>Tracks</dt>
-                            <dd>{{ album.track_count }}
-                            {% if album.disc_count > 1 %}
-                                ({{ album.disc_count }} discs)
-                            {% endif %}
-                            </dd>
-                        </dl>
-                        <dl>
-                            <dt>Duration</dt>
-                            <dd>{{ album.duration|format_seconds }}</dd>
-                        </dl>
-                        <dl>
-                            <dt>Added</dt>
-                            <dd>{{ album.added|pretty_date }}</dd>
-                        </dl>
-                        <dl>
-                            <dt>Format</dt>
-                            <dd>{{ album.pretty_format }}</dd>
-                        </dl>
-                    </div>
-                    <div class="right">
-                        {{ album_queue_btn(album) }}
-                        {% if is_granted('admin') %}
-                            <a class="remove-cover btn btn-default btn-sm"
-                                href="/cover/refresh/album/{{ album.slug|urlencode }}">
-                                <i class="fa fa-refresh"></i>
-                            </a>
-                        {% endif %}
-                    </div>
+                <div class="effeckt-figcaption-wrap" data-href="/library/album_caption/{{ album.id }}">
+                    <i class="loader fa fa-spin fa-spinner"></i>
                 </div>
             </figcaption>
         </figure>

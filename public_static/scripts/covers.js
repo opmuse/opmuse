@@ -31,12 +31,6 @@ define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inherit
 
             var that = this;
 
-            $('#main').bind('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-
             ws.on('covers.artist.update', function (id) {
                 that.refresh($("#artist_cover_" + id));
                 that.refresh($(".artist_cover_" + id));
@@ -45,16 +39,10 @@ define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inherit
             ws.on('covers.album.update', function (id) {
                 that.refresh($("#album_cover_" + id));
             });
-        },
-        internalInit: function () {
-            var that = this;
 
-            $("a.remove-cover")
-                .unbind('click.covers')
-                .bind('click.covers', function (event) {
-                    $.ajax($(this).attr('href'));
-
-                    return false;
+            $(document).on('click.covers', "a.remove-cover", function (event) {
+                $.ajax($(this).attr('href'));
+                return false;
             });
         }, refresh: function (container) {
             var img = container.find("img");
