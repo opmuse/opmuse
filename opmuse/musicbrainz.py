@@ -79,7 +79,7 @@ class Musicbrainz:
                     aliases.append(alias['sort-name'].lower())
 
             if (_artist['name'].lower() != artist_name and _artist['sort-name'].lower() != artist_name and
-                artist_name not in aliases):
+                    artist_name not in aliases):
                 continue
 
             artists.append(_artist)

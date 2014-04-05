@@ -98,7 +98,7 @@ class User(Base):
 
 def is_authenticated():
     if ('repoze.who.identity' not in cherrypy.request.wsgi_environ or
-        not cherrypy.request.wsgi_environ.get('repoze.who.identity')):
+            not cherrypy.request.wsgi_environ.get('repoze.who.identity')):
         raise cherrypy.HTTPError(401)
 
 

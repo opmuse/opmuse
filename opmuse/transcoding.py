@@ -49,8 +49,7 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
                                self.end, priority=20)
 
     def end(self):
-        if (hasattr(cherrypy.request, 'transcoding_process') and
-            cherrypy.request.transcoding_process is not None):
+        if (hasattr(cherrypy.request, 'transcoding_process') and cherrypy.request.transcoding_process is not None):
 
             p = cherrypy.request.transcoding_process
 
@@ -60,8 +59,7 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
             p.stdout.read()
             p.wait()
 
-        if (hasattr(cherrypy.request, 'transcoding_track') and
-            cherrypy.request.transcoding_track is not None):
+        if (hasattr(cherrypy.request, 'transcoding_track') and cherrypy.request.transcoding_track is not None):
 
             track = cherrypy.request.transcoding_track
             transcoder = cherrypy.request.transcoding_transcoder
@@ -135,9 +133,7 @@ class FFMPEGTranscoder(Transcoder):
                     '-metadata', 'album=%s' % album,
                     '-metadata', 'title=%s' % title,
                     '-metadata', 'tracknumber=%s' % track_number,
-                    '-'
-                ]
-        )
+                    '-'])
 
         for index, arg in enumerate(args):
             if not isinstance(arg, bytes):
@@ -226,7 +222,8 @@ class FFMPEGTranscoder(Transcoder):
                             self.stderr = chunk
 
                             if len(chunk) > 0:
-                                match = re.match(b'.*time=[ ]*(?P<time>[0-9.:]+).*bitrate=[ ]*(?P<bitrate>[0-9.]+)', chunk)
+                                match = re.match(b'.*time=[ ]*(?P<time>[0-9.:]+).*bitrate=[ ]*(?P<bitrate>[0-9.]+)',
+                                                 chunk)
 
                                 if match:
                                     info = match.groupdict()
@@ -291,7 +288,7 @@ class FFMPEGTranscoder(Transcoder):
             }, transcoder=self, track=self.track)
 
             debug('"%s" transcoding at %d b/s, we\'re %.2fs ahead (total %ds).' %
-                 (self.pretty_filename, bitrate, seconds_ahead, seconds))
+                  (self.pretty_filename, bitrate, seconds_ahead, seconds))
 
     def initial_bitrate(self):
         """

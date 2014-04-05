@@ -205,15 +205,25 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description='opmuse')
-    parser.add_argument('-d', '--daemon', action='store_true', help='Run as daemon')
-    parser.add_argument('-pf', '--pidfile', action='store', help='Path to pid file.')
-    parser.add_argument('-p', '--profile', action='store_true', help='Run repoze.profile, access it at /__profile__')
-    parser.add_argument('-l', '--log', action='store', help='Log file location.')
-    parser.add_argument('-le', '--errorlog', action='store', help='Log error messages in this separate file.')
-    parser.add_argument('-u', '--user', action='store', help='When running as daemon, what user to run as.', default='nobody')
-    parser.add_argument('-e', '--env', action='store', help='cherrypy environment.')
-    parser.add_argument('-t', '--timers', action='store_true', help='log timing info for requests and queries.')
-    parser.add_argument('-f', '--firepy', action='store_true', help='enable firephp logging through cherrypy.request.firepy().')
+
+    parser.add_argument('-d', '--daemon', action='store_true',
+                        help='Run as daemon')
+    parser.add_argument('-pf', '--pidfile', action='store',
+                        help='Path to pid file.')
+    parser.add_argument('-p', '--profile', action='store_true',
+                        help='Run repoze.profile, access it at /__profile__')
+    parser.add_argument('-l', '--log', action='store',
+                        help='Log file location.')
+    parser.add_argument('-le', '--errorlog', action='store',
+                        help='Log error messages in this separate file.')
+    parser.add_argument('-u', '--user', action='store',
+                        help='When running as daemon, what user to run as.', default='nobody')
+    parser.add_argument('-e', '--env', action='store',
+                        help='cherrypy environment.')
+    parser.add_argument('-t', '--timers', action='store_true',
+                        help='log timing info for requests and queries.')
+    parser.add_argument('-f', '--firepy', action='store_true',
+                        help='enable firephp logging through cherrypy.request.firepy().')
 
     args = parser.parse_args()
 

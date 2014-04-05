@@ -110,14 +110,8 @@ class Lastfm:
 
         try:
             if not (args['duration'] > 30 and (seconds > 4 * 60 or seconds > args['duration'] / 2)):
-                log('%s skipped scrobbling "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
-                    user,
-                    args['artist'],
-                    args['album'],
-                    args['title'],
-                    args['duration'],
-                    seconds
-                ))
+                log('%s skipped scrobbling "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.'
+                    % (user, args['artist'], args['album'], args['title'], args['duration'], seconds))
                 return
 
             network = self.get_network(session_key)

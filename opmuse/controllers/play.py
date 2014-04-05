@@ -38,7 +38,7 @@ class Play:
 
         # allow only one streaming client at once, or weird things might occur
         if (user.id in Play.STREAM_PLAYING and Play.STREAM_PLAYING[user.id] is not None and
-            Play.STREAM_PLAYING[user.id] != user_agent):
+                Play.STREAM_PLAYING[user.id] != user_agent):
             raise cherrypy.HTTPError(status=503)
 
         queue = queue_dao.get_next(user.id)

@@ -128,7 +128,7 @@ class QueueEvents:
 
     def transcoding_end(self, track, transcoder):
         if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
-            hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None):
+                hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None):
             queue_current = queue_dao.get_queue(cherrypy.request.queue_current_id)
 
             if queue_current is not None:
@@ -276,10 +276,10 @@ class QueueDao:
 
         for index, queue in enumerate(query.all()):
             if (index == 0 or
-                queue.track.album is not None and album is not None and album.id != queue.track.album.id or
-                queue.track.album is None and album is not None or
-                queue.track.artist is None and artist is not None or
-                track is not None and track.disc != queue.track.disc):
+                    queue.track.album is not None and album is not None and album.id != queue.track.album.id or
+                    queue.track.album is None and album is not None or
+                    queue.track.artist is None and artist is not None or
+                    track is not None and track.disc != queue.track.disc):
 
                 if info is not None and current_queues is not None:
                     queues.append((info, current_queues))

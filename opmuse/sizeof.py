@@ -28,8 +28,7 @@ def total_size(o, handlers={}, verbose=False):
                     deque: iter,
                     dict: dict_handler,
                     set: iter,
-                    frozenset: iter,
-                   }
+                    frozenset: iter}
     all_handlers.update(handlers)     # user handlers take precedence
     seen = set()                      # track which object id's have already been seen
     default_size = getsizeof(0)       # estimate sizeof object without __sizeof__
@@ -50,10 +49,3 @@ def total_size(o, handlers={}, verbose=False):
         return s
 
     return sizeof(o)
-
-
-##### Example call #####
-
-if __name__ == '__main__':
-    d = dict(a=1, b=2, c=3, d=[4, 5, 6, 7], e='a string of chars')
-    print(total_size(d, verbose=True))

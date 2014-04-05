@@ -30,7 +30,8 @@ class TestTranscoding:
         assert transcoder == CopyFFMPEGTranscoder
 
         # chrome ogg
-        user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36"
+        user_agent = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+                      "Chrome/32.0.1700.107 Safari/537.36")
         accepts = ['*/*']
         transcoder, format = transcoding.determine_transcoder(ogg_track, user_agent, accepts)
 
@@ -54,7 +55,8 @@ class TestTranscoding:
         assert transcoder == OggFFMPEGTranscoder
 
         # chrome mp3
-        user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36"
+        user_agent = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+                      "Chrome/32.0.1700.107 Safari/537.36")
         accepts = ['*/*']
         transcoder, format = transcoding.determine_transcoder(mp3_track, user_agent, accepts)
 
