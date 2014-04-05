@@ -21,6 +21,7 @@ import time
 import traceback
 import os
 import threading
+import tempfile
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
@@ -38,10 +39,10 @@ def log_timers(msg):
         cherrypy.request.firepy(msg)
 
     thread = threading.current_thread()
-    logname = "%s.%d.timers.log" % (thread.name, thread.ident)
+    logname = "opmuse.%s.%d.timers.log" % (thread.name, thread.ident)
 
     if logname not in log_fds:
-        logpath = os.path.join(os.path.dirname(__file__), '..', logname)
+        logpath = os.path.join(tempfile.gettempdir(), logname)
         log_fds[logname] = open(logpath, "w+")
 
     log_fds[logname].write(msg)
