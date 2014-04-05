@@ -45,6 +45,7 @@ require([
     'filters',
     'dir_table',
     'navbar',
+    'album',
     'modernizr'
     ], function($) {
 
