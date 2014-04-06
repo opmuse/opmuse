@@ -1467,7 +1467,7 @@ class LibraryDao:
         try:
             return (get_database().query(Track)
                     .join(TrackPath, Track.id == TrackPath.track_id)
-                    .filter(TrackPath.filename == filename, Track.scanned == True)
+                    .filter(TrackPath.filename == filename, Track.scanned)
                     .order_by(TrackPath.modified.desc())
                     .group_by(Track.id)
                     .limit(1)
@@ -1480,7 +1480,7 @@ class LibraryDao:
         try:
             return (get_database().query(Track)
                     .join(TrackPath, Track.id == TrackPath.track_id)
-                    .filter(TrackPath.path == path, Track.scanned == True)
+                    .filter(TrackPath.path == path, Track.scanned)
                     .group_by(Track.id).one())
 
         except NoResultFound:
@@ -1536,7 +1536,7 @@ class LibraryDao:
 
     def get_invalid_track_count(self):
         return (get_database().query(func.count(Track.id))
-                .filter("invalid is not null", Track.scanned == True).scalar())
+                .filter("invalid is not null", Track.scanned).scalar())
 
     def get_album_count(self):
         return get_database().query(func.count(Album.id)).scalar()
@@ -1546,20 +1546,20 @@ class LibraryDao:
 
     def get_track_duration(self):
         return (get_database().query(func.sum(Track.duration))
-                .filter(Track.scanned == True).scalar())
+                .filter(Track.scanned).scalar())
 
     def get_track_size(self):
         return (get_database().query(func.sum(Track.size))
-                .filter(Track.scanned == True).scalar())
+                .filter(Track.scanned).scalar())
 
     def get_track_count(self):
         return (get_database().query(func.count(Track.id))
-                .filter(Track.scanned == True).scalar())
+                .filter(Track.scanned).scalar())
 
     def get_track_path_count(self):
         return (get_database().query(func.count(TrackPath.id))
                 .join(Track, Track.id == TrackPath.track_id)
-                .filter(Track.scanned == True).scalar())
+                .filter(Track.scanned).scalar())
 
     def get_tracks_by_ids(self, ids):
         return (get_database().query(Track)

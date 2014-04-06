@@ -677,7 +677,7 @@ class Library:
 
         offset = page_size * (page - 1)
 
-        query = get_database().query(Track).filter(Track.scanned == True).group_by(Track.id)
+        query = get_database().query(Track).filter(Track.scanned).group_by(Track.id)
 
         if sort == "added":
             query = query.order_by(Track.added.desc())
@@ -726,7 +726,7 @@ class Library:
         query = (get_database()
                  .query(Artist)
                  .join(Track, Artist.id == Track.artist_id)
-                 .filter(Track.scanned == True)
+                 .filter(Track.scanned)
                  .group_by(Artist.id))
 
         if sort == "added":
@@ -810,7 +810,7 @@ class Library:
         query = (get_database()
                  .query(Album)
                  .join(Track, Album.id == Track.album_id)
-                 .filter(Track.scanned == True)
+                 .filter(Track.scanned)
                  .group_by(Album.id))
 
         albums = []
