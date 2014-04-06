@@ -7,7 +7,8 @@ from configparser import ConfigParser
 config = context.config
 
 cherrypy_config_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                                    '..', 'config', 'opmuse.ini')
+                                    '..', 'config', 'opmuse.ini')
+
 if not os.path.exists(cherrypy_config_file):
     cherrypy_config_file = '/etc/opmuse/opmuse.ini'
 
@@ -34,10 +35,8 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    engine = engine_from_config(
-                config.get_section(config.config_ini_section),
-                prefix='sqlalchemy.',
-                poolclass=pool.NullPool)
+    engine = engine_from_config(config.get_section(config.config_ini_section),
+                                prefix='sqlalchemy.', poolclass=pool.NullPool)
 
     connection = engine.connect()
     context.configure(connection=connection,
