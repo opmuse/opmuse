@@ -22,9 +22,11 @@ function build_git() {
 
 reprepro -b $repo deleteunreferenced
 
-# build deb packages from requirements.txt except the broken ones, they're
-# built further down...
-grep -hiEv "repoze\.who|jinja2|alembic|zope\.interface|mako|watchdog|^#" requirements.txt mysql-requirements.txt | \
+# build deb packages from requirements.txt files except the broken ones, they're
+# built further down from their gitrepos. we build dev-requirements.txt even if
+# they're not dependencies but so you can use them for debuging.
+grep -hiEv "repoze\.who|jinja2|alembic|zope\.interface|mako|watchdog|^#" \
+    requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
         if [[ $req[1] =~ "\.zip$" ]]; then
