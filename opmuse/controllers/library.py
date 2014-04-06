@@ -786,7 +786,6 @@ class Library:
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/albums.html')
     def albums(self, view = None, sort = None, filter = None, filter_value = None, page = None):
-
         if view is None:
             view = "covers"
 
@@ -810,7 +809,6 @@ class Library:
 
         query = (get_database()
                  .query(Album)
-                 .options(undefer(Album.artist_count))
                  .join(Track, Album.id == Track.album_id)
                  .filter(Track.scanned)
                  .group_by(Album.id))
@@ -855,6 +853,8 @@ class Library:
 
         # count before adding order_by() for performance reasons..
         pages = math.ceil(query.count() / page_size)
+
+        query = query.options(undefer(Album.artist_count))
 
         if sort == "added":
             query = query.order_by(Album.added.desc())
