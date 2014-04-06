@@ -2,7 +2,6 @@ import os
 import cherrypy
 import re
 from os.path import join, abspath, dirname
-from cherrypy.test import helper
 from opmuse.boot import configure
 from opmuse.database import get_raw_session
 from opmuse.test.fixtures import run_fixtures
@@ -32,26 +31,32 @@ def teardown_db(self):
     self.session.close()
 
 
-class WebCase(helper.CPWebCase):
-    @staticmethod
-    def _opmuse_setup_server():
-        configure(config_file=test_config_file, environment='production')
+try:
+    from cherrypy.test import helper
 
-        remove_db()
+    class WebCase(helper.CPWebCase):
+        @staticmethod
+        def _opmuse_setup_server():
+            configure(config_file=test_config_file, environment='production')
 
-        session = get_raw_session(create_all = True)
-        run_fixtures(session)
-        session.close()
+            remove_db()
 
-    def assertHeaderMatches(self, key, pattern, msg=None):
-        lowkey = key.lower()
+            session = get_raw_session(create_all = True)
+            run_fixtures(session)
+            session.close()
 
-        for k, v in self.headers:
-            if k.lower() == lowkey:
-                if re.match(pattern, v):
-                    return v
+        def assertHeaderMatches(self, key, pattern, msg=None):
+            lowkey = key.lower()
 
-        if msg is None:
-            msg = '%r pattern doesn\'t match any value of %r header' % (pattern, key)
+            for k, v in self.headers:
+                if k.lower() == lowkey:
+                    if re.match(pattern, v):
+                        return v
 
-        self._handlewebError(msg)
+            if msg is None:
+                msg = '%r pattern doesn\'t match any value of %r header' % (pattern, key)
+
+            self._handlewebError(msg)
+
+except ImportError:
+    pass
