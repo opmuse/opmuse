@@ -213,7 +213,7 @@ class Album(Base):
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
-    artists = relationship("Artist", secondary='tracks', lazy='joined')
+    artists = relationship("Artist", secondary='tracks')
     tracks = relationship("Track", order_by="Track.disc, Track.number, Track.name")
 
     artist_count = column_property(select([func.count(distinct(Artist.id))])
