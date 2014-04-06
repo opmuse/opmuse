@@ -854,8 +854,6 @@ class Library:
         # count before adding order_by() for performance reasons..
         pages = math.ceil(query.count() / page_size)
 
-        query = query.options(undefer(Album.artist_count))
-
         if sort == "added":
             query = query.order_by(Album.added.desc())
         elif sort == "date":

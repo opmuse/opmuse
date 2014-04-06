@@ -7,7 +7,7 @@
 {%- endmacro %}
 
 {% macro album_url(album, artist = None) -%}
-    {%- if album.is_va -%}
+    {%- if album.artists|count > 1 -%}
         /va/{{album.slug|urlencode }}
     {%- else -%}
         {%- if (artist is not defined or not artist) and album.artists|length == 0 -%}
