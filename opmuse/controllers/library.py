@@ -12,7 +12,7 @@ from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, undefer
 from sqlalchemy import func, distinct, or_
 from opmuse.database import get_database
 from opmuse.library import (library_dao, TrackPath, TrackStructureParser, Album,
@@ -725,7 +725,6 @@ class Library:
 
         query = (get_database()
                  .query(Artist)
-                 .options(joinedload(Artist.albums))
                  .join(Track, Artist.id == Track.artist_id)
                  .filter(Track.scanned)
                  .group_by(Artist.id))
@@ -811,6 +810,7 @@ class Library:
 
         query = (get_database()
                  .query(Album)
+                 .options(undefer(Album.artist_count))
                  .join(Track, Album.id == Track.album_id)
                  .filter(Track.scanned)
                  .group_by(Album.id))
