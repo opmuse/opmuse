@@ -25,7 +25,7 @@ reprepro -b $repo deleteunreferenced
 # build deb packages from requirements.txt files except the broken ones, they're
 # built further down from their gitrepos. we build dev-requirements.txt even if
 # they're not dependencies but so you can use them for debuging.
-grep -hiEv "repoze\.who|jinja2|alembic|zope\.interface|mako|watchdog|^#" \
+grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|zope\.interface|mako|watchdog|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
@@ -64,6 +64,7 @@ build_git jinja2 2.7.2 https://github.com/mitsuhiko/jinja2.git
 build_git alembic rel_0_6_2 https://bitbucket.org/zzzeek/alembic.git
 build_git zope.interface 4.0.5 https://github.com/zopefoundation/zope.interface.git
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
+build_git SQLAlchemy-Utils 82d1055d https://github.com/kvesteri/sqlalchemy-utils.git # v0.25.2
 
 # don't build and always use the distributions version
 #build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
