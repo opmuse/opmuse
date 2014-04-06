@@ -35,6 +35,7 @@ from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINA
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, deferred, validates, column_property
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy_utils import aggregated
 from multiprocessing import cpu_count
 from threading import Thread
 from opmuse.database import Base, get_session, get_database_type, get_database, database_data
@@ -236,9 +237,6 @@ class Album(Base):
     duration = column_property(select([func.sum(Track.duration)])
                                .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
-    added = column_property(select([func.max(Track.added)])
-                            .where(Track.album_id == id).correlate_except(Track), deferred=True)
-
     def __init__(self, name, date, slug, cover, cover_path, cover_hash):
         self.name = name
         self.date = date
@@ -246,6 +244,10 @@ class Album(Base):
         self.cover = cover
         self.cover_path = cover_path
         self.cover_hash = cover_hash
+
+    @aggregated('tracks', Column(DateTime, index=True))
+    def added(self):
+        return func.max(Track.added)
 
     @hybrid_property
     def pretty_format(self):
