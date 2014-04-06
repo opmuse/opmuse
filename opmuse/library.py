@@ -103,7 +103,7 @@ class Track(Base):
     invalid = Column(String(32), index=True)
     invalid_msg = Column(String(255))
     disc = Column(String(64))
-    scanned = Column(Boolean, default=False)
+    scanned = Column(Boolean, default=False, index=True)
     upload_user_id = Column(Integer, ForeignKey('users.id'))
 
     album = relationship("Album", lazy='joined', innerjoin=False)
@@ -1467,7 +1467,7 @@ class LibraryDao:
         try:
             return (get_database().query(Track)
                     .join(TrackPath, Track.id == TrackPath.track_id)
-                    .filter(TrackPath.filename == filename, Track.scanned)
+                    .filter(TrackPath.filename == filename, Track.scanned == True)
                     .order_by(TrackPath.modified.desc())
                     .group_by(Track.id)
                     .limit(1)
@@ -1480,7 +1480,7 @@ class LibraryDao:
         try:
             return (get_database().query(Track)
                     .join(TrackPath, Track.id == TrackPath.track_id)
-                    .filter(TrackPath.path == path, Track.scanned)
+                    .filter(TrackPath.path == path, Track.scanned == True)
                     .group_by(Track.id).one())
 
         except NoResultFound:
@@ -1536,7 +1536,7 @@ class LibraryDao:
 
     def get_invalid_track_count(self):
         return (get_database().query(func.count(Track.id))
-                .filter("invalid is not null", Track.scanned).scalar())
+                .filter("invalid is not null", Track.scanned == True).scalar())
 
     def get_album_count(self):
         return get_database().query(func.count(Album.id)).scalar()
@@ -1546,20 +1546,20 @@ class LibraryDao:
 
     def get_track_duration(self):
         return (get_database().query(func.sum(Track.duration))
-                .filter(Track.scanned).scalar())
+                .filter(Track.scanned == True).scalar())
 
     def get_track_size(self):
         return (get_database().query(func.sum(Track.size))
-                .filter(Track.scanned).scalar())
+                .filter(Track.scanned == True).scalar())
 
     def get_track_count(self):
         return (get_database().query(func.count(Track.id))
-                .filter(Track.scanned).scalar())
+                .filter(Track.scanned == True).scalar())
 
     def get_track_path_count(self):
         return (get_database().query(func.count(TrackPath.id))
                 .join(Track, Track.id == TrackPath.track_id)
-                .filter(Track.scanned).scalar())
+                .filter(Track.scanned == True).scalar())
 
     def get_tracks_by_ids(self, ids):
         return (get_database().query(Track)
