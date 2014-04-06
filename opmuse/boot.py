@@ -27,19 +27,10 @@ from opmuse.security import repozewho_pipeline, AuthenticatedTool, AuthorizeTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedTool
 from opmuse.search import WhooshPlugin
-from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader
+from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader, get_staticdir
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
-
-
-def get_staticdir():
-    staticdir = join(abspath(dirname(__file__)), '..', 'public_static')
-
-    if not exists(staticdir):
-        staticdir = '/usr/share/opmuse/public_static'
-
-    return staticdir
 
 
 def configure(config_file=None, environment=None):

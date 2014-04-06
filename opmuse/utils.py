@@ -23,6 +23,15 @@ from opmuse.less_compiler import less_compiler
 from cherrypy.process.plugins import Monitor
 
 
+def get_staticdir():
+    staticdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'public_static')
+
+    if not os.path.exists(staticdir):
+        staticdir = '/usr/share/opmuse/public_static'
+
+    return staticdir
+
+
 class LessReloader(Monitor):
     def __init__(self, bus):
         Monitor.__init__(self, bus, self.run, frequency = .5)

@@ -4,7 +4,7 @@ import subprocess
 
 class LessCompiler:
     def compile(self, path=None):
-        from opmuse.boot import get_staticdir
+        from opmuse.utils import get_staticdir
 
         stylespath = os.path.join(get_staticdir(), 'styles')
 
