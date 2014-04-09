@@ -49,27 +49,29 @@ class FFMPEGTranscoderSubprocessTool(cherrypy.Tool):
                                self.end, priority=20)
 
     def end(self):
-        if (hasattr(cherrypy.request, 'transcoding_process') and cherrypy.request.transcoding_process is not None):
+        transcoding_transcoder = None
 
-            p = cherrypy.request.transcoding_process
+        if (hasattr(cherrypy.request, 'transcoding_transcoder') and
+                cherrypy.request.transcoding_transcoder is not None):
 
-            cherrypy.request.transcoding_process = None
-
-            p.send_signal(signal.SIGTERM)
-            p.stdout.read()
-            p.wait()
-
-        if (hasattr(cherrypy.request, 'transcoding_track') and cherrypy.request.transcoding_track is not None):
-
-            track = cherrypy.request.transcoding_track
-            transcoder = cherrypy.request.transcoding_transcoder
+            transcoding_transcoder = cherrypy.request.transcoding_transcoder
 
             cherrypy.request.transcoding_transcoder = None
+
+            transcoding_transcoder.stop()
+
+        if (hasattr(cherrypy.request, 'transcoding_track') and
+                cherrypy.request.transcoding_track is not None):
+
+            transcoding_track = cherrypy.request.transcoding_track
+
             cherrypy.request.transcoding_track = None
 
-            cherrypy.engine.publish('transcoding.end', track=track, transcoder=transcoder)
+            cherrypy.engine.publish('transcoding.end',
+                                    track=transcoding_track,
+                                    transcoder=transcoding_transcoder)
 
-            debug('"%s" transcoding ended.' % track)
+            debug('"%s" transcoding ended.' % transcoding_track)
 
 
 class Transcoder:
@@ -89,6 +91,7 @@ class FFMPEGTranscoder(Transcoder):
         self.stderr = None
         self.success = False
         self.error = None
+        self.stopped = False
 
         if cherrypy.request.app is not None:
             ffmpeg_cmd = cherrypy.request.app.config.get('opmuse').get('transcoding.ffmpeg_cmd')
@@ -144,7 +147,6 @@ class FFMPEGTranscoder(Transcoder):
         self.process = subprocess.Popen(args, shell = False, stdout = subprocess.PIPE,
                                         stderr = subprocess.PIPE, stdin = None)
 
-        cherrypy.request.transcoding_process = self.process
         cherrypy.request.transcoding_track = self.track
         cherrypy.request.transcoding_transcoder = self
 
@@ -156,13 +158,9 @@ class FFMPEGTranscoder(Transcoder):
         try:
             self.process.wait(10)
         except TimeoutExpired:
-            self.process.send_signal(signal.SIGTERM)
-            self.process.stdout.read()
-            self.process.wait()
+            self.stop()
 
-        cherrypy.request.transcoding_process = None
-
-        if self.process.returncode != 0:
+        if not self.stopped and self.process.returncode != 0:
             stderr_lines = self.stderr.decode('utf8', 'replace').split("\n")
 
             try:
@@ -179,6 +177,19 @@ class FFMPEGTranscoder(Transcoder):
         cherrypy.engine.publish('transcoding.done', track=self.track)
 
         debug('"%s" transcoding done.' % self.track)
+
+    def stop(self):
+        if self.stopped:
+            return
+
+        try:
+            self.process.send_signal(signal.SIGTERM)
+            self.process.stdout.read()
+            self.process.wait()
+        except ProcessLookupError:
+            pass
+
+        self.stopped = True
 
     @staticmethod
     def set_nonblocking(fileno):
