@@ -71,7 +71,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse").one(), 0
 
         for data in transcoding.transcode(track_generator()):
-            assert magic.from_buffer(data) == b"Ogg data, Vorbis audio, stereo, 44100 Hz, ~64000 bps"
+            assert magic.from_buffer(data) == b"Ogg data, Vorbis audio, stereo, 44100, 64000 bps"
             break
         else:
             assert False
@@ -105,7 +105,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse mp3").one(), 0
 
         for data in transcoding.transcode(track_generator(), OggFFMPEGTranscoder):
-            assert magic.from_buffer(data) == b'Ogg data, Vorbis audio, stereo, 44100 Hz, ~192000 bps'
+            assert magic.from_buffer(data) == b'Ogg data, Vorbis audio, stereo, 44100, 192000 bps'
             break
         else:
             assert False
