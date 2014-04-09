@@ -34,7 +34,10 @@ class Play:
         if 'dead' in kwargs and kwargs['dead'] == 'true':
             raise cherrypy.HTTPError(status=503)
 
-        user_agent = cherrypy.request.headers['User-Agent']
+        if 'User-Agent' in cherrypy.request.headers:
+            user_agent = cherrypy.request.headers['User-Agent']
+        else:
+            user_agent = None
 
         # allow only one streaming client at once, or weird things might occur
         if (user.id in Play.STREAM_PLAYING and Play.STREAM_PLAYING[user.id] is not None and
