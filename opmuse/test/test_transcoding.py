@@ -71,7 +71,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse").one(), 0
 
         for data in transcoding.transcode(track_generator()):
-            assert magic.from_buffer(data) == b"Ogg data, Vorbis audio, stereo, 44100, 64000 bps"
+            assert b"Ogg" in magic.from_buffer(data)
             break
         else:
             assert False
@@ -81,8 +81,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse mp3").one(), 0
 
         for data in transcoding.transcode(track_generator()):
-            assert magic.from_buffer(data) == (b'Audio file with ID3 version 2.4.0, contains: MPEG ADTS,' +
-                                               b' layer III, v1, 128 kbps, 44.1 kHz, JntStereo')
+            assert b"ID3" in magic.from_buffer(data)
             break
         else:
             assert False
@@ -94,8 +93,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse").one(), 0
 
         for data in transcoding.transcode(track_generator(), Mp3FFMPEGTranscoder):
-            assert magic.from_buffer(data) == (b'Audio file with ID3 version 2.4.0, contains: MPEG ADTS,' +
-                                               b' layer III, v1, 320 kbps, 44.1 kHz, JntStereo')
+            assert b"ID3" in magic.from_buffer(data)
             break
         else:
             assert False
@@ -105,7 +103,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse mp3").one(), 0
 
         for data in transcoding.transcode(track_generator(), OggFFMPEGTranscoder):
-            assert magic.from_buffer(data) == b'Ogg data, Vorbis audio, stereo, 44100, 192000 bps'
+            assert b"Ogg" in magic.from_buffer(data)
             break
         else:
             assert False
