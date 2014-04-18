@@ -828,8 +828,9 @@ class Library:
                         album_ids.append(album_results[0].id)
 
             query = query.filter(Album.id.in_(album_ids))
-        elif filter == "6or30":
-            query = query.having(or_(func.count(Track.id) > 6, func.sum(Track.duration) > 30 * 60))
+        elif filter == "1year":
+            now = datetime.datetime.utcnow()
+            query = query.filter(Album.added > now - datetime.timedelta(days=365))
         elif filter == "va":
             query = (query.join(Artist, Artist.id == Track.artist_id)
                           .having(func.count(distinct(Artist.id)) > 1))
