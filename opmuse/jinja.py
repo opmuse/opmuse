@@ -90,8 +90,8 @@ def pagination_pages(page, pages, size):
         return list(range(1, pages + 1))
     else:
         return sorted(list(set(range(1, 2)) |
-                    set(range(max(1, page - size + 1), min(page + size, pages + 1))) |
-                    set(range(pages, pages + 1))))
+                      set(range(max(1, page - size + 1), min(page + size, pages + 1))) |
+                      set(range(pages, pages + 1))))
 
 
 def pretty_format(format):
