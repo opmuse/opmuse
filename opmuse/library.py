@@ -1131,15 +1131,16 @@ class LibraryProcess:
         try:
             track = self._database.query(Track).filter_by(hash=hash).one()
 
-            # file most likely just moved
-            if filename not in [path.path for path in track.paths]:
-                track_path = TrackPath(filename)
-                track_path.track_id = track.id
+            if track.scanned:
+                # file most likely just moved
+                if filename not in [path.path for path in track.paths]:
+                    track_path = TrackPath(filename)
+                    track_path.track_id = track.id
 
-                self._database.add(track_path)
-                self._database.commit()
+                    self._database.add(track_path)
+                    self._database.commit()
 
-            return track
+                return track
         # file doesn't exist
         except NoResultFound:
             track = Track(hash)
