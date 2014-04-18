@@ -370,3 +370,10 @@ body {
     font-family: @original-font-family-sans-serif;
     font-size: .7em;
 }
+
+// fix for .collapse "display: block" on tbody
+table tbody {
+    &.collapse.in {
+        display: table-row-group;
+    }
+}
