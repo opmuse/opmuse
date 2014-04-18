@@ -219,7 +219,7 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
     def identify(self, environ):
         uri = environ['REQUEST_URI']
 
-        if re.match(b'^/static', uri):
+        if re.match('^/static', uri):
             return
 
         self.secret = self.get_secret(environ)
