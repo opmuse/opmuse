@@ -86,7 +86,8 @@ def log(msg):
 
 class UserAndAlbum(Base):
     __tablename__ = 'users_and_albums'
-    __table_args__ = (Index('ix_users_and_albums_album_id_user_id', "album_id", "user_id", unique=True), ) + Base.__table_args__
+    __table_args__ = ((Index('ix_users_and_albums_album_id_user_id', "album_id", "user_id", unique=True), ) +
+                      Base.__table_args__)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     album_id = Column(Integer, ForeignKey('albums.id'))
