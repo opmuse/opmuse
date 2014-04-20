@@ -15,31 +15,6 @@
         worker threads are working on and <strong>Done</strong> the last 20 tasks that are finished.
     </p>
 
-    <h3>Done ({{ request.bgtask.done.qsize() }})</h3>
-
-    <table class="table table-striped">
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Duration</th>
-            <th>Done</th>
-        </tr>
-        {% for item in request.bgtask.done.queue %}
-            <tr>
-                <th>{{ loop.index }}</th>
-                <td>
-                    {{ item.name }}
-                </td>
-                <td>
-                    {{ (item.done - item.started)|pretty_date("") }}
-                </td>
-                <td>
-                    {{ item.done|pretty_date }}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-
     <h3>Working ({{ request.bgtask.running }})</h3>
 
     <table class="table table-striped">
@@ -79,6 +54,31 @@
                 <th>{{ loop.index }}</th>
                 <td>
                     {{ item.name }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Done ({{ request.bgtask.done.qsize() }})</h3>
+
+    <table class="table table-striped">
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Duration</th>
+            <th>Done</th>
+        </tr>
+        {% for item in request.bgtask.done.queue %}
+            <tr>
+                <th>{{ loop.index }}</th>
+                <td>
+                    {{ item.name }}
+                </td>
+                <td>
+                    {{ (item.done - item.started)|pretty_date("") }}
+                </td>
+                <td>
+                    {{ item.done|pretty_date }}
                 </td>
             </tr>
         {% endfor %}
