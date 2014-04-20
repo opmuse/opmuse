@@ -1425,6 +1425,9 @@ class LibraryDao:
         database.delete(track)
         database.commit()
 
+        database.expire(album)
+        database.expire(artist)
+
         search.delete_track(track)
 
         if album is not None and len(album.tracks) == 0:
