@@ -52,6 +52,11 @@ class Queue:
         queues, queue_info = queue_dao.get_queues(user.id)
         queue_current_track = queue_dao.get_current_track(user.id)
 
+        for info, queue in queues:
+            for q in queue:
+                if q.track.album is not None and not q.track.album.seen:
+                    q.track.album.seen = True
+
         return {
             'queues': queues,
             'queue_info': queue_info,

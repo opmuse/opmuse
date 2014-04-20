@@ -34,13 +34,15 @@ from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINA
                         DateTime, Boolean, func, TypeDecorator, Index, distinct, select)
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, deferred, validates, column_property
+from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy_utils import aggregated
 from multiprocessing import cpu_count
 from threading import Thread
+from unidecode import unidecode
 from opmuse.database import Base, get_session, get_database_type, get_database, database_data
 from opmuse.search import search
-from unidecode import unidecode
+from opmuse.ws import ws
 import mutagenx.mp3
 import mutagenx.oggvorbis
 import mutagenx.easymp4
@@ -80,6 +82,23 @@ class StringBinaryType(TypeDecorator):
 
 def log(msg):
     cherrypy.log(msg, context='library')
+
+
+class UserAndAlbum(Base):
+    __tablename__ = 'users_and_albums'
+    __table_args__ = (Index('ix_users_and_albums_album_id_user_id', "album_id", "user_id", unique=True), ) + Base.__table_args__
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    album_id = Column(Integer, ForeignKey('albums.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    seen = Column(Boolean, default=False, index=True)
+
+    album = relationship("Album")
+    user = relationship("User")
+
+    def __init__(self, album_id, user_id):
+        self.album_id = album_id
+        self.user_id = user_id
 
 
 class Track(Base):
@@ -216,6 +235,7 @@ class Album(Base):
 
     artists = relationship("Artist", secondary='tracks')
     tracks = relationship("Track", order_by="Track.disc, Track.number, Track.name")
+    user_and_albums = relationship("UserAndAlbum", cascade='delete, delete-orphan')
 
     artist_count = column_property(select([func.count(distinct(Artist.id))])
                                    .select_from(Artist.__table__.join(Track.__table__))
@@ -298,6 +318,42 @@ class Album(Base):
             return None
 
         return self.tracks[0].upload_user
+
+    @hybrid_property
+    def seen(self):
+        if cherrypy.request.user is None:
+            raise ValueError("Album.seen can only be used from a request")
+
+        try:
+            user_and_album = self._seen()
+        except NoResultFound:
+            return False
+
+        return user_and_album.seen
+
+    @seen.setter
+    def seen(self, value):
+        if cherrypy.request.user is None:
+            raise ValueError("Album.seen can only be used from a request")
+
+        session = Session.object_session(self)
+
+        try:
+            user_and_album = self._seen()
+        except NoResultFound:
+            user_and_album = UserAndAlbum(self.id, cherrypy.request.user.id)
+            session.add(user_and_album)
+
+        user_and_album.seen = True
+
+        ws.emit('library.album.seen.update', self.id)
+
+    def _seen(self):
+        session = Session.object_session(self)
+
+        return (session.query(UserAndAlbum)
+                .filter(UserAndAlbum.album_id == self.id, UserAndAlbum.user_id == cherrypy.request.user.id)
+                .one())
 
 
 class TrackPath(Base):

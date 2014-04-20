@@ -1,5 +1,5 @@
 {% macro dropdown(tracks, title="Tracks", btn_size = "btn-sm") %}
-{% if is_granted('admin') %}
+{% if is_granted('admin') and tracks|count > 0 %}
     {% set modalId = "removeAlbumModal" + rand_id() %}
     {{ remove_modal(modalId, "Remove " + title) }}
     <div class="btn-group edit-btn">

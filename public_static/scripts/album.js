@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'modernizr', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'ws', 'reloader', 'modernizr', 'domReady!'], function($, inheritance, ws, reloader) {
 
     "use strict";
 
@@ -33,6 +33,10 @@ define(['jquery', 'inheritance', 'modernizr', 'domReady!'], function($, inherita
             }
 
             var that = this;
+
+            ws.on('library.album.seen.update', function (id) {
+                reloader.load(["#album_" + id + " .album-seen-container"]);
+            });
 
             $('#main').bind('ajaxifyInit', function (event) {
                 that.internalInit();

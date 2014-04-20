@@ -124,7 +124,7 @@
             <hr />
         {% endif %}
 
-        <div class="albums remotes" data-remotes-tag="{{ filter_value if filter == "tag" else "" }}">
+        <div class="albums reloader" data-remotes-tag="{{ filter_value if filter == "tag" else "" }}">
             {% if filter == "tag" and albums|length == 0 %}
                 <p class="alert alert-info">
                     No albums found for tag <strong>{{ filter_value }}</strong>,

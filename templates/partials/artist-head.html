@@ -321,15 +321,15 @@
     <div class="row">
         <div class="col-xs-12">
             {% if artist is defined and artist %}
-                <div class="remotes remotes_artist_head_{{ artist.id }}">
+                <div class="reloader remotes_artist_head_{{ artist.id }}">
                     {{ print_articles(remotes_artist) }}
                 </div>
             {% elif track is defined and track %}
-                <div class="remotes remotes_track_head_{{ track.id }}">
+                <div class="reloader remotes_track_head_{{ track.id }}">
                     {{ print_articles(remotes_artist, remotes_album, remotes_track) }}
                 </div>
             {% elif album is defined and album %}
-                <div class="remotes remotes_album_head_{{ album.id }}">
+                <div class="reloader remotes_album_head_{{ album.id }}">
                     {{ print_articles(remotes_artists[0] if remotes_artists is defined and remotes_artists|count > 0 else None, remotes_album) }}
                 </div>
             {% endif %}

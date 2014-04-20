@@ -17,7 +17,8 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function($, inheritance, ws, ajaxify) {
+define(['jquery', 'inheritance', 'ws', 'ajaxify', 'reloader', 'bind', 'domReady!'],
+    function($, inheritance, ws, ajaxify, reloader) {
 
     "use strict";
 
@@ -46,7 +47,7 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function
                     selectors = selectors.concat(that.getTrackSelectors(track_id));
                 }
 
-                that.load(selectors);
+                reloader.load(selectors);
             });
 
             ws.on('remotes.album.fetched', function (id, track_ids) {
@@ -57,17 +58,17 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function
                     selectors = selectors.concat(that.getTrackSelectors(track_id));
                 }
 
-                that.load(selectors);
+                reloader.load(selectors);
             });
 
             ws.on('remotes.track.fetched', function (id) {
                 var selectors = that.getTrackSelectors(id);
-                that.load(selectors);
+                reloader.load(selectors);
             });
 
             ws.on('remotes.tag.fetched', function (tag_name) {
                 var selectors = that.getTagSelectors(tag_name);
-                that.load(selectors);
+                reloader.load(selectors);
             });
         },
         getTrackSelectors: function (id) {
@@ -81,44 +82,6 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'bind', 'domReady!'], function
         },
         getTagSelectors: function (tag_name) {
             return ["[data-remotes-tag='" + tag_name + "']"];
-        },
-        load: function (selectors) {
-            var found = false;
-
-            for (var index in selectors) {
-                var selector = selectors[index];
-
-                if ($(selector).length > 0) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found) {
-                $.ajax(document.location.href, {
-                    success: function (data, textStatus, xhr) {
-                        var page = $($.parseHTML(data));
-
-                        for (var index in selectors) {
-                            var selector = selectors[index];
-
-                            (function (selector) {
-                                var element = $(selector);
-
-                                element.addClass('remotes-hide').one('transitionend', function (event) {
-                                    element.get(0).innerHTML = page.find(selector).get(0).innerHTML;
-
-                                    ajaxify.load(selector);
-
-                                    $(this).removeClass('remotes-hide');
-                                });
-                            })(selector);
-                        }
-                    },
-                    error: function (xhr) {
-                    }
-                });
-            }
         }
     });
 

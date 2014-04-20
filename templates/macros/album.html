@@ -39,12 +39,20 @@
     {% import "macros/covers.html" as covers %}
     {% import "macros/tracks.html" as tracks %}
 
-    <div class="album">
+    <div id="album_{{ album.id }}" class="album">
         <figure class="effeckt-caption" data-effeckt-type="half-slide">
             {% set album_url = urls.album_url(album, artist) %}
             <a href="{{ album_url }}">
                 {{ covers.album(album) }}
             </a>
+            <div class="album-seen-container reloader">
+                {% if not album.seen %}
+                    <span class="album-seen label label-success">
+                        <i class="fa fa-plus"></i>
+                        New
+                    </span>
+                {% endif %}
+            </div>
             <figcaption>
                 <div class="effeckt-figcaption-wrap" data-href="/library/album_caption/{{ album.id }}">
                     <i class="loader fa fa-spin fa-spinner"></i>

@@ -550,6 +550,9 @@ class Library:
         except NoResultFound:
             raise cherrypy.NotFound()
 
+        if not album.seen:
+            album.seen = True
+
         remotes.update_album(album)
 
         remotes_artists = []
