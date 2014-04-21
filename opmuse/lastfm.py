@@ -137,11 +137,16 @@ class LastfmNetwork:
                     totalPages = int(result['@attr']['totalPages'])
 
                 for track in result['track']:
+                    if 'date' in track:
+                        timestamp = int(track['date']['uts'])
+                    else:
+                        timestamp = None
+
                     yield {
                         'artist': track['artist']['#text'],
                         'album': track['album']['#text'],
                         'name': track['name'],
-                        'timestamp': int(track['date']['uts'])
+                        'timestamp': timestamp
                     }
 
                 page += 1
