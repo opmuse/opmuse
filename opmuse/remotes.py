@@ -24,7 +24,7 @@ from opmuse.google import google
 from opmuse.ws import ws
 from opmuse.musicbrainz import musicbrainz
 from opmuse.database import get_database
-from opmuse.library import Artist, Album, Track
+from opmuse.library import Artist, Album, Track, library_dao
 
 
 class Remotes:
@@ -32,13 +32,41 @@ class Remotes:
     ALBUM_KEY_FORMAT = "remotes_album_%d"
     TRACK_KEY_FORMAT = "remotes_track_%d"
     USER_KEY_FORMAT = "remotes_user_%d"
+    USER_TRACKS_KEY_FORMAT = "remotes_user_tracks_%d"
     TAG_KEY_FORMAT = "remotes_tag_%s"
 
     ARTIST_AGE = 3600 * 24 * 7
-    TAG_AGE = 3600 * 24 * 7
     ALBUM_AGE = 3600 * 24 * 7
     TRACK_AGE = 3600 * 24 * 7
     USER_AGE = 3600
+    USER_TRACKS_AGE = 3600
+    TAG_AGE = 3600 * 24 * 7
+
+    def update_user_tracks(self, user):
+        key = Remotes.USER_TRACKS_KEY_FORMAT % user.id
+
+        if cache.needs_update(key, age = Remotes.USER_TRACKS_AGE):
+            cache.keep(key)
+            cherrypy.engine.bgtask.put(self._add_listened_tracks, 10, user.id, user.lastfm_user,
+                                       user.lastfm_session_key)
+
+    def _add_listened_tracks(self, id, lastfm_user, lastfm_session_key):
+        key = Remotes.USER_TRACKS_KEY_FORMAT % id
+
+        if lastfm_user is None or lastfm_session_key is None:
+            return
+
+        max_timestamp = library_dao.get_listened_track_max_timestamp()
+
+        for track in lastfm.get_user_tracks(lastfm_user, lastfm_session_key):
+            if max_timestamp is not None and max_timestamp >= track['timestamp']:
+                break
+
+            library_dao.add_listened_track(id, track['name'], track['artist'], track['album'], track['timestamp'])
+
+        cache.set(key, True)
+
+    _add_listened_tracks.bgtask_name = "Add lastfm listened tracks for user {1}"
 
     def update_user(self, user):
         key = Remotes.USER_KEY_FORMAT % user.id
@@ -47,6 +75,8 @@ class Remotes:
             cache.keep(key)
             cherrypy.engine.bgtask.put(self._fetch_user, 10, user.id, user.lastfm_user,
                                        user.lastfm_session_key)
+
+        self.update_user_tracks(user)
 
     def _fetch_user(self, id, lastfm_user, lastfm_session_key):
         key = Remotes.USER_KEY_FORMAT % id

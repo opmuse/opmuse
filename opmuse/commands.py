@@ -28,7 +28,7 @@ from alembic.config import Config
 from alembic import command
 from opmuse.boot import configure
 from opmuse.database import Base, get_engine, get_database_name, get_database_type, get_raw_session
-from opmuse.library import TrackPath, Track, Artist, Album, UserAndAlbum
+from opmuse.library import TrackPath, Track, Artist, Album, UserAndAlbum, ListenedTrack
 from opmuse.security import User, Role, hash_password
 from opmuse.queues import Queue
 from opmuse.cache import CacheObject
@@ -132,6 +132,7 @@ def command_database(action=None):
         engine.execute(Queue.__table__.delete())
         engine.execute(TrackPath.__table__.delete())
         engine.execute(Track.__table__.delete())
+        engine.execute(ListenedTrack.__table__.delete())
         engine.execute(UserAndAlbum.__table__.delete())
         engine.execute(Album.__table__.delete())
         engine.execute(Artist.__table__.delete())

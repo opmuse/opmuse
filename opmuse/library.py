@@ -102,6 +102,27 @@ class UserAndAlbum(Base):
         self.user_id = user_id
 
 
+class ListenedTrack(Base):
+    __tablename__ = 'listened_tracks'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), index=True)
+    artist_name = Column(String(255), index=True)
+    album_name = Column(String(255), index=True)
+    timestamp = Column(Integer, index=True)
+
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    user = relationship("User")
+
+    def __init__(self, user_id, name, artist_name, album_name, timestamp):
+        self.user_id = user_id
+        self.name = name
+        self.artist_name = artist_name
+        self.album_name = album_name
+        self.timestamp = timestamp
+
+
 class Track(Base):
     __tablename__ = 'tracks'
 
@@ -1471,6 +1492,22 @@ class LibraryProcess:
 
 
 class LibraryDao:
+
+    def get_listened_tracks_by_timestmap(self, timestamp):
+        return (get_database().query(ListenedTrack).order_by(ListenedTrack.timestamp.desc())
+                .filter(ListenedTrack.timestamp > timestamp).all())
+
+    def get_listened_tracks(self, limit):
+        return get_database().query(ListenedTrack).order_by(ListenedTrack.timestamp.desc()).limit(limit).all()
+
+    def get_listened_track_max_timestamp(self):
+        return get_database().query(func.max(ListenedTrack.timestamp)).scalar()
+
+    def add_listened_track(self, user_id, name, artist_name, album_name, timestamp):
+        listened_track = ListenedTrack(user_id, name, artist_name, album_name, timestamp)
+
+        get_database().add(listened_track)
+        get_database().commit()
 
     def delete_track(self, track, database = None):
         if database is None:

@@ -19,6 +19,7 @@ import re
 import cherrypy
 import calendar
 import datetime
+import time
 import math
 import json
 import hashlib
@@ -107,23 +108,53 @@ class LastfmNetwork:
 
         self._request('track.scrobble', data_params = params)
 
-    def get_user_recent_tracks(self, user_name, limit):
-        params = {
-            'limit': limit,
-            'user': user_name
-        }
+    def get_user_recent_tracks(self, user_name, page = 1, limit = 200):
+        """
+        if page is None fetch all pages
+        """
 
-        tracks = []
+        if page is None:
+            page = 1
+            totalPages = None
+        else:
+            totalPages = 1
 
-        for track in self._request('user.getRecentTracks', params)['recenttracks']['track']:
-            tracks.append({
-                'artist': track['artist']['#text'],
-                'album': track['album']['#text'],
-                'name': track['name'],
-                'timestamp': track['date']['uts']
-            })
+        tries = 1
 
-        return tracks
+        while totalPages is None or page <= totalPages:
+            params = {
+                'user': user_name,
+                'page': page,
+                'limit': limit
+            }
+
+            try:
+                tries += 1
+
+                result = self._request('user.getRecentTracks', params)['recenttracks']
+
+                if totalPages is None:
+                    totalPages = int(result['@attr']['totalPages'])
+
+                for track in result['track']:
+                    yield {
+                        'artist': track['artist']['#text'],
+                        'album': track['album']['#text'],
+                        'name': track['name'],
+                        'timestamp': int(track['date']['uts'])
+                    }
+
+                page += 1
+                tries = 1
+            except LastfmApiError:
+                if tries > 10:
+                    log("Tried and failed 10 times, skipping page %d" % page)
+                    tries = 1
+                    page += 1
+                    continue
+
+                time.sleep(10)
+                continue
 
     def get_library_artists(self, user_name, limit):
         params = {
@@ -544,6 +575,21 @@ class Lastfm:
             datetime.datetime.utcnow().utctimetuple()
         )
 
+    def get_user_tracks(self, user_name, session_key = None):
+        if session_key is None:
+            session_key = cherrypy.request.user.lastfm_session_key
+
+        try:
+            network = self.get_network(session_key)
+
+            for track in network.get_user_recent_tracks(user_name, page=None):
+                yield track
+        except LastfmError as error:
+            log('Failed to get user tracks "%s": %s.' % (
+                user_name,
+                error
+            ))
+
     def get_user(self, user_name, session_key = None):
         if session_key is None:
             session_key = cherrypy.request.user.lastfm_session_key
@@ -559,7 +605,6 @@ class Lastfm:
             user = network.get_user_info(user_name)
 
             return {
-                'recent_tracks': network.get_user_recent_tracks(user_name, 200),
                 'artists': artists,
                 'url': user['url'],
                 'playcount': int(user['playcount']),

@@ -25,38 +25,18 @@
                 {% if remotes_user.lastfm and remotes_user.lastfm.top_artists_overall %}
                     <table class="table table-striped">
                         <tr>
-                            <th colspan="3">Lastfm Top Artists</th>
+                            <th colspan="2">Lastfm Top Artists</th>
                         </tr>
                         {% for artist in remotes_user.lastfm.top_artists_overall %}
                         <tr>
-                            <td>{{ artist.index }}</td>
                             <td><a href="/search/{{ artist.name }}/artist">{{ artist.name|show_ws }}</a></td>
-                            <td>{{ artist.weight|format_number }}</td>
+                            <td>{{ artist.playcount|format_number }}</td>
                         </tr>
                         {% endfor %}
                     </table>
                 {% endif %}
             </div>
             <div class="col-xs-6">
-                {% if remotes_user.lastfm %}
-                    <table class="table table-striped">
-                        <tr>
-                            <th colspan="2">Lastfm Recent Tracks</th>
-                        </tr>
-                        {% for track in remotes_user.lastfm.recent_tracks %}
-                        {% if last_track is not defined or not last_track or last_track.artist != track.artist %}
-                        <tr>
-                            <th colspan="2"><a href="/search/{{ track.artist }}/artist">{{ track.artist }}</a></th>
-                        </tr>
-                        {% endif %}
-                        <tr>
-                            <td>{{ track.timestamp|pretty_date }}</td>
-                            <td><a href="/search/{{ track.name }}">{{ track.name|show_ws }}</a></td>
-                        </tr>
-                        {% set last_track = track %}
-                        {% endfor %}
-                    </table>
-                {% endif %}
             </div>
         </div>
     {% endif %}

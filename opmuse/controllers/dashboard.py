@@ -4,7 +4,7 @@ from datetime import timedelta
 from collections import OrderedDict
 from sqlalchemy.orm import joinedload, undefer
 from sqlalchemy import func
-from opmuse.library import Album, Track
+from opmuse.library import Album, Track, library_dao
 from opmuse.security import User
 from opmuse.database import get_database
 from opmuse.remotes import remotes
@@ -48,8 +48,9 @@ class Dashboard:
         all_users = [current_user] + users
 
         top_artists = Dashboard.get_top_artists(all_users)
-        recent_tracks = Dashboard.get_recent_tracks(all_users)
-        new_albums = Dashboard.get_new_albums(6, 0)
+        all_recent_tracks = Dashboard.get_recent_tracks(all_users)
+        recent_tracks = all_recent_tracks[0:8]
+        new_albums = Dashboard.get_new_albums(8, 0)
 
         now = datetime.datetime.now()
 
@@ -57,15 +58,19 @@ class Dashboard:
 
         today = now.strftime(day_format)
         yesterday = (now - timedelta(days=1)).strftime(day_format)
-        week = now.isocalendar()[0:1]
+        week = now - timedelta(weeks=1)
 
-        for recent_track in recent_tracks:
+        track_count = library_dao.get_track_count()
+        track_duration = library_dao.get_track_duration()
+
+        track_average_duration = int(track_duration / track_count)
+
+        for recent_track in all_recent_tracks:
             track = recent_track['track']
 
-            if track is None:
-                continue
-
-            user = recent_track['user']
+            for user in all_users:
+                if user['user'].id == recent_track['user'].id:
+                    break
 
             if 'played_times' not in user:
                 user['played_times'] = {
@@ -74,16 +79,22 @@ class Dashboard:
                     'week': 0
                 }
 
-            track_datetime = datetime.datetime.fromtimestamp(int(recent_track['timestamp']))
+            track_datetime = datetime.datetime.fromtimestamp(recent_track['timestamp'])
+
+            # if track isn't found estimate track to average duration of a track
+            if track is None:
+                duration = track_average_duration
+            else:
+                duration = track.duration
 
             if track_datetime.strftime(day_format) == yesterday:
-                user['played_times']['yesterday'] += track.duration
+                user['played_times']['yesterday'] += duration
 
             if track_datetime.strftime(day_format) == today:
-                user['played_times']['today'] += track.duration
+                user['played_times']['today'] += duration
 
-            if track_datetime.isocalendar()[0:1] == week:
-                user['played_times']['week'] += track.duration
+            if track_datetime >= week:
+                user['played_times']['week'] += duration
 
         return {
             'current_user': current_user,
@@ -144,34 +155,24 @@ class Dashboard:
         return top_artists
 
     @staticmethod
-    def get_recent_tracks(all_users, limit = 6):
-        all_recent_tracks = []
+    def get_recent_tracks(all_users):
+        now = datetime.datetime.now()
 
-        for user in all_users:
-            if user['remotes_user'] is None or user['remotes_user']['lastfm'] is None:
-                continue
+        timestamp = int((now - datetime.timedelta(weeks=1)).timestamp())
 
-            recent_tracks = []
-
-            for recent_track in user['remotes_user']['lastfm']['recent_tracks']:
-                recent_tracks.append((user, recent_track))
-
-            all_recent_tracks += recent_tracks
-
-        all_recent_tracks = sorted(all_recent_tracks,
-                                   key=lambda recent_track: recent_track[1]['timestamp'], reverse=True)
+        listened_tracks = library_dao.get_listened_tracks_by_timestmap(timestamp)
 
         recent_tracks = []
 
-        for user, recent_track in all_recent_tracks:
-            results = search.query_artist(recent_track['artist'], exact=True)
+        for listened_track in listened_tracks:
+            results = search.query_artist(listened_track.artist_name, exact=True)
 
             track = artist = None
 
             if len(results) > 0:
                 artist = results[0]
 
-                results = search.query_track(recent_track['name'], exact=True)
+                results = search.query_track(listened_track.name, exact=True)
 
                 if len(results) > 0:
                     for result in results:
@@ -181,13 +182,10 @@ class Dashboard:
             recent_tracks.append({
                 'artist': artist,
                 'track': track,
-                'artist_name': recent_track['artist'],
-                'name': recent_track['name'],
-                'timestamp': recent_track['timestamp'],
-                'user': user
+                'artist_name': listened_track.artist_name,
+                'name': listened_track.name,
+                'timestamp': listened_track.timestamp,
+                'user': listened_track.user
             })
-
-            if len(recent_tracks) == limit:
-                break
 
         return recent_tracks

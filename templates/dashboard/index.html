@@ -35,10 +35,10 @@
             </p>
             <p>
                 {% if user.played_times is defined %}
-                    Listened
+                    Estimated listening,
                     <strong>{{ user.played_times.today|format_seconds_alt }}</strong> today,
                     <strong>{{ user.played_times.yesterday|format_seconds_alt }}</strong> yesterday,
-                    <strong>{{ user.played_times.week|format_seconds_alt }}</strong> this week.
+                    <strong>{{ user.played_times.week|format_seconds_alt }}</strong> last 7 days.
                 {% endif %}
             </p>
         </div>
@@ -86,8 +86,8 @@
                         <p>
                             {{ recent_track.timestamp|pretty_date }}
                             by
-                            <a href="/users/{{ recent_track.user.user.login }}">
-                                {{ recent_track.user.user.login }}
+                            <a href="/users/{{ recent_track.user.login }}">
+                                {{ recent_track.user.login }}
                             </a>
                         </p>
                         <div class="clear"></div>
