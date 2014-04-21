@@ -169,12 +169,15 @@ class LastfmNetwork:
 
         artists = []
 
-        for artist in self._request('library.getArtists', params)['artists']['artist']:
-            artists.append({
-                'name': artist['name'],
-                'playcount': int(artist['playcount']),
-                'tagcount': artist['tagcount'],
-            })
+        result = self._request('library.getArtists', params)['artists']
+
+        if 'artist' in result:
+            for artist in self.process_list(result['artist']):
+                artists.append({
+                    'name': artist['name'],
+                    'playcount': int(artist['playcount']),
+                    'tagcount': artist['tagcount'],
+                })
 
         return artists
 
@@ -302,11 +305,14 @@ class LastfmNetwork:
 
         artists = []
 
-        for artist in self._request('artist.getSimilar', params)['similarartists']['artist']:
-            artists.append({
-                'name': artist['name'],
-                'url': artist['url'],
-            })
+        result = self._request('artist.getSimilar', params)['similarartists']
+
+        if 'artist' in result:
+            for artist in self.process_list(result['artist']):
+                artists.append({
+                    'name': artist['name'],
+                    'url': artist['url'],
+                })
 
         return artists
 
