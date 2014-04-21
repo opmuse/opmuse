@@ -21,6 +21,7 @@ import re
 import random
 import locale
 import pycountry
+import datetime
 from json import dumps as json_dumps
 from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
@@ -32,6 +33,17 @@ from opmuse.pretty import pretty_date as _pretty_date
 from opmuse.library import TrackStructureParser, Library
 
 VISIBLE_WS = "\u2423"
+
+
+def date(value, date_format='%Y-%m-%d'):
+    if type(value) is str:
+        date = datetime.datetime.fromtimestamp(int(value))
+    elif type(value) is int:
+        date = datetime.datetime.fromtimestamp(value)
+    else:
+        date = value
+
+    return date.strftime(date_format)
 
 
 def get_jinja_env():
@@ -69,6 +81,7 @@ def get_jinja_env():
     env.filters['round'] = round
     env.filters['pretty_format'] = pretty_format
     env.filters['country'] = country
+    env.filters['date'] = date
 
     env.globals['pagination_pages'] = pagination_pages
     env.globals['rand_id'] = rand_id
