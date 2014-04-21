@@ -63,7 +63,10 @@ class Dashboard:
         track_count = library_dao.get_track_count()
         track_duration = library_dao.get_track_duration()
 
-        track_average_duration = int(track_duration / track_count)
+        if track_count is not None and track_duration is not None and track_count > 0:
+            track_average_duration = int(track_duration / track_count)
+        else:
+            track_average_duration = 0
 
         for recent_track in all_recent_tracks:
             track = recent_track['track']
