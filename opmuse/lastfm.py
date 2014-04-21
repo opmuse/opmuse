@@ -45,8 +45,8 @@ def log(msg):
 
 
 class LastfmNetwork:
-    API_URL = "http://ws.audioscrobbler.com/2.0/"
-    AUTH_URL = "http://last.fm/api/auth"
+    API_URL = "https://ws.audioscrobbler.com/2.0/"
+    AUTH_URL = "https://last.fm/api/auth"
 
     def __init__(self, key, secret, session_key=None):
         self.key = key
