@@ -29,7 +29,7 @@ class Settings:
                 if key is not None:
                     cache.set(cache_key, None)
                     user.lastfm_session_key = key
-                    user.lastfm_user = lastfm.get_authenticated_user_name()
+                    user.lastfm_user = lastfm.get_authenticated_user_name(key)
                     auth_url = None
                     new_auth = True
             else:

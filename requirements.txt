@@ -4,7 +4,6 @@ Jinja2 >=2.7.1,<2.8
 SQLAlchemy >=0.9.1,<0.10
 mmh3 >=2.2
 repoze.who ==2.2
-pylast >=0.5.11,<0.6
 Whoosh >=2.5.4,<2.6
 mutagenx ==1.22.1
 rarfile ==2.6

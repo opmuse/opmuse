@@ -20,12 +20,12 @@ import cherrypy
 import calendar
 import datetime
 import math
+import json
+import hashlib
 from sqlalchemy import Column, String
-from pylast import get_lastfm_network, SessionKeyGenerator, WSError, NetworkError, MalformedResponseError
-from pylast import PERIOD_OVERALL
+from urllib import request
+from urllib import parse
 from opmuse.security import User
-from opmuse.database import get_session
-from opmuse.cache import cache
 from opmuse.search import search
 
 User.lastfm_session_key = Column(String(32))
@@ -36,8 +36,389 @@ class LastfmError(Exception):
     pass
 
 
+class LastfmApiError(LastfmError):
+    pass
+
+
 def log(msg):
     cherrypy.log(msg, context='lastfm')
+
+
+class LastfmNetwork:
+    API_URL = "http://ws.audioscrobbler.com/2.0/"
+    AUTH_URL = "http://last.fm/api/auth"
+
+    def __init__(self, key, secret, session_key=None):
+        self.key = key
+        self.secret = secret
+        self.session_key = session_key
+
+    def get_user_info(self, user_name=None):
+        if user_name is not None:
+            params = {"user": user_name}
+        else:
+            params = {}
+
+        return self._request("user.getInfo", params)['user']
+
+    def get_auth_session(self, token):
+        params = {
+            'token': token
+        }
+
+        return self._request('auth.getSession', params)['session']
+
+    def get_auth_token(self):
+        return self._request('auth.getToken')['token']
+
+    def track_update_now_playing(self, artist, title, album = None, album_artist = None,
+                                 duration = None, track_number = None, mbid = None, context = None):
+        params = {
+            'artist': artist,
+            'track': title,
+            'album': album,
+            'album_artist': album_artist,
+            'duration': duration,
+            'track_number': track_number,
+            'mbid': mbid,
+            'context': context
+        }
+
+        params = self._clean_params(params)
+
+        self._request('track.updateNowPlaying', data_params = params)
+
+    def track_scrobble(self, artist, title, timestamp, album = None, album_artist = None, track_number = None,
+                       duration = None, stream_id = None, context = None, mbid = None):
+        params = {
+            'artist': artist,
+            'track': title,
+            'timestamp': timestamp,
+            'album': album,
+            'album_artist': album_artist,
+            'track_number': track_number,
+            'duration': duration,
+            'stream_id': stream_id,
+            'context': context,
+            'mbid': mbid,
+        }
+
+        params = self._clean_params(params)
+
+        self._request('track.scrobble', data_params = params)
+
+    def get_user_recent_tracks(self, user_name, limit):
+        params = {
+            'limit': limit,
+            'user': user_name
+        }
+
+        tracks = []
+
+        for track in self._request('user.getRecentTracks', params)['recenttracks']['track']:
+            tracks.append({
+                'artist': track['artist']['#text'],
+                'album': track['album']['#text'],
+                'name': track['name'],
+                'timestamp': track['date']['uts']
+            })
+
+        return tracks
+
+    def get_library_artists(self, user_name, limit):
+        params = {
+            'limit': limit,
+            'user': user_name
+        }
+
+        artists = []
+
+        for artist in self._request('library.getArtists', params)['artists']['artist']:
+            artists.append({
+                'name': artist['name'],
+                'playcount': int(artist['playcount']),
+                'tagcount': artist['tagcount'],
+            })
+
+        return artists
+
+    def get_user_top_artists(self, user_name, period, page, limit):
+        params = {
+            'user': user_name,
+            'period': period,
+            'page': page,
+            'limit': limit,
+        }
+
+        artists = []
+
+        result = self._request('user.getTopArtists', params)['topartists']
+
+        if 'artist' in result:
+            for artist in self.process_list(result['artist']):
+                artists.append({
+                    'name': artist['name'],
+                    'playcount': int(artist['playcount']),
+                })
+
+        return artists
+
+    def get_user_top_albums(self, user_name, period, page, limit):
+        params = {
+            'user': user_name,
+            'period': period,
+            'page': page,
+            'limit': limit,
+        }
+
+        albums = []
+
+        result = self._request('user.getTopAlbums', params)['topalbums']
+
+        if 'album' in result:
+            for album in self.process_list(result['album']):
+                albums.append({
+                    'name': album['name'],
+                    'artist_name': album['artist']['name'],
+                    'playcount': int(album['playcount']),
+                })
+
+        return albums
+
+    def get_album_info(self, artist, album, mbid = None):
+        params = {
+            'artist': artist,
+            'album': album,
+            'mbid': mbid
+        }
+
+        params = self._clean_params(params)
+
+        album = self._request('album.getInfo', params)['album']
+
+        cover = None
+
+        for image in album['image']:
+            if image['size'] == "extralarge":
+                cover = image['#text']
+
+        if 'wiki' in album:
+            wiki = album['wiki']['summary'],
+        else:
+            wiki = None
+
+        return {
+            'artist': album['artist'],
+            'name': album['name'],
+            'listeners': int(album['listeners']),
+            'mbid': album['mbid'],
+            'playcount': int(album['playcount']),
+            'url': album['url'],
+            'wiki': wiki,
+            'cover': cover
+        }
+
+    def get_artist_top_tags(self, artist, mbid = None):
+        params = {
+            'artist': artist,
+            'mbid': mbid
+        }
+
+        params = self._clean_params(params)
+
+        tags = []
+
+        result = self._request('artist.getTopTags', params)['toptags']
+
+        if 'tag' in result:
+            for tag in self.process_list(result['tag']):
+                tags.append(tag['name'])
+
+        return tags
+
+    def get_album_top_tags(self, artist, album, mbid = None):
+        params = {
+            'artist': artist,
+            'album': album,
+            'mbid': mbid
+        }
+
+        params = self._clean_params(params)
+
+        tags = []
+
+        result = self._request('album.getTopTags', params)['toptags']
+
+        if 'tag' in result:
+            for tag in self.process_list(result['tag']):
+                tags.append(tag['name'])
+
+        return tags
+
+    def get_artist_similar(self, artist, limit=None, mbid=None):
+        params = {
+            'artist': artist,
+            'limit': limit,
+            'mbid': mbid
+        }
+
+        params = self._clean_params(params)
+
+        artists = []
+
+        for artist in self._request('artist.getSimilar', params)['similarartists']['artist']:
+            artists.append({
+                'name': artist['name'],
+                'url': artist['url'],
+            })
+
+        return artists
+
+    def get_artist_info(self, artist, mbid=None):
+        params = {
+            'artist': artist,
+            'mbid': mbid
+        }
+
+        params = self._clean_params(params)
+
+        artist = self._request('artist.getInfo', params)['artist']
+
+        cover = None
+
+        for image in artist['image']:
+            if image['size'] == "extralarge":
+                cover = image['#text']
+
+        return {
+            'name': artist['name'],
+            'listeners': int(artist['stats']['listeners']),
+            'mbid': artist['mbid'],
+            'playcount': int(artist['stats']['playcount']),
+            'url': artist['url'],
+            'bio': artist['bio']['summary'],
+            'cover': cover
+        }
+
+    def get_tag_top_albums(self, tag_name, page, limit):
+        params = {
+            'tag': tag_name,
+            'page': page,
+            'limit': limit,
+        }
+
+        params = self._clean_params(params)
+
+        albums = []
+
+        result = self._request('tag.getTopAlbums', params)['topalbums']
+
+        if 'album' in result:
+            for album in self.process_list(result['album']):
+                albums.append({
+                    'name': album['name']
+                })
+
+        return albums
+
+    def get_tag_top_artists(self, tag_name, page, limit):
+        params = {
+            'tag': tag_name,
+            'page': page,
+            'limit': limit,
+        }
+
+        params = self._clean_params(params)
+
+        artists = []
+
+        result = self._request('tag.getTopArtists', params)['topartists']
+
+        if 'artist' in result:
+            for artist in self.process_list(result['artist']):
+                artists.append({
+                    'name': artist['name']
+                })
+
+        return artists
+
+    def get_web_auth_url(self, token):
+        params = {
+            'token': token,
+            'api_key': self.key,
+        }
+
+        return "%s?%s" % (LastfmNetwork.AUTH_URL, parse.urlencode(params))
+
+    def _request(self, method, method_params = None, data_params = None):
+        params = {
+            'api_key': self.key,
+            'method': method,
+            'sk': self.session_key
+        }
+
+        if method_params is not None:
+            params.update(method_params)
+
+        if data_params is not None:
+            params.update(data_params)
+
+        api_sig = ""
+
+        for name in sorted(params):
+            value = params[name]
+            api_sig = "%s%s%s" % (api_sig, name, value)
+
+        api_sig = "%s%s" % (api_sig, self.secret)
+
+        params['api_sig'] = self.md5(api_sig)
+        params['format'] = 'json'
+
+        if method_params is not None or data_params is None:
+            url = "%s?%s" % (LastfmNetwork.API_URL, parse.urlencode(params))
+        else:
+            url = LastfmNetwork.API_URL
+
+        if data_params is not None:
+            data = parse.urlencode(params).encode()
+        else:
+            data = None
+
+        f = request.urlopen(url, data)
+
+        result = json.loads(f.read().decode('utf8', 'replace'))
+
+        if result == "":
+            raise LastfmApiError("Got empty response")
+
+        if 'error' in result:
+            raise LastfmApiError(result['message'])
+
+        return result
+
+    def _clean_params(self, params):
+        new_params = {}
+
+        for name, value in params.items():
+            if value is not None:
+                new_params[name] = value
+
+        return params
+
+    def md5(self, string):
+        m = hashlib.md5()
+        m.update(string.encode())
+        return m.hexdigest()
+
+    def process_list(self, result):
+        """
+        for processing lastfm's weird responses :/
+        """
+        if isinstance(result, list):
+            for item in result:
+                yield item
+        else:
+            yield result
 
 
 class Lastfm:
@@ -67,7 +448,7 @@ class Lastfm:
             seconds = lastfm_progress['seconds'] - seconds_ahead
             cherrypy.engine.bgtask.put(self.scrobble, 30, user, session_key, seconds, **self.track_to_args(track))
 
-    def get_network(self, session_key = ''):
+    def get_network(self, session_key=None):
         config = cherrypy.tree.apps[''].config['opmuse']
 
         if 'lastfm.key' not in config or 'lastfm.secret' not in config:
@@ -75,17 +456,18 @@ class Lastfm:
 
         key = config['lastfm.key']
         secret = config['lastfm.secret']
-        return get_lastfm_network(key, secret, session_key)
 
-    def get_authenticated_user_name(self):
-        session_key = cherrypy.request.user.lastfm_session_key
+        return LastfmNetwork(key, secret, session_key)
+
+    def get_authenticated_user_name(self, session_key=None):
+        if session_key is None:
+            session_key = cherrypy.request.user.lastfm_session_key
 
         network = self.get_network(session_key)
 
-        user = network.get_authenticated_user()
+        user = network.get_user_info()
 
-        if user is not None:
-            return user.get_name()
+        return user['name']
 
     def update_now_playing(self, session_key, **args):
         if session_key is None:
@@ -93,9 +475,9 @@ class Lastfm:
 
         try:
             network = self.get_network(session_key)
-            network.update_now_playing(**args)
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
-            log('Network error, failed to update now playing for "%s - %s - %s": %s.' % (
+            network.track_update_now_playing(**args)
+        except LastfmError as error:
+            log('Error, failed to update now playing for "%s - %s - %s": %s.' % (
                 args['artist'],
                 args['album'],
                 args['title'],
@@ -118,7 +500,7 @@ class Lastfm:
 
             args['timestamp'] = math.floor(self.get_utc_timestamp() - seconds)
 
-            network.scrobble(**args)
+            network.track_scrobble(**args)
 
             log('%s scrobbled "%s - %s - %s" which is %d seconds long and started playing %d seconds ago.' % (
                 user,
@@ -129,9 +511,9 @@ class Lastfm:
                 seconds
             ))
 
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
+        except LastfmError as error:
             # TODO put in queue and scrobble later
-            log('Network error, failed to scrobble "%s - %s - %s": %s.' % (
+            log('Error, failed to scrobble "%s - %s - %s": %s.' % (
                 args['artist'],
                 args['album'],
                 args['title'],
@@ -168,134 +550,28 @@ class Lastfm:
 
         try:
             network = self.get_network(session_key)
-            user = network.get_user(user_name)
-            user_library = user.get_library()
-
-            recent_tracks = []
-
-            for playedTrack in user.get_recent_tracks(200):
-                album = playedTrack.track.get_album()
-
-                if album is None:
-                    album = ''
-
-                recent_tracks.append({
-                    "artist": str(playedTrack.track.get_artist()),
-                    "album": str(album),
-                    "name": str(playedTrack.track.get_title()),
-                    "timestamp": playedTrack.timestamp
-                })
 
             artists = {}
 
-            for artist in user_library.get_artists(limit=10000):
-                name = artist.item.get_name()
+            for artist in network.get_library_artists(user_name, 1000):
+                artists[artist['name'].lower()] = artist
 
-                artists[name.lower()] = {
-                    "name": name,
-                    "playcount": artist.playcount,
-                    "tagcount": artist.tagcount
-                }
+            user = network.get_user_info(user_name)
 
             return {
-                'recent_tracks': recent_tracks,
+                'recent_tracks': network.get_user_recent_tracks(user_name, 200),
                 'artists': artists,
-                'url': user.get_url(),
-                'playcount': user.get_playcount(),
-                'top_artists_month': self.get_top_artists('1month', user_name, 1, 500, session_key),
-                'top_artists_overall': self.get_top_artists(PERIOD_OVERALL, user_name, 1, 500, session_key),
-                'top_albums_overall': self.get_top_albums(PERIOD_OVERALL, user_name, 1, 500, session_key)
+                'url': user['url'],
+                'playcount': int(user['playcount']),
+                'top_artists_month': network.get_user_top_artists(user_name, '1month', 1, 500),
+                'top_artists_overall': network.get_user_top_artists(user_name, 'overall', 1, 500),
+                'top_albums_overall': network.get_user_top_albums(user_name, 'overall', 1, 500)
             }
-
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
+        except LastfmError as error:
             log('Failed to get user "%s": %s.' % (
                 user_name,
                 error
             ))
-
-    def get_top_albums(self, type, user_name, page = 1, limit = 50, session_key = None):
-        if session_key is None:
-            session_key = cherrypy.request.user.lastfm_session_key
-
-        try:
-            network = self.get_network(session_key)
-            user = network.get_user(user_name)
-
-            top_albums = []
-
-            index = (page - 1) * limit
-            sub_index = 0
-            last_weight = None
-
-            for album in self._param_call(user, 'get_top_albums', {'limit': limit, 'page': page}, [type]):
-                sub_index += 1
-
-                if last_weight is None or album.weight != last_weight:
-                    index += sub_index
-                    sub_index = 0
-
-                playcount = None
-
-                try:
-                    playcount = album.item.get_playcount()
-                except MalformedResponseError:
-                    # this seems to occur on some items :/
-                    pass
-
-                top_albums.append({
-                    'name': album.item.get_name(),
-                    'playcount': playcount,
-                    'weight': int(album.weight),
-                    'index': index
-                })
-
-                last_weight = album.weight
-
-            return top_albums
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
-            log('Network error, failed to get %s: %s.' % (user_name, error))
-
-    def get_top_artists(self, type, user_name, page = 1, limit = 50, session_key = None):
-        if session_key is None:
-            session_key = cherrypy.request.user.lastfm_session_key
-
-        try:
-            network = self.get_network(session_key)
-            user = network.get_user(user_name)
-
-            top_artists = []
-
-            index = (page - 1) * limit
-            sub_index = 0
-            last_weight = None
-
-            for artist in self._param_call(user, 'get_top_artists', {'limit': limit, 'page': page}, [type]):
-                sub_index += 1
-
-                if last_weight is None or artist.weight != last_weight:
-                    index += sub_index
-                    sub_index = 0
-
-                playcount = None
-
-                try:
-                    playcount = artist.item.get_playcount()
-                except MalformedResponseError:
-                    # this seems to occur on some items :/
-                    pass
-
-                top_artists.append({
-                    'name': artist.item.get_name(),
-                    'playcount': playcount,
-                    'weight': int(artist.weight),
-                    'index': index
-                })
-
-                last_weight = artist.weight
-
-            return top_artists
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
-            log('Network error, failed to get %s: %s.' % (user_name, error))
 
     def _param_call(self, object, method, params, args):
         """
@@ -320,19 +596,18 @@ class Lastfm:
     def get_album(self, artist_name, album_name):
         try:
             network = self.get_network()
-            album = network.get_album(artist_name, album_name)
-            tags = [str(tag) for tag in album.get_top_tags(20)]
+            album = network.get_album_info(artist_name, album_name)
+            tags = network.get_album_top_tags(artist_name, album_name)
 
             return {
-                'url': album.get_url(),
-                'date': album.get_release_date(),
-                'listeners': album.get_listener_count(),
-                'wiki': album.get_wiki_summary(),
-                'name': album.get_name(),
+                'url': album['url'],
+                'listeners': album['listeners'],
+                'wiki': album['wiki'],
+                'name': album['name'],
                 'tags': tags,
-                'cover': album.get_cover_image()
+                'cover': album['cover']
             }
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
+        except LastfmError as error:
             log('Failed to get album "%s - %s": %s' % (
                 artist_name,
                 album_name,
@@ -342,28 +617,15 @@ class Lastfm:
     def get_tag(self, tag_name, limit = 50, page = 1):
         try:
             network = self.get_network()
-            tag = network.get_tag(tag_name)
 
-            artists = []
-
-            for artist in self._param_call(tag, 'get_top_artists', {'limit': limit, 'page': page}, []):
-                artists.append({
-                    'name': artist.item.get_name()
-                })
-
-            albums = []
-
-            for album in self._param_call(tag, 'get_top_albums', {'limit': limit, 'page': page}, []):
-                albums.append({
-                    'name': album.item.get_name()
-                })
+            artists = network.get_tag_top_artists(tag_name, page, limit)
+            albums = network.get_tag_top_albums(tag_name, page, limit)
 
             return {
-                'url': tag.get_url(),
                 'artists': artists,
                 'albums': albums
             }
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
+        except LastfmError as error:
             log('Failed to get tag "%s": %s' % (
                 tag_name,
                 error
@@ -372,14 +634,14 @@ class Lastfm:
     def get_artist(self, artist_name):
         try:
             network = self.get_network()
-            artist = network.get_artist(artist_name)
+            artist = network.get_artist_info(artist_name)
 
             similars = []
 
             count = 0
 
-            for similar in artist.get_similar(100):
-                name = similar.item.get_name()
+            for similar in network.get_artist_similar(artist_name, 100):
+                name = similar['name']
 
                 results = search.query_artist(name, exact=True)
 
@@ -394,27 +656,17 @@ class Lastfm:
                 if count >= 20:
                     break
 
-            tags = [str(topItem.item) for topItem in artist.get_top_tags(20)]
-
-            bio = (artist._request("artist.getInfo", True)
-                   .getElementsByTagName("bio")[0]
-                   .getElementsByTagName('summary')[0]
-                   .firstChild)
-
-            if bio is not None:
-                bio = bio.wholeText
-            else:
-                bio = ''
+            tags = network.get_artist_top_tags(artist_name)
 
             return {
-                'url': artist.get_url(),
-                'bio': bio.strip(),
-                'cover': artist.get_cover_image(),
-                'listeners': artist.get_listener_count(),
+                'url': artist['url'],
+                'bio': artist['bio'],
+                'cover': artist['cover'],
+                'listeners': artist['listeners'],
                 'tags': tags,
                 'similar': similars
             }
-        except (LastfmError, WSError, NetworkError, MalformedResponseError) as error:
+        except LastfmError as error:
             log('Failed to get artist "%s": %s' % (
                 artist_name,
                 error
@@ -425,8 +677,8 @@ class SessionKey:
 
     def __init__(self):
         self.network = lastfm.get_network()
-        self.generator = SessionKeyGenerator(self.network)
-        self.auth_url = self.generator.get_web_auth_url()
+        self.token = self.network.get_auth_token()
+        self.auth_url = self.network.get_web_auth_url(self.token)
 
     def get_auth_url(self):
         return self.auth_url
@@ -435,8 +687,8 @@ class SessionKey:
         key = None
 
         try:
-            key = self.generator.get_web_auth_session_key(self.auth_url)
-        except WSError as e:
+            key = self.network.get_auth_session(self.token)['key']
+        except LastfmError as e:
             log("session key failed: %s" % e)
 
         return key
