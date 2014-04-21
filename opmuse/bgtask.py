@@ -166,7 +166,8 @@ class BackgroundTaskPlugin(SimplePlugin):
                     if self.done.qsize() > 20:
                         self.done.get()
             except:
-                log("Error in bgtask thread #%d %r." % (number, self), traceback=True)
+                log("Error in bgtask thread #%d %r, args %r and kwargs %r." %
+                    (number, func, args, kwargs), traceback=True)
 
     def put(self, func, priority, *args, **kwargs):
         """
