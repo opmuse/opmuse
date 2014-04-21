@@ -22,6 +22,7 @@ def upgrade():
         sa.Column("album_name", sa.String(255)),
         sa.Column("timestamp", sa.Integer),
         sa.Column("user_id", sa.Integer, sa.ForeignKey('users.id')),
+        mysql_charset='utf8', mysql_engine='InnoDB'
     )
 
     op.create_index('ix_listened_tracks_name', 'listened_tracks', ['name'])

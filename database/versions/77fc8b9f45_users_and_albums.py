@@ -19,7 +19,8 @@ def upgrade():
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
         sa.Column("album_id", sa.Integer, sa.ForeignKey('albums.id')),
         sa.Column("user_id", sa.Integer, sa.ForeignKey('users.id')),
-        sa.Column("seen", sa.Boolean, default=False)
+        sa.Column("seen", sa.Boolean, default=False),
+        mysql_charset='utf8', mysql_engine='InnoDB'
     )
 
     op.create_index('ix_users_and_albums_album_id_user_id', 'users_and_albums', ['album_id', 'user_id'], unique=True)
