@@ -56,7 +56,7 @@ class Remotes:
         if lastfm_user is None or lastfm_session_key is None:
             return
 
-        max_timestamp = library_dao.get_listened_track_max_timestamp()
+        max_timestamp = library_dao.get_listened_track_max_timestamp(id)
 
         for track in lastfm.get_user_tracks(lastfm_user, lastfm_session_key):
             if max_timestamp is not None and max_timestamp >= track['timestamp']:

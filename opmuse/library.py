@@ -1517,8 +1517,9 @@ class LibraryDao:
         except NoResultFound:
             return None
 
-    def get_listened_track_max_timestamp(self):
-        return get_database().query(func.max(ListenedTrack.timestamp)).scalar()
+    def get_listened_track_max_timestamp(self, user_id):
+        return (get_database().query(func.max(ListenedTrack.timestamp))
+                .filter(ListenedTrack.user_id == user_id).scalar())
 
     def add_listened_track(self, user_id, name, artist_name, album_name, timestamp):
         listened_track = ListenedTrack(user_id, name, artist_name, album_name, timestamp)
