@@ -21,6 +21,12 @@
         <dt>Format</dt>
         <dd>{{ album.pretty_format }}</dd>
     </dl>
+    {% if listened_track %}
+        <dl>
+            <dt>Listened</dt>
+            <dd>{{ listened_track.timestamp|pretty_date }}</dd>
+        </dl>
+    {% endif %}
 </div>
 <div class="right">
     {{ album_macros.album_queue_btn(album) }}

@@ -41,6 +41,11 @@
                             {% endif %}
                         {% endif %}
                     </li>
+                    {% if album_listened_track %}
+                        <li class="list-group-item">
+                            Listened to <strong>{{ album_listened_track.timestamp|pretty_date }}</strong>
+                        </li>
+                    {% endif %}
                     <li class="list-group-item">
                         {% if remotes_album and remotes_album.lastfm %}
                             {% for tag in remotes_album.lastfm.tags %}
@@ -116,6 +121,11 @@
                             remotes_artist.lastfm.listeners %}
                             <li class="list-group-item">
                                 <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
+                            </li>
+                        {% endif %}
+                        {% if artist_listened_track %}
+                            <li class="list-group-item">
+                                Listened to <strong>{{ artist_listened_track.timestamp|pretty_date }}</strong>
                             </li>
                         {% endif %}
                         {% if remotes_user is defined and remotes_user and remotes_user.lastfm and remotes_user.lastfm.artists and

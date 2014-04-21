@@ -521,8 +521,11 @@ class Library:
         if artist is None:
             raise cherrypy.NotFound()
 
+        listened_track = library_dao.get_listened_track_by_artist_name(cherrypy.request.user.id, artist.name)
+
         return {
-            'artist': artist
+            'artist': artist,
+            'listened_track': listened_track
         }
 
     @cherrypy.expose
@@ -534,8 +537,17 @@ class Library:
         if album is None:
             raise cherrypy.NotFound()
 
+        if len(album.artists) > 0:
+            artist_name = album.artists[0].name
+        else:
+            artist_name = None
+
+        listened_track = library_dao.get_listened_track_by_artist_name_and_album_name(cherrypy.request.user.id,
+                                                                                      artist_name, album.name)
+
         return {
-            'album': album
+            'album': album,
+            'listened_track': listened_track
         }
 
     @cherrypy.expose
@@ -575,11 +587,23 @@ class Library:
 
         dir_tracks = self._dir_tracks(album.tracks)
 
+        if len(album.artists) > 0:
+            artist_name = album.artists[0].name
+        else:
+            artist_name = None
+
+        album_listened_track = library_dao.get_listened_track_by_artist_name_and_album_name(cherrypy.request.user.id,
+                                                                                            artist_name, album.name)
+
+        artist_listened_track = library_dao.get_listened_track_by_artist_name(cherrypy.request.user.id, artist_name)
+
         return {
             'album': album,
             'dir_tracks': dir_tracks,
             'remotes_artists': remotes_artists,
             'remotes_album': remotes_album,
+            'album_listened_track': album_listened_track,
+            'artist_listened_track': artist_listened_track,
         }
 
     def _dir_tracks(self, tracks):
@@ -959,13 +983,16 @@ class Library:
 
         remotes_user = remotes.get_user(cherrypy.request.user)
 
+        artist_listened_track = library_dao.get_listened_track_by_artist_name(cherrypy.request.user.id, artist.name)
+
         return {
             'remotes_user': remotes_user,
             'dir_tracks': dir_tracks,
             'artist': artist,
             'album_groups': album_groups,
             'remotes_artist': remotes_artist,
-            'same_artists': same_artists
+            'same_artists': same_artists,
+            'artist_listened_track': artist_listened_track
         }
 
     @staticmethod

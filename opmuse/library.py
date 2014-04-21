@@ -1500,6 +1500,23 @@ class LibraryDao:
     def get_listened_tracks(self, limit):
         return get_database().query(ListenedTrack).order_by(ListenedTrack.timestamp.desc()).limit(limit).all()
 
+    def get_listened_track_by_artist_name(self, user_id, artist_name):
+        try:
+            return (get_database().query(ListenedTrack)
+                    .filter(ListenedTrack.user_id == user_id, ListenedTrack.artist_name == artist_name)
+                    .order_by(ListenedTrack.timestamp.desc()).limit(1).one())
+        except NoResultFound:
+            return None
+
+    def get_listened_track_by_artist_name_and_album_name(self, user_id, artist_name, album_name):
+        try:
+            return (get_database().query(ListenedTrack)
+                    .filter(ListenedTrack.user_id == user_id, ListenedTrack.artist_name == artist_name,
+                            ListenedTrack.album_name == album_name)
+                    .order_by(ListenedTrack.timestamp.desc()).limit(1).one())
+        except NoResultFound:
+            return None
+
     def get_listened_track_max_timestamp(self):
         return get_database().query(func.max(ListenedTrack.timestamp)).scalar()
 

@@ -11,6 +11,12 @@
         <dt>Added</dt>
         <dd>{{ artist.added|pretty_date }}</dd>
     </dl>
+    {% if listened_track %}
+        <dl>
+            <dt>Listened</dt>
+            <dd>{{ listened_track.timestamp|pretty_date }}</dd>
+        </dl>
+    {% endif %}
 </div>
 <div class="right">
     {% if is_granted('admin') %}
