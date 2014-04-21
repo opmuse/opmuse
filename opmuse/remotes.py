@@ -38,8 +38,8 @@ class Remotes:
     ARTIST_AGE = 3600 * 24 * 7
     ALBUM_AGE = 3600 * 24 * 7
     TRACK_AGE = 3600 * 24 * 7
-    USER_AGE = 3600
-    USER_TRACKS_AGE = 3600
+    USER_AGE = 3600 * 2
+    USER_TRACKS_AGE = 1800
     TAG_AGE = 3600 * 24 * 7
 
     def update_user_tracks(self, user):
