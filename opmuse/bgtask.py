@@ -21,6 +21,7 @@ import cherrypy
 import logging
 import time
 from functools import total_ordering
+from multiprocessing import cpu_count
 from cherrypy.process.plugins import SimplePlugin
 from opmuse.database import get_session, database_data
 
@@ -66,7 +67,7 @@ class BackgroundTaskPlugin(SimplePlugin):
 
         self.queue = queue.PriorityQueue()
         self.threads = None
-        self.start_threads = 6
+        self.start_threads = cpu_count() * 2
         self.bus.subscribe("bind_background_task", self.bind_background_task)
         self.running = 0
         self.done = queue.Queue()
