@@ -33,6 +33,10 @@ User.lastfm_session_key = Column(String(32))
 User.lastfm_user = Column(String(64))
 
 
+class LastfmRetry(Exception):
+    pass
+
+
 class LastfmError(Exception):
     pass
 
@@ -136,6 +140,9 @@ class LastfmNetwork:
                 if totalPages is None:
                     totalPages = int(result['@attr']['totalPages'])
 
+                if 'track' not in result:
+                    raise LastfmRetry()
+
                 for track in result['track']:
                     if 'date' in track:
                         timestamp = int(track['date']['uts'])
@@ -151,7 +158,7 @@ class LastfmNetwork:
 
                 page += 1
                 tries = 1
-            except LastfmApiError:
+            except (LastfmApiError, LastfmRetry):
                 if tries > 10:
                     log("Tried and failed 10 times, skipping page %d" % page)
                     tries = 1
