@@ -31,29 +31,28 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'logger', 'sprintf', 'bind', '
             }
         },
         load: function (selectors) {
-            var found = false;
+            var usedSelectors = [];
 
             for (var index in selectors) {
                 var selector = selectors[index];
 
-                if (!$(selector).hasClass('reloader')) {
-                    logger.log(sprintf('Missing reloader class on %s!', selector));
-                    return;
-                }
-
                 if ($(selector).length > 0) {
-                    found = true;
-                    break;
+                    if (!$(selector).hasClass('reloader')) {
+                        logger.log(sprintf('Missing reloader class on %s!', selector));
+                        continue;
+                    }
+
+                    usedSelectors.push(selector);
                 }
             }
 
-            if (found) {
+            if (usedSelectors.length > 0) {
                 $.ajax(document.location.href, {
                     success: function (data, textStatus, xhr) {
                         var page = $($.parseHTML(data));
 
-                        for (var index in selectors) {
-                            var selector = selectors[index];
+                        for (var index in usedSelectors) {
+                            var selector = usedSelectors[index];
 
                             (function (selector) {
                                 var element = $(selector);
