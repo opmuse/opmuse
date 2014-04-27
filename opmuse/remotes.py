@@ -59,7 +59,7 @@ class Remotes:
         max_timestamp = library_dao.get_listened_track_max_timestamp(id)
 
         for track in lastfm.get_user_tracks(lastfm_user, lastfm_session_key):
-            if max_timestamp is not None and max_timestamp >= track['timestamp']:
+            if max_timestamp is not None and track['timestamp'] is not None and max_timestamp >= track['timestamp']:
                 break
 
             library_dao.add_listened_track(id, track['name'], track['artist'], track['album'], track['timestamp'])
