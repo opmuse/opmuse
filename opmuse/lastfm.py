@@ -245,8 +245,9 @@ class LastfmNetwork:
         cover = None
 
         for image in album['image']:
-            if image['size'] == "extralarge":
+            if image['size'] == "extralarge" and image['#text'] != '':
                 cover = image['#text']
+                break
 
         if 'wiki' in album:
             wiki = album['wiki']['summary'],
@@ -336,8 +337,9 @@ class LastfmNetwork:
         cover = None
 
         for image in artist['image']:
-            if image['size'] == "extralarge":
+            if image['size'] == "extralarge" and image['#text'] != '':
                 cover = image['#text']
+                break
 
         return {
             'name': artist['name'],
