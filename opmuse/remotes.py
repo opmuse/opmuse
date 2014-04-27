@@ -147,7 +147,11 @@ class Remotes:
     def _fetch_album(self, id):
         key = Remotes.ALBUM_KEY_FORMAT % id
 
-        album_entity = get_database().query(Album).filter(Album.id == id).one()
+        try:
+            album_entity = get_database().query(Album).filter(Album.id == id).one()
+        except NoResultFound:
+            # album removed, just ignore
+            return
 
         if len(album_entity.artists) > 0:
             artist_name = album_entity.artists[0].name
@@ -181,7 +185,11 @@ class Remotes:
     def _fetch_artist(self, id):
         key = Remotes.ARTIST_KEY_FORMAT % id
 
-        artist_entity = get_database().query(Artist).filter(Artist.id == id).one()
+        try:
+            artist_entity = get_database().query(Artist).filter(Artist.id == id).one()
+        except NoResultFound:
+            # artist removed, just ignore
+            return
 
         artist = {
             'wikipedia': wikipedia.get_artist(artist_entity.name),
