@@ -254,12 +254,17 @@ class LastfmNetwork:
         else:
             wiki = None
 
+        if album['playcount'] != '':
+            playcount = int(album['playcount'])
+        else:
+            playcount = None
+
         return {
             'artist': album['artist'],
             'name': album['name'],
             'listeners': int(album['listeners']),
             'mbid': album['mbid'],
-            'playcount': int(album['playcount']),
+            'playcount': playcount,
             'url': album['url'],
             'wiki': wiki,
             'cover': cover
