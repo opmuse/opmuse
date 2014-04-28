@@ -505,11 +505,26 @@ class Library:
 
         remotes_track = remotes.get_track(track)
 
+        if track.artist is not None:
+            artist_listened_track = library_dao.get_listened_track_by_artist_name(
+                cherrypy.request.user.id, track.artist.name)
+
+            if track.album is not None:
+                album_listened_track = library_dao.get_listened_track_by_artist_name_and_album_name(
+                    cherrypy.request.user.id, track.artist.name, track.album.name)
+            else:
+                album_listened_track = None
+        else:
+            artist_listened_track = None
+            album_listened_track = None
+
         return {
             'track': track,
             'remotes_artist': remotes_artist,
             'remotes_album': remotes_album,
             'remotes_track': remotes_track,
+            'album_listened_track': album_listened_track,
+            'artist_listened_track': artist_listened_track,
         }
 
     @cherrypy.expose
