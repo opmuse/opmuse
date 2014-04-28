@@ -324,7 +324,7 @@ class LastfmNetwork:
             for artist in self.process_list(result['artist']):
                 artists.append({
                     'name': artist['name'],
-                    'url': artist['url'],
+                    'url': artist['url'] if 'url' in artist else None,
                 })
 
         return artists
@@ -473,8 +473,14 @@ class LastfmNetwork:
         if isinstance(result, list):
             for item in result:
                 yield item
-        else:
+        elif isinstance(result, dict):
             yield result
+        elif isinstance(result, str):
+            yield {
+                'name': result
+            }
+        else:
+            raise ValueError('Unsupported type %s' % type(result))
 
 
 class Lastfm:
