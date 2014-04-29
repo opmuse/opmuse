@@ -92,6 +92,7 @@ class FFMPEGTranscoder(Transcoder):
         self.success = False
         self.error = None
         self.stopped = False
+        self.process = None
 
         if cherrypy.request.app is not None:
             ffmpeg_cmd = cherrypy.request.app.config.get('opmuse').get('transcoding.ffmpeg_cmd')
@@ -144,23 +145,28 @@ class FFMPEGTranscoder(Transcoder):
 
             args[index] = arg.replace(b'EXT', ext)
 
-        self.process = subprocess.Popen(args, shell = False, stdout = subprocess.PIPE,
-                                        stderr = subprocess.PIPE, stdin = None)
-
         cherrypy.request.transcoding_track = self.track
         cherrypy.request.transcoding_transcoder = self
+
+        try:
+            self.process = subprocess.Popen(args, shell = False, stdout = subprocess.PIPE,
+                                            stderr = subprocess.PIPE, stdin = None)
+        except Exception as e:
+            self.error = 'Got "%s" when starting ffmpeg.' % str(e)
+            return
 
         debug('transcoding with: %s' % b' '.join(args).decode('utf8', 'replace'))
 
         return self.transcode
 
     def __exit__(self, type, value, traceback):
-        try:
-            self.process.wait(10)
-        except TimeoutExpired:
-            self.stop()
+        if self.process is not None:
+            try:
+                self.process.wait(10)
+            except TimeoutExpired:
+                self.stop()
 
-        if not self.stopped and self.process.returncode != 0:
+        if self.process is not None and not self.stopped and self.process.returncode != 0:
             stderr_lines = self.stderr.decode('utf8', 'replace').split("\n")
 
             try:
@@ -171,6 +177,8 @@ class FFMPEGTranscoder(Transcoder):
             self.error = stderr_lines[-1]
 
             log('ffmpeg returned non-zero status "%d" and "%s".' % (self.process.returncode, self.error))
+        elif self.error is not None:
+            log('Got exception "%s".' % (self.error))
         else:
             self.success = True
 
@@ -182,12 +190,13 @@ class FFMPEGTranscoder(Transcoder):
         if self.stopped:
             return
 
-        try:
-            self.process.send_signal(signal.SIGTERM)
-            self.process.stdout.read()
-            self.process.wait()
-        except ProcessLookupError:
-            pass
+        if self.process is not None:
+            try:
+                self.process.send_signal(signal.SIGTERM)
+                self.process.stdout.read()
+                self.process.wait()
+            except ProcessLookupError:
+                pass
 
         self.stopped = True
 
@@ -408,13 +417,14 @@ class Transcoding:
             transcoder = CopyFFMPEGTranscoder
 
         for track, skip_seconds in tracks:
-
-            start_time = time.time()
-
             if isinstance(transcoder, Transcoder):
                 raise Exception("transcoder must be an instance of Transcoder")
 
             with transcoder(track, skip_seconds) as transcode:
+                # error occured in __enter__
+                if transcode is None:
+                    return
+
                 for data in transcode():
                     yield data
 

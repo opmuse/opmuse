@@ -127,15 +127,15 @@ class QueueEvents:
             ws_user.set('queue.current_progress', None)
 
     def transcoding_end(self, track, transcoder):
-        if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
-                hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None):
+        if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
             queue_current = queue_dao.get_queue(cherrypy.request.queue_current_id)
 
             if queue_current is not None:
                 queue_dao.update_queue(queue_current.id, playing = False)
 
             if queue_current is not None and queue_current.current:
-                if not hasattr(cherrypy.request, 'queues_done') or not cherrypy.request.queues_done:
+                if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
+                        not hasattr(cherrypy.request, 'queues_done') or not cherrypy.request.queues_done):
                     progress = cherrypy.request.queue_progress
                     current_seconds = math.floor(progress['seconds'] - progress['seconds_ahead'])
                 else:
@@ -146,8 +146,7 @@ class QueueEvents:
                 else:
                     error = transcoder.error
 
-                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds,
-                                       error = error)
+                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds, error = error)
 
             ws.emit('queue.update')
 
