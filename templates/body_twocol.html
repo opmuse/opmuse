@@ -1,13 +1,17 @@
 {% extends "body_base.html" %}
 
+{% set subnav_extra_file_path = "partials/right-nav.html" %}
+
 {% block main %}
-    <div class="col-sm-9">
+    <nav class="effeckt-off-screen-nav effeckt-off-screen-nav-right-squeeze">
+        <div id="right">
+            {% block right %}{% endblock %}
+        </div>
+    </nav>
+    <div class="effeckt-page-active" data-effeckt-page="page-1">
         <div id="content">
             {% block content %}{% endblock %}
         </div>
-    </div>
-    <div class="col-sm-3" id="right">
-        {% block right %}{% endblock %}
     </div>
 {% endblock %}
 

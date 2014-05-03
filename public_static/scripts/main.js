@@ -46,7 +46,8 @@ require([
     'dir_table',
     'navbar',
     'album',
-    'modernizr'
+    'modernizr',
+    'offscreennav'
     ], function($) {
 
     $.ajaxSetup({

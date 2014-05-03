@@ -1,4 +1,4 @@
-{% macro navbar(subnav_file_path, authenticated) -%}
+{% macro navbar(subnav_file_path, subnav_extra_file_path, authenticated) -%}
     <div class="navbar-main">
         <div class="navbar-header">
             <a class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -81,6 +81,9 @@
             <div id="navbar-sub" class="navbar-sub">
                 {%- if subnav_file_path is defined %}
                     {%- include subnav_file_path ignore missing -%}
+                {% endif -%}
+                {%- if subnav_extra_file_path is defined %}
+                    {%- include subnav_extra_file_path -%}
                 {% endif -%}
             </div>
         </div>

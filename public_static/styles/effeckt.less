@@ -11,3 +11,50 @@ figure[data-effeckt-type=quarter-appear] {
 figure[data-effeckt-type=half-slide] {
     overflow: hidden;
 }
+
+.effeckt-off-screen-nav {
+    position: relative;
+    z-index: 1000;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    visibility: hidden;
+    float: right !important;
+    width: 0;
+
+    &.effeckt-show {
+        .make-sm-column(4);
+        visibility: visible;
+    }
+}
+
+[data-effeckt-page] {
+    height: auto;
+    padding: 0;
+}
+
+.effeckt-off-screen-nav-right-squeeze.effeckt-show ~ [data-effeckt-page] {
+    .make-sm-column(8);
+    float: left !important;
+}
+
+.off-screen-nav-button {
+    .icon-hide {
+        display: none;
+    }
+
+    .icon-show {
+        display: inline-block;
+    }
+
+    &.show {
+        .icon-hide {
+            display: inline-block;
+        }
+
+        .icon-show {
+            display: none;
+        }
+    }
+}
