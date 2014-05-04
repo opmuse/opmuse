@@ -33,6 +33,7 @@ var require = {
     paths: {
         'jquery.nanoscroller': 'lib/jquery.nanoscroller',
         'jquery.fileupload': 'lib/jquery.fileupload',
+        // included twice, also in jquery.ui
         'jquery.ui.widget': 'lib/jquery.ui.widget',
         'jquery': 'lib/jquery',
         'bootstrap': 'lib/bootstrap',

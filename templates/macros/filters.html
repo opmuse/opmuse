@@ -1,0 +1,87 @@
+{% macro item(type, icon, label, name, filter, view, sort, filter_value, has_filter_value) %}
+    {% if type == "filter" %}
+        {% set _view = view %}
+        {% set _filter = name %}
+        {% set _sort = sort %}
+        {% set _filter_value = filter_value %}
+        {% set active = filter == name %}
+        {% set use_filter_value = False %}
+    {% elif type == "view" %}
+        {% set _view = name %}
+        {% set _filter = filter %}
+        {% set _sort = sort %}
+        {% set _filter_value = filter_value %}
+        {% set active = view == name %}
+        {% set use_filter_value = True %}
+    {% elif type == "sort" %}
+        {% set _view = view %}
+        {% set _filter = filter %}
+        {% set _sort = name %}
+        {% set _filter_value = filter_value %}
+        {% set active = sort == name %}
+        {% set use_filter_value = True %}
+    {% endif %}
+
+    {% set url = request.path_info ~ "?" %}
+
+    {% if _view %}
+        {% set url = url ~ "view=" ~ _view %}
+    {% endif %}
+
+    {% set url = url ~ "&filter=" ~ _filter ~ "&sort=" ~ _sort %}
+
+    {% if filter_value and use_filter_value %}
+        {% set url = url ~ "&filter_value=" ~ _filter_value %}
+    {% endif %}
+
+    <div class="filter-item {{ "filter-value" if has_filter_value else "" }}">
+        <a class="filter-button btn btn-sm {{ "btn-primary" if active else "btn-default" }}"
+            href="{{ url }}">
+            <i class="fa fa-{{ icon }}"></i>
+        </a>
+        <a href="{{ url }}">{{ label }}</a>
+        {% if has_filter_value %}
+            <input autocomplete="off" type="text" class="form-control input-sm"
+                placeholder="Tag" value="{{ filter_value }}" />
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro sort(icon, label, name, filter, view, sort, filter_value) %}
+    {{ item("sort", icon, label, name, filter, view, sort, filter_value, False) }}
+{% endmacro %}
+
+{% macro view(icon, label, name, filter, view, sort, filter_value) %}
+    {{ item("view", icon, label, name, filter, view, sort, filter_value, False) }}
+{% endmacro %}
+
+{% macro filter(icon, label, name, filter, view, sort, filter_value, has_filter_value = False) %}
+    {{ item("filter", icon, label, name, filter, view, sort, filter_value, has_filter_value) }}
+{% endmacro %}
+
+{% macro text(type, filter_label, sort_label, filter_value, page, page_size, total) %}
+    <p>
+        Showing
+        {% if page %}
+            <strong>{{ page|ordinal }}</strong> page,
+        {% endif %}
+        <strong>
+        {% if total > page_size %}
+            {{ page_size }}
+        {% else %}
+            {{ total }}
+        {% endif %}
+        </strong>
+        {% if page %}
+            of <strong>{{ total|format_number }}</strong>
+        {% endif %}
+        {{ type }}
+        {% if filter_label %}
+            filtered by <strong>{{ filter_label }}</strong>
+            {% if filter_value %}
+                as <strong>{{ filter_value }}</strong>
+            {% endif %}
+        {% endif %}
+        sorted by <strong>{{ sort_label }}</strong>.
+    </p>
+{% endmacro %}

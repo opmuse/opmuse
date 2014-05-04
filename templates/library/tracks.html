@@ -1,77 +1,47 @@
-{% extends "body.html" %}
+{% extends "body_twocol.html" %}
+
 {% set subnav_file_path = "partials/library-nav.html" %}
+
+{% import "macros/tracks.html" as tracks_macros %}
+{% import "macros/pagination.html" as pagination %}
+{% import "macros/filters.html" as filters %}
 
 {% block title  %}
     Library - Tracks
 {% endblock %}
 
+{% set sort_labels = {
+    "added": "Recently added",
+    "random": "Random",
+} %}
+
+{% set filter_labels = {
+    "none": "Nothing",
+    "invalid": "Invalid",
+    "woartist": "Without artist",
+    "woalbum": "Without album ",
+    "duplicates": "Duplicates",
+} %}
+
+{% block right %}
+<div class="filters">
+    <h4>Sort by</h4>
+    {{ filters.sort('asterisk', sort_labels['added'], 'added', filter, None, sort, None) }}
+    {{ filters.sort('random', sort_labels['random'], 'random', filter, None, sort, None) }}
+    <h4>Filter by</h4>
+    {{ filters.filter('circle-o', filter_labels['none'], 'none', filter, None, sort, None) }}
+    {{ filters.filter('exclamation-triangle', filter_labels['invalid'], 'invalid', filter, None, sort, None) }}
+    {{ filters.filter('music', filter_labels['woartist'], 'woartist', filter, None, sort, None) }}
+    {{ filters.filter('music', filter_labels['woalbum'], 'woalbum', filter, None, sort, None) }}
+    {{ filters.filter('code-fork', filter_labels['duplicates'], 'duplicates', filter, None, sort, None) }}
+</div>
+{% endblock %}
+
 {% block content %}
 <div id="library">
-    {% import "macros/tracks.html" as tracks_macros %}
-    {% import "macros/pagination.html" as pagination %}
 
-    <dl class="filters">
-        <dt>Filter</dt>
-        <dd>
-            <ul>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if filter == "none" else "btn-default" }}" href="/library/tracks?filter=none&sort={{ sort }}">
-                        <i class="fa fa-circle-o"></i>
-                        None
-                    </a>
-                </li>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if filter == "woartist" else "btn-default" }}" href="/library/tracks?filter=woartist&sort={{ sort }}">
-                        <i class="fa fa-music"></i>
-                        w/o Artist
-                    </a>
-                </li>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if filter == "woalbum" else "btn-default" }}" href="/library/tracks?filter=woalbum&sort={{ sort }}">
-                        <i class="fa fa-music"></i>
-                        w/o Album
-                    </a>
-                </li>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if filter == "invalid" else "btn-default" }}" href="/library/tracks?filter=invalid&sort={{ sort }}">
-                        <i class="fa fa-exclamation-triangle"></i>
-                        Invalid
-                    </a>
-                </li>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if filter == "duplicates" else "btn-default" }}" href="/library/tracks?filter=duplicates&sort={{ sort }}">
-                        <i class="fa fa-code-fork"></i>
-                        Duplicates
-                    </a>
-                </li>
-            </ul>
-        </dd>
-    </dl>
-    <dl class="sorts">
-        <dt>Sort</dt>
-        <dd>
-            <ul>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if sort == "none" else "btn-default" }}" href="/library/tracks?filter={{ filter }}&sort=none">
-                        <i class="fa fa-circle-o"></i>
-                        None
-                    </a>
-                </li>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if sort == "added" else "btn-default" }}" href="/library/tracks?filter={{ filter }}&sort=added">
-                        <i class="fa fa-asterisk"></i>
-                        Added
-                    </a>
-                </li>
-                <li>
-                    <a class="btn btn-xs {{ "btn-primary" if sort == "random" else "btn-default" }}" href="/library/tracks?filter={{ filter }}&sort=random">
-                        <i class="fa fa-random"></i>
-                        Random
-                    </a>
-                </li>
-            </ul>
-        </dd>
-    </dl>
+    {{ filters.text("tracks", filter_labels[filter]|lower if filter != "none" else None,
+        sort_labels[sort]|lower, None, page, page_size, total) }}
 
     <div class="tracks">
         {{ tracks_macros.table(tracks) }}

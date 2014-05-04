@@ -36,53 +36,35 @@ define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'bind', 'domReady!'], fun
             });
 
             that.internalInit();
-
-            setInterval(that.checkReload.bind(this), 500);
         },
         internalInit: function () {
             var that = this;
 
-            $(".filters .filter_value input").each(function () {
-                $(this).data('prev-value', $(this).val());
-            });
-
-            $(".filters .filter_value a").data('ajaxify', false);
-
-            $(".filters .filter_value input").blur(function (event) {
-                $(this).data('keydown-timestamp', null);
-                that.reloadPage(this);
-                return false;
-            }).keyup(function (event) {
-                $(this).data('keydown-timestamp', Date.now());
-            });
-        },
-        checkReload: function () {
-            var that = this;
-
-            $(".filters .filter_value input").each(function () {
-                var ts = $(this).data('keydown-timestamp');
-
-                if (typeof ts != 'undefined' && ts !== null) {
-                    if (Date.now() - ts > 2000) {
-                        $(this).data('keydown-timestamp', null);
-                        that.reloadPage(this);
-                    }
+            $(".filters .filter-value a")
+                .data('ajaxify', false)
+                .click(function (event) {
+                    that.reloadPage($(this).siblings("input"));
+                    return false;
                 }
+            );
+
+            $(".filters .filter-value input").keyup(function (event) {
+                if (event.keyCode == 13) {
+                    $(this).siblings(".filter-button").click();
+                }
+
+                return false;
             });
         },
         reloadPage: function (input) {
-            var href = $(input).closest("a").attr("href");
+            var href = $(input).siblings(".filter-button").attr("href");
             var value = $(input).val();
 
-            if (value == "") {
+            if (value === "") {
                 return false;
             }
 
-            var prevValue = $(input).data('prev-value');
-
-            if (prevValue.toLowerCase() != value.toLowerCase()) {
-                ajaxify.setPage(sprintf("%s&filter_value=%s", href, value));
-            }
+            ajaxify.setPage(sprintf("%s&filter_value=%s", href, value));
         }
     });
 

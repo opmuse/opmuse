@@ -1,71 +1,43 @@
-{% extends "body.html" %}
+{% extends "body_twocol.html" %}
+
 {% set subnav_file_path = "partials/library-nav.html" %}
+
+{% import "macros/pagination.html" as pagination %}
+{% import "macros/filters.html" as filters %}
 
 {% block title  %}
     Library - Artists
 {% endblock %}
 
-{% block content %}
-    {% import "macros/pagination.html" as pagination %}
+{% set sort_labels = {
+    "added": "Recently added",
+    "random": "Random",
+} %}
 
+{% set filter_labels = {
+    "none": "Nothing",
+    "yours": "Your lastfm artists",
+    "invalid": "Invalid",
+    "tag": "Tag",
+} %}
+
+{% block right %}
+<div class="filters">
+    <h4>Sort by</h4>
+    {{ filters.sort('asterisk', sort_labels['added'], 'added', filter, None, sort, filter_value) }}
+    {{ filters.sort('random', sort_labels['random'], 'random', filter, None, sort, filter_value) }}
+    <h4>Filter by</h4>
+    {{ filters.filter('circle-o', filter_labels['none'], 'none', filter, None, sort, filter_value) }}
+    {{ filters.filter('user', filter_labels['yours'], 'yours', filter, None, sort, filter_value) }}
+    {{ filters.filter('exclamation-triangle', filter_labels['invalid'], 'invalid', filter, None, sort, filter_value) }}
+    {{ filters.filter('tag', filter_labels['tag'], 'tag', filter, None, sort, filter_value, True) }}
+</div>
+{% endblock %}
+
+{% block content %}
     <div id="library">
-        <dl class="filters">
-            <dt>Filter</dt>
-            <dd>
-                <ul>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "none" else "btn-default" }}" href="/library/artists?filter=none&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-circle-o"></i>
-                            None
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "yours" else "btn-default" }}" href="/library/artists?filter=yours&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-user"></i>
-                            Yours
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "invalid" else "btn-default" }}" href="/library/artists?filter=invalid&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-exclamation-triangle"></i>
-                            Invalid
-                        </a>
-                    </li>
-                    <li class="filter_value ">
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "tag" else "btn-default" }}" href="/library/artists?filter=tag&sort={{ sort }}">
-                            <i class="fa fa-tag"></i>
-                            <input autocomplete="off" type="text" class="form-control"
-                                placeholder="Tag" value="{{ filter_value }}" />
-                        </a>
-                    </li>
-                </ul>
-            </dd>
-        </dl>
-        <dl class="sorts">
-            <dt>Sort</dt>
-            <dd>
-                <ul>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "none" else "btn-default" }}" href="/library/artists?filter={{ filter }}&sort=none&filter_value={{ filter_value }}">
-                            <i class="fa fa-circle-o"></i>
-                            None
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "added" else "btn-default" }}" href="/library/artists?filter={{ filter }}&sort=added&filter_value={{ filter_value }}">
-                            <i class="fa fa-asterisk"></i>
-                            Added
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "random" else "btn-default" }}" href="/library/artists?filter={{ filter }}&sort=random&filter_value={{ filter_value }}">
-                            <i class="fa fa-random"></i>
-                            Random
-                        </a>
-                    </li>
-                </ul>
-            </dd>
-        </dl>
+        {{ filters.text("artists", filter_labels[filter]|lower if filter != "none" else None,
+            sort_labels[sort]|lower, filter_value, page, page_size, total) }}
 
         <hr />
 

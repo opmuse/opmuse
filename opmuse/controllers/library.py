@@ -736,11 +736,20 @@ class Library:
             query = (query.join(TrackPath, Track.id == TrackPath.track_id)
                           .having(func.count(distinct(TrackPath.id)) > 1))
 
-        pages = math.ceil(query.count() / page_size)
+        total = query.count()
+        pages = math.ceil(total / page_size)
 
         tracks = query.limit(page_size).offset(offset).all()
 
-        return {'tracks': tracks, 'page': page, 'pages': pages, 'sort': sort, 'filter': filter}
+        return {
+            'tracks': tracks,
+            'page': page,
+            'page_size': page_size,
+            'total': total,
+            'pages': pages,
+            'sort': sort,
+            'filter': filter
+        }
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -807,7 +816,8 @@ class Library:
 
             query = query.filter(Artist.id.in_(artist_ids))
 
-        pages = math.ceil(query.count() / page_size)
+        total = query.count()
+        pages = math.ceil(total / page_size)
 
         artists = query.limit(page_size).offset(offset).all()
 
@@ -817,6 +827,8 @@ class Library:
         return {
             'artists': artists,
             'page': page,
+            'page_size': page_size,
+            'total': total,
             'sort': sort,
             'filter': filter,
             'filter_value': filter_value,
@@ -894,7 +906,8 @@ class Library:
             query = query.filter(Album.id.in_(album_ids))
 
         # count before adding order_by() for performance reasons..
-        pages = math.ceil(query.count() / page_size)
+        total = query.count()
+        pages = math.ceil(total / page_size)
 
         if sort == "added":
             query = query.order_by(Album.added.desc())
@@ -922,6 +935,8 @@ class Library:
         return {
             'albums': albums,
             'page': page,
+            'page_size': page_size,
+            'total': total,
             'sort': sort,
             'filter': filter,
             'filter_value': filter_value,

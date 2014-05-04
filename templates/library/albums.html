@@ -1,124 +1,57 @@
-{% extends "body.html" %}
+{% extends "body_twocol.html" %}
+
 {% set subnav_file_path = "partials/library-nav.html" %}
+
+{% import "macros/album.html" as album_macros %}
+{% import "macros/urls.html" as urls %}
+{% import "macros/pagination.html" as pagination %}
+{% import "macros/covers.html" as covers %}
+{% import "macros/filters.html" as filters %}
 
 {% block title  %}
     Library - Albums
 {% endblock %}
 
-{% block content %}
-    {% import "macros/album.html" as album_macros %}
-    {% import "macros/urls.html" as urls %}
-    {% import "macros/pagination.html" as pagination %}
-    {% import "macros/covers.html" as covers %}
+{% set sort_labels = {
+    "added": "Recently added",
+    "seen": "Recently seen",
+    "date": "Recent date/year",
+    "random": "Random"
+} %}
 
+{% set filter_labels = {
+    "none": "Nothing",
+    "1year": "Added within 1 year",
+    "yours": "Your Lastfm albums",
+    "va": "Multiple artists (VA)",
+    "invalid": "Invalid",
+    "tag": "Tag"
+} %}
+
+{% block right %}
+<div class="filters">
+    <h4>Sort by</h4>
+    {{ filters.sort('asterisk', sort_labels['added'], 'added', filter, view, sort, filter_value) }}
+    {{ filters.sort('plus', sort_labels['seen'], 'seen', filter, view, sort, filter_value) }}
+    {{ filters.sort('calendar', sort_labels['date'], 'date', filter, view, sort, filter_value) }}
+    {{ filters.sort('random', sort_labels['random'], 'random', filter, view, sort, filter_value) }}
+    <h4>Filter by</h4>
+    {{ filters.filter('circle-o', filter_labels['none'], 'none', filter, view, sort, filter_value) }}
+    {{ filters.filter('asterisk', filter_labels['1year'], '1year', filter, view, sort, filter_value) }}
+    {{ filters.filter('user', filter_labels['yours'], 'yours', filter, view, sort, filter_value) }}
+    {{ filters.filter('circle', filter_labels['va'], 'va', filter, view, sort, filter_value) }}
+    {{ filters.filter('exclamation-triangle', filter_labels['invalid'], 'invalid', filter, view, sort, filter_value) }}
+    {{ filters.filter('tag', filter_labels['tag'], 'tag', filter, view, sort, filter_value, True) }}
+    <h4>View as</h4>
+    {{ filters.view('th-large', 'Grid', 'covers', filter, view, sort, filter_value) }}
+    {{ filters.view('list-ul', 'Table', 'list', filter, view, sort, filter_value) }}
+</div>
+{% endblock %}
+
+{% block content %}
     <div id="library">
-        <dl class="filters">
-            <dt>Filter</dt>
-            <dd>
-                <ul>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "none" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter=none&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-circle-o"></i>
-                            None
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "1year" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter=1year&sort={{ sort }}&filter_value={{ filter_value }}"
-                            title="Albums added with 1 year, useful with random sort.">
-                            <i class="fa fa-asterisk"></i>
-                            1 Year
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "yours" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter=yours&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-user"></i>
-                            Yours
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "va" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter=va&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-circle"></i>
-                            VA
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "invalid" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter=invalid&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-exclamation-triangle"></i>
-                            Invalid
-                        </a>
-                    </li>
-                    <li class="filter_value ">
-                        <a class="btn btn-xs {{ "btn-primary" if filter == "tag" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter=tag&sort={{ sort }}">
-                            <i class="fa fa-tag"></i>
-                            <input autocomplete="off" type="text" class="form-control"
-                                placeholder="Tag" value="{{ filter_value }}" />
-                        </a>
-                    </li>
-                </ul>
-            </dd>
-        </dl>
-        <dl class="sorts">
-            <dt>Sort</dt>
-            <dd>
-                <ul>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "added" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter={{ filter }}&sort=added&filter_value={{ filter_value }}">
-                            <i class="fa fa-asterisk"></i>
-                            Added
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "seen" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter={{ filter }}&sort=seen&filter_value={{ filter_value }}">
-                            <i class="fa fa-plus"></i>
-                            Seen
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "date" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter={{ filter }}&sort=date&filter_value={{ filter_value }}">
-                            <i class="fa fa-calendar"></i>
-                            Date
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "random" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter={{ filter }}&sort=random&filter_value={{ filter_value }}">
-                            <i class="fa fa-random"></i>
-                            Random
-                        </a>
-                    </li>
-                </ul>
-            </dd>
-        </dl>
-        <dl class="views">
-            <dt>View</dt>
-            <dd>
-                <ul>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if view == "covers" else "btn-default" }}"
-                            href="/library/albums?view=covers&filter={{ filter }}&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-th-large"></i>
-                            Covers
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs {{ "btn-primary" if view == "list" else "btn-default" }}"
-                            href="/library/albums?view=list&filter={{ filter }}&sort={{ sort }}&filter_value={{ filter_value }}">
-                            <i class="fa fa-list-ul"></i>
-                            List
-                        </a>
-                    </li>
-                </ul>
-            </dd>
-        </dl>
+        {{ filters.text("albums", filter_labels[filter]|lower if filter != "none" else None,
+            sort_labels[sort]|lower, filter_value, page, page_size, total) }}
 
         {% if view == "covers" %}
             <hr />
