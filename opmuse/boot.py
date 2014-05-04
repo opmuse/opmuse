@@ -23,6 +23,7 @@ import sys
 from opmuse.database_events import DatabaseEventsTool
 from os.path import join, abspath, dirname, exists
 from opmuse.library import LibraryPlugin, LibraryWatchdogPlugin, LibraryTool
+from opmuse.mpd import MpdServerPlugin
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
 from opmuse.security import repozewho_pipeline, AuthenticatedTool, AuthorizeTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
@@ -165,6 +166,9 @@ def configure(config_file=None, environment=None):
 
     cherrypy.engine.library = LibraryPlugin(cherrypy.engine)
     cherrypy.engine.library.subscribe()
+
+    cherrypy.engine.mpdserver = MpdServerPlugin(cherrypy.engine)
+    cherrypy.engine.mpdserver.subscribe()
 
     cherrypy.engine.library_watchdog = LibraryWatchdogPlugin(cherrypy.engine)
     cherrypy.engine.library_watchdog.subscribe()
