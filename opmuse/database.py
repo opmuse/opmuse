@@ -126,6 +126,7 @@ class SqlAlchemyTool(cherrypy.Tool):
 
     def commit_transaction(self):
         cherrypy.request.database = None
+
         try:
             self.session.commit()
         except:
@@ -133,6 +134,7 @@ class SqlAlchemyTool(cherrypy.Tool):
             raise
         finally:
             self.session.remove()
+            cherrypy.engine.publish('database_commit_transaction')
 
     def bind_session(self):
         cherrypy.engine.publish('bind', self.session)

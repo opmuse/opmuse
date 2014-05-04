@@ -20,6 +20,7 @@ import logging
 import cherrypy
 import locale
 import sys
+from opmuse.database_events import DatabaseEventsTool
 from os.path import join, abspath, dirname, exists
 from opmuse.library import LibraryPlugin, LibraryWatchdogPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
@@ -46,6 +47,7 @@ def configure(config_file=None, environment=None):
     cherrypy.tools.multiheaders = multi_headers_tool
     cherrypy.tools.cgitb_log_err = cgitb_log_err_tool
     cherrypy.tools.websocket = WebSocketTool()
+    cherrypy.tools.database_events = DatabaseEventsTool()
 
     from opmuse.controllers.main import Root
 
@@ -70,6 +72,7 @@ def configure(config_file=None, environment=None):
             'tools.backgroundtask.on': True,
             'tools.jinjaenv.on': True,
             'tools.authenticated.on': True,
+            'tools.database_events.on': True,
         }, '/ws': {
             'tools.websocket.on': True,
             'tools.websocket.handler_cls': WebSocketHandler
