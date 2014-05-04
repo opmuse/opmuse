@@ -34,15 +34,50 @@ define(['jquery', 'inheritance', 'ws', 'reloader', 'modernizr', 'domReady!'], fu
 
             var that = this;
 
-            ws.on('library.album.seen.update', function (id) {
-                reloader.load(["#album_" + id + " .album-seen-container"]);
-            });
+            that.initReloader();
 
             $('#main').bind('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 
             that.internalInit();
+        },
+        initReloader: function () {
+            var that = this;
+
+            var reloadTimeout = 200;
+
+            that.reloads = [];
+            that.reloadId = null;
+
+            // to avoid unecessary loading of the page we use a timeout based
+            // approach when running this in case an insert and update is
+            // dispatched at the same time and/or if multiple albums are marked
+            // as seen at the same time
+            ws.on(['database_events.userandalbum.update', 'database_events.userandalbum.insert'],
+                function (id, columns, new_values) {
+                    if (columns.seen) {
+                        var selector = "#album_" + new_values.album_id + " .album-seen-container";
+
+                        if (!(selector in that.reloads)) {
+                            that.reloads.push(selector);
+                        }
+
+                        if (that.reloadId !== null) {
+                            var reloadId = that.reloadId;
+                            that.reloadId = null;
+                            clearTimeout(reloadId);
+                        }
+
+                        that.reloadId = setTimeout(function () {
+                            var reloads = that.reloads;
+                            that.reloads = [];
+
+                            reloader.load(reloads);
+                        }, reloadTimeout);
+                    }
+                }
+            );
         },
         internalInit: function () {
             // because we have no hover on touch devices disable click

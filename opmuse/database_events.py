@@ -2,6 +2,7 @@ import cherrypy
 from sqlalchemy import event
 from sqlalchemy.orm.attributes import get_history
 from opmuse.ws import ws
+from opmuse.library import UserAndAlbum
 
 
 class DatabaseEvents:
@@ -20,6 +21,14 @@ class DatabaseEvents:
                     cherrypy.request._database_events[key][1][name] = value
             else:
                 cherrypy.request._database_events[key] = (columns, new_values)
+
+    @event.listens_for(UserAndAlbum, "after_insert")
+    def after_insert(mapper, conn, object):
+        DatabaseEvents.send('insert', object)
+
+    @event.listens_for(UserAndAlbum, "after_update")
+    def after_update(mapper, conn, object):
+        DatabaseEvents.send('update', object)
 
     def send(type, object):
         columns = DatabaseEvents.get_columns(object)

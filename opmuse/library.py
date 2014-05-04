@@ -42,7 +42,6 @@ from threading import Thread
 from unidecode import unidecode
 from opmuse.database import Base, get_session, get_database_type, get_database, database_data
 from opmuse.search import search
-from opmuse.ws import ws
 import mutagenx.mp3
 import mutagenx.oggvorbis
 import mutagenx.easymp4
@@ -369,7 +368,6 @@ class Album(Base):
         if value is True:
             value = datetime.datetime.utcnow()
 
-        ws.emit('library.album.seen.update', self.id)
         user_and_album.seen = value
 
     def _seen(self):

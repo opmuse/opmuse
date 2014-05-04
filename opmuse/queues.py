@@ -369,6 +369,8 @@ class QueueDao:
     def add_tracks(self, track_ids):
         user_id = cherrypy.request.user.id
 
+        queues = []
+
         for track_id in track_ids:
             if track_id == "":
                 continue
@@ -381,16 +383,23 @@ class QueueDao:
 
             get_database().add(queue)
 
+            queues.append(queue)
+
         get_database().commit()
+
+        for queue in queues:
+            # always update seen, True means now
+            if queue.track.album is not None:
+                queue.track.album.seen = True
 
         ws.emit('queue.update')
 
     def reset_current(self):
         user_id = cherrypy.request.user.id
 
-        query = (get_database().query(Queue)
-                 .filter(and_(Queue.user_id == user_id, Queue.current))
-                 .update({'current': False, 'current_seconds': None}, synchronize_session='fetch'))
+        (get_database().query(Queue)
+         .filter(and_(Queue.user_id == user_id, Queue.current))
+         .update({'current': False, 'current_seconds': None}, synchronize_session='fetch'))
 
         get_database().commit()
 
