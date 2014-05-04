@@ -577,8 +577,8 @@ class Library:
         except NoResultFound:
             raise cherrypy.NotFound()
 
-        if not album.seen:
-            album.seen = True
+        # always update seen, True means now
+        album.seen = True
 
         remotes.update_album(album)
 

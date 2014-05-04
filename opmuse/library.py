@@ -92,7 +92,7 @@ class UserAndAlbum(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     album_id = Column(Integer, ForeignKey('albums.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
-    seen = Column(Boolean, default=False, index=True)
+    seen = Column(DateTime, index=True)
 
     album = relationship("Album")
     user = relationship("User")
@@ -349,7 +349,7 @@ class Album(Base):
         try:
             user_and_album = self._seen()
         except NoResultFound:
-            return False
+            return None
 
         return user_and_album.seen
 
@@ -366,9 +366,11 @@ class Album(Base):
             user_and_album = UserAndAlbum(self.id, cherrypy.request.user.id)
             session.add(user_and_album)
 
-        user_and_album.seen = True
+        if value is True:
+            value = datetime.datetime.utcnow()
 
         ws.emit('library.album.seen.update', self.id)
+        user_and_album.seen = value
 
     def _seen(self):
         session = Session.object_session(self)
