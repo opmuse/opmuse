@@ -18,12 +18,22 @@
 import json
 import cherrypy
 import threading
+from json import JSONEncoder as BaseJSONEncoder
+from datetime import datetime
 from ws4py.server.cherrypyserver import (WebSocketPlugin as BaseWebSocketPlugin,
                                          WebSocketTool as BaseWebSocketTool)
 from ws4py.websocket import WebSocket
 
 
 ws_data = threading.local()
+
+
+class JSONEncoder(BaseJSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+
+        return BaseJSONEncoder.default(self, o)
 
 
 class WebSocketTool(BaseWebSocketTool):
@@ -102,7 +112,7 @@ class WsUser:
     @staticmethod
     def send(message, handler):
         try:
-            handler.send(json.dumps(message))
+            handler.send(json.dumps(message, cls=JSONEncoder))
         except Exception:
             log('Error occured while sending to %s@%s, cleaning up socket, payload %s.\n' %
                 (handler.user['login'], '%s:%d' % handler.peer_address, message), traceback=True)
