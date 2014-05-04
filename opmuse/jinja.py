@@ -35,6 +35,12 @@ from opmuse.library import TrackStructureParser, Library
 VISIBLE_WS = "\u2423"
 
 
+def ordinal(num):
+    # stolen from http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement?answertab=active#tab-top
+    suffixes = ["th", "st", "nd", "rd"] + ["th"] * 16
+    return str(num) + suffixes[num % 100]
+
+
 def date(value, date_format='%Y-%m-%d'):
     if type(value) is str:
         date = datetime.datetime.fromtimestamp(int(value))
@@ -82,6 +88,7 @@ def get_jinja_env():
     env.filters['pretty_format'] = pretty_format
     env.filters['country'] = country
     env.filters['date'] = date
+    env.filters['ordinal'] = ordinal
 
     env.globals['pagination_pages'] = pagination_pages
     env.globals['rand_id'] = rand_id
