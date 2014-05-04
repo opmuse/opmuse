@@ -70,12 +70,18 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domRea
 
             that.socket = new WebSocket(that.url);
 
-            // if it takes longer that 5s to connect we assume something is wrong
-            setTimeout(function () {
-                if (that.socket.OPEN !== 1) {
+            var errTimeout = 1000;
+
+            var errHandler = function () {
+                if (that.socket.readyState === WebSocket.CONNECTING) {
+                    logger.log('ws connecting...');
+                    setTimeout(errHandler, errTimeout);
+                } else if (that.socket.readyState !== WebSocket.OPEN) {
                     ajaxify.throb.setError("Couldn't establish websocket connection, might be firewall issues.");
                 }
-            }, 5000);
+            };
+
+            setTimeout(errHandler, errTimeout);
 
             that.socket.onmessage = function (event) {
                 var data = JSON.parse(event.data);
