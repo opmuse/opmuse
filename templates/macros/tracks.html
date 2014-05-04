@@ -117,6 +117,7 @@
 
     <div class="dir_table">
         {% set index = 0 %}
+
         {% for dir, item in dir_tracks %}
             {% set tracks = item['tracks'] %}
             {% set files = item['files'] %}
@@ -194,12 +195,11 @@
                         {% endif %}
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-        </div>
-        <div class="table-responsive">
-        <table class="table table-condensed">
+            </table>
+            </div>
             {% if files %}
+            <div class="table-responsive">
+            <table class="table table-condensed">
                 <tbody class="other-files-header">
                     <tr>
                         <th class="other-files-header-title">
@@ -257,6 +257,7 @@
             </table>
             </div>
             {% endif %}
+
             {% set index = index + 1 %}
         {% endfor %}
     </div>
