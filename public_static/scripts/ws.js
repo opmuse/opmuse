@@ -139,11 +139,23 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domRea
         on: function (event, callback) {
             var that = this;
 
-            if (!(event in that.events)) {
-                that.events[event] = [];
+            var events;
+
+            if (event instanceof Array) {
+                events = event;
+            } else {
+                events = [event];
             }
 
-            that.events[event].push(callback);
+            for (var index in events) {
+                event = events[index];
+
+                if (!(event in that.events)) {
+                    that.events[event] = [];
+                }
+
+                that.events[event].push(callback);
+            }
         }
     });
 
