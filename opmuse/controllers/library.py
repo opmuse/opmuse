@@ -1,7 +1,6 @@
 import os
 import time
 import datetime
-import re
 import math
 import rarfile
 import shutil
@@ -12,11 +11,11 @@ from urllib.parse import unquote
 from zipfile import ZipFile
 from rarfile import RarFile
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.orm import joinedload, undefer
-from sqlalchemy import func, distinct, or_
+from sqlalchemy.orm import joinedload
+from sqlalchemy import func, distinct, and_
 from opmuse.database import get_database
 from opmuse.library import (library_dao, TrackPath, TrackStructureParser, Album,
-                            Track, Artist, Library as LibraryService)
+                            Track, Artist, UserAndAlbum, Library as LibraryService)
 from opmuse.utils import HTTPRedirect
 from opmuse.search import search
 from opmuse.cache import cache
@@ -899,8 +898,15 @@ class Library:
 
         if sort == "added":
             query = query.order_by(Album.added.desc())
+        elif sort == "seen":
+            query = (query.outerjoin(UserAndAlbum, and_(Album.id == UserAndAlbum.album_id,
+                                     UserAndAlbum.user_id == cherrypy.request.user.id))
+                     .order_by(UserAndAlbum.seen.desc())
+                     .order_by(Album.added.desc()))
         elif sort == "date":
-            query = query.order_by(Album.date.desc())
+            query = (query
+                     .order_by(Album.date.desc())
+                     .order_by(Album.added.desc()))
         elif sort == "random":
             query = query.order_by(func.rand())
             page = None

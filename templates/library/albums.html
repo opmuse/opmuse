@@ -68,17 +68,17 @@
             <dd>
                 <ul>
                     <li>
-                        <a class="btn btn-xs {{ "btn-primary" if sort == "none" else "btn-default" }}"
-                            href="/library/albums?view={{ view }}&filter={{ filter }}&sort=none&filter_value={{ filter_value }}">
-                            <i class="fa fa-circle-o"></i>
-                            None
-                        </a>
-                    </li>
-                    <li>
                         <a class="btn btn-xs {{ "btn-primary" if sort == "added" else "btn-default" }}"
                             href="/library/albums?view={{ view }}&filter={{ filter }}&sort=added&filter_value={{ filter_value }}">
                             <i class="fa fa-asterisk"></i>
                             Added
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn btn-xs {{ "btn-primary" if sort == "seen" else "btn-default" }}"
+                            href="/library/albums?view={{ view }}&filter={{ filter }}&sort=seen&filter_value={{ filter_value }}">
+                            <i class="fa fa-plus"></i>
+                            Seen
                         </a>
                     </li>
                     <li>
