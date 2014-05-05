@@ -72,8 +72,6 @@ class DatabaseEventsTool(cherrypy.Tool):
         _database_events = cherrypy.request._database_events
         cherrypy.request._database_events = None
 
-        cherrypy.request.firepy(_database_events)
-
         for key, values in _database_events.items():
             type, entity, id = key
             columns, new_values = values
