@@ -20,7 +20,7 @@ function build_git() {
     fi
 
     if [[ -n $4 ]]; then
-        sed -i "s/version\s*=[^=]*/version='$4'/" $1/setup.py
+        sed -i "s/version\s*=[^=,]*/version='$4'/" $1/setup.py
     fi
 
     ./scripts/build-python-deb.sh $repo master $1/setup.py $1 none none none \
