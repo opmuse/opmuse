@@ -680,7 +680,7 @@ class Lastfm:
                 'listeners': album['listeners'],
                 'wiki': album['wiki'],
                 'name': album['name'],
-                'tags': tags,
+                'tags': tags[0:20],
                 'cover': album['cover']
             }
         except LastfmError as error:
@@ -739,7 +739,7 @@ class Lastfm:
                 'bio': artist['bio'],
                 'cover': artist['cover'],
                 'listeners': artist['listeners'],
-                'tags': tags,
+                'tags': tags[0:20],
                 'similar': similars
             }
         except LastfmError as error:
