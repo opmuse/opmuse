@@ -34,7 +34,11 @@
         </script>
     </head>
     <body lang="en">
-        <div id="overlay"></div>
+        <div id="overlay" class="locked">
+            <div class="loading">
+                <i class="loader fa fa-spin fa-spinner"></i>
+            </div>
+        </div>
         {% block body %}{% endblock %}
     </body>
 </html>

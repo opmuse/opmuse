@@ -19,12 +19,34 @@
 
 "use strict";
 
+/**
+ * load ws and layout first so we can bind
+ * on ws open event without having to wait for all
+ * modules to load... should greatly reduce the risk
+ * of the event firing before we listen to it
+ */
+require([
+    'jquery',
+    'ws',
+    'layout',
+    ], function($, ws, layout) {
+
+    if (opmuseGlobals.authenticated) {
+        $(ws).on('open', function () {
+            layout.unlockOverlay();
+            layout.hideOverlay();
+        });
+    } else {
+        layout.unlockOverlay();
+        layout.hideOverlay();
+    }
+});
+
 require([
     'jquery',
     'ajaxify',
     'download',
     'collapse',
-    'layout',
     'button',
     'queue',
     'search',
@@ -54,8 +76,6 @@ require([
         // repoze.who middleware expects content-type to be set :/
         headers: { 'Content-type': 'text/plain' }
     });
-
-    $("#overlay").addClass('hide');
 });
 
 requirejs.onError = function (err) {

@@ -75,6 +75,12 @@ body {
     #panel {
         z-index: 2002;
     }
+
+    #overlay {
+        .loading {
+            display: none;
+        }
+    }
 }
 
 #panel {
@@ -338,7 +344,7 @@ body {
     top: 0;
     left: 0;
     z-index: 2001;
-    background-color: #fff;
+    background-color: @white;
 
     &.hide {
         display: none;
@@ -357,9 +363,26 @@ body {
         font-size: 1.4em;
     }
 
+    .loading {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 10em;
+    }
+
     /* this will pose a real problem in the FUTURE when screens will be HUGE */
     width: 9999px;
     height: 9999px;
+}
+
+body {
+    &:not(.loaded) {
+        overflow: hidden;
+
+        #overlay {
+            display: table;
+        }
+    }
 }
 
 #version {

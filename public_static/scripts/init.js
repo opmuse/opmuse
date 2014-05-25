@@ -54,3 +54,20 @@ var require = {
     },
     waitSeconds: 30
 };
+
+document.addEventListener("DOMContentLoaded", function() {
+    /**
+     * reset scroll and set overlay to size of viewport before we do anything else,
+     * even before we load requirejs and jquery
+     */
+    (function () {
+        window.scrollTo(0, 0);
+
+        var overlay = document.getElementById("overlay");
+
+        overlay.setAttribute('style',
+            'width: ' + window.innerWidth + 'px; ' +
+            'height: ' + window.innerHeight + 'px'
+        );
+    })();
+}, false);

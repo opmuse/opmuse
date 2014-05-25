@@ -78,12 +78,14 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
             }).resize();
         },
         openFullscreen: function () {
-            $(this.panel).addClass("panel-fullscreen");
-            this.layout.showOverlay();
+            if (this.layout.showOverlay()) {
+                $(this.panel).addClass("panel-fullscreen");
+            }
         },
         closeFullscreen: function () {
-            $(this.panel).removeClass("panel-fullscreen");
-            this.layout.hideOverlay();
+            if (this.layout.hideOverlay()) {
+                $(this.panel).removeClass("panel-fullscreen");
+            }
         },
         open: function () {
             this.panel.addClass("open");
@@ -103,16 +105,47 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
                 throw Error('Only one instance of Layout allowed!');
             }
 
+            var that = this;
+
             this.panel = new Panel(this);
             this.overlayed = 0;
+
+            // initial resizing is done in init.js pre jquery and everything...
+            $(window).resize(function () {
+                that.resizeOverlay();
+            });
+        },
+        resizeOverlay: function () {
+            $("#overlay").width($(window).width());
+            $("#overlay").height($(window).height());
+        },
+        lockOverlay: function () {
+            $("body").removeClass("loaded");
+            $("#overlay").addClass("locked");
+        },
+        unlockOverlay: function () {
+            $("body").addClass("loaded");
+            $("#overlay").removeClass("locked");
         },
         showOverlay: function () {
+            if ($("#overlay").is(".locked")) {
+                return false;
+            }
+
+            $(window).scrollTop(0);
+
             this.overlayed++;
 
             $("body").addClass("overlayed");
             $("#overlay").removeClass("hide").addClass("transparent");
+
+            return true;
         },
         hideOverlay: function() {
+            if ($("#overlay").is(".locked")) {
+                return false;
+            }
+
             if (this.overlayed > 0) {
                 this.overlayed--;
             }
@@ -124,6 +157,8 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
                 $("body").removeClass("overlayed");
                 $("#overlay").addClass("hide").removeClass("transparent");
             }
+
+            return true;
         },
     });
 
