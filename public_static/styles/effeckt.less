@@ -28,10 +28,18 @@ figure[data-effeckt-type=half-slide] {
     }
 }
 
+.effeckt-off-screen-nav ~ [data-effeckt-page].effeckt-page-active:after {
+    position: relative;
+}
+
 [data-effeckt-page] {
     height: auto;
     padding: 0;
     overflow: visible;
+}
+
+.effeckt-off-screen-nav ~ .effeckt-page-active[data-effeckt-page]:after {
+    background: none;
 }
 
 .effeckt-off-screen-nav-right-squeeze.effeckt-show ~ [data-effeckt-page] {
