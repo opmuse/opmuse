@@ -67,7 +67,7 @@ build_git jinja2 2.7.2 https://github.com/mitsuhiko/jinja2.git
 build_git alembic rel_0_6_2 https://bitbucket.org/zzzeek/alembic.git
 build_git zope.interface 4.0.5 https://github.com/zopefoundation/zope.interface.git
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
-build_git sqlalchemy-utils 82d1055d https://github.com/kvesteri/sqlalchemy-utils.git # v0.25.2
+build_git sqlalchemy-utils 5b00373f https://github.com/kvesteri/sqlalchemy-utils.git # v0.26
 
 # don't build and always use the distributions version
 #build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
