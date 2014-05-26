@@ -36,9 +36,9 @@ VISIBLE_WS = "\u2423"
 
 
 def ordinal(num):
-    # stolen from http://stackoverflow.com/questions/9647202/ordinal-numbers-replacement?answertab=active#tab-top
-    suffixes = ["th", "st", "nd", "rd"] + ["th"] * 16
-    return str(num) + suffixes[num % 100]
+    # stolen from http://codegolf.stackexchange.com/a/4712
+    k = num % 10
+    return "%d%s" % (num, "tsnrhtdd"[(num / 10 % 10 != 1) * (k < 4) * k::4])
 
 
 def date(value, date_format='%Y-%m-%d'):
