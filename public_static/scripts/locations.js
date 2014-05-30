@@ -32,14 +32,23 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
             var that = this;
 
             $(document).ajaxComplete(function (event, xhr) {
-                var header = xhr.getResponseHeader('X-Opmuse-Location');
+                var location = that.getLocation(xhr);
 
-                if (header !== null) {
-                    var locations = JSON.parse(header);
-
-                    ajaxify.setPage(locations[0]);
+                if (location !== null) {
+                    ajaxify.setPage(location);
                 }
             });
+        },
+        getLocation: function (xhr) {
+            var header = xhr.getResponseHeader('X-Opmuse-Location');
+
+            if (header !== null) {
+                var locations = JSON.parse(header);
+
+                return locations[0];
+            }
+
+            return null;
         }
     });
 

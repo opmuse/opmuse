@@ -31,6 +31,7 @@ from opmuse.controllers.dashboard import Dashboard
 from opmuse.controllers.admin import Admin
 from opmuse.controllers.cover import Cover
 from opmuse.controllers.play import Play
+from opmuse.messages import messages
 
 
 class Root:
@@ -128,7 +129,6 @@ class Root:
             authenticated, headers = who_api.login(creds)
 
             if authenticated:
-
                 if cherrypy.response.header_list is None:
                     cherrypy.response.header_list = []
 
@@ -138,6 +138,8 @@ class Root:
                     raise HTTPRedirect(came_from)
                 else:
                     raise HTTPRedirect('/')
+            else:
+                messages.danger('Username and/or password is incorrect.')
 
         return {}
 

@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bind', 'lib/bootstrap/alert', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bind', 'bootstrap-growl', 'domReady!'], function($, inheritance) {
 
     "use strict";
 
@@ -37,13 +37,13 @@ define(['jquery', 'inheritance', 'bind', 'lib/bootstrap/alert', 'domReady!'], fu
                 if (header !== null) {
                     var message = JSON.parse(header);
 
-                    var dom = $('.message.tmpl').clone()
-                        .removeClass('tmpl')
-                        .addClass('alert-' + message.type);
-
-                    dom.find('.text').text(message.text);
-
-                    dom.appendTo('#messages').alert();
+                    $.bootstrapGrowl(message.text, {
+                        type: message.type,
+                        align: 'right',
+                        width: 'auto',
+                        delay: 6000,
+                        allow_dismiss: false
+                    });
                 }
             });
 

@@ -43,9 +43,11 @@ var require = {
         'matchMedia': 'lib/matchMedia',
         'jquery.ui': 'lib/jquery.ui',
         'typeahead': 'lib/typeahead',
-        'modernizr': 'lib/modernizr'
+        'modernizr': 'lib/modernizr',
+        'bootstrap-growl': 'lib/bootstrap-growl'
     },
     shim: {
+        'bootstrap-growl': ['jquery'],
         'typeahead': ['jquery'],
         'jquery.ui': ['jquery'],
         'bootstrap/popover': ['bootstrap/tooltip'],

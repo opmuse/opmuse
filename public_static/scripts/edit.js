@@ -90,7 +90,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                         ajaxify.setPageInDom(data);
                     },
                     error: function (xhr) {
-                        ajaxify.setErrorPageInDom(xhr.responseText);
+                        ajaxify.setPageInDom(xhr.responseText);
                     }
                 });
 

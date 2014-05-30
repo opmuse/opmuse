@@ -20,9 +20,14 @@ import cherrypy
 
 
 class Messages:
-
     def warning(self, text):
         self.publish('warning', text)
+
+    def info(self, text):
+        self.publish('info', text)
+
+    def danger(self, text):
+        self.publish('danger', text)
 
     def success(self, text):
         self.publish('success', text)

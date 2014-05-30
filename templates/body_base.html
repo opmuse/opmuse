@@ -5,21 +5,13 @@
 {% endif %}
 
 {% block body %}
-    {% include "message.html" %}
-
     <div id="top" class="navbar navbar-fixed-top navbar-inverse" role="navigation">
         {% import "navbar.html" as navbar %}
         {{ navbar.navbar(subnav_file_path, subnav_extra_file_path, authenticated) }}
     </div>
 
     <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div id="messages" class="{% block main_class %}{% endblock %}">
-                </div>
-            </div>
-        </div>
-
+        <div id="spacer" class="{% block main_class %}{% endblock %}"></div>
         {% block container %}
             <div class="row">
                 <div class="col-xs-12">

@@ -101,13 +101,13 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domRead
 
             this.throb = new Throb('.navbar-brand');
 
-            this.contents = ['#main', '#navbar-sub', '#navbar-main', '#messages'];
+            this.contents = ['#main', '#navbar-sub', '#navbar-main', '#spacer'];
 
             if ($(this.contents[0]).length == 0) {
                 return;
             }
 
-            this.selector = '#top, #queue, #main, #messages';
+            this.selector = '#top, #queue, #main, #spacer';
 
             this.initialURL = document.location.href;
 

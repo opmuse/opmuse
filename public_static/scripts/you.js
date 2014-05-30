@@ -54,7 +54,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
                         ajaxify.setPageInDom(data);
                     },
                     error: function (xhr) {
-                        ajaxify.setErrorPageInDom(xhr.responseText);
+                        ajaxify.setPageInDom(xhr.responseText);
                     }
                 });
 

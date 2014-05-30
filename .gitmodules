@@ -40,3 +40,6 @@
 [submodule "vendor/Modernizr"]
 	path = vendor/Modernizr
 	url = https://github.com/Modernizr/Modernizr
+[submodule "vendor/bootstrap-growl"]
+	path = vendor/bootstrap-growl
+	url = https://github.com/ifightcrime/bootstrap-growl.git

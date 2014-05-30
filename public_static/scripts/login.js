@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'locations', 'ajaxify', 'domReady!'], function($, inheritance, locations, ajaxify) {
 
     "use strict";
 
@@ -39,10 +39,34 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
         },
         internalInit: function () {
             if ($("#login").length > 0) {
-                $("#login, .home").data('ajaxify', false);
+                $(".login, .home").data('ajaxify', false);
             }
 
             $("input[name=login]").focus();
+
+            $("#login form").submit(function () {
+                var data = $(this).serialize();
+                var action = $(this).attr('action');
+
+                $.ajax(action, {
+                    type: 'post',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: data,
+                    success: function (data, status, xhr) {
+                        var location = locations.getLocation(xhr);
+
+                        if (location !== null) {
+                            document.location.href = location;
+                        }
+                    },
+                    error: function (xhr) {
+                        ajaxify.setPageInDom(xhr.responseText);
+                    }
+                });
+                return false;
+            });
         }
     });
 
