@@ -60,6 +60,9 @@ define(['jquery', 'inheritance', 'locations', 'ajaxify', 'domReady!'], function(
                         if (location !== null) {
                             document.location.href = location;
                         }
+
+                        $("input[name=login]").focus().select();
+                        $("input[name=password]").val('');
                     },
                     error: function (xhr) {
                         ajaxify.setPageInDom(xhr.responseText);
