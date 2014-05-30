@@ -184,6 +184,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domRead
                     if (xhr.statusText != 'abort') {
                         that.setPageInDom(xhr.responseText);
                     }
+
                     layout.hideOverlay();
                     that.activeRequest = null;
                 },
@@ -194,13 +195,28 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domRead
 
             document.title = $.trim(html.find("#title").text());
 
+            var notFound = 0;
+
             for (var index in this.contents) {
                 var content = this.contents[index];
                 var newContent = html.find(content);
 
-                this.setInDom(content, newContent);
+                if (newContent.length === 0) {
+                    notFound += 1;
+                    continue;
+                }
 
-                $(window).scrollTop(0);
+                this.setInDom(content, newContent);
+            }
+
+            $(window).scrollTop(0);
+
+            // if none of the contents are found we just replace the whole
+            // document, this happens when there's a standard cherrypy error
+            if (notFound === this.contents.length) {
+                var newDoc = document.open("text/html", "replace");
+                newDoc.write(data);
+                newDoc.close();
             }
 
             this.load(this.selector);
