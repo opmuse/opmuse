@@ -72,9 +72,14 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domRea
 
             var errTimeout = 1000;
 
+            var times = 1;
+
             var errHandler = function () {
                 if (that.socket.readyState === WebSocket.CONNECTING) {
-                    logger.log('ws connecting...');
+                    logger.log(sprintf('ws connecting%s', Array(times).join('.')));
+
+                    times += 1;
+
                     setTimeout(errHandler, errTimeout);
                 } else if (that.socket.readyState !== WebSocket.OPEN) {
                     ajaxify.throb.setError("Couldn't establish websocket connection, might be firewall issues.");
