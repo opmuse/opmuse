@@ -317,9 +317,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             });
         },
         initNanoScroller: function () {
-            $("#queue .nano").nanoScroller({
-                alwaysVisible: true
-            });
+            if (!$("#queue .nano").is('.has-scrollbar')) {
+                $("#queue .nano").nanoScroller({
+                    alwaysVisible: true
+                });
+            } else {
+                $("#queue .nano").nanoScroller();
+            }
 
             $('#panel').off('panelFullscreen').on('panelFullscreen', function (event) {
                 $("#queue .nano").nanoScroller();
