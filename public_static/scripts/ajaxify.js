@@ -176,7 +176,10 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domRead
 
             this.activeRequest = $.ajax(href, {
                 success: function (data, textStatus, xhr) {
-                    that.setPageInDom(data);
+                    if (typeof data != 'undefined' && data !== null) {
+                        that.setPageInDom(data);
+                    }
+
                     layout.hideOverlay();
                     that.activeRequest = null;
                 },

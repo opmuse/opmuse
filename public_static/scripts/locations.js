@@ -31,13 +31,25 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'domReady!'], function($, in
 
             var that = this;
 
+            that.disabled = false;
+
             $(document).ajaxComplete(function (event, xhr) {
+                if (that.disabled) {
+                    return;
+                }
+
                 var location = that.getLocation(xhr);
 
                 if (location !== null) {
                     ajaxify.setPage(location);
                 }
             });
+        },
+        enable: function () {
+            this.disabled = false;
+        },
+        disable: function () {
+            this.disabled = true;
         },
         getLocation: function (xhr) {
             var header = xhr.getResponseHeader('X-Opmuse-Location');

@@ -48,6 +48,10 @@ define(['jquery', 'inheritance', 'locations', 'ajaxify', 'domReady!'], function(
                 var data = $(this).serialize();
                 var action = $(this).attr('action');
 
+                // we don't want a ajax redirect but a proper one so
+                // we handle it ourselves in success()
+                locations.disable();
+
                 $.ajax(action, {
                     type: 'post',
                     headers: {
@@ -58,14 +62,18 @@ define(['jquery', 'inheritance', 'locations', 'ajaxify', 'domReady!'], function(
                         var location = locations.getLocation(xhr);
 
                         if (location !== null) {
-                            document.location.href = location;
+                            document.location.replace(location);
+                            return;
                         }
 
                         $("input[name=login]").focus().select();
                         $("input[name=password]").val('');
+
+                        locations.enable();
                     },
                     error: function (xhr) {
                         ajaxify.setPageInDom(xhr.responseText);
+                        locations.enable();
                     }
                 });
                 return false;

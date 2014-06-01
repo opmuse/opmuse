@@ -112,7 +112,7 @@ class Root:
 
         cherrypy.response.multiheaders = headers
 
-        raise HTTPRedirect('/?came_from=%s' % came_from)
+        raise HTTPRedirect('/login?came_from=%s' % came_from)
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='login.html')
@@ -146,15 +146,15 @@ class Root:
         return {}
 
     @cherrypy.expose
-    def index(self, came_from = None):
+    def index(self):
         if cherrypy.request.user is None:
-            raise cherrypy.InternalRedirect('/index_unauth?came_from=%s' % came_from)
+            raise cherrypy.InternalRedirect('/index_unauth')
         else:
             raise cherrypy.InternalRedirect('/index_auth')
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='index_unauth.html')
-    def index_unauth(self, came_from = None):
+    def index_unauth(self):
         if 'Referer' not in cherrypy.request.headers:
             raise HTTPRedirect('/login')
 

@@ -7,7 +7,7 @@
 {% block body %}
     <div id="top" class="navbar navbar-fixed-top navbar-inverse" role="navigation">
         {% import "navbar.html" as navbar %}
-        {{ navbar.navbar(subnav_file_path, subnav_extra_file_path, authenticated) }}
+        {{ navbar.navbar(subnav_file_path, subnav_extra_file_path, authenticated, current_url) }}
     </div>
 
     <div class="container">
