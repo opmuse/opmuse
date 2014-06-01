@@ -140,6 +140,8 @@ class Root:
                     raise HTTPRedirect('/')
             else:
                 messages.danger('Username and/or password is incorrect.')
+        elif hasattr(cherrypy.request, 'user') and cherrypy.request.user is not None:
+            raise HTTPRedirect('/')
 
         return {}
 
