@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domReady!'],
+define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
     function ($, inheritance, popover, layout) {
 
     "use strict";
@@ -116,7 +116,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'bind', 'domRead
             // setTimeout hack to ignore initial popstate that at least chrome fires,
             // but not firefox
             setTimeout(function () {
-                $(window).bind('popstate', function (event) {
+                $(window).on('popstate', function (event) {
                     var href = document.location.pathname + document.location.search;
 
                     if (that.activeRequest !== null) {

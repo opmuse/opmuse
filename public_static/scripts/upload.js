@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeahead',
+define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
         'sprintf', 'bootstrap/popover', 'domReady!'], function($, inheritance, ajaxify) {
 
     "use strict";
@@ -45,7 +45,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'bind', 'jquery.fileupload', 'typeah
             this.files = [];
             this.names = [];
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

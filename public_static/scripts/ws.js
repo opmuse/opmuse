@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domReady!'],
+define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
         function($, inheritance, logger, ajaxify) {
 
     "use strict";
@@ -107,7 +107,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'bind', 'domRea
                 $(that).trigger('open');
             };
 
-            $(window).bind('beforeunload', function (event) {
+            $(window).on('beforeunload', function (event) {
                 that.unloaded = true;
                 that.socket.close();
             });

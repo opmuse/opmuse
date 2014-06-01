@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bind', 'bootstrap/tab', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bootstrap/tab', 'domReady!'], function($, inheritance) {
 
     "use strict";
 
@@ -31,7 +31,7 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/tab', 'domReady!'], function
 
             var that = this;
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

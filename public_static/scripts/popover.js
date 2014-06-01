@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bind', 'bootstrap/popover', 'domReady!'], function($, inheritance) {
+define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, inheritance) {
 
     "use strict";
 
@@ -31,7 +31,7 @@ define(['jquery', 'inheritance', 'bind', 'bootstrap/popover', 'domReady!'], func
 
             var that = this;
 
-            $('#main, #queue').bind('ajaxifyInit', function (event) {
+            $('#main, #queue').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

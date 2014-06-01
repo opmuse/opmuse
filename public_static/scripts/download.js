@@ -31,7 +31,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, 
 
             var that = this;
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

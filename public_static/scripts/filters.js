@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'bind', 'domReady!'], function($, inheritance, ajaxify) {
+define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
 
     "use strict";
 
@@ -31,7 +31,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'bind', 'domReady!'], fun
 
             var that = this;
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

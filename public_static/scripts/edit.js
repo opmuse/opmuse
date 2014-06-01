@@ -31,7 +31,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
 
             var that = this;
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 
@@ -98,8 +98,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
             });
 
             $("#edit .lock")
-                .unbind('click.edit')
-                .bind('click.edit',
+                .off('click.edit')
+                .on('click.edit',
                     function (event) {
                         var type = null;
 
@@ -120,7 +120,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                         if ($(this).hasClass('locked')) {
                             $(selector)
                                 .removeAttr("readonly")
-                                .unbind('keyup.lock, blur.lock')
+                                .off('keyup.lock, blur.lock')
                                 .removeClass('locked');
 
                             $(this).removeClass('locked');
@@ -130,7 +130,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
 
                             $($(selector).attr("readonly", "readonly").get(0))
                                 .removeAttr("readonly").removeClass("locked")
-                                .bind('keyup.lock, blur.lock',
+                                .on('keyup.lock, blur.lock',
                                     function (event) {
                                         $(selector).val($(this).val());
                                     }
@@ -143,7 +143,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                     }
                 );
 
-                $("#edit input").unbind('focus.marker').bind('focus.marker', function (event) {
+                $("#edit input").off('focus.marker').on('focus.marker', function (event) {
                     $("#edit tr").removeClass("active");
                     $(this).closest("tr").addClass("active");
                 });

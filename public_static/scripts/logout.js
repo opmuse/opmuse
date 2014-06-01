@@ -31,7 +31,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
 
             var that = this;
 
-            $('#top').bind('ajaxifyInit', function (event) {
+            $('#top').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

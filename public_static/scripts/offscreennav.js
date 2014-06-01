@@ -36,7 +36,7 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
             that.gridCols = 12;
             that.navCols = 4;
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 

@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ws', 'ajaxify', 'reloader', 'bind', 'domReady!'],
+define(['jquery', 'inheritance', 'ws', 'ajaxify', 'reloader', 'domReady!'],
     function($, inheritance, ws, ajaxify, reloader) {
 
     "use strict";

@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bind', 'domReady!'], function ($, inheritance) {
+define(['jquery', 'inheritance', 'domReady!'], function ($, inheritance) {
 
     "use strict";
 
@@ -31,7 +31,7 @@ define(['jquery', 'inheritance', 'bind', 'domReady!'], function ($, inheritance)
 
             var navbar = $(".navbar-collapse");
 
-            $('body').bind('ajaxifyInit', function (event) {
+            $('body').on('ajaxifyInit', function (event) {
                 navbar.collapse("hide");
             });
         }

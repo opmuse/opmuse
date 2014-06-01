@@ -36,7 +36,7 @@ define(['jquery', 'inheritance', 'ws', 'reloader', 'modernizr', 'domReady!'], fu
 
             that.initReloader();
 
-            $('#main').bind('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function (event) {
                 that.internalInit();
             });
 
