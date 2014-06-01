@@ -31,6 +31,12 @@ define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inherit
 
             var that = this;
 
+            that.initImages();
+
+            $('#main').on('ajaxifyInit', function (event) {
+                that.initImages();
+            });
+
             ws.on('covers.artist.update', function (id) {
                 that.refresh($("#artist_cover_" + id));
                 that.refresh($(".artist_cover_" + id));
@@ -44,7 +50,21 @@ define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inherit
                 $.ajax($(this).attr('href'));
                 return false;
             });
-        }, refresh: function (container) {
+        },
+        /**
+         * defer loading of cover images
+         */
+        initImages: function () {
+            $(".cover-container").each(function () {
+                var img = $(this).find('img');
+                var src = $(this).data('src');
+
+                if (typeof src != 'undefined' && src !== null) {
+                    img.attr('src', src);
+                }
+            });
+        },
+        refresh: function (container) {
             var img = container.find("img");
 
             if (img.length == 2) {
