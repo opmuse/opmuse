@@ -35,8 +35,8 @@ reprepro -b $repo deleteunreferenced
 # built further down from their git repos. we build dev-requirements.txt even if
 # they're not dependencies but so you can use them for debuging.
 #
-# note that we skip building mako and six altogether
-grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|zope\.interface|six|mako|watchdog|WebOb|^#" \
+# note that we skip building mako, six and firepy altogether
+grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|zope\.interface|six|mako|firepy|watchdog|WebOb|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
