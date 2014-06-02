@@ -32,9 +32,11 @@ function build_git() {
 reprepro -b $repo deleteunreferenced
 
 # build deb packages from requirements.txt files except the broken ones, they're
-# built further down from their gitrepos. we build dev-requirements.txt even if
+# built further down from their git repos. we build dev-requirements.txt even if
 # they're not dependencies but so you can use them for debuging.
-grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|zope\.interface|mako|watchdog|WebOb|^#" \
+#
+# note that we skip building mako and six altogether
+grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|zope\.interface|six|mako|watchdog|WebOb|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
@@ -75,9 +77,6 @@ build_git zope.interface 4.0.5 https://github.com/zopefoundation/zope.interface.
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
 build_git sqlalchemy-utils 5b00373f https://github.com/kvesteri/sqlalchemy-utils.git # v0.26
 build_git webob 1.4 https://github.com/Pylons/webob.git 1.4-2 # bump version to override broken package in jessie
-
-# don't build and always use the distributions version
-#build_git mako rel_0_9_1 https://github.com/zzzeek/mako.git
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
