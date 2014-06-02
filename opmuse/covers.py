@@ -99,10 +99,10 @@ class Covers:
 
             for artist in entity.artists:
                 if artist.cover_path is None or not os.path.exists(artist.cover_path):
-                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, 9, artist.id)
+                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, artist.id)
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                cherrypy.engine.bgtask.put(self.fetch_album_cover, 9, entity.id)
+                cherrypy.engine.bgtask.put(self.fetch_album_cover, 15, entity.id)
 
                 for artist in entity.artists:
                     if artist.cover is not None:
@@ -117,7 +117,7 @@ class Covers:
             remotes.update_artist(entity)
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                cherrypy.engine.bgtask.put(self.fetch_artist_cover, 9, entity.id)
+                cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, entity.id)
 
         if entity is None:
             raise ValueError('Entity not found')
