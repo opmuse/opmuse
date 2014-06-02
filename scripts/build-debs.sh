@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+set -e
+
 if [[ $# -ne 1 ]]; then
     echo "Usage: $(basename $0) repo"
     exit 1

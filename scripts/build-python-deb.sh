@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+set -e
+
 if [[ $# -ne 15 && $# -ne 16 ]]; then
     echo -n "Usage: $(basename $0) repo dist package_file package_name package_version "
     echo -n "package_before package_after package_deps package_confs package_init package_default "
