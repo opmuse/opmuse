@@ -132,7 +132,7 @@ fi
 
 args+=(-s python -t deb $package_install)
 
-rm ${full_package_name}*.deb 2> /dev/null
+rm ${full_package_name}*.deb > /dev/null 2>&1 || true
 
 reprepro -b $repo remove $dist $full_package_name
 
