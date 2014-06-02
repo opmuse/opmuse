@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ws', 'bind', 'domReady!'], function($, inheritance, ws) {
+define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws) {
 
     "use strict";
 
