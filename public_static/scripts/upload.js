@@ -40,7 +40,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
             that.activeUploads = 0;
             that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
             that.audio = ['audio/flac', 'audio/mp3', 'audio/x-ms-wma', 'audio/mp4a-latm',
-                'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav', 'audio/mpeg', 'audio/mp4'];
+                'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav', 'audio/mpeg',
+                'audio/mp4', 'audio/x-m4a'];
 
             this.files = [];
             this.names = [];
@@ -103,6 +104,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                             return false;
                         });
 
+                        console.log(file.type);
                         if (that.archives.indexOf(file.type) != -1) {
                             fileDom.find('[name=archive_password]').show();
                             fileDom.addClass('archive-file');
