@@ -44,7 +44,7 @@ args=(
 )
 
 if [[ $prefix -eq 1 ]]; then
-    full_package_name=python3-$package_name
+    full_package_name=python3-${package_name#python-}
 else
     args+=(
         --no-python-fix-name
