@@ -116,7 +116,7 @@ def build():
 
     less_compiler.compile('build/main.css')
 
-    subprocess.call(['node', 'vendor/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
+    subprocess.check_call(['node', 'vendor/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
 
     if not os.path.exists('build/debian-dbconfig-install'):
         os.mkdir('build/debian-dbconfig-install')
