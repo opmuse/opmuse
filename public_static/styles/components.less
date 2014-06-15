@@ -174,27 +174,7 @@
     width: @cover-width + 14;
     height: @cover-width + 14;
 
-    &:hover {
-        .remove-cover {
-            opacity: 1;
-        }
-    }
-
-    .remove-cover {
-        .transition(.7s);
-
-        opacity: 0.0;
-        position: absolute;
-        right: -6px;
-        top: -6px;
-        z-index: 99;
-    }
-
     img {
-        /* shows before real image has loaded... */
-        background-image: url(/static/images/cover_placeholder.png);
-        background-repeat: no-repeat;
-        background-position: 6px 6px;
         text-indent: -9999px;
         position: absolute !important; /* !important because effeckt.css is being difficult */
         right: 0;
@@ -203,7 +183,10 @@
         width: @cover-width + 14;
         height: @cover-width + 14;
 
-        .transition(.7s);
+        /* transform transition is for Effeckt.css stuff,
+         * and !important is Effeckt.css fault too */
+        transition: all 0.5s ease 0s !important;
+        transition-property: transform, opacity !important;
 
         z-index: 20;
 

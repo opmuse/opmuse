@@ -6,3 +6,10 @@
     -ms-user-select: none;
     user-select: none;
 }
+
+.transition(@duration: 1s) {
+    -moz-transition: all @duration ease;
+    -webkit-transition: all @duration ease;
+    -o-transition: all @duration ease;
+    transition: all @duration ease;
+}

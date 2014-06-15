@@ -31,19 +31,51 @@ define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws
 
             var that = this;
 
+            // minimum ms two cover updates must be apart,
+            // basically for the transition/animation to
+            // have time to complete, also to avoid blinking effects..
+            that.coverMinUpdate = 1000;
+
             that.initImages();
 
             $('#main').on('ajaxifyInit', function (event) {
                 that.initImages();
             });
 
-            ws.on('covers.artist.update', function (id) {
-                that.refresh($("#artist_cover_" + id));
-                that.refresh($(".artist_cover_" + id));
-            });
+            that.times = {};
 
-            ws.on('covers.album.update', function (id) {
-                that.refresh($("#album_cover_" + id));
+            ws.on(['covers.album.update', 'covers.artist.update'], function (id) {
+                var oldTime = null;
+
+                var type;
+
+                if (this.event == 'covers.album.update') {
+                    type = "album";
+                } else {
+                    type = "artist";
+                }
+
+                var key = type + "_" + id;
+
+                if (key in that.times) {
+                    oldTime = that.times[key];
+                }
+
+                var newTime = new Date().getTime();
+
+                that.times[key] = newTime;
+
+                var time = 0;
+
+                if (oldTime !== null) {
+                    if (newTime - oldTime < that.coverMinUpdate) {
+                        time = that.coverMinUpdate;
+                    }
+                }
+
+                setTimeout(function () {
+                    that.refresh($("#" + type + "_cover_" + id));
+                }, time);
             });
 
             $(document).on('click.covers', "a.remove-cover", function (event) {
@@ -76,11 +108,13 @@ define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws
 
             img.removeClass("cover-overlay");
 
-            var overlay = img.clone().removeClass("cover-hide")
+            var overlay = img.clone()
                 .attr("src", img.attr("src") + "&refresh=" + Math.random())
                 .addClass("cover-overlay");
 
             container.append(overlay)
+
+            overlay.removeClass("cover-hide");
 
             img.addClass("cover-hide");
         }

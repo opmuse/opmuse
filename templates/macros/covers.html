@@ -12,7 +12,7 @@
 
 {% macro _album(album, width, height, cover_class, cover_container_class, size) %}
     <span
-        class="cover-container {{ cover_container_class }} {{ "artist_cover_" ~ album.artists[0].id if album and album.artists|count > 0 else '' }}"
+        class="cover-container {{ cover_container_class }}"
         id="album_cover_{{ album.id if album else '' }}"
             {% if album %}
                 data-src="/cover/album/{{ album.slug|urlencode }}

@@ -78,6 +78,8 @@ class Covers:
             entity.cover = None
             entity.cover_large = None
 
+        get_database().commit()
+
         if type == "album":
             ws.emit_all('covers.album.update', entity.id)
         elif type == "artist":
@@ -314,8 +316,6 @@ class Covers:
 
     def retrieve_and_resize(self, image_url):
         image_ext = os.path.splitext(image_url)[1]
-
-        album_dirs = set()
 
         temp_image = self._mktemp(image_ext).encode('utf8')
 
