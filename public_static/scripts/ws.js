@@ -91,10 +91,17 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
             that.socket.onmessage = function (event) {
                 var data = JSON.parse(event.data);
 
+                logger.log(sprintf('ws got event %s with args %s', data.event, JSON.stringify(data.args)));
+
                 if (data.event in that.events) {
                     for (var index in that.events[data.event]) {
                         var callback = that.events[data.event][index];
-                        callback.apply(that, data.args);
+
+                        var eventObj = {
+                            event: data.event
+                        };
+
+                        callback.apply(eventObj, data.args);
                     }
                 }
             };
