@@ -21,7 +21,7 @@ MarkupSafe >=0.18,<0.24
 WebOb >=1.4,<1.5
 zope.interface >=4.0.5,<4.1
 # alembic deps
-Mako >=0.8.1,<0.10
+Mako >=0.8.1
 # watchdog deps
 PyYAML ==3.10
 argh >=0.24.1,<0.25
