@@ -27,4 +27,4 @@ PyYAML ==3.10
 argh >=0.24.1,<0.25
 pathtools >=0.1.2,<0.2
 # SQLAlchemy-Utils deps
-six >=1.6.1,<1.7
+six >=1.6.1
