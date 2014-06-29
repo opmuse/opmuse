@@ -1,3 +1,5 @@
+# don't forget about scripts/build-debs.sh when updating this file.
+#
 # opmuse deps
 CherryPy >=3.5.0,<3.6
 Jinja2 >=2.7.1,<2.8

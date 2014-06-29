@@ -36,7 +36,7 @@ reprepro -b $repo deleteunreferenced
 # they're not dependencies but so you can use them for debuging.
 #
 # note that we skip building mako, six, firepy, Sphinx and sphinx_rtd_theme altogether
-grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|zope\.interface|six|mako|firepy|Sphinx|sphinx_rtd_theme|watchdog|WebOb|^#" \
+grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|zope\.interface|six|mako|firepy|Sphinx|sphinx_rtd_theme|watchdog|WebOb|CherryPy|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
@@ -71,12 +71,13 @@ done
 # these packages pypi builds are broken but building from git works, so let's
 # do that instead.
 build_git repoze.who 2.2 https://github.com/repoze/repoze.who.git
-build_git jinja2 2.7.2 https://github.com/mitsuhiko/jinja2.git
+build_git jinja2 2.7.3 https://github.com/mitsuhiko/jinja2.git
 build_git alembic rel_0_6_5 https://bitbucket.org/zzzeek/alembic.git
-build_git zope.interface 4.0.5 https://github.com/zopefoundation/zope.interface.git
+build_git zope.interface 4.1.1 https://github.com/zopefoundation/zope.interface.git
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
-build_git sqlalchemy-utils 5b00373f https://github.com/kvesteri/sqlalchemy-utils.git # v0.26
+build_git sqlalchemy-utils 412eb758 https://github.com/kvesteri/sqlalchemy-utils.git # v0.26.4
 build_git webob 1.4 https://github.com/Pylons/webob.git 1.4-2 # bump version to override broken package in jessie
+build_git cherrypy 3.5.0 https://github.com/cherrypy/cherrypy.git
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
