@@ -142,6 +142,9 @@ class Wikipedia():
             "redirects": ""
         }, language)
 
+        if 'query' not in response:
+            return None
+
         response = response['query']['pages'].popitem()[1]
 
         if 'extract' in response:
