@@ -245,7 +245,7 @@ class Artist(Base):
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
     _added = column_property(select([func.max(Track.added)])
-                            .where(Track.artist_id == id).correlate_except(Track), deferred=True)
+                             .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name, slug):
         self.name = name
