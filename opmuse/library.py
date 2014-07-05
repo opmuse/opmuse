@@ -1104,14 +1104,10 @@ class Library:
                            name="LibraryProcess_%d" % no)
                 p.start()
 
-                log("Spawned library thread %d with ident %s)." % (no, p.ident))
-
                 self.threads.append(p)
 
                 to_process = []
                 no += 1
-
-        log("Spawned %d library thread(s)." % thread_num)
 
         for thread in self.threads:
             thread.join()
@@ -1140,13 +1136,21 @@ class Library:
 
         self._database.remove()
 
+        if self.running:
+            msg = "Done updating library, in {0} seconds."
+        else:
+            msg = "Stopped updating library"
+
+        log(msg.format(round(time.time() - start_time)))
+
         self.scanning = False
         self.running = False
 
-        log("Done updating library, in %d seconds." % (time.time() - start_time))
 
     def stop(self):
         if self.running:
+            log("Stop updating library.")
+
             self.running = False
 
             for thread in self.threads:
@@ -1178,9 +1182,11 @@ class LibraryProcess:
         processed = 0
         start = time.time()
 
+        stopped = False
+
         for filename in queue:
             if library is not None and library.running is False:
-                log('Process %d aborted.' % self.no)
+                stopped = True
                 break
 
             track = self.process(filename)
@@ -1200,7 +1206,14 @@ class LibraryProcess:
         if database is None:
             self._database.remove()
 
-        log('Process %d is done processing %d out of %d files.' % (self.no, processed, len(queue)))
+        queue_len = len(queue)
+
+        if stopped:
+            msg = 'Process {0} was stopped, {1} of {2} ({3}%) files processed.'
+        else:
+            msg = 'Process {0} is done processing all {2} files.'
+
+        log(msg.format(self.no, processed, queue_len, round((processed / queue_len) * 100)))
 
     def process(self, filename):
 
