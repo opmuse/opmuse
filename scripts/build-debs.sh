@@ -35,9 +35,9 @@ reprepro -b $repo deleteunreferenced
 # built further down from their git repos. we build dev-requirements.txt even if
 # they're not dependencies but so you can use them for debuging.
 #
-# note that we skip building mako, six, firepy, Sphinx and sphinx_rtd_theme
+# note that we skip building mako, firepy, Sphinx and sphinx_rtd_theme
 # altogether. instead we use the os-provided ones
-grep -hiEv "SQLAlchemy-Utils|repoze\.who|jinja2|alembic|six|mako|firepy|Sphinx|sphinx_rtd_theme|watchdog|WebOb|CherryPy|^#" \
+grep -hiEv "repoze\.who|jinja2|alembic|mako|firepy|Sphinx|sphinx_rtd_theme|watchdog|WebOb|CherryPy|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
@@ -75,7 +75,6 @@ build_git repoze.who 2.2 https://github.com/repoze/repoze.who.git
 build_git jinja2 2.7.3 https://github.com/mitsuhiko/jinja2.git
 build_git alembic rel_0_6_5 https://bitbucket.org/zzzeek/alembic.git
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
-build_git sqlalchemy-utils 412eb758 https://github.com/kvesteri/sqlalchemy-utils.git # v0.26.4
 build_git webob 1.4 https://github.com/Pylons/webob.git 1.4-2 # bump version to override broken package in jessie
 build_git cherrypy 3.5.0 https://github.com/cherrypy/cherrypy.git
 

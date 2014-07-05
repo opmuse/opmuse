@@ -29,14 +29,13 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from cherrypy.process.plugins import SimplePlugin
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
                         DateTime, Boolean, func, TypeDecorator, Index, distinct, select)
 from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, deferred, validates, column_property
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy_utils import aggregated
 from multiprocessing import cpu_count
 from threading import Thread
 from unidecode import unidecode
@@ -112,8 +111,8 @@ class StringBinaryType(TypeDecorator):
             return value.decode('utf8')
 
 
-def log(msg):
-    cherrypy.log(msg, context='library')
+def log(msg, traceback=False):
+    cherrypy.log(msg, context='library', traceback=traceback)
 
 
 class UserAndAlbum(Base):
@@ -237,12 +236,15 @@ class Artist(Base):
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
+    # aggregated value updated from _added
+    added = Column(DateTime, index=True)
+
     albums = relationship("Album", secondary='tracks',
                           order_by="Album.date.desc(), Album.name")
     tracks = relationship("Track", order_by="Track.name")
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
-    added = column_property(select([func.max(Track.added)])
+    _added = column_property(select([func.max(Track.added)])
                             .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name, slug):
@@ -287,6 +289,9 @@ class Album(Base):
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
+    # aggregated value updated from _added
+    added = Column(DateTime, index=True)
+
     artists = relationship("Artist", secondary='tracks')
     tracks = relationship("Track", order_by="Track.disc, Track.number, Track.name")
     user_and_albums = relationship("UserAndAlbum", cascade='delete, delete-orphan')
@@ -311,6 +316,10 @@ class Album(Base):
     duration = column_property(select([func.sum(Track.duration)])
                                .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
+    # used for updating added
+    _added = column_property(select([func.max(Track.added)])
+                             .where(Track.album_id == id).correlate_except(Track), deferred=True)
+
     def __init__(self, name, date, slug, cover, cover_path, cover_hash):
         self.name = name
         self.date = date
@@ -318,10 +327,6 @@ class Album(Base):
         self.cover = cover
         self.cover_path = cover_path
         self.cover_hash = cover_hash
-
-    @aggregated('tracks', Column(DateTime, index=True))
-    def added(self):
-        return func.max(Track.added)
 
     @hybrid_property
     def pretty_format(self):
@@ -853,9 +858,6 @@ class TagReader:
             parsers = self._parsers
 
         for parser in parsers:
-
-            parser_name = parser.__class__.__name__
-
             if not parser.is_supported(filename):
                 continue
 
@@ -1151,25 +1153,26 @@ class Library:
         self.threads = []
 
         if self.running:
-            # remove tracks without any paths (e.g. removed since previous search)
-            #
-            # because if the file moved it will be found by the hash and just have
-            # the new path readded as opposed to when it was completely removed
-            # from the library path
             for track in self._database.query(Track).all():
+                # remove tracks without any paths (e.g. removed since previous search)
+                #
+                # because if the file moved it will be found by the hash and just have
+                # the new path readded as opposed to when it was completely removed
+                # from the library path
                 if len(track.paths) == 0:
                     library_dao.delete_track(track, self._database)
 
-            # remove albums without tracks
             for album in self._database.query(Album).all():
+                # remove albums without tracks
                 if len(album.tracks) == 0:
                     library_dao.delete_album(album, self._database)
 
-            # remove artists without tracks
             for artist in self._database.query(Artist).all():
+                # remove artists without tracks
                 if len(artist.tracks) == 0:
                     library_dao.delete_artist(artist, self._database)
 
+        self._database.commit()
         self._database.remove()
 
         if self.running:
@@ -1181,7 +1184,6 @@ class Library:
 
         self.scanning = False
         self.running = False
-
 
     def stop(self):
         if self.running:
@@ -1220,6 +1222,9 @@ class LibraryProcess:
 
         stopped = False
 
+        if tracks is None:
+            tracks = []
+
         for filename in queue:
             if library is not None and library.running is False:
                 stopped = True
@@ -1227,8 +1232,7 @@ class LibraryProcess:
 
             track = self.process(filename)
 
-            if tracks is not None:
-                tracks.append(track)
+            tracks.append(track)
 
             if count == 1000:
                 log('Process %d processed %d files in %d seconds.' %
@@ -1238,6 +1242,52 @@ class LibraryProcess:
 
             count += 1
             processed += 1
+
+        artists = set()
+        albums = set()
+
+        for track in tracks:
+            if track.artist is not None:
+                artists.add(track.artist)
+
+            if track.album is not None:
+                albums.add(track.album)
+
+        tries = 10
+
+        for artist in artists:
+            # try 10 times when we get a deadlock and then give up
+            for i in range(0, tries):
+                try:
+                    # update aggregated artist.added value based on artist._added
+                    artist.added = artist._added
+
+                    self._database.commit()
+                    break
+                except ProgrammingError:
+                    if i == tries - 1:
+                        log("Failed updating artist aggregated values.", traceback=True)
+                        break
+
+                    self._database.rollback()
+                    time.sleep(.1)
+
+        for album in albums:
+            # try 10 times when we get a deadlock and then give up
+            for i in range(0, tries):
+                try:
+                    # update aggregated album.added value based on album._added
+                    album.added = album._added
+
+                    self._database.commit()
+                    break
+                except ProgrammingError:
+                    if i == tries - 1:
+                        log("Failed updating album aggregated values.", traceback=True)
+                        break
+
+                    self._database.rollback()
+                    time.sleep(.1)
 
         if database is None:
             self._database.remove()
@@ -1252,14 +1302,20 @@ class LibraryProcess:
         log(msg.format(self.no, processed, queue_len, round((processed / queue_len) * 100)))
 
     def process(self, filename):
-
         hash = LibraryProcess.get_hash(filename)
 
         try:
+            track = Track(hash)
+            self._database.add(track)
+            self._database.commit()
+        except IntegrityError:
+            self._database.rollback()
             track = self._database.query(Track).filter_by(hash=hash).one()
 
             if track.scanned:
-                # file most likely just moved
+                # if this file isnt part of the track's paths then add it.
+                # it might just have moved and we add it here and the other
+                # one will be removed last in the scanning process...
                 if filename not in [path.path for path in track.paths]:
                     track_path = TrackPath(filename)
                     track_path.track_id = track.id
@@ -1268,11 +1324,6 @@ class LibraryProcess:
                     self._database.commit()
 
                 return track
-        # file doesn't exist
-        except NoResultFound:
-            track = Track(hash)
-            self._database.add(track)
-            self._database.commit()
 
         metadata = reader.parse(filename, None, self._path)
 
@@ -1303,24 +1354,16 @@ class LibraryProcess:
 
         if metadata.album_name is not None:
             try:
-                album = self._database.query(Album).filter_by(
-                    name=metadata.album_name, date=metadata.date
-                ).one()
-            except NoResultFound:
                 album_slug = self.get_album_slug(metadata)
                 album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
                 self._database.add(album)
-
-                try:
-                    self._database.commit()
-                    search.add_album(album)
-                except IntegrityError:
-                    # we get an IntegrityError if the unique constraint kicks in
-                    # in which case the album already exists so fetch it instead.
-                    self._database.rollback()
-                    album = self._database.query(Album).filter_by(
-                        name=metadata.album_name, date=metadata.date
-                    ).one()
+                self._database.commit()
+                search.add_album(album)
+            except IntegrityError:
+                self._database.rollback()
+                album = self._database.query(Album).filter_by(
+                    name=metadata.album_name, date=metadata.date
+                ).one()
 
         if album is not None and album.cover_path is None:
             album.cover_path = metadata.cover_path
@@ -1387,7 +1430,21 @@ class LibraryProcess:
         if artist is not None:
             track.artist_id = artist.id
 
-        self._database.commit()
+        # try slug change 10 times then give up
+        tries = 10
+
+        for i in range(0, tries):
+            try:
+                self._database.commit()
+                break
+            except IntegrityError:
+                self._database.rollback()
+
+                if i == tries - 1:
+                    log("Failed adding track.", traceback=True)
+                    break
+
+                track.slug = self.get_track_slug(metadata)
 
         track_path = TrackPath(filename)
         track_path.track_id = track.id
