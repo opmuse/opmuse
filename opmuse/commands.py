@@ -23,6 +23,7 @@ import sys
 import string
 import random
 import cherrypy
+import signal
 from sqlalchemy.exc import ProgrammingError
 from alembic.config import Config
 from alembic import command
@@ -80,10 +81,14 @@ def command_whoosh(action=None):
 
 
 def command_cherrypy(*args):
+    def preexec_fn():
+        # ignore SIGINT, e.g. KeyboardInterrupt
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
     try:
         process = subprocess.Popen([
             sys.executable, 'opmuse/boot.py'
-        ] + list(args), cwd=root_path)
+        ] + list(args), cwd=root_path, preexec_fn = preexec_fn)
 
         process.wait()
     except KeyboardInterrupt:
