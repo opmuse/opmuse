@@ -76,7 +76,12 @@ class CacheStorage:
             del self._storage[key]
 
     def values(self):
-        return self._storage.items()
+        """
+        Returns a shallow copy of dictionary's items, to avoid changes to _storage
+        throwing a "RuntimeError: dictionary changed size during iteration" error
+        but still referencing the same items thus saving memory.
+        """
+        return self._storage.copy().items()
 
     def size(self):
         return len(self._storage)
