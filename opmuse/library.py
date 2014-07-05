@@ -60,6 +60,39 @@ __all__ = ['FileMetadata', 'library_dao', 'ApeParser', 'TrackStructureParser', '
            'FlacParser', 'Track', 'LibraryPlugin']
 
 
+class StringNotNullType(TypeDecorator):
+    """
+    Stores None values as empty strings. This is used with unique indexes
+    so None values are treated as actual unique values.
+    """
+    impl = String
+
+    class comparator_factory(String.Comparator):
+        def __ne__(self, other):
+            if other is None:
+                other = ''
+
+            return String.Comparator.__ne__(self, other)
+
+        def __eq__(self, other):
+            if other is None:
+                other = ''
+
+            return String.Comparator.__eq__(self, other)
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return ''
+        else:
+            return value
+
+    def process_result_value(self, value, dialect):
+        if value == '':
+            return None
+        else:
+            return value
+
+
 class StringBinaryType(TypeDecorator):
     """
     Stores value as a binary string in a VARBINARY column but automatically
@@ -246,9 +279,9 @@ class Album(Base):
     __table_args__ = (Index('name_date', "name", "date", unique=True), ) + Base.__table_args__
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(StringBinaryType(255))
+    name = Column(StringBinaryType(255), nullable=False)
     slug = Column(String(255), index=True, unique=True)
-    date = Column(String(32), index=True)
+    date = Column(StringNotNullType(32), index=True, nullable=False)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_path = Column(BLOB)
@@ -531,6 +564,9 @@ class MutagenParser(TagParser):
         bitrate = tag.info.bitrate if hasattr(tag.info, 'bitrate') else None
         sample_rate = tag.info.sample_rate if hasattr(tag.info, 'sample_rate') else None
         disc = str(tag['discnumber'][0]) if 'discnumber' in tag else None
+
+        if date == '':
+            date = None
 
         mode = None
 
