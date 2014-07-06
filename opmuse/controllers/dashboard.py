@@ -47,8 +47,8 @@ class Dashboard:
 
         all_users = [current_user] + users
 
-        top_artists = Dashboard.get_top_artists(all_users)
         all_recent_tracks = Dashboard.get_recent_tracks(all_users)
+        top_artists = Dashboard.get_top_artists(all_recent_tracks)
         recent_tracks = all_recent_tracks[0:8]
         new_albums = Dashboard.get_new_albums(8, 0)
 
@@ -121,41 +121,25 @@ class Dashboard:
                 .all())
 
     @staticmethod
-    def get_top_artists(all_users, limit = 12):
-        top_artists = OrderedDict({})
+    def get_top_artists(recent_tracks):
+        top_artists = {}
 
-        index = 0
+        for recent_track in recent_tracks:
+            if recent_track['artist'] is not None:
+                if recent_track['artist'] not in top_artists:
+                    top_artists[recent_track['artist']] = 1
+                else:
+                    top_artists[recent_track['artist']] += 1
 
-        while True:
-            stop = True
+        result = []
 
-            for user in all_users:
-                if user['remotes_user'] is None or user['remotes_user']['lastfm'] is None:
-                    continue
+        for artist, count in sorted(top_artists.items(), key=lambda x: x[1], reverse=True):
+            result.append({
+                'artist': artist,
+                'count': count
+            })
 
-                top = user['remotes_user']['lastfm']['top_artists_month']
-
-                if top is not None and index < len(top):
-                    stop = False
-
-                    artist = top[index]
-
-                    results = search.query_artist(artist['name'], exact=True)
-
-                    if len(results) > 0:
-                        top_artists[results[0]] = None
-
-                    if len(top_artists) >= limit:
-                        stop = True
-                        break
-            if stop:
-                break
-
-            index += 1
-
-        top_artists = list(top_artists.keys())
-
-        return top_artists
+        return result
 
     @staticmethod
     def get_recent_tracks(all_users):

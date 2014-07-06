@@ -106,8 +106,12 @@
             </div>
             <div class="top-artists panel-body">
                 {% for top_artist in top_artists %}
-                    <a href="{{ urls.artist_url(top_artist) }}" title="{{ top_artist.name }}">
-                        {{ covers.artist(top_artist, 90, "img-rounded") }}
+                    <a href="{{ urls.artist_url(top_artist.artist) }}" rel="tooltip"
+                        title="{{ top_artist.count|format_number }} plays">
+                        {{ covers.artist(top_artist.artist, 90, "img-rounded") }}
+                        <h4 title="{{ top_artist.artist.name }}">
+                            {{ top_artist.artist.name }}
+                        </h4>
                     </a>
                 {% endfor %}
             </div>

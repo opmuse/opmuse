@@ -639,7 +639,6 @@ class Lastfm:
                 'artists': artists,
                 'url': user['url'],
                 'playcount': int(user['playcount']),
-                'top_artists_month': network.get_user_top_artists(user_name, '1month', 1, 500),
                 'top_artists_overall': network.get_user_top_artists(user_name, 'overall', 1, 500),
                 'top_albums_overall': network.get_user_top_albums(user_name, 'overall', 1, 500)
             }

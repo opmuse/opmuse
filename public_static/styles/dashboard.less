@@ -10,15 +10,29 @@
     }
 
     .top-artists {
-        .cover-container {
-            width: 90px;
-            height: 90px;
+        > a {
             float: left;
             margin: 0 6px 6px 0;
 
-            img {
+            h4 {
+                margin: 0 4px;
+                width: 90px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
+                font-size: 1em;
+            }
+
+            .cover-container {
                 width: 90px;
                 height: 90px;
+                margin: 0;
+
+                img {
+                    width: 90px;
+                    height: 90px;
+                }
             }
         }
     }
