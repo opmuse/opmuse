@@ -1205,8 +1205,9 @@ class LibraryProcess:
         self._path = path
         self.no = no
 
-        log('Process %d about to process %d files.' %
-            (self.no, len(queue)))
+        queue_len = len(queue)
+
+        log('Process %d about to process %d files.' % (self.no, queue_len))
 
         if database is None:
             self._database = get_session()
@@ -1238,7 +1239,49 @@ class LibraryProcess:
             if track.album_id is not None:
                 album_ids.add(track.album_id)
 
-            if count == 1000:
+            # update aggregated values every 1000 tracks, to avoid these
+            # queries becoming huge and more evenly distributing the load of 'em
+            if count == 1000 or processed + 1 == queue_len:
+                tries = 10
+
+                for artist in self._database.query(Artist).filter(Artist.id.in_(artist_ids)).all():
+                    # try 10 times when we get a deadlock and then give up
+                    for i in range(0, tries):
+                        try:
+                            # update aggregated artist.added value based on artist._added
+                            artist.added = artist._added
+
+                            self._database.commit()
+                            break
+                        except ProgrammingError:
+                            if i == tries - 1:
+                                log("Failed updating artist aggregated values.", traceback=True)
+                                break
+
+                            self._database.rollback()
+                            time.sleep(.1)
+
+                artist_ids.clear()
+
+                for album in self._database.query(Album).filter(Album.id.in_(album_ids)).all():
+                    # try 10 times when we get a deadlock and then give up
+                    for i in range(0, tries):
+                        try:
+                            # update aggregated album.added value based on album._added
+                            album.added = album._added
+
+                            self._database.commit()
+                            break
+                        except ProgrammingError:
+                            if i == tries - 1:
+                                log("Failed updating album aggregated values.", traceback=True)
+                                break
+
+                            self._database.rollback()
+                            time.sleep(.1)
+
+                album_ids.clear()
+
                 log('Process %d processed %d files in %d seconds.' %
                     (self.no, count, time.time() - start))
                 start = time.time()
@@ -1246,42 +1289,6 @@ class LibraryProcess:
 
             count += 1
             processed += 1
-
-        tries = 10
-
-        for artist in self._database.query(Artist).filter(Artist.id.in_(artist_ids)).all():
-            # try 10 times when we get a deadlock and then give up
-            for i in range(0, tries):
-                try:
-                    # update aggregated artist.added value based on artist._added
-                    artist.added = artist._added
-
-                    self._database.commit()
-                    break
-                except ProgrammingError:
-                    if i == tries - 1:
-                        log("Failed updating artist aggregated values.", traceback=True)
-                        break
-
-                    self._database.rollback()
-                    time.sleep(.1)
-
-        for album in self._database.query(Album).filter(Album.id.in_(album_ids)).all():
-            # try 10 times when we get a deadlock and then give up
-            for i in range(0, tries):
-                try:
-                    # update aggregated album.added value based on album._added
-                    album.added = album._added
-
-                    self._database.commit()
-                    break
-                except ProgrammingError:
-                    if i == tries - 1:
-                        log("Failed updating album aggregated values.", traceback=True)
-                        break
-
-                    self._database.rollback()
-                    time.sleep(.1)
 
         if database is None:
             self._database.remove()
