@@ -184,6 +184,14 @@ def memoize(func):
         memoize decorator which memoizes on current request.
     """
     def wrapper(self, *args, **kwargs):
+        # if stage is None we're running in a bgtask or something outside
+        # a regular request so we just pass it along...
+        #
+        # TODO for bgtasks we could implement something similar to this using
+        #      threading.local()...
+        if cherrypy.request.stage is None:
+            return func(self, *args, **kwargs)
+
         if not hasattr(cherrypy.request, 'memoize'):
             cherrypy.request.memoize = {}
 
