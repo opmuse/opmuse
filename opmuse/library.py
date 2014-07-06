@@ -1222,8 +1222,8 @@ class LibraryProcess:
 
         stopped = False
 
-        if tracks is None:
-            tracks = []
+        artist_ids = set()
+        album_ids = set()
 
         for filename in queue:
             if library is not None and library.running is False:
@@ -1232,7 +1232,14 @@ class LibraryProcess:
 
             track = self.process(filename)
 
-            tracks.append(track)
+            if tracks is not None:
+                tracks.append(track)
+
+            if track.artist_id is not None:
+                artist_ids.add(track.artist_id)
+
+            if track.album_id is not None:
+                album_ids.add(track.album_id)
 
             if count == 1000:
                 log('Process %d processed %d files in %d seconds.' %
@@ -1243,19 +1250,10 @@ class LibraryProcess:
             count += 1
             processed += 1
 
-        artists = set()
-        albums = set()
-
-        for track in tracks:
-            if track.artist is not None:
-                artists.add(track.artist)
-
-            if track.album is not None:
-                albums.add(track.album)
 
         tries = 10
 
-        for artist in artists:
+        for artist in self._database.query(Artist).filter(Artist.id.in_(artist_ids)).all():
             # try 10 times when we get a deadlock and then give up
             for i in range(0, tries):
                 try:
@@ -1272,7 +1270,7 @@ class LibraryProcess:
                     self._database.rollback()
                     time.sleep(.1)
 
-        for album in albums:
+        for album in self._database.query(Album).filter(Album.id.in_(album_ids)).all():
             # try 10 times when we get a deadlock and then give up
             for i in range(0, tries):
                 try:
