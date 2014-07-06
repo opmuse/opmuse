@@ -82,8 +82,6 @@ class BackgroundTaskPlugin(SimplePlugin):
             self.threads = []
 
             for number in range(0, self.start_threads):
-                debug("Starting bgtask thread #%d" % number)
-
                 thread = threading.Thread(target=self.run, args=(number, ), name='idle')
                 thread.item = None
                 thread.start()
@@ -93,9 +91,14 @@ class BackgroundTaskPlugin(SimplePlugin):
     start.priority = 90
 
     def stop(self):
-        self._running = "drain"
+        # change "stop" to "drain" and all tasks in queue will finish before
+        # we shut down, with "stop" only the ones running will be allowed to finish.
+        self._running = "stop"
 
-        log("Draining bgtasks, %d items in queue, %s running." % (self.queue.qsize(), self.running))
+        if self._running == "drain":
+            log("Draining bgtasks, %d items in queue, %d running." % (self.queue.qsize(), self.running))
+        elif self._running == "stop":
+            log("Stopping bgtasks, %d running left, aborting %d in queue." % (self.running, self.queue.qsize()))
 
         if self.threads:
             for thread in self.threads:
@@ -103,21 +106,29 @@ class BackgroundTaskPlugin(SimplePlugin):
 
             self.theads = None
 
-        log("Done draining bgtasks.")
+        if self._running == "drain":
+            log("Done draining bgtasks.")
+        elif self._running == "stop":
+            log("Done stopping bgtasks.")
 
         self._running = False
 
     stop.priority = 90
 
     def run(self, number):
+        debug("Starting bgtask thread #%d" % number)
+
         while self._running:
+            if self._running == "stop":
+                break
+
             try:
                 try:
                     item = self.queue.get(block=True, timeout=2)
                     name, priority, delay, func, args, kwargs = item.values()
                 except queue.Empty:
                     if self._running == "drain":
-                        return
+                        break
 
                     continue
                 else:
@@ -169,6 +180,8 @@ class BackgroundTaskPlugin(SimplePlugin):
             except:
                 log("Error in bgtask thread #%d %r, args %r and kwargs %r." %
                     (number, func, args, kwargs), traceback=True)
+
+        debug("Stopping bgtask thread #%d" % number)
 
     def put(self, func, priority, *args, **kwargs):
         """
