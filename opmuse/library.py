@@ -41,6 +41,7 @@ from threading import Thread
 from unidecode import unidecode
 from opmuse.database import Base, get_session, get_database_type, get_database, database_data
 from opmuse.search import search
+from opmuse.utils import memoize
 import mutagenx.mp3
 import mutagenx.oggvorbis
 import mutagenx.easymp4
@@ -1660,6 +1661,13 @@ class LibraryDao:
 
         search.delete_artist(artist)
 
+    @memoize
+    def get_track(self, id):
+        try:
+            return get_database().query(Track).filter_by(id=id).one()
+        except NoResultFound:
+            pass
+
     def get_track_ids_by_album_id(self, album_id):
         results = get_database().execute(select([Track.id]).where(Track.album_id == album_id))
 
@@ -1891,6 +1899,7 @@ class LibraryDao:
         if len(new_dirs) > 0:
             self.remove_empty_dirs(new_dirs)
 
+    @memoize
     def get_album(self, id):
         try:
             return get_database().query(Album).filter_by(id=id).one()
@@ -1903,6 +1912,7 @@ class LibraryDao:
         except NoResultFound:
             pass
 
+    @memoize
     def get_artist(self, id):
         try:
             return get_database().query(Artist).filter_by(id=id).one()

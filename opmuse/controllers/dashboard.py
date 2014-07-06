@@ -4,12 +4,13 @@ from datetime import timedelta
 from collections import OrderedDict
 from sqlalchemy.orm import joinedload, undefer
 from sqlalchemy import func
-from opmuse.library import Album, Track, library_dao
-from opmuse.security import User
+from opmuse.library import Artist, Album, Track, library_dao
+from opmuse.security import User, security_dao
 from opmuse.database import get_database
 from opmuse.remotes import remotes
 from opmuse.queues import queue_dao
 from opmuse.search import search
+from opmuse.cache import cache
 
 
 class Dashboard:
@@ -47,7 +48,7 @@ class Dashboard:
 
         all_users = [current_user] + users
 
-        all_recent_tracks = Dashboard.get_recent_tracks(all_users)
+        all_recent_tracks = Dashboard.get_recent_tracks()
         top_artists = Dashboard.get_top_artists(all_recent_tracks)
         recent_tracks = all_recent_tracks[0:8]
         new_albums = Dashboard.get_new_albums(8, 0)
@@ -142,41 +143,63 @@ class Dashboard:
         return result
 
     @staticmethod
-    def get_recent_tracks(all_users):
+    def get_recent_tracks():
         """
         Fetch all listened tracks one week back.
+
+        also caches the result for an hour.
         """
 
-        now = datetime.datetime.now()
+        cache_key = "dashboard.get_recent_tracks"
+        cache_age = 3600
 
-        timestamp = int((now - datetime.timedelta(weeks=1)).timestamp())
+        if cache.needs_update(cache_key, age = cache_age):
+            now = datetime.datetime.now()
 
-        listened_tracks = library_dao.get_listened_tracks_by_timestmap(timestamp)
+            timestamp = int((now - datetime.timedelta(weeks=1)).timestamp())
+
+            listened_tracks = library_dao.get_listened_tracks_by_timestmap(timestamp)
+
+            _recent_tracks = []
+
+            for listened_track in listened_tracks:
+                results = search.get_results_artist(listened_track.artist_name, exact=True)
+                results = sorted(results, key=lambda result: result[1], reverse=True)
+
+                track_id = artist_id = None
+
+                if len(results) > 0:
+                    artist_id = results[0][0]
+
+                    tracks = search.query_track(listened_track.name, exact=True)
+
+                    if len(tracks) > 0:
+                        for track in tracks:
+                            if track.artist.id == artist_id:
+                                track_id = track.id
+
+                _recent_tracks.append({
+                    'artist_id': artist_id,
+                    'track_id': track_id,
+                    'artist_name': listened_track.artist_name,
+                    'name': listened_track.name,
+                    'timestamp': listened_track.timestamp,
+                    'user_id': listened_track.user.id
+                })
+
+            cache.set(cache_key, _recent_tracks)
+        else:
+            _recent_tracks = cache.get(cache_key)
 
         recent_tracks = []
 
-        for listened_track in listened_tracks:
-            results = search.query_artist(listened_track.artist_name, exact=True)
+        for _recent_track in _recent_tracks:
+            recent_track = _recent_track.copy()
 
-            track = artist = None
+            recent_track['track'] = library_dao.get_track(recent_track['track_id'])
+            recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
+            recent_track['user'] = security_dao.get_user(recent_track['user_id'])
 
-            if len(results) > 0:
-                artist = results[0]
-
-                results = search.query_track(listened_track.name, exact=True)
-
-                if len(results) > 0:
-                    for result in results:
-                        if result.artist.id == artist.id:
-                            track = result
-
-            recent_tracks.append({
-                'artist': artist,
-                'track': track,
-                'artist_name': listened_track.artist_name,
-                'name': listened_track.name,
-                'timestamp': listened_track.timestamp,
-                'user': listened_track.user
-            })
+            recent_tracks.append(recent_track)
 
         return recent_tracks

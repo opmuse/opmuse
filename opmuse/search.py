@@ -151,16 +151,25 @@ class Search:
 
         write_handler.update_document(str(artist.id), name = artist.name, slug = artist.slug)
 
+    def get_results_track(self, query, exact = False, exact_metaphone = False):
+        return self._query("Track", query, exact, exact_metaphone)
+
+    def get_results_album(self, query, exact = False, exact_metaphone = False):
+        return self._query("Album", query, exact, exact_metaphone)
+
+    def get_results_artist(self, query, exact = False, exact_metaphone = False):
+        return self._query("Artist", query, exact, exact_metaphone)
+
     def query_track(self, query, exact = False, exact_metaphone = False):
-        results = self._query("Track", query, exact, exact_metaphone)
+        results = self.get_results_track(query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Track, results)
 
     def query_album(self, query, exact = False, exact_metaphone = False):
-        results = self._query("Album", query, exact, exact_metaphone)
+        results = self.get_results_album(query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Album, results)
 
     def query_artist(self, query, exact = False, exact_metaphone = False):
-        results = self._query("Artist", query, exact, exact_metaphone)
+        results = self.get_results_artist(query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Artist, results)
 
     def _fetch_by_keys(self, entity, results):

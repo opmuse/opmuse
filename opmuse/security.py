@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import logging
 import hashlib
 import cherrypy
@@ -32,6 +31,7 @@ from repoze.who.classifiers import default_request_classifier
 from repoze.who.classifiers import default_challenge_decider
 from repoze.who._compat import get_cookies
 from opmuse.database import Base, get_session, get_database
+from opmuse.utils import memoize
 
 
 __all__ = ["Role", "User", "is_authenticated", "is_granted", "AuthenticatedTool", "AuthorizeTool",
@@ -290,3 +290,15 @@ def repozewho_pipeline(app):
         log_stream = cherrypy.log.access_log,
         log_level = logging.INFO
     )
+
+
+class SecurityDao:
+    @memoize
+    def get_user(self, id):
+        try:
+            return get_database().query(User).filter_by(id=id).one()
+        except NoResultFound:
+            pass
+
+
+security_dao = SecurityDao()
