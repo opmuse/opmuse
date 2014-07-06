@@ -229,7 +229,7 @@ class Artist(Base):
     __tablename__ = 'artists'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(StringBinaryType(255), index=True, unique=True)
+    name = Column(StringBinaryType(255), index=True, unique=True, nullable=False)
     slug = Column(String(255), index=True, unique=True)
     cover = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
     cover_large = deferred(Column(BLOB().with_variant(mysql.LONGBLOB(), 'mysql')))
