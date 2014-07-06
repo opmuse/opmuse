@@ -134,7 +134,8 @@ def profile_pipeline(app):
     return ProfileMiddleware(
         app,
         log_filename=os.path.join(profile_path, 'profile.log'),
-        cachegrind_filename=os.path.join(profile_path, 'cachegrind.out'),
+        # cachegrind_filename is broken in python 3 :(
+        cachegrind_filename=None,
         discard_first_request=True,
         flush_at_shutdown=True,
         path='/__profile__',
