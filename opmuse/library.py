@@ -247,9 +247,8 @@ class Artist(Base):
     _added = column_property(select([func.max(Track.added)])
                              .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
-    def __init__(self, name, slug):
+    def __init__(self, name):
         self.name = name
-        self.slug = slug
 
     @hybrid_property
     def va_count(self):
@@ -320,10 +319,9 @@ class Album(Base):
     _added = column_property(select([func.max(Track.added)])
                              .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
-    def __init__(self, name, date, slug, cover, cover_path, cover_hash):
+    def __init__(self, name, date, cover, cover_path, cover_hash):
         self.name = name
         self.date = date
-        self.slug = slug
         self.cover = cover
         self.cover_path = cover_path
         self.cover_hash = cover_hash
@@ -1204,7 +1202,6 @@ class Library:
 
 class LibraryProcess:
     def __init__(self, path, queue, database = None, no = -1, tracks = None, library = None):
-
         self._path = path
         self.no = no
 
@@ -1249,7 +1246,6 @@ class LibraryProcess:
 
             count += 1
             processed += 1
-
 
         tries = 10
 
@@ -1330,30 +1326,39 @@ class LibraryProcess:
 
         if metadata.artist_name is not None:
             try:
+                artist = Artist(metadata.artist_name)
+
+                self._database.add(artist)
+                self._database.commit()
+
+                search.add_artist(artist)
+            except IntegrityError:
+                # we get an IntegrityError if the unique constraint kicks in
+                # in which case the artist already exists so fetch it instead.
+                self._database.rollback()
                 artist = self._database.query(Artist).filter_by(
                     name=metadata.artist_name
                 ).one()
-            except NoResultFound:
-                artist_slug = self.get_artist_slug(metadata)
-                artist = Artist(metadata.artist_name, artist_slug)
 
-                self._database.add(artist)
+            # change artist slug until successful
+            artist_slug_index, artist.slug = self.get_artist_slug(metadata)
+
+            i = 0
+
+            while True:
+                i += 1
 
                 try:
                     self._database.commit()
-                    search.add_artist(artist)
+                    break
                 except IntegrityError:
-                    # we get an IntegrityError if the unique constraint kicks in
-                    # in which case the artist already exists so fetch it instead.
                     self._database.rollback()
-                    artist = self._database.query(Artist).filter_by(
-                        name=metadata.artist_name
-                    ).one()
+
+                    artist_slug_index, artist.slug = self.get_artist_slug(metadata, artist_slug_index + i)
 
         if metadata.album_name is not None:
             try:
-                album_slug = self.get_album_slug(metadata)
-                album = Album(metadata.album_name, metadata.date, album_slug, None, metadata.cover_path, None)
+                album = Album(metadata.album_name, metadata.date, None, metadata.cover_path, None)
                 self._database.add(album)
                 self._database.commit()
                 search.add_album(album)
@@ -1362,6 +1367,22 @@ class LibraryProcess:
                 album = self._database.query(Album).filter_by(
                     name=metadata.album_name, date=metadata.date
                 ).one()
+
+            # change album slug until successful
+            album_slug_index, album.slug = self.get_album_slug(metadata)
+
+            i = 0
+
+            while True:
+                i += 1
+
+                try:
+                    self._database.commit()
+                    break
+                except IntegrityError:
+                    self._database.rollback()
+
+                    album_slug_index, album.slug = self.get_album_slug(metadata, album_slug_index + i)
 
         if album is not None and album.cover_path is None:
             album.cover_path = metadata.cover_path
@@ -1392,16 +1413,11 @@ class LibraryProcess:
         else:
             format = 'audio/unknown'
 
-        added = metadata.added
-
-        track_slug = self.get_track_slug(metadata)
-
-        track.slug = track_slug
         track.name = metadata.track_name
         track.duration = metadata.track_duration
         track.number = LibraryProcess.fix_track_number(metadata.track_number)
         track.format = format
-        track.added = added
+        track.added = metadata.added
         track.bitrate = metadata.bitrate
         track.sample_rate = metadata.sample_rate
         track.mode = metadata.mode
@@ -1428,21 +1444,21 @@ class LibraryProcess:
         if artist is not None:
             track.artist_id = artist.id
 
-        # try slug change 10 times then give up
-        tries = 10
+        # change track slug until successful
+        track_slug_index, track.slug = self.get_track_slug(metadata)
 
-        for i in range(0, tries):
+        i = 0
+
+        while True:
+            i += 1
+
             try:
                 self._database.commit()
                 break
             except IntegrityError:
                 self._database.rollback()
 
-                if i == tries - 1:
-                    log("Failed adding track.", traceback=True)
-                    break
-
-                track.slug = self.get_track_slug(metadata)
+                track_slug_index, track.slug = self.get_track_slug(metadata, track_slug_index + i)
 
         track_path = TrackPath(filename)
         track_path.track_id = track.id
@@ -1482,62 +1498,27 @@ class LibraryProcess:
 
         return number
 
-    def get_track_slug(self, metadata):
-        index = 0
-        track_slug = None
+    def get_track_slug(self, metadata, index = 0):
+        if metadata.artist_name is None and metadata.album_name is None:
+            slug = metadata.track_name
+        elif metadata.artist_name is None:
+            slug = "%s_%s" % (metadata.album_name, metadata.track_name)
+        elif metadata.album_name is None:
+            slug = "%s_%s" % (metadata.artist_name, metadata.track_name)
+        else:
+            slug = "%s_%s_%s" % (metadata.artist_name, metadata.album_name, metadata.track_name)
 
-        while True:
-            if metadata.artist_name is None and metadata.album_name is None:
-                slug = metadata.track_name
-            elif metadata.artist_name is None:
-                slug = "%s_%s" % (metadata.album_name, metadata.track_name)
-            elif metadata.album_name is None:
-                slug = "%s_%s" % (metadata.artist_name, metadata.track_name)
-            else:
-                slug = "%s_%s_%s" % (metadata.artist_name, metadata.album_name, metadata.track_name)
+        index, track_slug = LibraryProcess.slugify(
+            slug, index
+        )
 
-            index, track_slug = LibraryProcess.slugify(
-                slug, index
-            )
+        return index, track_slug
 
-            try:
-                self._database.query(Track).filter_by(slug=track_slug).one()
-            except NoResultFound:
-                break
+    def get_album_slug(self, metadata, index=0):
+        return LibraryProcess.slugify(metadata.album_name, index)
 
-            index += 1
-
-        return track_slug
-
-    def get_album_slug(self, metadata):
-        index = 0
-        album_slug = None
-
-        while True:
-            index, album_slug = LibraryProcess.slugify(metadata.album_name, index)
-
-            try:
-                self._database.query(Album).filter_by(slug=album_slug).one()
-            except NoResultFound:
-                break
-
-            index += 1
-
-        return album_slug
-
-    def get_artist_slug(self, metadata):
-        index = 0
-        artist_slug = None
-
-        while True:
-            index, artist_slug = LibraryProcess.slugify(metadata.artist_name, index)
-            try:
-                self._database.query(Artist).filter_by(slug=artist_slug).one()
-            except NoResultFound:
-                break
-            index += 1
-
-        return artist_slug
+    def get_artist_slug(self, metadata, index=0):
+        return LibraryProcess.slugify(metadata.artist_name, index)
 
     @staticmethod
     def slugify(string, index = 0):

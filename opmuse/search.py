@@ -55,6 +55,7 @@ class WriteHandler:
 
     def commit(self):
         updates = deletes = 0
+
         with self.index.writer() as writer:
             while len(self._updates) > 0:
                 id, values = self._updates.popitem()
