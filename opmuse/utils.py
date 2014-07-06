@@ -19,8 +19,30 @@ import os
 import cherrypy
 import json
 import sys
+import threading
+import cProfile
+import tempfile
 from opmuse.less_compiler import less_compiler
 from cherrypy.process.plugins import Monitor
+
+
+class ProfiledThread(threading.Thread):
+    def run(self):
+        profiler = cProfile.Profile()
+
+        try:
+            return profiler.runcall(threading.Thread.run, self)
+        finally:
+            from pyprof2calltree import convert
+
+            filename = os.path.join(tempfile.gettempdir(), "opmuse.%s.%d" % (self.name, self.ident))
+
+            profile_filename = '%s.profile' % filename
+            kgrind_filename = '%s.kgrind' % filename
+
+            profiler.dump_stats(profile_filename)
+
+            convert(profile_filename, kgrind_filename)
 
 
 def get_staticdir():
