@@ -49,7 +49,7 @@ class Dashboard:
         all_users = [current_user] + users
 
         all_recent_tracks = Dashboard.get_recent_tracks()
-        top_artists = Dashboard.get_top_artists(all_recent_tracks)
+        top_artists = Dashboard.get_top_artists(all_recent_tracks)[0:10]
         recent_tracks = all_recent_tracks[0:8]
         new_albums = Dashboard.get_new_albums(8, 0)
 
