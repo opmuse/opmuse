@@ -92,8 +92,12 @@ def command_cherrypy(*args):
 
         process.wait()
     except KeyboardInterrupt:
-        process.terminate()
-        process.wait()
+        try:
+            process.terminate()
+            process.wait()
+        except KeyboardInterrupt:
+            process.send_signal(signal.SIGKILL)
+            process.wait()
 
 
 def command_database(action=None):
