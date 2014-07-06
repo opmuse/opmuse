@@ -167,11 +167,15 @@ class Search:
         if len(results) == 0:
             return []
 
-        ids = [result[0] for result in results]
+        ids = tuple([result[0] for result in results])
 
-        entities = get_database().query(entity).filter(entity.id.in_(ids)).all()
+        entities = self._fetch_by_ids(entity, ids)
 
         return self._sort_by_score(entities, results)
+
+    @memoize
+    def _fetch_by_ids(self, entity, ids):
+        return get_database().query(entity).filter(entity.id.in_(ids)).all()
 
     def _sort_by_score(self, entities, results):
         indexed_results = {}

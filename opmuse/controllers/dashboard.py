@@ -159,6 +159,10 @@ class Dashboard:
 
     @staticmethod
     def get_recent_tracks(all_users):
+        """
+        Fetch all listened tracks one week back.
+        """
+
         now = datetime.datetime.now()
 
         timestamp = int((now - datetime.timedelta(weeks=1)).timestamp())
