@@ -1226,7 +1226,6 @@ class LibraryProcess:
         for filename in queue:
             if library is not None and library.running is False:
                 stopped = True
-                break
 
             track = self.process(filename)
 
@@ -1241,7 +1240,7 @@ class LibraryProcess:
 
             # update aggregated values every 1000 tracks, to avoid these
             # queries becoming huge and more evenly distributing the load of 'em
-            if count == 1000 or processed + 1 == queue_len:
+            if count == 1000 or processed + 1 == queue_len or stopped:
                 tries = 10
 
                 for artist in self._database.query(Artist).filter(Artist.id.in_(artist_ids)).all():
@@ -1289,6 +1288,9 @@ class LibraryProcess:
 
             count += 1
             processed += 1
+
+            if stopped:
+                break
 
         if database is None:
             self._database.remove()
