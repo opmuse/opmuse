@@ -103,11 +103,21 @@
                         <div class="progress">
                             <div class="progress-bar progress-bar-success"
                                 rel="tooltip" title="{{ (stats.tracks - stats.invalid)|format_number }} tracks"
-                                style="width: {{ ((stats.tracks - stats.invalid) / stats.tracks) * 100 }}%">
+                                style="width:
+                                {%- if stats.tracks > 0 -%}
+                                    {{ ((stats.tracks - stats.invalid) / stats.tracks) * 100 }}%
+                                {% else %}
+                                    0%
+                                {% endif %}">
                             </div>
                             <div class="progress-bar progress-bar-danger"
                                 rel="tooltip" title="{{ stats.invalid|format_number }} tracks"
-                                style="width: {{ (stats.invalid / stats.tracks) * 100 }}%">
+                                style="width:
+                                {%- if stats.tracks > 0 -%}
+                                    {{ (stats.invalid / stats.tracks) * 100 }}%
+                                {% else %}
+                                    0%
+                                {% endif %}">
                             </div>
                         </div>
                     </dd>
@@ -138,9 +148,15 @@
                         style="width: {{ (stats.size / disk.total) * 100 }}%"></div>
                 </div>
                 <p>
-                    With an average track duration of <strong>{{ (stats.duration / stats.tracks)|format_seconds }}</strong>
-                    and an average track size of <strong>{{ (stats.size / stats.tracks)|format_bytes }}</strong> you
-                    could fit another <strong>{{ (disk.free / (stats.size / stats.tracks))|format_number }}</strong>
+                    With an average track duration of <strong>
+                        {{ (stats.duration / stats.tracks if stats.tracks > 0 else 0)|format_seconds }}
+                    </strong>
+                    and an average track size of <strong>
+                        {{ (stats.size / stats.tracks if stats.tracks > 0 else 0)|format_bytes }}
+                    </strong> you
+                    could fit another <strong>
+                        {{ (disk.free / (stats.size / stats.tracks) if stats.tracks > 0 else 0)|format_number }}
+                    </strong>
                     tracks on this disk.
                 </p>
             </div>
