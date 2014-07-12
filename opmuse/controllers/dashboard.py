@@ -46,59 +46,23 @@ class Dashboard:
             'remotes_user': remotes_user,
         }
 
-        all_users = [current_user] + users
-
         all_recent_tracks = Dashboard.get_recent_tracks()
+
+        # artist is needed for get_top_artists() fetch it for all
+        for recent_track in all_recent_tracks:
+            recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
+
         top_artists = Dashboard.get_top_artists(all_recent_tracks)[0:10]
-        recent_tracks = all_recent_tracks[0:8]
         new_albums = Dashboard.get_new_albums(8, 0)
 
-        now = datetime.datetime.now()
+        recent_tracks = []
 
-        day_format = "%Y-%m-%d"
+        # track and user is only needed in template so we only fetch them for recent_tracks
+        for recent_track in all_recent_tracks[0:8]:
+            recent_track['track'] = library_dao.get_track(recent_track['track_id'])
+            recent_track['user'] = security_dao.get_user(recent_track['user_id'])
 
-        today = now.strftime(day_format)
-        yesterday = (now - timedelta(days=1)).strftime(day_format)
-        week = now - timedelta(weeks=1)
-
-        track_count = library_dao.get_track_count()
-        track_duration = library_dao.get_track_duration()
-
-        if track_count is not None and track_duration is not None and track_count > 0:
-            track_average_duration = int(track_duration / track_count)
-        else:
-            track_average_duration = 0
-
-        for recent_track in all_recent_tracks:
-            track = recent_track['track']
-
-            for user in all_users:
-                if user['user'].id == recent_track['user'].id:
-                    break
-
-            if 'played_times' not in user:
-                user['played_times'] = {
-                    'today': 0,
-                    'yesterday': 0,
-                    'week': 0
-                }
-
-            track_datetime = datetime.datetime.fromtimestamp(recent_track['timestamp'])
-
-            # if track isn't found estimate track to average duration of a track
-            if track is None:
-                duration = track_average_duration
-            else:
-                duration = track.duration
-
-            if track_datetime.strftime(day_format) == yesterday:
-                user['played_times']['yesterday'] += duration
-
-            if track_datetime.strftime(day_format) == today:
-                user['played_times']['today'] += duration
-
-            if track_datetime >= week:
-                user['played_times']['week'] += duration
+            recent_tracks.append(recent_track)
 
         return {
             'current_user': current_user,
@@ -146,60 +110,39 @@ class Dashboard:
     def get_recent_tracks():
         """
         Fetch all listened tracks one week back.
-
-        also caches the result for an hour.
         """
 
-        cache_key = "dashboard.get_recent_tracks"
-        cache_age = 3600
+        now = datetime.datetime.now()
 
-        if cache.needs_update(cache_key, age = cache_age):
-            now = datetime.datetime.now()
+        timestamp = int((now - datetime.timedelta(weeks=1)).timestamp())
 
-            timestamp = int((now - datetime.timedelta(weeks=1)).timestamp())
-
-            listened_tracks = library_dao.get_listened_tracks_by_timestmap(timestamp)
-
-            _recent_tracks = []
-
-            for listened_track in listened_tracks:
-                results = search.get_results_artist(listened_track.artist_name, exact=True)
-                results = sorted(results, key=lambda result: result[1], reverse=True)
-
-                track_id = artist_id = None
-
-                if len(results) > 0:
-                    artist_id = results[0][0]
-
-                    tracks = search.query_track(listened_track.name, exact=True)
-
-                    if len(tracks) > 0:
-                        for track in tracks:
-                            if track.artist.id == artist_id:
-                                track_id = track.id
-
-                _recent_tracks.append({
-                    'artist_id': artist_id,
-                    'track_id': track_id,
-                    'artist_name': listened_track.artist_name,
-                    'name': listened_track.name,
-                    'timestamp': listened_track.timestamp,
-                    'user_id': listened_track.user.id
-                })
-
-            cache.set(cache_key, _recent_tracks)
-        else:
-            _recent_tracks = cache.get(cache_key)
+        listened_tracks = library_dao.get_listened_tracks_by_timestmap(timestamp)
 
         recent_tracks = []
 
-        for _recent_track in _recent_tracks:
-            recent_track = _recent_track.copy()
+        for listened_track in listened_tracks:
+            results = search.get_results_artist(listened_track.artist_name, exact=True)
+            results = sorted(results, key=lambda result: result[1], reverse=True)
 
-            recent_track['track'] = library_dao.get_track(recent_track['track_id'])
-            recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
-            recent_track['user'] = security_dao.get_user(recent_track['user_id'])
+            track_id = artist_id = None
 
-            recent_tracks.append(recent_track)
+            if len(results) > 0:
+                artist_id = results[0][0]
+
+                tracks = search.query_track(listened_track.name, exact=True)
+
+                if len(tracks) > 0:
+                    for track in tracks:
+                        if track.artist.id == artist_id:
+                            track_id = track.id
+
+            recent_tracks.append({
+                'artist_id': artist_id,
+                'track_id': track_id,
+                'artist_name': listened_track.artist_name,
+                'name': listened_track.name,
+                'timestamp': listened_track.timestamp,
+                'user_id': listened_track.user.id
+            })
 
         return recent_tracks

@@ -33,14 +33,6 @@
                     {% endif %}.
                 {% endif %}
             </p>
-            <p>
-                {% if user.played_times is defined %}
-                    Estimated listening,
-                    <strong>{{ user.played_times.today|format_seconds_alt }}</strong> today,
-                    <strong>{{ user.played_times.yesterday|format_seconds_alt }}</strong> yesterday,
-                    <strong>{{ user.played_times.week|format_seconds_alt }}</strong> last 7 days.
-                {% endif %}
-            </p>
         </div>
     </div>
 {% endmacro %}
