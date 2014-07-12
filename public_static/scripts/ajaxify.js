@@ -234,6 +234,9 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
             $(content)
                 .append($(newContent).contents());
 
+            this.fixAttributes(newContent, content);
+        },
+        fixAttributes: function (newContent, content) {
             // TODO adds attributes but doesn't remove no longer existing attributes
             $.each($(newContent).get(0).attributes, function (index, attribute) {
                 $(content).attr(attribute.name, attribute.value);

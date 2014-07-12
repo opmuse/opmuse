@@ -58,8 +58,11 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'logger', 'sprintf', 'domReady
                                 var element = $(selector);
 
                                 element.addClass('reloader-hide').one('transitionend', function (event) {
-                                    element.get(0).innerHTML = page.find(selector).get(0).innerHTML;
+                                    var content = element.get(0);
+                                    var newContent = page.find(selector).get(0);
 
+                                    content.innerHTML = newContent.innerHTML;
+                                    ajaxify.fixAttributes(newContent, content);
                                     ajaxify.load(selector);
 
                                     $(this).removeClass('reloader-hide');
