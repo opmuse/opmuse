@@ -1,19 +1,27 @@
 import datetime
 import cherrypy
-from datetime import timedelta
-from collections import OrderedDict
 from sqlalchemy.orm import joinedload, undefer
 from sqlalchemy import func
-from opmuse.library import Artist, Album, Track, library_dao
+from opmuse.library import Album, Track, library_dao
 from opmuse.security import User, security_dao
 from opmuse.database import get_database
 from opmuse.remotes import remotes
 from opmuse.queues import queue_dao
 from opmuse.search import search
 from opmuse.cache import cache
+from opmuse.ws import ws
 
 
 class Dashboard:
+    RECENT_TRACK_CACHE_KEY = "dashboard_get_recent_tracks"
+    RECENT_TRACK_CACHE_AGE = 1200 # 20min
+
+    def __init__(self):
+        cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
+
+    def transcoding_end(self, track, transcoder):
+        Dashboard.update_recent_tracks()
+
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='dashboard/index.html')
@@ -46,23 +54,29 @@ class Dashboard:
             'remotes_user': remotes_user,
         }
 
-        all_recent_tracks = Dashboard.get_recent_tracks()
-
-        # artist is needed for get_top_artists() fetch it for all
-        for recent_track in all_recent_tracks:
-            recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
-
-        top_artists = Dashboard.get_top_artists(all_recent_tracks)[0:10]
         new_albums = Dashboard.get_new_albums(8, 0)
 
-        recent_tracks = []
+        recent_tracks = top_artists = None
 
-        # track and user is only needed in template so we only fetch them for recent_tracks
-        for recent_track in all_recent_tracks[0:8]:
-            recent_track['track'] = library_dao.get_track(recent_track['track_id'])
-            recent_track['user'] = security_dao.get_user(recent_track['user_id'])
+        Dashboard.update_recent_tracks()
 
-            recent_tracks.append(recent_track)
+        all_recent_tracks = Dashboard.get_recent_tracks()
+
+        if all_recent_tracks is not None:
+            # artist is needed for get_top_artists() fetch it for all
+            for recent_track in all_recent_tracks:
+                recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
+
+            top_artists = Dashboard.get_top_artists(all_recent_tracks)[0:10]
+
+            recent_tracks = []
+
+            # track and user is only needed in template so we only fetch them for recent_tracks
+            for recent_track in all_recent_tracks[0:8]:
+                recent_track['track'] = library_dao.get_track(recent_track['track_id'])
+                recent_track['user'] = security_dao.get_user(recent_track['user_id'])
+
+                recent_tracks.append(recent_track)
 
         return {
             'current_user': current_user,
@@ -108,13 +122,31 @@ class Dashboard:
 
     @staticmethod
     def get_recent_tracks():
+        cache_key = Dashboard.RECENT_TRACK_CACHE_KEY
+
+        if cache.has(cache_key):
+            return cache.get(cache_key)
+        else:
+            return None
+
+    @staticmethod
+    def update_recent_tracks():
+        cache_key = Dashboard.RECENT_TRACK_CACHE_KEY
+        cache_age = Dashboard.RECENT_TRACK_CACHE_AGE
+
+        if cache.needs_update(cache_key, age = cache_age):
+            cache.keep(cache_key)
+            cherrypy.engine.bgtask.put(Dashboard._fetch_recent_tracks, 9)
+
+    @staticmethod
+    def _fetch_recent_tracks():
         """
-        Fetch all listened tracks one week back.
+        Look up all listened tracks 4 weeks back in whoosh/search.
         """
 
         now = datetime.datetime.now()
 
-        timestamp = int((now - datetime.timedelta(weeks=1)).timestamp())
+        timestamp = int((now - datetime.timedelta(weeks=4)).timestamp())
 
         listened_tracks = library_dao.get_listened_tracks_by_timestmap(timestamp)
 
@@ -145,4 +177,8 @@ class Dashboard:
                 'user_id': listened_track.user.id
             })
 
-        return recent_tracks
+        cache.set(Dashboard.RECENT_TRACK_CACHE_KEY, recent_tracks)
+
+        ws.emit_all('dashboard.recent_tracks.fetched')
+
+    _fetch_recent_tracks.bgtask_name = "Fetch recent tracks for dashboard"

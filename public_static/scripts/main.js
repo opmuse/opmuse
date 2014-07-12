@@ -69,7 +69,8 @@ require([
     'navbar',
     'album',
     'modernizr',
-    'offscreennav'
+    'offscreennav',
+    'dashboard'
     ], function($) {
 
     $.ajaxSetup({
