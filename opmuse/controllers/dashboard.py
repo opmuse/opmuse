@@ -14,13 +14,13 @@ from opmuse.ws import ws
 
 class Dashboard:
     RECENT_TRACK_CACHE_KEY = "dashboard_get_recent_tracks"
-    RECENT_TRACK_CACHE_AGE = 1200 # 20min
+    RECENT_TRACK_CACHE_AGE = 1200  # 20min
 
     def __init__(self):
         cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
 
     def transcoding_end(self, track, transcoder):
-        Dashboard.update_recent_tracks()
+        self.update_recent_tracks()
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -54,20 +54,20 @@ class Dashboard:
             'remotes_user': remotes_user,
         }
 
-        new_albums = Dashboard.get_new_albums(8, 0)
+        new_albums = self.get_new_albums(8, 0)
 
         recent_tracks = top_artists = None
 
-        Dashboard.update_recent_tracks()
+        self.update_recent_tracks()
 
-        all_recent_tracks = Dashboard.get_recent_tracks()
+        all_recent_tracks = self.get_recent_tracks()
 
         if all_recent_tracks is not None:
             # artist is needed for get_top_artists() fetch it for all
             for recent_track in all_recent_tracks:
                 recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
 
-            top_artists = Dashboard.get_top_artists(all_recent_tracks)[0:10]
+            top_artists = self.get_top_artists(all_recent_tracks)[0:10]
 
             recent_tracks = []
 
@@ -86,8 +86,7 @@ class Dashboard:
             'new_albums': new_albums
         }
 
-    @staticmethod
-    def get_new_albums(limit, offset):
+    def get_new_albums(self, limit, offset):
         return (get_database()
                 .query(Album)
                 .options(joinedload(Album.tracks))
@@ -99,8 +98,7 @@ class Dashboard:
                 .offset(offset)
                 .all())
 
-    @staticmethod
-    def get_top_artists(recent_tracks):
+    def get_top_artists(self, recent_tracks):
         top_artists = {}
 
         for recent_track in recent_tracks:
@@ -120,8 +118,7 @@ class Dashboard:
 
         return result
 
-    @staticmethod
-    def get_recent_tracks():
+    def get_recent_tracks(self):
         cache_key = Dashboard.RECENT_TRACK_CACHE_KEY
 
         if cache.has(cache_key):
@@ -129,17 +126,15 @@ class Dashboard:
         else:
             return None
 
-    @staticmethod
-    def update_recent_tracks():
+    def update_recent_tracks(self):
         cache_key = Dashboard.RECENT_TRACK_CACHE_KEY
         cache_age = Dashboard.RECENT_TRACK_CACHE_AGE
 
         if cache.needs_update(cache_key, age = cache_age):
             cache.keep(cache_key)
-            cherrypy.engine.bgtask.put(Dashboard._fetch_recent_tracks, 9)
+            cherrypy.engine.bgtask.put(self._fetch_recent_tracks, 9)
 
-    @staticmethod
-    def _fetch_recent_tracks():
+    def _fetch_recent_tracks(self):
         """
         Look up all listened tracks 4 weeks back in whoosh/search.
         """
