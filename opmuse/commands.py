@@ -121,11 +121,17 @@ def command_database(action=None):
         engine = get_engine()
         Base.metadata.create_all(engine)
         command.stamp(alembic_config, "head")
+    # TODO rename to upgrade
     elif action == "update":
         try:
             command.upgrade(alembic_config, "head")
         except ProgrammingError as e:
             parser.error('Error occured while updating database: %s' % e)
+    elif action == "downgrade":
+        try:
+            command.downgrade(alembic_config, "-1")
+        except ProgrammingError as e:
+            parser.error('Error occured while downgrading database: %s' % e)
     elif action == "drop":
         if database_type == "sqlite":
             parser.error('Dropping is unsupported for sqlite.')
@@ -148,7 +154,7 @@ def command_database(action=None):
         engine.execute(CacheObject.__table__.delete())
         command_whoosh("drop")
     else:
-        parser.error('Needs to provide a valid action (create, update, drop, fixtures, reset).')
+        parser.error('Needs to provide a valid action (create, update, downgrade, drop, fixtures, reset).')
 
 
 def command_user(action=None, *args):
