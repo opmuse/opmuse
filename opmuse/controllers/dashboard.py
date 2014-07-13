@@ -30,7 +30,7 @@ class Dashboard:
 
         for user in (get_database()
                      .query(User)
-                     .order_by(User.login)
+                     .order_by(User.active.desc(), User.login)
                      .filter(User.id != cherrypy.request.user.id)
                      .limit(10).all()):
 

@@ -20,8 +20,9 @@ import hashlib
 import cherrypy
 import urllib
 import re
+import datetime
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import Column, Integer, String, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from repoze.who.middleware import PluggableAuthenticationMiddleware
@@ -64,6 +65,7 @@ class User(Base):
     mail = Column(String(255), index=True, unique=True)
     password = Column(String(128))
     salt = Column(String(64))
+    active = Column(DateTime, index=True)
 
     def __init__(self, login, password, mail, salt):
         self.login = login
@@ -142,7 +144,6 @@ class AuthorizeTool(cherrypy.Tool):
 
 
 class DatabaseAuthenticator:
-
     def authenticate(self, environ, identity):
         try:
             login = identity['login']
@@ -152,6 +153,7 @@ class DatabaseAuthenticator:
 
         try:
             user = get_database().query(User).filter_by(login=login).one()
+            user.active = datetime.datetime.now()
 
             hashed = hash_password(password, user.salt)
 

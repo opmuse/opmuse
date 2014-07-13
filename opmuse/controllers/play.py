@@ -1,3 +1,4 @@
+import datetime
 import cherrypy
 from repoze.who._compat import get_cookies
 from opmuse.remotes import remotes
@@ -28,6 +29,8 @@ class Play:
     def stream(self, **kwargs):
 
         user = cherrypy.request.user
+
+        user.active = datetime.datetime.now()
 
         remotes.update_user(user)
 
