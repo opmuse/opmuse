@@ -1764,7 +1764,7 @@ class LibraryDao:
 
     def get_track_duration(self):
         duration = (get_database().query(func.sum(Track.duration))
-                .filter(Track.scanned).scalar())
+                    .filter(Track.scanned).scalar())
 
         if duration is None:
             return 0

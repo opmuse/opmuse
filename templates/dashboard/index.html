@@ -4,7 +4,7 @@
     Dashboard
 {% endblock %}
 
-{% import "macros/album.html" as album %}
+{% import "macros/album.html" as album_macros %}
 {% import "macros/covers.html" as covers %}
 {% import "macros/urls.html" as urls %}
 
@@ -49,48 +49,9 @@
                     Recently Listened
                 </h2>
             </div>
-            <ul class="list-group recently-listened reloader {{ 'fetching' if recent_tracks is sameas None else '' }}"
+            <ul class="list-group recently-listened reloader {{ 'fetching' if recently_listeneds is sameas None else '' }}"
                 id="dashboard-recently-listened">
-                {% if recent_tracks is sameas None %}
-                    <i class="loader fa fa-spin fa-spinner"></i>
-                    Fetching recently listened.
-                {% else %}
-                    {% for recent_track in recent_tracks %}
-                        <li class="list-group-item">
-                            {% if recent_track.track and recent_track.track.album %}
-                                {{ covers.album(recent_track.track.album, 70, "img-rounded") }}
-                            {% else %}
-                                {{ covers.artist(recent_track.artist, 70, "img-rounded") }}
-                            {% endif %}
-                            <p>
-                                {% if recent_track.artist %}
-                                    <a href="{{ urls.artist_url(recent_track.artist) }}">
-                                        {{ recent_track.artist.name }}
-                                    </a>
-                                {% else %}
-                                    {{ recent_track.artist_name }}
-                                {% endif %}
-                            </p>
-                            <p>
-                                {% if recent_track.track %}
-                                    <a href="{{ urls.track_url(recent_track.track) }}">
-                                        {{ recent_track.track.name }}
-                                    </a>
-                                {% else %}
-                                    {{ recent_track.name }}
-                                {% endif %}
-                            </p>
-                            <p>
-                                {{ recent_track.timestamp|pretty_date }}
-                                by
-                                <a href="/users/{{ recent_track.user.login }}">
-                                    {{ recent_track.user.login }}
-                                </a>
-                            </p>
-                            <div class="clear"></div>
-                        </li>
-                    {% endfor %}
-                {% endif %}
+                {% include "dashboard/recently_listened.html" %}
             </ul>
         </div>
     </div>
@@ -102,7 +63,7 @@
                     <i class="icon fa fa-rocket"></i>
                 </h3>
             </div>
-            <div class="top-artists panel-body reloader {{ 'fetching' if recent_tracks is sameas None else '' }}"
+            <div class="top-artists panel-body reloader {{ 'fetching' if top_artists is sameas None else '' }}"
                 id="dashboard-top-artists">
                 {% if top_artists is sameas None %}
                     <i class="loader fa fa-spin fa-spinner"></i>
@@ -132,12 +93,11 @@
                     <ul class="new-albums list-group">
                         {% for new_album in new_albums %}
                         <li class="list-group-item">
-                            {{ covers.album(new_album, 50, "img-rounded") }}
-
                             <a href="{{ urls.album_url(new_album) }}">
-                                <p>{{ new_album.name }}</p>
+                                {{ covers.album(new_album, 70, "img-small-thumbnail") }}
+                                {{ new_album.name }}
                             </a>
-                            <p>{{ album.album_desc(new_album, True) }}</p>
+                            <p>{{ album_macros.album_desc(new_album, true, false) }}</p>
                             <p>
                                 Uploaded by
                                 {% if new_album.upload_user %}

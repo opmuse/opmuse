@@ -56,7 +56,7 @@ class Dashboard:
 
         new_albums = self.get_new_albums(8, 0)
 
-        recent_tracks = top_artists = None
+        recently_listeneds = top_artists = None
 
         self.update_recent_tracks()
 
@@ -71,18 +71,63 @@ class Dashboard:
 
             recent_tracks = []
 
-            # track and user is only needed in template so we only fetch them for recent_tracks
-            for recent_track in all_recent_tracks[0:8]:
-                recent_track['track'] = library_dao.get_track(recent_track['track_id'])
+            for recent_track in all_recent_tracks[0:20]:
+                if recent_track['track_id'] is not None:
+                    recent_track['track'] = library_dao.get_track(recent_track['track_id'])
+                else:
+                    recent_track['track'] = None
+
                 recent_track['user'] = security_dao.get_user(recent_track['user_id'])
 
                 recent_tracks.append(recent_track)
+
+            recently_listeneds = []
+            last_recent_track = last_recently_listened = None
+
+            for recent_track in recent_tracks:
+                recently_listened = None
+
+                track = recent_track['track']
+                user = recent_track['user']
+
+                last_track = last_recent_track['track'] if last_recent_track is not None else None
+
+                if track is not None and track.album is not None:
+                    if (last_track is None or
+                      last_track.album is None or
+                      last_track.album.id != track.album.id):
+                        recently_listened = {
+                            'entity': track.album,
+                            'tracks': [track],
+                            'users': set([user]),
+                            'plays': 1
+                        }
+                    elif last_recently_listened is not None:
+                        last_recently_listened['users'].add(user)
+                        last_recently_listened['tracks'].append(track)
+                        last_recently_listened['plays'] += 1
+                elif track is not None and track.album is None:
+                    recently_listened = {
+                        'entity': track,
+                        'users': [user],
+                    }
+                elif track is None:
+                    recently_listened = {
+                        'entity': recent_track,
+                        'users': [user]
+                    }
+
+                if recently_listened is not None:
+                    recently_listeneds.append(recently_listened)
+                    last_recently_listened = recently_listened
+
+                last_recent_track = recent_track
 
         return {
             'current_user': current_user,
             'users': users,
             'top_artists': top_artists,
-            'recent_tracks': recent_tracks,
+            'recently_listeneds': recently_listeneds,
             'new_albums': new_albums
         }
 

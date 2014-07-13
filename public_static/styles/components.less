@@ -175,13 +175,22 @@
     height: @cover-width + 14;
 
     img {
+        width: @cover-width + 14;
+        height: @cover-width + 14;
+
+        // adjust img size/margin so we have room for box-shadow
+        // because of overflow: hidden...
+        &.img-thumbnail {
+            // based on img-thumbnail box-shadow
+            margin: 2px 5px 6px 3px;
+            width: @cover-width + 14 - 8;
+            height: @cover-width + 14 - 8;
+        }
+
         text-indent: -9999px;
         position: absolute !important; /* !important because effeckt.css is being difficult */
         right: 0;
         top: 0;
-
-        width: @cover-width + 14;
-        height: @cover-width + 14;
 
         /* transform transition is for Effeckt.css stuff,
          * and !important is Effeckt.css fault too */
@@ -285,6 +294,12 @@
 .img-thumbnail {
     box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
     padding: 6px;
+    border: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.img-small-thumbnail {
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+    padding: 3px;
     border: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 

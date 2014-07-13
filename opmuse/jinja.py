@@ -30,7 +30,7 @@ from jinja2 import Environment, FileSystemLoader, ModuleLoader, StrictUndefined
 import opmuse
 from opmuse.security import is_granted as _is_granted
 from opmuse.pretty import pretty_date as _pretty_date
-from opmuse.library import TrackStructureParser, Library
+from opmuse.library import TrackStructureParser, Library, Album, Track, Artist
 
 VISIBLE_WS = "\u2423"
 
@@ -93,6 +93,9 @@ def get_jinja_env():
     env.globals['pagination_pages'] = pagination_pages
     env.globals['rand_id'] = rand_id
     env.globals['is_granted'] = is_granted
+    env.globals['is_track'] = is_track
+    env.globals['is_artist'] = is_artist
+    env.globals['is_album'] = is_album
     env.globals['render'] = render
     env.globals['opmuse_version'] = opmuse.__version__
 
@@ -116,6 +119,18 @@ def pagination_pages(page, pages, size):
 
 def pretty_format(format):
     return Library.pretty_format(format)
+
+
+def is_track(object):
+    return isinstance(object, Track)
+
+
+def is_artist(object):
+    return isinstance(object, Artist)
+
+
+def is_album(object):
+    return isinstance(object, Album)
 
 
 def is_granted(role):

@@ -1,0 +1,104 @@
+{% import "macros/album.html" as album_macros %}
+{% import "macros/covers.html" as covers %}
+{% import "macros/urls.html" as urls %}
+
+{% macro list_users(users, href = true) -%}
+    by {% for user in users -%}
+        {%- if not loop.first and not loop.last -%}
+        , {% elif loop.length > 1 and loop.last %} and {% endif -%}
+        {% if href -%}
+            <a href="/users/{{ user.login }}">
+        {%- endif -%}
+                {{ user.login }}
+        {%- if href -%}
+            </a>
+        {%- endif %}
+    {%- endfor %}.
+{%- endmacro %}
+
+{% macro users_badge(users, plays = 1) %}
+    <span class="recently-listened-badge {{ "badge" if users|length > 1 else "" }}" rel="tooltip" title="
+    {%- if plays > 1 -%}
+    {{ plays }} plays
+    {%- endif %} {{ list_users(users, false) }}">
+        {% if users|length > 1 %}
+            {{ list_users(users) }}
+        {% else %}
+            {% for user in users %}
+                <img src="{{ user.gravatar_xsmall }}"
+                    class="img-rounded" alt="{{ user.login }}'s Gravatar" />
+            {% endfor %}
+        {% endif %}
+    </span>
+{% endmacro %}
+
+{% if recently_listeneds is sameas None %}
+    <i class="loader fa fa-spin fa-spinner"></i>
+    Fetching recently listened.
+{% else %}
+    {% for recently_listened in recently_listeneds %}
+        <li class="list-group-item">
+            {% if is_album(recently_listened.entity) and recently_listened.plays > 1 %}
+                {{ users_badge(recently_listened.users, recently_listened.plays) }}
+                {% set album = recently_listened.entity %}
+                <a href="{{ urls.album_url(album) }}" class="full-album">
+                    {{ covers.album(album, 70, "img-small-thumbnail") }}
+                    <span class="heading">
+                        {{ album.name }}
+                    </span>
+                </a>
+                <p>
+                    {{ album_macros.album_desc(album, true, false) }}
+                </p>
+                <p class="footing">
+                    played {% for track in recently_listened.tracks -%}
+                        {%- if not loop.first and not loop.last -%}
+                        , {% elif loop.length > 1 and loop.last %} and {% endif -%}
+                        <a href="{{ urls.track_url(track) }}">
+                            {{ track.name -}}
+                        </a>
+                    {%- endfor %}.
+                </p>
+            {% elif is_track(recently_listened.entity) or is_album(recently_listened.entity) %}
+                {{ users_badge(recently_listened.users) }}
+                {% if is_album(recently_listened.entity) %}
+                    {% set track = recently_listened.tracks[0] %}
+                {% else %}
+                    {% set track = recently_listened.entity %}
+                {% endif %}
+                <a href="{{ urls.track_url(track) }}">
+                    {% if is_album(recently_listened.entity) %}
+                        {{ covers.album(recently_listened.entity, 50, "img-small-thumbnail") }}
+                    {% else %}
+                        {{ covers.artist(track.artist, 50, "img-rounded") }}
+                    {% endif %}
+                        <span class="heading">
+                            {{ track.name }}
+                        </span>
+                    </a>
+                {% if track.artist %}
+                    <p>
+                        <a href="{{ urls.artist_url(track.artist) }}">
+                            {{ track.artist.name }}
+                        </a>
+                    </p>
+                {% endif %}
+            {% else %}
+                {{ users_badge(recently_listened.users) }}
+                {% set recent_track = recently_listened.entity %}
+                <a href="{{ urls.artist_url(track.artist) }}">
+                    {{ covers.artist(recent_track.artist, 50, "img-rounded") }}
+                </a>
+                <span class="heading">
+                    {{ recent_track.name }}
+                </span>
+                <p>
+                    <a href="{{ urls.artist_url(track.artist) }}">
+                        {{ track.artist.name }}
+                    </a>
+                </p>
+            {% endif %}
+            <div class="clear"></div>
+        </li>
+    {% endfor %}
+{% endif %}

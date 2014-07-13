@@ -1,3 +1,15 @@
+.cover-container-size(@size) {
+    .cover-container {
+        width: @size;
+        height: @size;
+
+        img {
+            width: @size;
+            height: @size;
+        }
+    }
+}
+
 .dashboard-box {
     &.panel .panel-heading {
         .icon {
@@ -24,16 +36,7 @@
                 font-size: 1em;
             }
 
-            .cover-container {
-                width: 90px;
-                height: 90px;
-                margin: 0;
-
-                img {
-                    width: 90px;
-                    height: 90px;
-                }
-            }
+            .cover-container-size(90px);
         }
     }
 
@@ -44,18 +47,44 @@
         }
     }
 
+    .recently-listened {
+        .recently-listened-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+
+            &.badge {
+                max-width: 80px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+        }
+
+        .footing {
+            font-size: .9em;
+        }
+
+        .heading {
+            font-weight: bold;
+            color: @link-color;
+        }
+
+        .cover-container-size(50px);
+
+        .full-album {
+            .cover-container-size(70px);
+        }
+    }
+
+    .new-albums {
+        .cover-container-size(70px);
+    }
+
     .new-albums,
     .recently-listened {
         .cover-container {
-            width: 70px;
-            height: 70px;
             float: left;
             margin-right: 8px;
-
-            img {
-                width: 70px;
-                height: 70px;
-            }
         }
 
         p {
