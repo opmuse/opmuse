@@ -32,7 +32,7 @@ class Dashboard:
                      .query(User)
                      .order_by(User.login)
                      .filter(User.id != cherrypy.request.user.id)
-                     .limit(8).all()):
+                     .limit(10).all()):
 
             remotes.update_user(user)
 
@@ -54,7 +54,7 @@ class Dashboard:
             'remotes_user': remotes_user,
         }
 
-        new_albums = self.get_new_albums(8, 0)
+        new_albums = self.get_new_albums(12, 0)
 
         recently_listeneds = top_artists = None
 
@@ -65,13 +65,16 @@ class Dashboard:
         if all_recent_tracks is not None:
             # artist is needed for get_top_artists() fetch it for all
             for recent_track in all_recent_tracks:
-                recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
+                if recent_track['artist_id'] is not None:
+                    recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
+                else:
+                    recent_track['artist'] = None
 
-            top_artists = self.get_top_artists(all_recent_tracks)[0:10]
+            top_artists = self.get_top_artists(all_recent_tracks)[0:18]
 
             recent_tracks = []
 
-            for recent_track in all_recent_tracks[0:20]:
+            for recent_track in all_recent_tracks[0:30]:
                 if recent_track['track_id'] is not None:
                     recent_track['track'] = library_dao.get_track(recent_track['track_id'])
                 else:
@@ -94,8 +97,8 @@ class Dashboard:
 
                 if track is not None and track.album is not None:
                     if (last_track is None or
-                      last_track.album is None or
-                      last_track.album.id != track.album.id):
+                       last_track.album is None or
+                       last_track.album.id != track.album.id):
                         recently_listened = {
                             'entity': track.album,
                             'tracks': [track],

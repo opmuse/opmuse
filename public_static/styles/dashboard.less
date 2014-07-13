@@ -10,6 +10,75 @@
     }
 }
 
+.show-users(@count) {
+    .dashboard-box {
+        .users {
+            > .media {
+                display: none;
+
+                &:nth-child(-n+@{count}) {
+                    display: block;
+                }
+            }
+        }
+    }
+}
+
+.show-new-albums(@count) {
+    .dashboard-box {
+        .new-albums {
+            > li {
+                display: none;
+
+                &:nth-child(-n+@{count}) {
+                    display: block;
+                }
+            }
+        }
+    }
+}
+
+.show-recently-listened(@count) {
+    .dashboard-box {
+        .recently-listened {
+            > li {
+                display: none;
+
+                &:nth-child(-n+@{count}) {
+                    display: block;
+                }
+            }
+        }
+    }
+}
+
+.show-top-artists(@count) {
+    .dashboard-box {
+        .top-artists {
+            > a {
+                display: none;
+
+                &:nth-child(-n+@{count}) {
+                    display: block;
+                }
+            }
+        }
+    }
+}
+
+@media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+    .show-top-artists(10);
+    .show-recently-listened(16);
+    .show-new-albums(5);
+    .show-users(4);
+}
+
+@media (max-width: @screen-xs-max) {
+    .show-top-artists(6);
+    .show-recently-listened(6);
+    .show-new-albums(2);
+}
+
 .dashboard-box {
     &.panel .panel-heading {
         .icon {

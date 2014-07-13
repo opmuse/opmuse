@@ -86,16 +86,22 @@
             {% else %}
                 {{ users_badge(recently_listened.users) }}
                 {% set recent_track = recently_listened.entity %}
-                <a href="{{ urls.artist_url(track.artist) }}">
-                    {{ covers.artist(recent_track.artist, 50, "img-rounded") }}
-                </a>
+                {% if recent_track.artist %}
+                    <a href="{{ urls.artist_url(recent_track.artist) }}">
+                        {{ covers.artist(recent_track.artist, 50, "img-rounded") }}
+                    </a>
+                {% endif %}
                 <span class="heading">
                     {{ recent_track.name }}
                 </span>
                 <p>
-                    <a href="{{ urls.artist_url(track.artist) }}">
-                        {{ track.artist.name }}
-                    </a>
+                    {% if recent_track.artist %}
+                        <a href="{{ urls.artist_url(recent_track.artist) }}">
+                    {% endif %}
+                            {{ recent_track.artist_name }}
+                    {% if recent_track.artist %}
+                        </a>
+                    {% endif %}
                 </p>
             {% endif %}
             <div class="clear"></div>
