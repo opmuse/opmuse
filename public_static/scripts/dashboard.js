@@ -35,6 +35,10 @@ define(['jquery', 'inheritance', 'ws', 'reloader', 'domReady!'],
             ws.on('dashboard.recent_tracks.fetched', function () {
                 reloader.load(['#dashboard-top-artists', '#dashboard-recently-listened']);
             });
+
+            ws.on('dashboard.listening_now.update', function () {
+                reloader.load(['#dashboard-listening-now']);
+            });
         }
     });
 

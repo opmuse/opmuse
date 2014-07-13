@@ -2,36 +2,6 @@
 {% import "macros/covers.html" as covers %}
 {% import "macros/urls.html" as urls %}
 
-{% macro list_users(users, href = true) -%}
-    by {% for user in users -%}
-        {%- if not loop.first and not loop.last -%}
-        , {% elif loop.length > 1 and loop.last %} and {% endif -%}
-        {% if href -%}
-            <a href="/users/{{ user.login }}">
-        {%- endif -%}
-                {{ user.login }}
-        {%- if href -%}
-            </a>
-        {%- endif %}
-    {%- endfor %}.
-{%- endmacro %}
-
-{% macro users_badge(users, plays = 1) %}
-    <span class="recently-listened-badge {{ "badge" if users|length > 1 else "" }}" rel="tooltip" title="
-    {%- if plays > 1 -%}
-    {{ plays }} plays
-    {%- endif %} {{ list_users(users, false) }}">
-        {% if users|length > 1 %}
-            {{ list_users(users) }}
-        {% else %}
-            {% for user in users %}
-                <img src="{{ user.gravatar_xsmall }}"
-                    class="img-rounded" alt="{{ user.login }}'s Gravatar" />
-            {% endfor %}
-        {% endif %}
-    </span>
-{% endmacro %}
-
 {% if recently_listeneds is sameas None %}
     <i class="loader fa fa-spin fa-spinner"></i>
     Fetching recently listened.

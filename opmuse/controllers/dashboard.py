@@ -17,10 +17,15 @@ class Dashboard:
     RECENT_TRACK_CACHE_AGE = 1200  # 20min
 
     def __init__(self):
+        cherrypy.engine.subscribe('transcoding.start', self.transcoding_start)
         cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
+
+    def transcoding_start(self, transcoder, track):
+        ws.emit_all('dashboard.listening_now.update')
 
     def transcoding_end(self, track, transcoder):
         self.update_recent_tracks()
+        ws.emit_all('dashboard.listening_now.update')
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
@@ -53,6 +58,8 @@ class Dashboard:
             'playing_track': queue_dao.get_playing_track(cherrypy.request.user.id),
             'remotes_user': remotes_user,
         }
+
+        all_users = users + [current_user]
 
         new_albums = self.get_new_albums(12, 0)
 
@@ -127,6 +134,7 @@ class Dashboard:
                 last_recent_track = recent_track
 
         return {
+            'all_users': all_users,
             'current_user': current_user,
             'users': users,
             'top_artists': top_artists,
