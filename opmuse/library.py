@@ -1603,6 +1603,24 @@ class LibraryDao:
         except NoResultFound:
             return None
 
+    def get_listened_tuples_by_artist_name_for_users(self, artist_name):
+        try:
+            return (get_database().query(ListenedTrack.user_id, func.max(ListenedTrack.timestamp))
+                    .filter(ListenedTrack.artist_name == artist_name)
+                    .group_by(ListenedTrack.user_id)
+                    .order_by(ListenedTrack.timestamp.desc()).all())
+        except NoResultFound:
+            return None
+
+    def get_listened_tuples_by_artist_name_and_album_name_for_users(self, artist_name, album_name):
+        try:
+            return (get_database().query(ListenedTrack.user_id, func.max(ListenedTrack.timestamp))
+                    .filter(ListenedTrack.artist_name == artist_name, ListenedTrack.album_name == album_name)
+                    .group_by(ListenedTrack.user_id)
+                    .order_by(ListenedTrack.timestamp.desc()).all())
+        except NoResultFound:
+            return None
+
     def get_listened_track_by_artist_name_and_album_name(self, user_id, artist_name, album_name):
         try:
             return (get_database().query(ListenedTrack)

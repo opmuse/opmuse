@@ -1,69 +1,22 @@
 {% import "macros/urls.html" as urls %}
 
+{% macro print_listened_tuples(listened_tuples) %}
+    {% for user, timestamp in listened_tuples %}
+        <a href="/users/{{ user.login }}">
+            <img src="{{ user.gravatar_xsmall }}"
+                class="img-rounded" alt="{{ user.login }}'s Gravatar"
+                title="{{ user.login }} listened" />
+        </a>
+        {{ user.login }} {{ timestamp|pretty_date }}
+    {% endfor %}
+{% endmacro %}
+
 <div class="artist-nav">
-    {% if album is defined and album %}
-        <div class="reloader remotes_album_nav_{{ album.id }}">
-            <div class="sidebar-nav panel panel-info">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        <i class="fa fa-volume-up"></i> |
-                        {{ album.name }}
-                    </h3>
-                </div>
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        Album on
-                        {%- if remotes_album -%}
-                            {% if remotes_album.lastfm and remotes_album.lastfm.url %}
-                                <a href="{{ remotes_album.lastfm.url }}">Lastfm</a>,
-                            {% endif %}
-                        {% endif %}
-                        {% if remotes_album is defined and remotes_album and remotes_album.musicbrainz %}
-                            <a href="http://musicbrainz.org/release/{{ remotes_album.musicbrainz.id }}">Musicbrainz</a>,
-                        {% endif %}
-                        {% if remotes_album is defined and remotes_album and remotes_album.musicbrainz and
-                            'discogs' in remotes_album.musicbrainz.urls and remotes_album.musicbrainz.urls.discogs %}
-                            <a href="{{ remotes_album.musicbrainz.urls.discogs[0] }}">Discogs</a>,
-                        {% else %}
-                            <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
-                                Discogs</a>,
-                        {% endif %}
-                        <a href="https://rateyourmusic.com/search?searchtype=l&searchterm={{ album.name|urlencode }}"
-                            title="Rate Your Music">RYM</a>,
-                        <a href='http://www.google.com/search?q="{{ album.name|urlencode }}"'>
-                            Google</a>,
-                        <a href='http://translate.google.com/#auto/en/{{ album.name|urlencode }}'>
-                            Google Translate</a>.
-                    <li class="list-group-item">
-                        {% if remotes_album %}
-                            {% if remotes_album.lastfm and remotes_album.lastfm.listeners %}
-                                <strong>{{ remotes_album.lastfm.listeners|format_number }}</strong> Lastfm Listeners
-                            {% endif %}
-                        {% endif %}
-                    </li>
-                    {% if album_listened_track %}
-                        <li class="list-group-item">
-                            Listened to <strong>{{ album_listened_track.timestamp|pretty_date }}</strong>
-                        </li>
-                    {% endif %}
-                    <li class="list-group-item">
-                        {% if remotes_album and remotes_album.lastfm %}
-                            {% for tag in remotes_album.lastfm.tags %}
-                            <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
-                                <a href="/library/albums?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
-                            </span>
-                            {% endfor %}
-                        {% endif %}
-                    </li>
-                </ul>
-            </div>
-        </div>
-    {% endif %}
     {% if artists %}
         {% for artist in artists %}
             <div class="reloader remotes_artist_nav_{{ artist.id }}">
                 {% set remotes_artist = remotes_artists[loop.index0] %}
-                <div class="sidebar-nav panel panel-info">
+                <div class="sidebar-nav panel panel-primary">
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             <i class="fa fa-microphone"></i> |
@@ -104,28 +57,10 @@
                             <a href='http://translate.google.com/#auto/en/{{ artist.name|urlencode }}'>
                                 Google Translate</a>.
                         </li>
-                        {%- if album is defined and album -%}
-                        <li class="list-group-item">
-                            Artist and album on
-                            <a href="http://www.discogs.com/search?q={{ "artist:'" ~
-                                artist.name|urlencode ~ "' " ~ album.name|urlencode }}&type=release">
-                                Discogs</a>,
-                            <a href="https://rateyourmusic.com/search?searchtype=l&searchterm={{ (artist.name ~
-                                ' - ' ~ album.name)|urlencode }}" title="Rate Your Music">RYM</a>,
-                            <a href='http://www.google.com/search?q={{ '"' ~ artist.name|urlencode ~
-                                '" "' ~ album.name|urlencode ~ '"' }}'>
-                                Google</a>.
-                        </li>
-                        {% endif %}
                         {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm and
                             remotes_artist.lastfm.listeners %}
                             <li class="list-group-item">
                                 <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
-                            </li>
-                        {% endif %}
-                        {% if artist_listened_track %}
-                            <li class="list-group-item">
-                                Listened to <strong>{{ artist_listened_track.timestamp|pretty_date }}</strong>
                             </li>
                         {% endif %}
                         {% if remotes_user is defined and remotes_user and remotes_user.lastfm and remotes_user.lastfm.artists and
@@ -153,9 +88,74 @@
                                 {% endfor %}
                             </li>
                         {% endif %}
+                        {% if artist_listened_tuples %}
+                            <li class="list-group-item listened_tracks">
+                                {{ print_listened_tuples(artist_listened_tuples) }}
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
         {% endfor %}
+    {% endif %}
+    {% if album is defined and album %}
+        <hr>
+        <div class="reloader remotes_album_nav_{{ album.id }}">
+            <div class="sidebar-nav panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <i class="fa fa-volume-up"></i> |
+                        {{ album.name }}
+                    </h3>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        Album on
+                        {%- if remotes_album -%}
+                            {% if remotes_album.lastfm and remotes_album.lastfm.url %}
+                                <a href="{{ remotes_album.lastfm.url }}">Lastfm</a>,
+                            {% endif %}
+                        {% endif %}
+                        {% if remotes_album is defined and remotes_album and remotes_album.musicbrainz %}
+                            <a href="http://musicbrainz.org/release/{{ remotes_album.musicbrainz.id }}">Musicbrainz</a>,
+                        {% endif %}
+                        {% if remotes_album is defined and remotes_album and remotes_album.musicbrainz and
+                            'discogs' in remotes_album.musicbrainz.urls and remotes_album.musicbrainz.urls.discogs %}
+                            <a href="{{ remotes_album.musicbrainz.urls.discogs[0] }}">Discogs</a>,
+                        {% else %}
+                            <a href="http://www.discogs.com/search?q={{ album.name|urlencode }}&type=release">
+                                Discogs</a>,
+                        {% endif %}
+                        <a href="https://rateyourmusic.com/search?searchtype=l&searchterm={{ album.name|urlencode }}"
+                            title="Rate Your Music">RYM</a>,
+                        <a href='http://www.google.com/search?q="{{ album.name|urlencode }}"'>
+                            Google</a>,
+                        <a href='http://translate.google.com/#auto/en/{{ album.name|urlencode }}'>
+                            Google Translate</a>.
+                    </li>
+                    {% if remotes_album %}
+                        <li class="list-group-item">
+                            {% if remotes_album.lastfm and remotes_album.lastfm.listeners %}
+                                <strong>{{ remotes_album.lastfm.listeners|format_number }}</strong> Lastfm Listeners
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                    {% if remotes_album and remotes_album.lastfm and remotes_album.lastfm.tags %}
+                        <li class="list-group-item">
+                            {% for tag in remotes_album.lastfm.tags %}
+                            <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
+                                <a href="/library/albums?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
+                            </span>
+                            {% endfor %}
+                        </li>
+                    {% endif %}
+                    {% if album_listened_tuples %}
+                        <li class="list-group-item listened_tracks">
+                            {{ print_listened_tuples(album_listened_tuples) }}
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
     {% endif %}
 </div>

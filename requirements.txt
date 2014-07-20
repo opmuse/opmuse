@@ -1,3 +1,4 @@
+# vim: ft=conf
 # don't forget about scripts/build-debs.sh when updating this file.
 #
 # opmuse deps

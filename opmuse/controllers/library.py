@@ -20,6 +20,7 @@ from opmuse.utils import HTTPRedirect
 from opmuse.search import search
 from opmuse.cache import cache
 from opmuse.remotes import remotes
+from opmuse.security import security_dao
 
 
 class LibraryEdit:
@@ -505,25 +506,23 @@ class Library:
         remotes_track = remotes.get_track(track)
 
         if track.artist is not None:
-            artist_listened_track = library_dao.get_listened_track_by_artist_name(
-                cherrypy.request.user.id, track.artist.name)
+            artist_listened_tuples = self.get_artist_listened_tuples(track.artist.name)
 
             if track.album is not None:
-                album_listened_track = library_dao.get_listened_track_by_artist_name_and_album_name(
-                    cherrypy.request.user.id, track.artist.name, track.album.name)
+                album_listened_tuples = self.get_album_listened_tuples(track.artist.name, track.album.name)
             else:
-                album_listened_track = None
+                album_listened_tuples = None
         else:
-            artist_listened_track = None
-            album_listened_track = None
+            artist_listened_tuples = None
+            album_listened_tuples = None
 
         return {
             'track': track,
             'remotes_artist': remotes_artist,
             'remotes_album': remotes_album,
             'remotes_track': remotes_track,
-            'album_listened_track': album_listened_track,
-            'artist_listened_track': artist_listened_track,
+            'album_listened_tuples': album_listened_tuples,
+            'artist_listened_tuples': artist_listened_tuples,
         }
 
     @cherrypy.expose
@@ -606,19 +605,62 @@ class Library:
         else:
             artist_name = None
 
-        album_listened_track = library_dao.get_listened_track_by_artist_name_and_album_name(cherrypy.request.user.id,
-                                                                                            artist_name, album.name)
-
-        artist_listened_track = library_dao.get_listened_track_by_artist_name(cherrypy.request.user.id, artist_name)
+        album_listened_tuples = self.get_album_listened_tuples(artist_name, album.name)
+        artist_listened_tuples = self.get_artist_listened_tuples(artist_name)
 
         return {
             'album': album,
             'dir_tracks': dir_tracks,
             'remotes_artists': remotes_artists,
             'remotes_album': remotes_album,
-            'album_listened_track': album_listened_track,
-            'artist_listened_track': artist_listened_track,
+            'album_listened_tuples': album_listened_tuples,
+            'artist_listened_tuples': artist_listened_tuples,
         }
+
+    def get_artist_listened_tuples(self, artist_name):
+        artist_listened_tuples = []
+
+        listened_tuples = library_dao.get_listened_tuples_by_artist_name_for_users(artist_name)
+
+        youple = None
+
+        for user_id, timestamp in listened_tuples:
+            user = security_dao.get_user(user_id)
+
+            listened_tuple = (user, timestamp)
+
+            if user_id == cherrypy.request.user.id:
+                youple = listened_tuple
+            else:
+                artist_listened_tuples.append(listened_tuple)
+
+        if youple is not None:
+            artist_listened_tuples.insert(0, youple)
+
+        return artist_listened_tuples
+
+    def get_album_listened_tuples(self, artist_name, album_name):
+        album_listened_tuples = []
+
+        listened_tuples = library_dao.get_listened_tuples_by_artist_name_and_album_name_for_users(
+            artist_name, album_name)
+
+        youple = None
+
+        for user_id, timestamp in listened_tuples:
+            user = security_dao.get_user(user_id)
+
+            listened_tuple = (user, timestamp)
+
+            if user_id == cherrypy.request.user.id:
+                youple = listened_tuple
+            else:
+                album_listened_tuples.append(listened_tuple)
+
+        if youple is not None:
+            album_listened_tuples.insert(0, youple)
+
+        return album_listened_tuples
 
     def _dir_tracks(self, tracks):
         dir_tracks = {}
@@ -1019,7 +1061,7 @@ class Library:
 
         remotes_user = remotes.get_user(cherrypy.request.user)
 
-        artist_listened_track = library_dao.get_listened_track_by_artist_name(cherrypy.request.user.id, artist.name)
+        artist_listened_tuples = self.get_artist_listened_tuples(artist.name)
 
         return {
             'remotes_user': remotes_user,
@@ -1028,7 +1070,7 @@ class Library:
             'album_groups': album_groups,
             'remotes_artist': remotes_artist,
             'same_artists': same_artists,
-            'artist_listened_track': artist_listened_track
+            'artist_listened_tuples': artist_listened_tuples
         }
 
     @staticmethod

@@ -84,7 +84,7 @@
     <figure class="effeckt-caption" data-effeckt-type="quarter-appear">
         {% if album is defined and album %}
             {{ covers.album_big(album) }}
-        {% elif artist %}
+        {% elif artist is defined and artist %}
             {{ covers.artist_large(artist) }}
         {% endif %}
         <figcaption>
@@ -282,7 +282,7 @@
                         remotes_album.musicbrainz.translit %}
                         {{ print_aka(remotes_album.musicbrainz.translit) }}
                     {% endif %}
-                {% elif artists|length == 1 %}
+                {% elif artists and artists|length == 1 %}
                     {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz %}
                         {% if remotes_artist.musicbrainz.name|lower != artists[0].name|lower %}
                             {{ print_aka(remotes_artist.musicbrainz.name) }}
