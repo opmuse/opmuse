@@ -1612,6 +1612,26 @@ class LibraryDao:
         except NoResultFound:
             return None
 
+    def get_listened_artist_name_count(self, user_id, start_date=None, end_date=None, limit=None):
+        try:
+            query = (get_database().query(ListenedTrack.artist_name, func.count(ListenedTrack.id).label('count'))
+                     .filter(ListenedTrack.user_id == user_id)
+                     .group_by(ListenedTrack.artist_name)
+                     .order_by('count DESC'))
+
+            if start_date is not None:
+                query = query.filter(ListenedTrack.timestamp > int(start_date.timestamp()))
+
+            if end_date is not None:
+                query = query.filter(ListenedTrack.timestamp < int(end_date.timestamp()))
+
+            if limit is not None:
+                query = query.limit(limit)
+
+            return query.all()
+        except NoResultFound:
+            return None
+
     def get_listened_tuples_by_artist_name_and_album_name_for_users(self, artist_name, album_name):
         try:
             return (get_database().query(ListenedTrack.user_id, func.max(ListenedTrack.timestamp))

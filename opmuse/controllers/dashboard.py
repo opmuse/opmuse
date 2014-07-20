@@ -24,7 +24,7 @@ class Dashboard:
         ws.emit_all('dashboard.listening_now.update')
 
     def transcoding_end(self, track, transcoder):
-        self.update_recent_tracks()
+        Dashboard.update_recent_tracks()
         ws.emit_all('dashboard.listening_now.update')
 
     @cherrypy.expose
@@ -63,11 +63,11 @@ class Dashboard:
 
         new_albums = self.get_new_albums(12, 0)
 
-        recently_listeneds = top_artists = None
+        top_artists = None
 
-        self.update_recent_tracks()
+        Dashboard.update_recent_tracks()
 
-        all_recent_tracks = self.get_recent_tracks()
+        all_recent_tracks = Dashboard.get_recent_tracks()
 
         if all_recent_tracks is not None:
             # artist is needed for get_top_artists() fetch it for all
@@ -79,59 +79,7 @@ class Dashboard:
 
             top_artists = self.get_top_artists(all_recent_tracks)[0:18]
 
-            recent_tracks = []
-
-            for recent_track in all_recent_tracks[0:30]:
-                if recent_track['track_id'] is not None:
-                    recent_track['track'] = library_dao.get_track(recent_track['track_id'])
-                else:
-                    recent_track['track'] = None
-
-                recent_track['user'] = security_dao.get_user(recent_track['user_id'])
-
-                recent_tracks.append(recent_track)
-
-            recently_listeneds = []
-            last_recent_track = last_recently_listened = None
-
-            for recent_track in recent_tracks:
-                recently_listened = None
-
-                track = recent_track['track']
-                user = recent_track['user']
-
-                last_track = last_recent_track['track'] if last_recent_track is not None else None
-
-                if track is not None and track.album is not None:
-                    if (last_track is None or
-                       last_track.album is None or
-                       last_track.album.id != track.album.id):
-                        recently_listened = {
-                            'entity': track.album,
-                            'tracks': [track],
-                            'users': set([user]),
-                            'plays': 1
-                        }
-                    elif last_recently_listened is not None:
-                        last_recently_listened['users'].add(user)
-                        last_recently_listened['tracks'].append(track)
-                        last_recently_listened['plays'] += 1
-                elif track is not None and track.album is None:
-                    recently_listened = {
-                        'entity': track,
-                        'users': [user],
-                    }
-                elif track is None:
-                    recently_listened = {
-                        'entity': recent_track,
-                        'users': [user]
-                    }
-
-                if recently_listened is not None:
-                    recently_listeneds.append(recently_listened)
-                    last_recently_listened = recently_listened
-
-                last_recent_track = recent_track
+        recently_listeneds = Dashboard.get_recently_listeneds()
 
         return {
             'all_users': all_users,
@@ -141,6 +89,73 @@ class Dashboard:
             'recently_listeneds': recently_listeneds,
             'new_albums': new_albums
         }
+
+    @staticmethod
+    def get_recently_listeneds(by_user=None):
+        all_recent_tracks = Dashboard.get_recent_tracks()
+
+        if all_recent_tracks is None:
+            return None
+
+        recently_listeneds = []
+        last_recent_track = last_recently_listened = None
+
+        count = 0
+
+        for recent_track in all_recent_tracks:
+            if by_user is not None and by_user.id != recent_track['user_id']:
+                continue
+
+            if recent_track['track_id'] is not None:
+                recent_track['track'] = library_dao.get_track(recent_track['track_id'])
+            else:
+                recent_track['track'] = None
+
+            recent_track['user'] = security_dao.get_user(recent_track['user_id'])
+
+            recently_listened = None
+
+            track = recent_track['track']
+            user = recent_track['user']
+
+            last_track = last_recent_track['track'] if last_recent_track is not None else None
+
+            if track is not None and track.album is not None:
+                if (last_track is None or
+                   last_track.album is None or
+                   last_track.album.id != track.album.id):
+                    recently_listened = {
+                        'entity': track.album,
+                        'tracks': [track],
+                        'users': set([user]),
+                        'plays': 1
+                    }
+                elif last_recently_listened is not None:
+                    last_recently_listened['users'].add(user)
+                    last_recently_listened['tracks'].append(track)
+                    last_recently_listened['plays'] += 1
+            elif track is not None and track.album is None:
+                recently_listened = {
+                    'entity': track,
+                    'users': [user],
+                }
+            elif track is None:
+                recently_listened = {
+                    'entity': recent_track,
+                    'users': [user]
+                }
+
+            if recently_listened is not None:
+                recently_listeneds.append(recently_listened)
+                last_recently_listened = recently_listened
+                count += 1
+
+            if count > 20:
+                break
+
+            last_recent_track = recent_track
+
+        return recently_listeneds
 
     def get_new_albums(self, limit, offset):
         return (get_database()
@@ -174,7 +189,8 @@ class Dashboard:
 
         return result
 
-    def get_recent_tracks(self):
+    @staticmethod
+    def get_recent_tracks():
         cache_key = Dashboard.RECENT_TRACK_CACHE_KEY
 
         if cache.has(cache_key):
@@ -182,15 +198,17 @@ class Dashboard:
         else:
             return None
 
-    def update_recent_tracks(self):
+    @staticmethod
+    def update_recent_tracks():
         cache_key = Dashboard.RECENT_TRACK_CACHE_KEY
         cache_age = Dashboard.RECENT_TRACK_CACHE_AGE
 
         if cache.needs_update(cache_key, age = cache_age):
             cache.keep(cache_key)
-            cherrypy.engine.bgtask.put(self._fetch_recent_tracks, 9)
+            cherrypy.engine.bgtask.put(Dashboard._fetch_recent_tracks, 9)
 
-    def _fetch_recent_tracks(self):
+    @staticmethod
+    def _fetch_recent_tracks():
         """
         Look up all listened tracks 4 weeks back in whoosh/search.
         """

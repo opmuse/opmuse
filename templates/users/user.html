@@ -6,40 +6,96 @@
     User - {{ user.login }}
 {% endblock %}
 
+{% import "macros/covers.html" as covers %}
+{% import "macros/urls.html" as urls %}
+{% import "macros/listened.html" as listened %}
+
 {% block content %}
 <div id="users">
     <div class="row">
-        <div class="col-xs-8">
-            <h1>{{ user.login }}</h1>
+        <div class="col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="icon fa fa-user"></i>
+                        {{ user.login }}
+                    </h2>
+                </div>
+                <div class="panel-body">
+                    <img class="img-rounded avatar" src="{{ user.gravatar_large }}" alt="{{ user.login }}'s Gravatar" />
+                    <p>
+                        {% if user.active %}
+                            Last seen {{ user.active|pretty_date }}.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="icon fa fa-microphone"></i>
+                        Top Artists
+                    </h2>
+                </div>
+                <div class="panel-body">
+                    <ul class="nav nav-pills" role="tablist">
+                        {% for name, top_artists in top_artists_categories %}
+                        <li class="{{ "active" if loop.first else "" }}">
+                            <a href="#top_artists_{{ name|lower|replace(' ', '_') }}" role="tab"
+                                data-toggle="tab" data-ajaxify="false">
+                                {{ name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content">
+                        {% for name, top_artists in top_artists_categories %}
+                            <div class="tab-pane {{ "active" if loop.first else "" }}"
+                                id="top_artists_{{ name|lower|replace(' ', '_') }}">
+                                <ul class="list-group top-artists">
+                                    {% for artist, artist_name, count in top_artists %}
+                                    <li class="list-group-item">
+                                        <span class="ordinal">
+                                            {{ loop.index }}.
+                                        </span>
+                                        {% if artist %}
+                                            <a href="{{ urls.artist_url(artist) }}">
+                                                {{ covers.artist(artist, 40, "img-rounded") }}
+                                            </a>
+                                            <a href="{{ urls.artist_url(artist) }}">
+                                                {{ artist.name }}
+                                            </a>
+                                        {% else %}
+                                            {{ artist_name }}
+                                        {% endif %}
+                                        <span class="plays">
+                                            {{ count|format_number }}
+                                        </span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-xs-4">
-            <img class="pull-right img-rounded" src="{{ user.gravatar_large }}" alt="{{ user.login }}'s Gravatar" />
+        <div class="col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="icon fa fa-backward"></i>
+                        Recently Listened
+                    </h2>
+                </div>
+                <ul class="list-group recently-listened">
+                    {% if recently_listeneds %}
+                        {{ listened.print_recently_listeneds(recently_listeneds, false) }}
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
-
-    <hr />
-
-    {% if remotes_user %}
-        <div class="row">
-            <div class="col-xs-6">
-                {% if remotes_user.lastfm and remotes_user.lastfm.top_artists_overall %}
-                    <table class="table table-striped">
-                        <tr>
-                            <th colspan="2">Lastfm Top Artists</th>
-                        </tr>
-                        {% for artist in remotes_user.lastfm.top_artists_overall %}
-                        <tr>
-                            <td><a href="/search/{{ artist.name }}/artist">{{ artist.name|show_ws }}</a></td>
-                            <td>{{ artist.playcount|format_number }}</td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                {% endif %}
-            </div>
-            <div class="col-xs-6">
-            </div>
-        </div>
-    {% endif %}
 </div>
 {% endblock %}
 
