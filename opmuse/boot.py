@@ -178,9 +178,6 @@ def configure(config_file=None, environment=None):
     cherrypy.engine.bgtask = BackgroundTaskPlugin(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
 
-    if 'opmuse' in app.config and 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:
-        cherrypy.log.error_log.setLevel(logging.DEBUG)
-
     return app
 
 
@@ -211,6 +208,8 @@ def main():
                         help='Log file location.')
     parser.add_argument('-le', '--errorlog', action='store',
                         help='Log error messages in this separate file.')
+    parser.add_argument('-ncl', '--nocolorlog', action='store_true',
+                        help='Don\'t use colorlog even if it\'s installed.')
     parser.add_argument('-u', '--user', action='store',
                         help='When running as daemon, what user to run as.', default='nobody')
     parser.add_argument('-e', '--env', action='store',
@@ -254,6 +253,36 @@ def main():
             'log.error_file': args.log,
             'log.access_file': args.log
         })
+    elif not args.nocolorlog:
+        # use colorlog if found, it's in dev-requirements.txt
+        # outputs access_log messages as white and error_log messags as blue
+        try:
+            from colorlog import ColoredFormatter
+
+            cherrypy.config.update({
+                'log.screen': False,
+                'log.error_file': "",
+                'log.access_file': ""
+            })
+
+            access_formatter = ColoredFormatter(
+                "%(log_color)s%(levelname)s%(reset)s:%(white)s%(message)s%(reset)s"
+            )
+
+            access_handler = logging.StreamHandler(sys.stderr)
+            access_handler.setFormatter(access_formatter)
+
+            error_formatter = ColoredFormatter(
+                "%(log_color)s%(levelname)s%(reset)s:%(blue)s%(message)s%(reset)s"
+            )
+
+            error_handler = logging.StreamHandler(sys.stderr)
+            error_handler.setFormatter(error_formatter)
+
+            cherrypy.log.error_log.addHandler(error_handler)
+            cherrypy.log.access_log.addHandler(access_handler)
+        except ImportError:
+            pass
 
     if args.log is None and args.errorlog is not None:
         parser.error('--log needs to be set if --errorlog is used.')
@@ -261,6 +290,9 @@ def main():
         cherrypy.config.update({
             'log.error_file': args.errorlog,
         })
+
+    if 'opmuse' in app.config and 'debug' in app.config['opmuse'] and app.config['opmuse']['debug']:
+        cherrypy.log.error_log.setLevel(logging.DEBUG)
 
     if args.daemon:
         if os.getuid() != 0:
