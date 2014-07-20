@@ -67,17 +67,10 @@ class Dashboard:
 
         Dashboard.update_recent_tracks()
 
-        all_recent_tracks = Dashboard.get_recent_tracks()
+        top_artists = Dashboard.get_top_artists()
 
-        if all_recent_tracks is not None:
-            # artist is needed for get_top_artists() fetch it for all
-            for recent_track in all_recent_tracks:
-                if recent_track['artist_id'] is not None:
-                    recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
-                else:
-                    recent_track['artist'] = None
-
-            top_artists = self.get_top_artists(all_recent_tracks)[0:18]
+        if top_artists is not None:
+            top_artists = top_artists[0:18]
 
         recently_listeneds = Dashboard.get_recently_listeneds()
 
@@ -110,6 +103,11 @@ class Dashboard:
                 recent_track['track'] = library_dao.get_track(recent_track['track_id'])
             else:
                 recent_track['track'] = None
+
+            if recent_track['artist_id'] is not None:
+                recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
+            else:
+                recent_track['artist'] = None
 
             recent_track['user'] = security_dao.get_user(recent_track['user_id'])
 
@@ -169,10 +167,21 @@ class Dashboard:
                 .offset(offset)
                 .all())
 
-    def get_top_artists(self, recent_tracks):
+    @staticmethod
+    def get_top_artists():
+        all_recent_tracks = Dashboard.get_recent_tracks()
+
+        if all_recent_tracks is None:
+            return None
+
         top_artists = {}
 
-        for recent_track in recent_tracks:
+        for recent_track in all_recent_tracks:
+            if recent_track['artist_id'] is not None:
+                recent_track['artist'] = library_dao.get_artist(recent_track['artist_id'])
+            else:
+                recent_track['artist'] = None
+
             if recent_track['artist'] is not None:
                 if recent_track['artist'] not in top_artists:
                     top_artists[recent_track['artist']] = 1
