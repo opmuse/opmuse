@@ -92,18 +92,21 @@
                     {% elif auth_url %}
                         <p>You need to supply a Lastfm account to enable scrobbling of what you play.</p>
                         <p>
-                            <a href="{{ auth_url }}" target="_blank">Click here</a>
-                            to authorize opmuse to use your Lastfm account. After you've authorized
-                            opmuse you need come back here to <strong>reload<strong> this page.
+                            <strong><a href="{{ auth_url }}" target="_blank">Click here</a>
+                            to authorize</strong> opmuse to use your Lastfm account. After you've authorized
+                            opmuse you need to <strong><a href="#">reload this page</a></strong>.
                         </p>
                     {% elif new_auth %}
                         <p>
                             Congratulations! You've authenticated as <strong>{{ user_href() }}</strong>.
-                            We will now start scrobbling the tracks you play to said account.
+                            We will now start scrobbling the tracks you play to your account. You'll also
+                            be able to use some additional features like seeing when you last listened to an artist or
+                            album and other fancy stuff.
                         </p>
                     {% else %}
                         <p>
-                            You're authenticated as <strong>{{ user_href() }}</strong> and scrobbling is enabled.
+                            You're authenticated as <strong>{{ user_href() }}</strong> and scrobbling and other lastfm
+                            features are enabled.
                         </p>
                     {% endif %}
                 </div>
