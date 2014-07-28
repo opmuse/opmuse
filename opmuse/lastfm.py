@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import re
 import cherrypy
 import calendar
@@ -47,6 +48,10 @@ class LastfmApiError(LastfmError):
 
 def log(msg):
     cherrypy.log(msg, context='lastfm')
+
+
+def debug(msg, traceback=False):
+    cherrypy.log.error(msg, context='lastfm', severity=logging.DEBUG, traceback=traceback)
 
 
 class LastfmNetwork:
@@ -112,7 +117,7 @@ class LastfmNetwork:
 
         self._request('track.scrobble', data_params = params)
 
-    def get_user_recent_tracks(self, user_name, page = 1, limit = 200):
+    def get_user_recent_tracks(self, user_name, page = 1, limit = 50):
         """
         if page is None fetch all pages
         """
@@ -134,6 +139,9 @@ class LastfmNetwork:
 
             try:
                 tries += 1
+
+                debug('Fetching recent tracks page %d%s for %s' %
+                      (page, ' of %d' % totalPages if totalPages is not None else '', user_name))
 
                 result = self._request('user.getRecentTracks', params)['recenttracks']
 
@@ -158,7 +166,11 @@ class LastfmNetwork:
 
                 page += 1
                 tries = 1
-            except (LastfmApiError, LastfmRetry):
+            except (LastfmApiError, LastfmRetry) as error:
+                if isinstance(error, LastfmApiError):
+                    debug('Got error while fetching recent tracks for %s%s\n' %
+                          (user_name, ', not retrying' if tries > 10 else ', retrying'), traceback=True)
+
                 if tries > 10:
                     log("Tried and failed 10 times, skipping page %d" % page)
                     tries = 1
