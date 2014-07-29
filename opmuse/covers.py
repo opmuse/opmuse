@@ -31,6 +31,7 @@ from opmuse.library import Artist, Album
 from opmuse.google import google
 from opmuse.database import get_database
 from opmuse.remotes import remotes
+from opmuse.bgtask import NonUniqueQueueError
 
 
 def log(msg, traceback=False):
@@ -101,10 +102,16 @@ class Covers:
 
             for artist in entity.artists:
                 if artist.cover_path is None or not os.path.exists(artist.cover_path):
-                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, artist.id)
+                    try:
+                        cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, artist.id)
+                    except NonUniqueQueueError:
+                        pass
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                cherrypy.engine.bgtask.put(self.fetch_album_cover, 15, entity.id)
+                try:
+                    cherrypy.engine.bgtask.put(self.fetch_album_cover, 15, entity.id)
+                except NonUniqueQueueError:
+                    pass
 
                 for artist in entity.artists:
                     if artist.cover is not None:
@@ -119,7 +126,10 @@ class Covers:
             remotes.update_artist(entity)
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
-                cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, entity.id)
+                try:
+                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, entity.id)
+                except NonUniqueQueueError:
+                    pass
 
         if entity is None:
             raise ValueError('Entity not found')
