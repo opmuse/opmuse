@@ -34,6 +34,33 @@ def log(msg, traceback=False):
     cherrypy.log(msg, context='bgtask', traceback=traceback)
 
 
+class NonUniqueQueueError(Exception):
+    pass
+
+
+class UniquePriorityQueue(queue.PriorityQueue):
+    def _init(self, maxsize):
+        queue.PriorityQueue._init(self, maxsize)
+        self.keys = set()
+
+    def _put(self, item):
+        if item.key not in self.keys:
+            self.keys.add(item.key)
+            queue.PriorityQueue._put(self, item)
+        else:
+            debug('"%s" is already in the queue.' % item.name)
+            raise NonUniqueQueueError('"%s" is already in the queue.' % item.name)
+
+    def done(self, item):
+        """
+        Mark item as done.
+
+        This needs to be called when a task is done or the queue
+        will continue to throw NonUniqueQueueError.
+        """
+        self.keys.remove(item.key)
+
+
 @total_ordering
 class QueueItem:
     def __init__(self, priority, delay, func, args, kwargs):
@@ -47,6 +74,8 @@ class QueueItem:
             self.name = func.bgtask_name.format(*args)
         else:
             self.name = "%r %r %r" % (func, args, kwargs)
+
+        self.key = (func, tuple(args), tuple(kwargs.items()))
 
         self.started = None
         self.done = None
@@ -65,7 +94,7 @@ class BackgroundTaskPlugin(SimplePlugin):
     def __init__(self, bus):
         SimplePlugin.__init__(self, bus)
 
-        self.queue = queue.PriorityQueue()
+        self.queue = UniquePriorityQueue()
         self.threads = None
         self.start_threads = cpu_count() * 2
         self.bus.subscribe("bind_background_task", self.bind_background_task)
@@ -164,6 +193,7 @@ class BackgroundTaskPlugin(SimplePlugin):
                         database_data.database = None
 
                     self.queue.task_done()
+                    self.queue.done(item)
 
                     item.done = time.time()
 
