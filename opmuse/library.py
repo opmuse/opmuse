@@ -1650,6 +1650,10 @@ class LibraryDao:
         except NoResultFound:
             return None
 
+    def get_listened_tracks_count(self, user_id):
+        return (get_database().query(func.count(ListenedTrack.id))
+                .filter(ListenedTrack.user_id == user_id).scalar())
+
     def get_listened_track_max_timestamp(self, user_id):
         return (get_database().query(func.max(ListenedTrack.timestamp))
                 .filter(ListenedTrack.user_id == user_id).scalar())
@@ -1659,6 +1663,10 @@ class LibraryDao:
 
         get_database().add(listened_track)
         get_database().commit()
+
+    def delete_listened_tracks(self, user_id):
+        return (get_database().query(ListenedTrack)
+                .filter(ListenedTrack.user_id == user_id).delete())
 
     def delete_track(self, track, database = None):
         if database is None:

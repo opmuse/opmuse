@@ -50,19 +50,46 @@ class Remotes:
             cherrypy.engine.bgtask.put(self._add_listened_tracks, 10, user.id, user.lastfm_user,
                                        user.lastfm_session_key)
 
-    def _add_listened_tracks(self, id, lastfm_user, lastfm_session_key):
-        key = Remotes.USER_TRACKS_KEY_FORMAT % id
+    def _add_listened_tracks(self, user_id, lastfm_user, lastfm_session_key):
+        key = Remotes.USER_TRACKS_KEY_FORMAT % user_id
 
         if lastfm_user is None or lastfm_session_key is None:
             return
 
-        max_timestamp = library_dao.get_listened_track_max_timestamp(id)
+        count = library_dao.get_listened_tracks_count(user_id)
+
+        max_timestamp = library_dao.get_listened_track_max_timestamp(user_id)
+
+        index = 0
 
         for track in lastfm.get_user_tracks(lastfm_user, lastfm_session_key):
+            # if we have less than 90% of what lastfm reports that the total
+            # should be we assume something went wrong before and we redo
+            # the whole thing from the start.
+            #
+            # this could occur if the user shuts down opmuse before this finishes
+            # or if lastfm goes down or rate limits the hell out of us.
+            #
+            # the reason we only do it when it's less than 90% is because there's
+            # a bug in the lastfm api where if the user has submitted non utf8 data
+            # or otherwise "corrupt" data the api call will fail with an empty
+            # response and we'll miss out on some tracks and there's nothing we
+            # can do about that. http://www.last.fm/group/Last.fm+Web+Services/forum/21604/_/626352
+            #
+            # this could obviously also 'cause some unnecessary re-fetching of all
+            # tracks on every run in some cases, but i'm not gonna fix that until
+            # someone reports it as an actual issue...
+            if index == 0 and count > 0 and count / track['total'] < .90:
+                max_timestamp = None
+                count = 0
+                library_dao.delete_listened_tracks(user_id)
+
             if max_timestamp is not None and track['timestamp'] is not None and max_timestamp >= track['timestamp']:
                 break
 
-            library_dao.add_listened_track(id, track['name'], track['artist'], track['album'], track['timestamp'])
+            library_dao.add_listened_track(user_id, track['name'], track['artist'], track['album'], track['timestamp'])
+
+            index += 1
 
         cache.set(key, True)
 

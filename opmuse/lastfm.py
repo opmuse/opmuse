@@ -149,6 +149,11 @@ class LastfmNetwork:
                 if totalPages is None:
                     totalPages = int(result['@attr']['totalPages'])
 
+                if '@attr' in result:
+                    total = int(result['@attr']['total'])
+                else:
+                    total = None
+
                 if 'track' not in result:
                     raise LastfmRetry()
 
@@ -162,7 +167,8 @@ class LastfmNetwork:
                         'artist': track['artist']['#text'],
                         'album': track['album']['#text'],
                         'name': track['name'],
-                        'timestamp': timestamp
+                        'timestamp': timestamp,
+                        'total': total
                     }
 
                 page += 1
@@ -173,7 +179,8 @@ class LastfmNetwork:
                           (user_name, ', not retrying' if tries > 10 else ', retrying'), traceback=True)
 
                 if tries > 10:
-                    log("Tried and failed 10 times, skipping page %d" % page)
+                    log("While fetching recent tracks for %s, tried and failed 10 times, skipping page %d" %
+                        (user_name, page))
                     tries = 1
                     page += 1
                     continue
