@@ -10,13 +10,18 @@
 <div id="users">
     <div class="row">
         <div class="col-xs-12">
-            <p>List of users.</p>
+            <p>
+                List of all users in <strong>opmuse</strong> ordered by last seen.
+            </p>
 
             <hr />
 
             <table class="table table-striped">
                 <tr>
                     <th>Name</th>
+                    <th>Last seen</th>
+                    <th>Created</th>
+                    <th>Roles</th>
                 </tr>
                 {% for user in users %}
                 <tr>
@@ -29,6 +34,21 @@
                         <a href="/users/{{ user.login }}">
                             {{ user.login }}
                         </a>
+                    </td>
+                    <td>
+                        {% if user.active %}
+                            {{ user.active|pretty_date }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ user.created|pretty_date }}
+                    </td>
+                    <td>
+                        {% for role in user.roles %}
+                            {{ role.name }}
+                        {% endfor %}
                     </td>
                 </tr>
                 {% endfor %}

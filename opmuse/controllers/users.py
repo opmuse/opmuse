@@ -17,15 +17,13 @@ class Users:
         if len(args) == 1:
             raise cherrypy.InternalRedirect('/users/user/%s' % args[0])
 
-        roles = (get_database().query(Role).order_by(Role.name).all())
-        users = (get_database().query(User).order_by(User.login).all())
+        users = (get_database().query(User).order_by(User.active.desc()).all())
 
         for user in users:
             remotes.update_user(user)
 
         return {
             'users': users,
-            'roles': roles
         }
 
     @cherrypy.expose
