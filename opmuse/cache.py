@@ -311,7 +311,13 @@ class CachePlugin(Monitor):
             count = (database.query(func.count(CacheObject.id))
                      .filter(CacheObject.key == key).scalar())
 
-            if isinstance(value, object):
+            # Dont serialize Keep values, this is for example useful for bgtasks
+            # that was added to the queue but never run because of a restart.
+            # This way they will just be triggered again on the next start/use
+            # and we dont have to wait for the Keep time to run out.
+            if value is Keep:
+                continue
+            elif isinstance(value, object):
                 value_type = 'object'
             else:
                 value_type = type(value).__name__
