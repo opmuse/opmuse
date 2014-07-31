@@ -66,12 +66,14 @@ class User(Base):
     password = Column(String(128))
     salt = Column(String(64))
     active = Column(DateTime, index=True)
+    created = Column(DateTime, index=True)
 
     def __init__(self, login, password, mail, salt):
         self.login = login
         self.password = password
         self.mail = mail
         self.salt = salt
+        self.created = datetime.datetime.now()
 
     @hybrid_property
     def gravatar_xsmall(self):
