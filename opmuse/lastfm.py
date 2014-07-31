@@ -368,9 +368,9 @@ class LastfmNetwork:
 
         return {
             'name': artist['name'],
-            'listeners': int(artist['stats']['listeners']),
+            'listeners': int(artist['stats']['listeners']) if artist['stats']['listeners'] != '' else 0,
             'mbid': artist['mbid'],
-            'playcount': int(artist['stats']['playcount']),
+            'playcount': int(artist['stats']['playcount']) if artist['stats']['playcount'] != '' else 0,
             'url': artist['url'],
             'bio': artist['bio']['summary'],
             'cover': cover

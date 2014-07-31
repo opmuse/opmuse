@@ -57,8 +57,7 @@
                             <a href='http://translate.google.com/#auto/en/{{ artist.name|urlencode }}'>
                                 Google Translate</a>.
                         </li>
-                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm and
-                            remotes_artist.lastfm.listeners %}
+                        {% if remotes_artist is defined and remotes_artist and remotes_artist.lastfm %}
                             <li class="list-group-item">
                                 <strong>{{ remotes_artist.lastfm.listeners|format_number }}</strong> Lastfm Listeners
                             </li>
