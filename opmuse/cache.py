@@ -20,13 +20,13 @@ import cherrypy
 import time
 import json
 import pickle
+import math
 from cherrypy.process.plugins import Monitor
 from sqlalchemy.orm import deferred
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Column, Integer, String, BLOB, BigInteger, func
 from sqlalchemy.dialects import mysql
-from sqlalchemy.orm.exc import NoResultFound
-from opmuse.database import Base, get_database, get_session
+from opmuse.database import Base, get_session
+from opmuse.sizeof import total_size
 
 
 def debug(msg):
@@ -177,26 +177,44 @@ class Cache:
 
 
 class CachePlugin(Monitor):
+    FREQUENCY = 20 * 60
+    """
+    How often we should serialize what's in memory
+    """
+
+    GC_SIZE = 256 * 1024 * 1024
+    """
+        How big the cache can get before we start removing old objects.
+    """
+
     GC_AGE = 3 * 30 * 24 * 3600
     """
-        How old an entry has to be considered stale and removed.
+        How old an entry has to be to be considered stale and removed.
+    """
+
+    GC_FREQUENCY = 24 * 60 * 60
+    """
+    How often we should gc. This is based on FREQUENCY so it will run at the same
+    time as the nearest FREQUENCY run.
     """
 
     def __init__(self, bus):
-        Monitor.__init__(self, bus, self.run, frequency = 20 * 60)
+        Monitor.__init__(self, bus, self.run, frequency = CachePlugin.FREQUENCY)
         self.index = 0
 
     def run(self):
         self.index += 1
 
-        if self.index % 72 == 0:
-            self._gc(CachePlugin.GC_AGE)
-            self.index = 0
-
+        # run serialize first because _gc() uses the database to determine
+        # what to delete from memory and database
         self._serialize()
 
+        if self.index % math.floor(CachePlugin.GC_FREQUENCY / CachePlugin.FREQUENCY) == 0:
+            self._gc()
+            self.index = 0
+
     def start(self):
-        self._gc(CachePlugin.GC_AGE)
+        self._gc()
         self._unserialize()
 
         Monitor.start(self)
@@ -210,24 +228,75 @@ class CachePlugin(Monitor):
 
     stop.priority = 105
 
-    def _gc(self, age):
+    def _gc(self):
         database = get_session()
+
+        total_bytes_before = self._total_bytes()
+
+        old_item_count = 0
 
         now = int(time.time())
 
-        updated_filter = "(%d - updated) > %d" % (now, age)
+        keys = []
 
-        item_count = database.query(func.count(CacheObject.id)).filter(updated_filter).scalar()
+        # remove old objects from memory
+        for key, in database.query(CacheObject.key).filter("(%d - updated) > %d" % (now, CachePlugin.GC_AGE)).all():
+            cache.delete(key)
+            keys.append(key)
+            old_item_count += 1
 
-        database.query(CacheObject).filter(updated_filter).delete(synchronize_session='fetch')
+        # remove old objects from database
+        database.query(CacheObject).filter(CacheObject.key.in_(keys)).delete(synchronize_session='fetch')
 
         database.commit()
+
+        debug('Garbage collected %d old cache objects because of age' % old_item_count)
+
+        big_item_count = 0
+
+        # remove the 10 oldest cache objects until total cache size is below limit
+        while True:
+            total_bytes = self._total_bytes()
+
+            if total_bytes > CachePlugin.GC_SIZE:
+                keys = []
+
+                # remove old oversized objects from memory
+                for key, in database.query(CacheObject.key).order_by(CacheObject.updated.asc()).limit(10).all():
+                    cache.delete(key)
+                    keys.append(key)
+                    big_item_count += 1
+
+                # remove old oversized objects from database
+                database.query(CacheObject).filter(CacheObject.key.in_(keys)).delete(synchronize_session='fetch')
+
+                database.commit()
+            else:
+                break
+
+        debug('Garbage collected %d old cache objects because of total cache size' % big_item_count)
+
         database.remove()
 
-        log("Garbage collected %d cache objects" % item_count)
+        log("Garbage collected %d cache objects, total cache size was %d kb and is now %d kb" %
+            (old_item_count + big_item_count, total_bytes_before / 1024, total_bytes / 1024))
+
+    def _total_bytes(self):
+        total_bytes = 0
+
+        for key, item in cache.storage.values():
+            bytes = total_size(item['value'])
+            total_bytes += bytes
+
+        return total_bytes
 
     def _serialize(self):
-        # TODO actually use "updated" var to see if we even need to serialize/persist the changes...
+        """
+        Serialize cache objects to database.
+
+        TODO actually use "updated" var to see if we even need to serialize/persist the changes...
+        TODO lock cache storage while serializing?
+        """
 
         database = get_session()
 
@@ -241,8 +310,6 @@ class CachePlugin(Monitor):
 
             count = (database.query(func.count(CacheObject.id))
                      .filter(CacheObject.key == key).scalar())
-
-            orig_value = value
 
             if isinstance(value, object):
                 value_type = 'object'
@@ -273,6 +340,10 @@ class CachePlugin(Monitor):
         log("Serialized %d cache objects" % item_count)
 
     def _unserialize(self):
+        """
+        Unserialize / load cache objects from database.
+        """
+
         database = get_session()
 
         item_count = 0
