@@ -222,10 +222,11 @@ class Search:
                 QueryParser("slug", write_handler.index.schema).parse(query),
             ]
 
-        results = (write_handler.index.searcher()
-                   .search(Or([term for term in terms if term is not None])))
-
-        return set([(int(result['id']), result.score) for result in results])
+        # TODO cache/reuse the searcher object within requests/threads, maybe with
+        #      a thread local storage
+        with write_handler.index.searcher() as searcher:
+            results = searcher.search(Or([term for term in terms if term is not None]))
+            return set([(int(result['id']), result.score) for result in results])
 
 
 class WhooshPlugin(Monitor):
