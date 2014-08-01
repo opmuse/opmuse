@@ -42,8 +42,8 @@ class Covers:
     DEFAULT_WIDTH = 325
     DEFAULT_HEIGHT = 325
     DEFAULT_GRAVITY = 'center'
-    LARGE_WIDTH = 650
-    LARGE_HEIGHT = 325
+    LARGE_WIDTH = 576
+    LARGE_HEIGHT = 288
     LARGE_GRAVITY = 'north'
 
     def _mktemp(self, suffix):

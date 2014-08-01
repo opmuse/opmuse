@@ -2,7 +2,7 @@
     {{ _album(album, width, height, "img-thumbnail", "cover-big", "default") }}
 {% endmacro %}
 
-{% macro album_large(album, width = 650, height = 325) %}
+{% macro album_large(album, width = 576, height = 288) %}
     {{ _album(album, width, height, "img-rounded", "cover-large", "large") }}
 {% endmacro %}
 
@@ -30,7 +30,7 @@
             </span>
 {% endmacro %}
 
-{% macro artist_large(artist, width = 650, height = 325) %}
+{% macro artist_large(artist, width = 576, height = 288) %}
     {{ _artist(artist, width, height, "img-rounded", "cover-large", "large") }}
 {% endmacro %}
 
