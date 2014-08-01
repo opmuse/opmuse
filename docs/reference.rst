@@ -10,7 +10,7 @@ Reference
    reference.opmuse.controllers.main
    reference.opmuse.controllers.queue
    reference.opmuse.controllers.settings
-   reference.opmuse.controllers.stream
+   reference.opmuse.controllers.play
    reference.opmuse.controllers.users
    reference.opmuse.bgtask
    reference.opmuse.boot
