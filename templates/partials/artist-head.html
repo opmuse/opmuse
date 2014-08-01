@@ -95,7 +95,7 @@
                             href="/cover/refresh/album/{{ album.slug|urlencode }}">
                             <i class="fa fa-refresh"></i> Update Album Cover
                         </a>
-                    {% elif artist %}
+                    {% elif artist is defined and artist %}
                         <a class="remove-cover btn btn-default btn-sm" data-ajaxify="false"
                             href="/cover/refresh/artist/{{ artist.slug|urlencode }}">
                             <i class="fa fa-refresh"></i> Update Artist Cover

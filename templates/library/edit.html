@@ -79,7 +79,7 @@
                         <input tabindex="{{ loop.index }}" autocomplete="off"
                             type="text" class="artist form-control" name="artists"
                             value="{{ track.artist.name|e if track.artist else '' }}"
-                            data-original-value="{{ track.artist.name|e }}" />
+                            data-original-value="{{ track.artist.name|e if track.artist else '' }}" />
                     </td>
                     <td>
                         <input tabindex="{{ loop.index + tracks|length }}" autocomplete="off"
