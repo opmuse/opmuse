@@ -447,7 +447,8 @@ class LibraryUpload:
 
         if len(paths) > 0:
             tracks, add_files_messages = library_dao.add_files(paths, move = True, remove_dirs = False,
-                                                               artist_name_fallback = artist_name_fallback)
+                                                               artist_name_fallback = artist_name_fallback,
+                                                               user = cherrypy.request.user)
             messages += add_files_messages
         else:
             tracks = []
@@ -455,8 +456,6 @@ class LibraryUpload:
         shutil.rmtree(tempdir)
 
         for track in tracks:
-            track.upload_user = cherrypy.request.user
-
             all_tracks.append(track.id)
 
             if track.album is not None:
@@ -746,7 +745,7 @@ class Library:
     @cherrypy.tools.jinja(filename='library/tracks.html')
     def tracks(self, sort = None, filter = None, page = None):
         if sort is None:
-            sort = "added"
+            sort = "created"
 
         if filter is None:
             filter = "none"
@@ -762,7 +761,9 @@ class Library:
 
         query = get_database().query(Track).filter(Track.scanned).group_by(Track.id)
 
-        if sort == "added":
+        if sort == "created":
+            query = query.order_by(Track.created.desc())
+        elif sort == "added":
             query = query.order_by(Track.added.desc())
         elif sort == "random":
             query = query.order_by(func.rand())
@@ -798,7 +799,7 @@ class Library:
     @cherrypy.tools.jinja(filename='library/artists.html')
     def artists(self, sort = None, filter = None, filter_value = None, page = None):
         if sort is None:
-            sort = "added"
+            sort = "created"
 
         if filter is None:
             filter = "none"
@@ -821,8 +822,10 @@ class Library:
                  .filter(Track.scanned)
                  .group_by(Artist.id))
 
-        if sort == "added":
-            query = query.order_by(func.max(Track.added).desc())
+        if sort == "created":
+            query = query.order_by(Artist.created.desc())
+        elif sort == "added":
+            query = query.order_by(Artist.added.desc())
         elif sort == "random":
             query = query.order_by(func.rand())
             page = None
@@ -885,7 +888,7 @@ class Library:
             view = "covers"
 
         if sort is None:
-            sort = "added"
+            sort = "created"
 
         if filter is None:
             filter = "none"
@@ -951,7 +954,9 @@ class Library:
         total = query.count()
         pages = math.ceil(total / page_size)
 
-        if sort == "added":
+        if sort == "created":
+            query = query.order_by(Album.created.desc())
+        elif sort == "added":
             query = query.order_by(Album.added.desc())
         elif sort == "seen":
             query = (query.outerjoin(UserAndAlbum, and_(Album.id == UserAndAlbum.album_id,

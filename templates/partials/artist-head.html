@@ -295,8 +295,8 @@
                         {% endif %}
                     {% endif %}
                 {% endif %}
-                <small>
-                    {% if track is defined and track %}
+                {% if track is defined and track %}
+                    <small>
                         track
                         {% if artists and artists|length > 0 %}
                             {{ print_artists(artists, true) }}
@@ -304,17 +304,15 @@
                         {% if album %}
                             on album <a href="{{ urls.album_url(album) }}">{{ album.name|show_ws }}</a>
                         {% endif %}
-                        - {{ track.duration|format_seconds }} long, added {{ track.added|pretty_date }}
-                    {% elif album is defined and album %}
+                    </small>
+                {% elif album is defined and album %}
+                    <small>
                         album
                         {% if artists and artists|length > 0 %}
                             {{ print_artists(artists, true) }}
                         {% endif %}
-                        - {{ album.tracks|length }} tracks, {{ album.duration|format_seconds }} long, added {{ album.added|pretty_date }}
-                    {% else %}
-                        artist - {{ artist.album_count }} albums, {{ artist.va_count }} VAs, added {{ artist.added|pretty_date }}
-                    {% endif %}
-                </small>
+                    </small>
+                {% endif %}
             </h2>
         </div>
     </div>

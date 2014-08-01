@@ -143,7 +143,7 @@ class Remotes:
             track_entity = get_database().query(Track).filter(Track.id == id).one()
         except NoResultFound:
             # track was probably removed, edited and therefor recreated. either
-            # way we just ignore it in either which case
+            # way we just ignore it
             return
 
         album_name = track_entity.album.name if track_entity.album is not None else None

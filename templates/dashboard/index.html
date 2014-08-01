@@ -135,13 +135,11 @@
                             </a>
                             <p>{{ album_macros.album_desc(new_album, true, false) }}</p>
                             <p>
-                                Uploaded by
                                 {% if new_album.upload_user %}
+                                    Uploaded by
                                     <a href="/users/{{ new_album.upload_user.login }}">
                                         {{ new_album.upload_user.login }}
                                     </a>
-                                {% else %}
-                                    Unkown
                                 {% endif %}
                             </p>
                             <div class="clear"></div>

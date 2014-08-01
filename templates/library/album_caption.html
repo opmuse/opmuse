@@ -13,13 +13,23 @@
         <dt>Duration</dt>
         <dd>{{ album.duration|format_seconds }}</dd>
     </dl>
+    {% if album.upload_user %}
+        <dl>
+            <dt>Upload by</dt>
+            <dd>
+                <a href="/users/{{ album.upload_user.login }}">
+                    {{ album.upload_user.login }}
+                </a>
+            </dd>
+        </dl>
+    {% endif %}
     <dl>
         <dt>Added</dt>
         <dd>{{ album.added|pretty_date }}</dd>
     </dl>
     <dl>
-        <dt>Format</dt>
-        <dd>{{ album.pretty_format }}</dd>
+        <dt>Created</dt>
+        <dd>{{ album.created|pretty_date }}</dd>
     </dl>
     {% if listened_track %}
         <dl>

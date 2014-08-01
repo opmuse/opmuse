@@ -30,6 +30,11 @@
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item">
+                            added {{ artist.added|pretty_date }},
+                            created {{ artist.created|pretty_date }}<br>
+                            {{ artist.album_count }} albums, {{ artist.va_count }} VAs
+                        </li>
+                        <li class="list-group-item">
                             Artist on
                             {% if remotes_artist is defined and remotes_artist and remotes_artist.musicbrainz and
                                 'official homepage' in remotes_artist.musicbrainz.urls and remotes_artist.musicbrainz.urls['official homepage'] %}
@@ -109,6 +114,15 @@
                 </div>
                 <ul class="list-group">
                     <li class="list-group-item">
+                        {% if album.upload_user %}
+                            uploaded by <a href="/users/{{ album.upload_user.login }}">{{ album.upload_user.login }}</a><br>
+                        {% endif %}
+                        added {{ album.added|pretty_date }},
+                        created {{ album.created|pretty_date }}<br>
+                        {{ album.tracks|length }} tracks,
+                        {{ album.duration|format_seconds }} long<br>
+                    </li>
+                    <li class="list-group-item">
                         Album on
                         {%- if remotes_album -%}
                             {% if remotes_album.lastfm and remotes_album.lastfm.url %}
@@ -153,6 +167,29 @@
                             {{ print_listened_tuples(album_listened_tuples) }}
                         </li>
                     {% endif %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+    {% if track is defined and track %}
+        <hr>
+        <div class="reloader remotes_track_nav_{{ track.id }}">
+            <div class="sidebar-nav panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <i class="fa fa-music"></i> |
+                        {{ track.name }}
+                    </h3>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        {% if track.upload_user %}
+                            uploaded by <a href="/users/{{ track.upload_user.login }}">{{ track.upload_user.login }}</a><br>
+                        {% endif %}
+                        added {{ track.added|pretty_date }},
+                        created {{ track.created|pretty_date }}<br>
+                        {{ track.duration|format_seconds }} long
+                    </li>
                 </ul>
             </div>
         </div>

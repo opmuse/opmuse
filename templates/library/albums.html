@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% set sort_labels = {
+    "created": "Created",
     "added": "Recently added",
     "seen": "Recently seen",
     "date": "Recent date/year",
@@ -31,6 +32,7 @@
 {% block right %}
 <div class="filters">
     <h4>Sort by</h4>
+    {{ filters.sort('asterisk', sort_labels['created'], 'created', filter, view, sort, filter_value) }}
     {{ filters.sort('asterisk', sort_labels['added'], 'added', filter, view, sort, filter_value) }}
     {{ filters.sort('plus', sort_labels['seen'], 'seen', filter, view, sort, filter_value) }}
     {{ filters.sort('calendar', sort_labels['date'], 'date', filter, view, sort, filter_value) }}

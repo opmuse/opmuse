@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% set sort_labels = {
+    "created": "Created",
     "added": "Recently added",
     "random": "Random",
 } %}
@@ -26,13 +27,14 @@
 {% block right %}
 <div class="filters">
     <h4>Sort by</h4>
+    {{ filters.sort('asterisk', sort_labels['created'], 'created', filter, None, sort, None) }}
     {{ filters.sort('asterisk', sort_labels['added'], 'added', filter, None, sort, None) }}
     {{ filters.sort('random', sort_labels['random'], 'random', filter, None, sort, None) }}
     <h4>Filter by</h4>
     {{ filters.filter('circle-o', filter_labels['none'], 'none', filter, None, sort, None) }}
     {{ filters.filter('exclamation-triangle', filter_labels['invalid'], 'invalid', filter, None, sort, None) }}
-    {{ filters.filter('music', filter_labels['woartist'], 'woartist', filter, None, sort, None) }}
-    {{ filters.filter('music', filter_labels['woalbum'], 'woalbum', filter, None, sort, None) }}
+    {{ filters.filter('microphone-slash', filter_labels['woartist'], 'woartist', filter, None, sort, None) }}
+    {{ filters.filter('volume-off', filter_labels['woalbum'], 'woalbum', filter, None, sort, None) }}
     {{ filters.filter('code-fork', filter_labels['duplicates'], 'duplicates', filter, None, sort, None) }}
 </div>
 {% endblock %}

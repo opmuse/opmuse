@@ -25,9 +25,11 @@ import math
 import shutil
 import time
 import random
+import logging
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from cherrypy.process.plugins import SimplePlugin
+from cherrypy.lib.lockfile import LockFile, LockError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
@@ -42,6 +44,7 @@ from unidecode import unidecode
 from opmuse.database import Base, get_session, get_database_type, get_database, database_data
 from opmuse.search import search
 from opmuse.utils import memoize
+from opmuse.security import User
 import mutagenx.mp3
 import mutagenx.oggvorbis
 import mutagenx.easymp4
@@ -58,6 +61,14 @@ __all__ = ['FileMetadata', 'library_dao', 'ApeParser', 'TrackStructureParser', '
            'LibraryProcess', 'reader', 'TagParser', 'Library', 'Id3Parser', 'WmaParser', 'Album', 'LibraryTool',
            'TagReader', 'PathParser', 'Mp4Parser', 'MutagenParser', 'MetadataStructureParser', 'TrackPath',
            'FlacParser', 'Track', 'LibraryPlugin']
+
+
+def debug(msg, traceback=False):
+    cherrypy.log.error(msg, context='transcoding', severity=logging.DEBUG, traceback=traceback)
+
+
+def log(msg, traceback=False):
+    cherrypy.log(msg, context='library', traceback=traceback)
 
 
 class StringNotNullType(TypeDecorator):
@@ -112,10 +123,6 @@ class StringBinaryType(TypeDecorator):
             return value.decode('utf8')
 
 
-def log(msg, traceback=False):
-    cherrypy.log(msg, context='library', traceback=traceback)
-
-
 class UserAndAlbum(Base):
     __tablename__ = 'users_and_albums'
     __table_args__ = ((Index('ix_users_and_albums_album_id_user_id', "album_id", "user_id", unique=True), ) +
@@ -168,6 +175,7 @@ class Track(Base):
     artist_id = Column(Integer, ForeignKey('artists.id'))
     hash = Column(BINARY(24), index=True, unique=True)
     added = Column(DateTime, index=True)
+    created = Column(DateTime, index=True)
     bitrate = Column(Integer)
     sample_rate = Column(Integer)
     mode = Column(String(16))
@@ -239,6 +247,8 @@ class Artist(Base):
 
     # aggregated value updated from _added
     added = Column(DateTime, index=True)
+    # aggregated value updated from _created
+    created = Column(DateTime, index=True)
 
     albums = relationship("Album", secondary='tracks',
                           order_by="Album.date.desc(), Album.name")
@@ -246,6 +256,9 @@ class Artist(Base):
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
     _added = column_property(select([func.max(Track.added)])
+                             .where(Track.artist_id == id).correlate_except(Track), deferred=True)
+
+    _created = column_property(select([func.max(Track.created)])
                              .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name):
@@ -291,6 +304,8 @@ class Album(Base):
 
     # aggregated value updated from _added
     added = Column(DateTime, index=True)
+    # aggregated value updated from _created
+    created = Column(DateTime, index=True)
 
     artists = relationship("Artist", secondary='tracks')
     tracks = relationship("Track", order_by="Track.disc, Track.number, Track.name")
@@ -318,6 +333,10 @@ class Album(Base):
 
     # used for updating added
     _added = column_property(select([func.max(Track.added)])
+                             .where(Track.album_id == id).correlate_except(Track), deferred=True)
+
+    # used for updating created
+    _created = column_property(select([func.max(Track.created)])
                              .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name, date, cover, cover_path, cover_hash):
@@ -1045,11 +1064,12 @@ class Library:
     SUPPORTED = [b"mp3", b"ogg", b"flac", b"wma", b"m4p", b"mp4", b"m4a",
                  b"ape", b"mpc", b"wav", b"mp2"]
 
-    def __init__(self, path):
+    def __init__(self, path, use_opmuse_txt):
         self.scanning = False
         self.running = None
         self.files_found = None
-        self._path = path
+        self.path = path
+        self.use_opmuse_txt = use_opmuse_txt
         self.threads = []
 
     @staticmethod
@@ -1084,7 +1104,7 @@ class Library:
 
         # always treat paths as bytes to avoid encoding issues we don't
         # care about
-        path = self._path.encode() if isinstance(self._path, str) else self._path
+        path = self.path.encode() if isinstance(self.path, str) else self.path
 
         path = os.path.abspath(path)
 
@@ -1137,7 +1157,7 @@ class Library:
             to_process.append(filename)
 
             if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                p = Thread(target=LibraryProcess, args = (self._path, to_process, None, no, None, self),
+                p = Thread(target=LibraryProcess, args = (self.path, self.use_opmuse_txt, to_process, None, no, None, self),
                            name="LibraryProcess_%d" % no)
                 p.start()
 
@@ -1201,10 +1221,115 @@ class Library:
         return os.path.splitext(filename)[1].lower()[1:] in Library.SUPPORTED
 
 
+class OpmuseTxt:
+    """
+    Class for processing opmuse.txt files.
+
+    Because the opmuse.txt files are stored in a track's folder there will most likely
+    be one opmuse.txt for several files. This of course depends on your fs structure
+    though. Right now there's no real "priority" to which track actually gets to write
+    its data to this file, or some other summarization or whatever, whatever file in
+    whatever thread to acquire the lock first will be the authority.
+    """
+
+    TRIES = 10
+    """
+    How many times to try to acquire a lock before giving up.
+    """
+
+    def __init__(self, filename):
+        self.filename = filename
+        self.opmuse_txt = os.path.join(os.path.dirname(self.filename), b'opmuse.txt')
+
+    def process(self, database, track):
+        """
+        Stores and retrieves "additional data" to and from opmuse.txt files.
+        """
+
+        for i in range(0, OpmuseTxt.TRIES):
+            try:
+                lock = LockFile(self.opmuse_txt + b'.lock')
+
+                # if there's a opmuse.txt file use its data for this track
+                if os.path.exists(self.opmuse_txt):
+                    data = self.unserialize()
+                    self.put_track(database, data, track)
+                # if there's no opmuse.txt file write this tracks data to it
+                else:
+                    data = {}
+                    self.put_data(database, track, data)
+                    self.serialize(data)
+
+                # in the future we might want to store data in opmuse.txt that will
+                # change after first creation. then we'll have to add code here ^^
+
+                lock.release()
+                lock.remove()
+            except LockError:
+                if i == OpmuseTxt.TRIES - 1:
+                    log("Failed to acquire lock for %s, giving up." % self.opmuse_txt, traceback=True)
+                    break
+
+                time.sleep(.1)
+    def put_track(self, database, data, track):
+        """
+        Gets data from opmuse.txt and sets it on the track entity.
+        """
+
+        if 'created' in data:
+            try:
+                track.created = datetime.datetime.strptime(data['created'][0:19], "%Y-%m-%dT%H:%M:%S")
+            except ValueError:
+                log('Error occured while reading created from %s, ignoring.' % self.opmuse_txt, traceback=True)
+
+        if 'upload_user' in data:
+            try:
+                track.upload_user = database.query(User).filter(User.login == data['upload_user']).one()
+            except NoResultFound:
+                log('Error occured while reading upload_user from %s, ignoring.' % self.opmuse_txt, traceback=True)
+
+    def put_data(self, database, track, data):
+        """
+        Takes data from the track entity and sets it in opmuse.txt
+        """
+
+        if 'created' not in data:
+            data['created'] = track.added
+
+        if 'upload_user' not in data and track.upload_user is not None:
+            data['upload_user'] = track.upload_user.login
+
+    def unserialize(self):
+        data = {}
+
+        with open(self.opmuse_txt, "r") as f:
+            for line in f:
+                if line[0] == '#':
+                    continue
+
+                key, value = line.split(':', 1)
+
+                data[key.strip()] = value.strip()
+
+        return data
+
+    def serialize(self, data):
+        with open(self.opmuse_txt, "w") as f:
+            f.write('# opmuse file, used to store additional data. don\'t edit directly.\n')
+
+            for key, value in data.items():
+                if isinstance(value, datetime.datetime):
+                    value = value.isoformat()
+
+                f.write('%s: %s\n' % (key, value))
+
+
 class LibraryProcess:
-    def __init__(self, path, queue, database = None, no = -1, tracks = None, library = None):
-        self._path = path
+    def __init__(self, path, use_opmuse_txt, queue, database = None, no = -1, tracks = None, library = None, user = None):
+        self.path = path
         self.no = no
+        self.user = user
+        self.use_opmuse_txt = use_opmuse_txt
 
         queue_len = len(queue)
 
@@ -1250,6 +1375,7 @@ class LibraryProcess:
                         try:
                             # update aggregated artist.added value based on artist._added
                             artist.added = artist._added
+                            artist.created = artist._created
 
                             self._database.commit()
                             break
@@ -1269,6 +1395,7 @@ class LibraryProcess:
                         try:
                             # update aggregated album.added value based on album._added
                             album.added = album._added
+                            album.created = album._created
 
                             self._database.commit()
                             break
@@ -1329,7 +1456,7 @@ class LibraryProcess:
 
                 return track
 
-        metadata = reader.parse(filename, None, self._path)
+        metadata = reader.parse(filename, None, self.path)
 
         artist = None
         album = None
@@ -1428,6 +1555,7 @@ class LibraryProcess:
         track.number = LibraryProcess.fix_track_number(metadata.track_number)
         track.format = format
         track.added = metadata.added
+        track.created = metadata.added
         track.bitrate = metadata.bitrate
         track.sample_rate = metadata.sample_rate
         track.mode = metadata.mode
@@ -1475,7 +1603,13 @@ class LibraryProcess:
 
         self._database.add(track_path)
 
+        track.upload_user = self.user
+
         track.scanned = True
+
+        if self.use_opmuse_txt:
+            opmuse_txt = OpmuseTxt(filename)
+            opmuse_txt.process(self._database, track)
 
         self._database.commit()
 
@@ -1719,6 +1853,14 @@ class LibraryDao:
 
         return [result[0] for result in results]
 
+    def get_library_opmuse_txt(self):
+        config = cherrypy.request.app.config['opmuse']
+
+        if 'library.opmuse_txt' in config:
+            return config['library.opmuse_txt']
+        else:
+            return True
+
     def get_library_path(self):
         library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
 
@@ -1847,7 +1989,14 @@ class LibraryDao:
                 .order_by(Track.name).all())
 
     def add_files(self, filenames, move = False, remove_dirs = True,
-                  artist_name_override = None, artist_name_fallback = None):
+                  artist_name_override = None, artist_name_fallback = None, user = None):
+        """
+        Processes files and adds them as tracks with artists albums etc.
+
+        user
+            The user that added these tracks, will be used for upload_user.
+        """
+
         paths = []
         messages = []
         old_dirs = set()
@@ -1887,8 +2036,8 @@ class LibraryDao:
                         os.makedirs(dirname)
                     except OSError as e:
                         if e.errno == 17:  # "File exists"
-                            # if another thread in a paralell upload scenario already
-                            # created it, we just ignore this error
+                            # if another thread (like in a parallel upload type scenario)
+                            # already created it, we just ignore this error
                             pass
                         else:
                             raise e
@@ -1916,7 +2065,7 @@ class LibraryDao:
 
         tracks = []
 
-        LibraryProcess(self.get_library_path(), paths, get_database(), 0, tracks)
+        LibraryProcess(self.get_library_path(), self.get_library_opmuse_txt(), paths, get_database(), 0, tracks, user = user)
 
         # move non-track files with folder if there's no tracks left in folder
         # i.e. album covers and such
@@ -2239,14 +2388,19 @@ class LibraryPlugin(SimplePlugin):
     def start(self):
         config = cherrypy.tree.apps[''].config['opmuse']
 
-        def run(self, library_path):
-            self.library = Library(library_path)
+        if 'library.opmuse_txt' in config:
+            use_opmuse_txt = config['library.opmuse_txt']
+        else:
+            use_opmuse_txt = True
+
+        def run(self, library_path, use_opmuse_txt):
+            self.library = Library(library_path, use_opmuse_txt)
             self.library.start()
 
         self.thread = Thread(
             name="Library",
             target=run,
-            args=(self, os.path.abspath(config['library.path']))
+            args=(self, os.path.abspath(config['library.path']), use_opmuse_txt)
         )
 
         self.thread.start()

@@ -188,6 +188,18 @@
                 {% endif %}
             </td>
         </tr>
+        <tr>
+            <th>Created</th>
+            <td>
+                {{ track.created }}
+            </td>
+        </tr>
+        <tr>
+            <th>Added</th>
+            <td>
+                {{ track.added }}
+            </td>
+        </tr>
     </table>
     {% if track.has_dups %}
         <p class="alert alert-warning">
