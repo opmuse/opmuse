@@ -10,8 +10,8 @@
 {% endblock %}
 
 {% set sort_labels = {
-    "created": "Created",
-    "added": "Recently added",
+    "created": "Recently Created",
+    "updated": "Recently Updated",
     "random": "Random",
 } %}
 
@@ -26,7 +26,7 @@
 <div class="filters">
     <h4>Sort by</h4>
     {{ filters.sort('asterisk', sort_labels['created'], 'created', filter, None, sort, filter_value) }}
-    {{ filters.sort('asterisk', sort_labels['added'], 'added', filter, None, sort, filter_value) }}
+    {{ filters.sort('asterisk', sort_labels['updated'], 'updated', filter, None, sort, filter_value) }}
     {{ filters.sort('random', sort_labels['random'], 'random', filter, None, sort, filter_value) }}
     <h4>Filter by</h4>
     {{ filters.filter('circle-o', filter_labels['none'], 'none', filter, None, sort, filter_value) }}

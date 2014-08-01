@@ -30,7 +30,7 @@
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item">
-                            added {{ artist.added|pretty_date }},
+                            updated {{ artist.updated|pretty_date }},
                             created {{ artist.created|pretty_date }}<br>
                             {{ artist.album_count }} albums, {{ artist.va_count }} VAs
                         </li>
@@ -117,7 +117,7 @@
                         {% if album.upload_user %}
                             uploaded by <a href="/users/{{ album.upload_user.login }}">{{ album.upload_user.login }}</a><br>
                         {% endif %}
-                        added {{ album.added|pretty_date }},
+                        updated {{ album.updated|pretty_date }},
                         created {{ album.created|pretty_date }}<br>
                         {{ album.tracks|length }} tracks,
                         {{ album.duration|format_seconds }} long<br>
@@ -186,7 +186,7 @@
                         {% if track.upload_user %}
                             uploaded by <a href="/users/{{ track.upload_user.login }}">{{ track.upload_user.login }}</a><br>
                         {% endif %}
-                        added {{ track.added|pretty_date }},
+                        updated {{ track.updated|pretty_date }},
                         created {{ track.created|pretty_date }}<br>
                         {{ track.duration|format_seconds }} long
                     </li>

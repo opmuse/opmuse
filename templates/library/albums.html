@@ -13,8 +13,8 @@
 {% endblock %}
 
 {% set sort_labels = {
-    "created": "Created",
-    "added": "Recently added",
+    "created": "Recently Created",
+    "updated": "Recently Updated",
     "seen": "Recently seen",
     "date": "Recent date/year",
     "random": "Random"
@@ -22,7 +22,7 @@
 
 {% set filter_labels = {
     "none": "Nothing",
-    "1year": "Added within 1 year",
+    "1year": "Updated within 1 year",
     "yours": "Your Lastfm albums",
     "va": "Multiple artists (VA)",
     "invalid": "Invalid",
@@ -33,7 +33,7 @@
 <div class="filters">
     <h4>Sort by</h4>
     {{ filters.sort('asterisk', sort_labels['created'], 'created', filter, view, sort, filter_value) }}
-    {{ filters.sort('asterisk', sort_labels['added'], 'added', filter, view, sort, filter_value) }}
+    {{ filters.sort('asterisk', sort_labels['updated'], 'updated', filter, view, sort, filter_value) }}
     {{ filters.sort('plus', sort_labels['seen'], 'seen', filter, view, sort, filter_value) }}
     {{ filters.sort('calendar', sort_labels['date'], 'date', filter, view, sort, filter_value) }}
     {{ filters.sort('random', sort_labels['random'], 'random', filter, view, sort, filter_value) }}
@@ -80,7 +80,7 @@
                         <th>Date</th>
                         <th>Tracks</th>
                         <th>Duration</th>
-                        <th>Added</th>
+                        <th>Updated</th>
                     </tr>
                     {% for album in albums %}
                         {% set album_url = urls.album_url(album, artist) %}
@@ -112,8 +112,8 @@
                             <td>
                                 {{ album.duration|format_seconds }}
                             </td>
-                            <td class="added">
-                                {{ album.added|pretty_date }}
+                            <td class="updated">
+                                {{ album.updated|pretty_date }}
                             </td>
                         </tr>
                     {% endfor %}

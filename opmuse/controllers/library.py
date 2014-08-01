@@ -956,17 +956,17 @@ class Library:
 
         if sort == "created":
             query = query.order_by(Album.created.desc())
-        elif sort == "added":
-            query = query.order_by(Album.added.desc())
+        elif sort == "updated":
+            query = query.order_by(Album.updated.desc())
         elif sort == "seen":
             query = (query.outerjoin(UserAndAlbum, and_(Album.id == UserAndAlbum.album_id,
                                      UserAndAlbum.user_id == cherrypy.request.user.id))
                      .order_by(UserAndAlbum.seen.desc())
-                     .order_by(Album.added.desc()))
+                     .order_by(Album.updated.desc()))
         elif sort == "date":
             query = (query
                      .order_by(Album.date.desc())
-                     .order_by(Album.added.desc()))
+                     .order_by(Album.updated.desc()))
         elif sort == "random":
             query = query.order_by(func.rand())
             page = None

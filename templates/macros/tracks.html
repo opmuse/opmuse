@@ -62,7 +62,7 @@
                 <th>Artist</th>
             {% endif %}
             <th>Duration</th>
-            <th>Added</th>
+            <th>Updated</th>
         </tr>
         {% for track in tracks %}
             <tr>
@@ -105,7 +105,7 @@
                     {{ track.duration|format_seconds }}
                 </td>
                 <td>
-                    {{ track.added|pretty_date }}
+                    {{ track.updated|pretty_date }}
                 </td>
             </tr>
         {% endfor %}

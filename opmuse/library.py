@@ -174,7 +174,7 @@ class Track(Base):
     album_id = Column(Integer, ForeignKey('albums.id'))
     artist_id = Column(Integer, ForeignKey('artists.id'))
     hash = Column(BINARY(24), index=True, unique=True)
-    added = Column(DateTime, index=True)
+    updated = Column(DateTime, index=True)
     created = Column(DateTime, index=True)
     bitrate = Column(Integer)
     sample_rate = Column(Integer)
@@ -245,8 +245,8 @@ class Artist(Base):
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
-    # aggregated value updated from _added
-    added = Column(DateTime, index=True)
+    # aggregated value updated from _updated
+    updated = Column(DateTime, index=True)
     # aggregated value updated from _created
     created = Column(DateTime, index=True)
 
@@ -255,7 +255,7 @@ class Artist(Base):
     tracks = relationship("Track", order_by="Track.name")
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
-    _added = column_property(select([func.max(Track.added)])
+    _updated = column_property(select([func.max(Track.updated)])
                              .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
     _created = column_property(select([func.max(Track.created)])
@@ -302,8 +302,8 @@ class Album(Base):
     cover_path = Column(BLOB)
     cover_hash = Column(BINARY(24))
 
-    # aggregated value updated from _added
-    added = Column(DateTime, index=True)
+    # aggregated value updated from _updated
+    updated = Column(DateTime, index=True)
     # aggregated value updated from _created
     created = Column(DateTime, index=True)
 
@@ -331,8 +331,8 @@ class Album(Base):
     duration = column_property(select([func.sum(Track.duration)])
                                .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
-    # used for updating added
-    _added = column_property(select([func.max(Track.added)])
+    # used for updating updated
+    _updated = column_property(select([func.max(Track.updated)])
                              .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     # used for updating created
@@ -493,7 +493,7 @@ class FileMetadata:
         self.track_name = args[2]
         self.track_duration = args[3]
         self.track_number = args[4]
-        self.added = args[5]
+        self.updated = args[5]
         self.date = args[6]
         self.bitrate = args[7]
         self.invalid = args[8]
@@ -738,7 +738,7 @@ class PathParser(TagParser):
             artist = path_comp[1]
 
         stat = os.stat(bfilename)
-        added = datetime.datetime.fromtimestamp(stat.st_mtime)
+        updated = datetime.datetime.fromtimestamp(stat.st_mtime)
         size = stat.st_size
 
         number = None
@@ -823,7 +823,7 @@ class PathParser(TagParser):
                 if not structure_parser.is_valid():
                     invalid = ['dir']
 
-        return FileMetadata(artist, album, track_name, None, number, added, None, None,
+        return FileMetadata(artist, album, track_name, None, number, updated, None, None,
                             invalid, None, album_cover_path, artist_cover_path, disc, size,
                             None, None, None)
 
@@ -1294,7 +1294,7 @@ class OpmuseTxt:
         """
 
         if 'created' not in data:
-            data['created'] = track.added
+            data['created'] = track.updated
 
         if 'upload_user' not in data and track.upload_user is not None:
             data['upload_user'] = track.upload_user.login
@@ -1373,8 +1373,8 @@ class LibraryProcess:
                     # try 10 times when we get a deadlock and then give up
                     for i in range(0, tries):
                         try:
-                            # update aggregated artist.added value based on artist._added
-                            artist.added = artist._added
+                            # update aggregated artist.updated value based on artist._updated
+                            artist.updated = artist._updated
                             artist.created = artist._created
 
                             self._database.commit()
@@ -1393,8 +1393,8 @@ class LibraryProcess:
                     # try 10 times when we get a deadlock and then give up
                     for i in range(0, tries):
                         try:
-                            # update aggregated album.added value based on album._added
-                            album.added = album._added
+                            # update aggregated album.updated value based on album._updated
+                            album.updated = album._updated
                             album.created = album._created
 
                             self._database.commit()
@@ -1554,8 +1554,8 @@ class LibraryProcess:
         track.duration = metadata.track_duration
         track.number = LibraryProcess.fix_track_number(metadata.track_number)
         track.format = format
-        track.added = metadata.added
-        track.created = metadata.added
+        track.updated = metadata.updated
+        track.created = metadata.updated
         track.bitrate = metadata.bitrate
         track.sample_rate = metadata.sample_rate
         track.mode = metadata.mode
