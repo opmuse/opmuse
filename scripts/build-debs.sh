@@ -80,7 +80,7 @@ build_git cherrypy 3.5.0 https://github.com/cherrypy/cherrypy.git
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
-    scripts/debian-after-install.sh python3.3,ffmpeg,imagemagick,unrar,mysql-server,debconf,dbconfig-common \
+    scripts/debian-after-install.sh python3.4,ffmpeg,imagemagick,unrar,mysql-server,debconf,dbconfig-common \
     /etc/opmuse/opmuse.ini scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf \
     scripts/debian-templates scripts/debian-before-remove scripts/debian-after-remove --no-prefix
 

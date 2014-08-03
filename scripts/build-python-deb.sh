@@ -38,8 +38,8 @@ fi
 args=(
     --python-package-name-prefix python3
     --python-install-bin /usr/bin
-    --python-install-lib /usr/lib/python3.3/dist-packages/
-    --python-bin /usr/bin/python3.3
+    --python-install-lib /usr/lib/python3/dist-packages/
+    --python-bin /usr/bin/python3.4
     --python-pip /usr/bin/pip3
 )
 

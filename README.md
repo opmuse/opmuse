@@ -28,9 +28,9 @@ at *Developing* for some help with that. Also note that we only support MySQL in
 the package right now. If you want SQLite support you'll also have to look at
 *Developing*.
 
-We've only tested this with **Debian Jessie** and **Ubuntu Saucy**. Other Debian
-based distros should work as long as they have all the required dependencies
-that arent provided in our apt repo.
+We've only tested this with **Debian Jessie**. Other Debian based distros should
+work as long as they have all the required dependencies that arent provided in
+our apt repo.
 
 ### Add repo
 

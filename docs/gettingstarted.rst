@@ -4,7 +4,7 @@ Getting Started
 Requirements
 ------------
 
-You need **python 3.3**, **ffmpeg**, **ImageMagick**, **nodejs** (for less.js)
+You need **python 3.4**, **ffmpeg**, **ImageMagick**, **nodejs** (for less.js)
 and a Linux environment. This has only been tested on Debian and Exherbo but
 most other Linux distros should do as well as other similar \*nix OSes. If
 you're on Windows you're on your own.
@@ -42,7 +42,7 @@ If you want some additional dev tools (firepy, repoze.profile).
 .. code-block:: console
 
     $ source virtualenv/bin/activate
-    $ pip install -r dev-requirements.txt
+    $ pip install -r dev-requirements.txt --allow-external firepy --allow-unverified firepy
     $ ./console cherrypy -- -f # start with firepy (use with cherrypy.request.firepy())
     $ ./console cherrypy -- -p # start with repoze.profile (access it at /__profile__)
 
