@@ -1812,16 +1812,21 @@ class LibraryDao:
         database.delete(track)
         database.commit()
 
-        database.expire(album)
-        database.expire(artist)
-
         search.delete_track(track)
 
-        if album is not None and len(album.tracks) == 0:
-            self.delete_album(album, database)
+        # remove album if there is one and there are no tracks left on it
+        if album is not None:
+            # we need to expire manually or album.tracks will return the old value
+            database.expire(album, ['tracks'])
 
-        if artist is not None and len(artist.albums) == 0:
-            self.delete_artist(artist, database)
+            if len(album.tracks) == 0:
+                self.delete_album(album, database)
+
+        if artist is not None:
+            database.expire(artist, ['tracks'])
+
+            if len(artist.albums) == 0:
+                self.delete_artist(artist, database)
 
     def delete_album(self, album, database = None):
         if database is None:
@@ -1896,14 +1901,14 @@ class LibraryDao:
         filenames = []
         messages = []
 
-        for track in tracks:
-            id = track['id']
-            artist_name = track['artist']
-            album_name = track['album']
-            track_name = track['track']
-            date = track['date']
-            number = track['number']
-            disc = track['disc']
+        for _track in tracks:
+            id = _track['id']
+            artist_name = _track['artist']
+            album_name = _track['album']
+            track_name = _track['track']
+            date = _track['date']
+            number = _track['number']
+            disc = _track['disc']
 
             try:
                 track = get_database().query(Track).filter_by(id=id).one()
