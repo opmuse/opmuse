@@ -162,7 +162,6 @@ try:
         for key, value in FirePHP.generate_headers(cherrypy.request._firepy_logs):
             cherrypy.response.headers[key] = value
 
-
     def multi_headers():
         if hasattr(cherrypy.response, 'multiheaders'):
             headers = []
