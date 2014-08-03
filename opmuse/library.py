@@ -2071,6 +2071,12 @@ class LibraryDao:
 
                     cherrypy.engine.library_watchdog.add_ignores([filename, path])
 
+                    opmuse_txt = os.path.join(dirname, b'opmuse.txt')
+                    old_opmuse_txt = os.path.join(old_dirname, b'opmuse.txt')
+
+                    if os.path.exists(old_opmuse_txt) and not os.path.exists(opmuse_txt):
+                        shutil.copy(old_opmuse_txt, opmuse_txt)
+
                     shutil.move(filename, path)
 
                     old_dirs.add(old_dirname)
@@ -2117,7 +2123,16 @@ class LibraryDao:
             if not os.path.exists(dir):
                 continue
 
-            if len(os.listdir(dir)) == 0:
+            files = os.listdir(dir)
+
+            # remove empty dirs or dirs only containing a opmuse.txt, as
+            # they are worthless on their own
+            if len(files) == 0 or len(files) == 1 and b'opmuse.txt' in files:
+                opmuse_txt = os.path.join(dir, b'opmuse.txt')
+
+                if os.path.exists(opmuse_txt):
+                    os.remove(opmuse_txt)
+
                 os.rmdir(dir)
                 new_dirs.add(os.path.dirname(dir))
 
