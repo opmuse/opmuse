@@ -16,7 +16,6 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import cherrypy
 import json
 import sys
 import threading
@@ -53,6 +52,7 @@ def get_staticdir():
 
 
 try:
+    import cherrypy
     from cherrypy.process.plugins import Monitor
     from opmuse.less_compiler import less_compiler
 
@@ -101,126 +101,126 @@ try:
                             less_compiler.compile()
 
                     self._files[filepath] = mtime
+
+
+    class HTTPRedirect(cherrypy.HTTPRedirect):
+        def set_response(self):
+            if cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                response = cherrypy.serving.response
+                response.headers['X-Opmuse-Location'] = json.dumps(self.urls)
+            else:
+                cherrypy.HTTPRedirect.set_response(self)
+
+
+    # http://tools.cherrypy.org/wiki/CGITB
+    def cgitb_log_err():
+        import cgitb
+
+        tb = cgitb.text(sys.exc_info())
+
+        def set_tb():
+            cherrypy.log(tb)
+
+        cherrypy.request.hooks.attach('after_error_response', set_tb)
+
+
+    def profile_pipeline(app):
+        from repoze.profile import ProfileMiddleware
+
+        cache_path = cherrypy.config['opmuse'].get('cache.path')
+        profile_path = os.path.join(cache_path, 'profile')
+
+        if not os.path.exists(profile_path):
+            os.mkdir(profile_path)
+
+        return ProfileMiddleware(
+            app,
+            log_filename=os.path.join(profile_path, 'profile.log'),
+            # cachegrind_filename is broken in python 3 :(
+            cachegrind_filename=None,
+            discard_first_request=True,
+            flush_at_shutdown=True,
+            path='/__profile__',
+            unwind=False,
+        )
+
+
+    def firepy(message):
+        cherrypy.request._firepy_logs.append([{"Type": 'LOG'}, message])
+
+
+    def firepy_start():
+        cherrypy.request._firepy_logs = []
+        cherrypy.request.firepy = firepy
+
+
+    def firepy_end():
+        if not hasattr(cherrypy.request, '_firepy_logs'):
+            return
+
+        from firepy.firephp import FirePHP
+
+        headers = FirePHP.base_headers()
+
+        for key, value in headers:
+            cherrypy.response.headers[key] = value
+
+        for key, value in FirePHP.generate_headers(cherrypy.request._firepy_logs):
+            cherrypy.response.headers[key] = value
+
+
+    def multi_headers():
+        if hasattr(cherrypy.response, 'multiheaders'):
+            headers = []
+            for header in cherrypy.response.multiheaders:
+                new_header = tuple()
+                for val in header:
+                    if isinstance(val, str):
+                        val = val.encode()
+                    new_header += (val, )
+                headers.append(new_header)
+            cherrypy.response.header_list.extend(headers)
+
+
+    def memoize(func):
+        """
+            memoize decorator which memoizes on current request.
+        """
+        def wrapper(self, *args, **kwargs):
+            # if stage is None we're running in a bgtask or something outside
+            # a regular request so we just pass it along...
+            #
+            # TODO for bgtasks we could implement something similar to this using
+            #      threading.local()...
+            if cherrypy.request.stage is None:
+                return func(self, *args, **kwargs)
+
+            if not hasattr(cherrypy.request, 'memoize'):
+                cherrypy.request.memoize = {}
+
+            if len(kwargs) > 0:
+                # to avoid different call signatures creating different keys, e.g. func(1)
+                # and func(arg=1) might be the same call but will have different signatures.
+                # also, dicts aren't hashable.
+                raise Exception('memoize doesn\'t support keywords args.')
+
+            key = (func, args)
+
+            if key not in cherrypy.request.memoize:
+                cherrypy.request.memoize[key] = func(self, *args)
+
+            return cherrypy.request.memoize[key]
+
+        return wrapper
+
+
+    firepy_tool = cherrypy.Tool('on_start_resource', firepy)
+    firepy_start_tool = cherrypy.Tool('on_start_resource', firepy_start)
+    firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end, priority=100)
+
+    multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
+    cgitb_log_err_tool = cherrypy.Tool('before_error_response', cgitb_log_err)
 except ImportError:
     # ignore ImportError, because this module is used in opmuse.less_compiler
     # which is used when bulding we dont need/want depend on this
     pass
-
-
-class HTTPRedirect(cherrypy.HTTPRedirect):
-    def set_response(self):
-        if cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            response = cherrypy.serving.response
-            response.headers['X-Opmuse-Location'] = json.dumps(self.urls)
-        else:
-            cherrypy.HTTPRedirect.set_response(self)
-
-
-# http://tools.cherrypy.org/wiki/CGITB
-def cgitb_log_err():
-    import cgitb
-
-    tb = cgitb.text(sys.exc_info())
-
-    def set_tb():
-        cherrypy.log(tb)
-
-    cherrypy.request.hooks.attach('after_error_response', set_tb)
-
-
-def profile_pipeline(app):
-    from repoze.profile import ProfileMiddleware
-
-    cache_path = cherrypy.config['opmuse'].get('cache.path')
-    profile_path = os.path.join(cache_path, 'profile')
-
-    if not os.path.exists(profile_path):
-        os.mkdir(profile_path)
-
-    return ProfileMiddleware(
-        app,
-        log_filename=os.path.join(profile_path, 'profile.log'),
-        # cachegrind_filename is broken in python 3 :(
-        cachegrind_filename=None,
-        discard_first_request=True,
-        flush_at_shutdown=True,
-        path='/__profile__',
-        unwind=False,
-    )
-
-
-def firepy(message):
-    cherrypy.request._firepy_logs.append([{"Type": 'LOG'}, message])
-
-
-def firepy_start():
-    cherrypy.request._firepy_logs = []
-    cherrypy.request.firepy = firepy
-
-
-def firepy_end():
-    if not hasattr(cherrypy.request, '_firepy_logs'):
-        return
-
-    from firepy.firephp import FirePHP
-
-    headers = FirePHP.base_headers()
-
-    for key, value in headers:
-        cherrypy.response.headers[key] = value
-
-    for key, value in FirePHP.generate_headers(cherrypy.request._firepy_logs):
-        cherrypy.response.headers[key] = value
-
-
-def multi_headers():
-    if hasattr(cherrypy.response, 'multiheaders'):
-        headers = []
-        for header in cherrypy.response.multiheaders:
-            new_header = tuple()
-            for val in header:
-                if isinstance(val, str):
-                    val = val.encode()
-                new_header += (val, )
-            headers.append(new_header)
-        cherrypy.response.header_list.extend(headers)
-
-
-def memoize(func):
-    """
-        memoize decorator which memoizes on current request.
-    """
-    def wrapper(self, *args, **kwargs):
-        # if stage is None we're running in a bgtask or something outside
-        # a regular request so we just pass it along...
-        #
-        # TODO for bgtasks we could implement something similar to this using
-        #      threading.local()...
-        if cherrypy.request.stage is None:
-            return func(self, *args, **kwargs)
-
-        if not hasattr(cherrypy.request, 'memoize'):
-            cherrypy.request.memoize = {}
-
-        if len(kwargs) > 0:
-            # to avoid different call signatures creating different keys, e.g. func(1)
-            # and func(arg=1) might be the same call but will have different signatures.
-            # also, dicts aren't hashable.
-            raise Exception('memoize doesn\'t support keywords args.')
-
-        key = (func, args)
-
-        if key not in cherrypy.request.memoize:
-            cherrypy.request.memoize[key] = func(self, *args)
-
-        return cherrypy.request.memoize[key]
-
-    return wrapper
-
-
-firepy_tool = cherrypy.Tool('on_start_resource', firepy)
-firepy_start_tool = cherrypy.Tool('on_start_resource', firepy_start)
-firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end, priority=100)
-
-multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
-cgitb_log_err_tool = cherrypy.Tool('before_error_response', cgitb_log_err)
