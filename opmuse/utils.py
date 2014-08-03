@@ -102,7 +102,6 @@ try:
 
                     self._files[filepath] = mtime
 
-
     class HTTPRedirect(cherrypy.HTTPRedirect):
         def set_response(self):
             if cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -110,7 +109,6 @@ try:
                 response.headers['X-Opmuse-Location'] = json.dumps(self.urls)
             else:
                 cherrypy.HTTPRedirect.set_response(self)
-
 
     # http://tools.cherrypy.org/wiki/CGITB
     def cgitb_log_err():
@@ -122,7 +120,6 @@ try:
             cherrypy.log(tb)
 
         cherrypy.request.hooks.attach('after_error_response', set_tb)
-
 
     def profile_pipeline(app):
         from repoze.profile import ProfileMiddleware
@@ -144,15 +141,12 @@ try:
             unwind=False,
         )
 
-
     def firepy(message):
         cherrypy.request._firepy_logs.append([{"Type": 'LOG'}, message])
-
 
     def firepy_start():
         cherrypy.request._firepy_logs = []
         cherrypy.request.firepy = firepy
-
 
     def firepy_end():
         if not hasattr(cherrypy.request, '_firepy_logs'):
@@ -180,7 +174,6 @@ try:
                     new_header += (val, )
                 headers.append(new_header)
             cherrypy.response.header_list.extend(headers)
-
 
     def memoize(func):
         """
@@ -212,7 +205,6 @@ try:
             return cherrypy.request.memoize[key]
 
         return wrapper
-
 
     firepy_tool = cherrypy.Tool('on_start_resource', firepy)
     firepy_start_tool = cherrypy.Tool('on_start_resource', firepy_start)
