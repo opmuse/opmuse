@@ -179,9 +179,9 @@
         <tr>
             <th>Uploaded by</th>
             <td>
-                {% if track.upload_user %}
-                    <a href="/users/user/{{ track.upload_user.login }}">
-                        {{ track.upload_user.login }}
+                {% if track.created_user %}
+                    <a href="/users/user/{{ track.created_user.login }}">
+                        {{ track.created_user.login }}
                     </a>
                 {% else %}
                     N/A

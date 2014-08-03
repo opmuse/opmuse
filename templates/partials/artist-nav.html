@@ -114,8 +114,8 @@
                 </div>
                 <ul class="list-group">
                     <li class="list-group-item">
-                        {% if album.upload_user %}
-                            uploaded by <a href="/users/{{ album.upload_user.login }}">{{ album.upload_user.login }}</a><br>
+                        {% if album.created_user %}
+                            uploaded by <a href="/users/{{ album.created_user.login }}">{{ album.created_user.login }}</a><br>
                         {% endif %}
                         updated {{ album.updated|pretty_date }},
                         created {{ album.created|pretty_date }}<br>
@@ -183,8 +183,8 @@
                 </div>
                 <ul class="list-group">
                     <li class="list-group-item">
-                        {% if track.upload_user %}
-                            uploaded by <a href="/users/{{ track.upload_user.login }}">{{ track.upload_user.login }}</a><br>
+                        {% if track.created_user %}
+                            uploaded by <a href="/users/{{ track.created_user.login }}">{{ track.created_user.login }}</a><br>
                         {% endif %}
                         updated {{ track.updated|pretty_date }},
                         created {{ track.created|pretty_date }}<br>

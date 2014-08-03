@@ -185,11 +185,11 @@ class Track(Base):
     invalid_msg = Column(String(255))
     disc = Column(String(64))
     scanned = Column(Boolean, default=False, index=True)
-    upload_user_id = Column(Integer, ForeignKey('users.id'))
+    created_user_id = Column(Integer, ForeignKey('users.id', name='fk_tracks_created_user_id'))
 
     album = relationship("Album", lazy='joined', innerjoin=False)
     artist = relationship("Artist", lazy='joined', innerjoin=False)
-    upload_user = relationship("User", lazy='joined', innerjoin=False)
+    created_user = relationship("User", lazy='joined', innerjoin=False)
     paths = relationship("TrackPath", cascade='delete', order_by="TrackPath.path")
 
     def __init__(self, hash):
@@ -390,11 +390,11 @@ class Album(Base):
             return list(invalids)
 
     @hybrid_property
-    def upload_user(self):
+    def created_user(self):
         if len(self.tracks) == 0:
             return None
 
-        return self.tracks[0].upload_user
+        return self.tracks[0].created_user
 
     @hybrid_property
     def seen(self):
@@ -1282,11 +1282,11 @@ class OpmuseTxt:
             except ValueError:
                 log('Error occured while reading created from %s, ignoring.' % self.opmuse_txt, traceback=True)
 
-        if 'upload_user' in data:
+        if 'created_user' in data:
             try:
-                track.upload_user = database.query(User).filter(User.login == data['upload_user']).one()
+                track.created_user = database.query(User).filter(User.login == data['created_user']).one()
             except NoResultFound:
-                log('Error occured while reading upload_user from %s, ignoring.' % self.opmuse_txt, traceback=True)
+                log('Error occured while reading created_user from %s, ignoring.' % self.opmuse_txt, traceback=True)
 
     def put_data(self, database, track, data):
         """
@@ -1296,8 +1296,8 @@ class OpmuseTxt:
         if 'created' not in data:
             data['created'] = track.updated
 
-        if 'upload_user' not in data and track.upload_user is not None:
-            data['upload_user'] = track.upload_user.login
+        if 'created_user' not in data and track.created_user is not None:
+            data['created_user'] = track.created_user.login
 
     def unserialize(self):
         data = {}
@@ -1607,7 +1607,7 @@ class LibraryProcess:
 
         self._database.add(track_path)
 
-        track.upload_user = self.user
+        track.created_user = self.user
 
         track.scanned = True
 
@@ -2003,7 +2003,7 @@ class LibraryDao:
         Processes files and adds them as tracks with artists albums etc.
 
         user
-            The user that added these tracks, will be used for upload_user.
+            The user that added these tracks, will be used for created_user.
         """
 
         paths = []

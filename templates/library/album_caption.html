@@ -13,12 +13,12 @@
         <dt>Duration</dt>
         <dd>{{ album.duration|format_seconds }}</dd>
     </dl>
-    {% if album.upload_user %}
+    {% if album.created_user %}
         <dl>
             <dt>Upload by</dt>
             <dd>
-                <a href="/users/{{ album.upload_user.login }}">
-                    {{ album.upload_user.login }}
+                <a href="/users/{{ album.created_user.login }}">
+                    {{ album.created_user.login }}
                 </a>
             </dd>
         </dl>
