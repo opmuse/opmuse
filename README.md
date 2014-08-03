@@ -51,10 +51,6 @@ The deb-multimedia repo is required for ffmpeg.
 
 Also, you need to add the non-free component in /etc/apt/sources.list for unrar.
 
-#### For Ubuntu Saucy
-
-No additional actions required.
-
 ### Install opmuse
 
 Finally, install opmuse
