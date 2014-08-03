@@ -22,8 +22,6 @@ import sys
 import threading
 import cProfile
 import tempfile
-from opmuse.less_compiler import less_compiler
-from cherrypy.process.plugins import Monitor
 
 
 class ProfiledThread(threading.Thread):
@@ -54,51 +52,59 @@ def get_staticdir():
     return staticdir
 
 
-class LessReloader(Monitor):
-    def __init__(self, bus):
-        Monitor.__init__(self, bus, self.run, frequency = .5)
+try:
+    from cherrypy.process.plugins import Monitor
+    from opmuse.less_compiler import less_compiler
 
-        self._files = {}
-        self.enable = False
+    class LessReloader(Monitor):
+        def __init__(self, bus):
+            Monitor.__init__(self, bus, self.run, frequency = .5)
 
-    def start(self):
-        Monitor.start(self)
+            self._files = {}
+            self.enable = False
 
-        self.enable = cherrypy.config['opmuse'].get('less_reloader.enable')
+        def start(self):
+            Monitor.start(self)
 
-        if self.enable is None:
-            self.enable = True
+            self.enable = cherrypy.config['opmuse'].get('less_reloader.enable')
 
-        if not self.enable:
-            return
+            if self.enable is None:
+                self.enable = True
 
-        less_compiler.compile()
-        cherrypy.log('compiled main.css')
+            if not self.enable:
+                return
 
-    start.priority = 80
+            less_compiler.compile()
+            cherrypy.log('compiled main.css')
 
-    def run(self):
-        if not self.enable:
-            return
+        start.priority = 80
 
-        from opmuse.boot import get_staticdir
+        def run(self):
+            if not self.enable:
+                return
 
-        for path, dirnames, filenames in os.walk(os.path.join(get_staticdir(), 'styles')):
-            for filename in filenames:
-                if filename[-4:] != 'less':
-                    continue
+            from opmuse.boot import get_staticdir
 
-                filepath = os.path.join(path, filename)
-                mtime = os.stat(filepath).st_mtime
+            for path, dirnames, filenames in os.walk(os.path.join(get_staticdir(), 'styles')):
+                for filename in filenames:
+                    if filename[-4:] != 'less':
+                        continue
 
-                if filepath in self._files:
-                    old_mtime = self._files[filepath]
+                    filepath = os.path.join(path, filename)
+                    mtime = os.stat(filepath).st_mtime
 
-                    if mtime > old_mtime:
-                        cherrypy.log('%s changed, recompiling main.css' % filename)
-                        less_compiler.compile()
+                    if filepath in self._files:
+                        old_mtime = self._files[filepath]
 
-                self._files[filepath] = mtime
+                        if mtime > old_mtime:
+                            cherrypy.log('%s changed, recompiling main.css' % filename)
+                            less_compiler.compile()
+
+                    self._files[filepath] = mtime
+except ImportError:
+    # ignore ImportError, because this module is used in opmuse.less_compiler
+    # which is used when bulding we dont need/want depend on this
+    pass
 
 
 class HTTPRedirect(cherrypy.HTTPRedirect):
