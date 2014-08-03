@@ -104,7 +104,6 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                             return false;
                         });
 
-                        console.log(file.type);
                         if (that.archives.indexOf(file.type) != -1) {
                             fileDom.find('[name=archive_password]').show();
                             fileDom.addClass('archive-file');
