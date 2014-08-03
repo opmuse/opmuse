@@ -5,7 +5,8 @@ from nose.tools import with_setup
 
 
 def library_start():
-    library = Library(os.path.join(os.path.dirname(__file__), "../../sample_library"))
+    library = Library(os.path.join(os.path.dirname(__file__), "../../sample_library"),
+                      use_opmuse_txt=False)
     library.start()
 
 
