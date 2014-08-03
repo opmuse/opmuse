@@ -36,8 +36,8 @@ class Queue(Base):
     __tablename__ = 'queues'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    track_id = Column(Integer, ForeignKey('tracks.id'))
+    user_id = Column(Integer, ForeignKey('users.id', name='fk_queues_user_id'))
+    track_id = Column(Integer, ForeignKey('tracks.id', name='fk_queues_track_id'))
     index = Column(Integer, index=True)
     current_seconds = Column(Integer)
     current = Column(Boolean, default=False)

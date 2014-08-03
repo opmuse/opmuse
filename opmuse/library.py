@@ -129,8 +129,8 @@ class UserAndAlbum(Base):
                       Base.__table_args__)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    album_id = Column(Integer, ForeignKey('albums.id'))
-    user_id = Column(Integer, ForeignKey('users.id'))
+    album_id = Column(Integer, ForeignKey('albums.id', name='fk_users_and_albums_user_id'))
+    user_id = Column(Integer, ForeignKey('users.id', name='fk_users_and_albums_album_id'))
     seen = Column(DateTime, index=True)
 
     album = relationship("Album")
@@ -150,7 +150,7 @@ class ListenedTrack(Base):
     album_name = Column(String(255), index=True)
     timestamp = Column(Integer, index=True)
 
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id', name='fk_listened_tracks_user_id'))
 
     user = relationship("User")
 
@@ -171,8 +171,8 @@ class Track(Base):
     duration = Column(Integer)
     number = Column(String(8))
     format = Column(String(128))
-    album_id = Column(Integer, ForeignKey('albums.id'))
-    artist_id = Column(Integer, ForeignKey('artists.id'))
+    album_id = Column(Integer, ForeignKey('albums.id', name='fk_tracks_album_id'))
+    artist_id = Column(Integer, ForeignKey('artists.id', name='fk_tracks_artist_id'))
     hash = Column(BINARY(24), index=True, unique=True)
     updated = Column(DateTime, index=True)
     created = Column(DateTime, index=True)
@@ -442,7 +442,7 @@ class TrackPath(Base):
     filename = Column(BLOB)
     modified = Column(DateTime, index=True)
     dir = Column(BLOB)
-    track_id = Column(Integer, ForeignKey('tracks.id'))
+    track_id = Column(Integer, ForeignKey('tracks.id', name='fk_track_paths_track_id'))
 
     track = relationship("Track")
 
