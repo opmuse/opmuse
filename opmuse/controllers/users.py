@@ -59,8 +59,11 @@ class Users:
             ('This Month', self._get_top_artists(user.id, datetime(now.year, now.month, 1), None)),
         ]
 
+        uploaded_albums = library_dao.get_albums_by_created_user(user.id)
+
         return {
             'user': user,
+            'uploaded_albums': uploaded_albums,
             'top_artists_categories': top_artists_categories,
             'recently_listeneds': recently_listeneds,
             'remotes_user': remotes_user

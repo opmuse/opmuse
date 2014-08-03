@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% import "macros/covers.html" as covers %}
+{% import "macros/album.html" as album_macros %}
 {% import "macros/urls.html" as urls %}
 {% import "macros/listened.html" as listened %}
 
@@ -29,6 +30,31 @@
                         {% endif %}
                     </p>
                 </div>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="icon fa fa-upload"></i>
+                        Uploads
+                    </h2>
+                </div>
+                <ul class="uploaded-albums list-group">
+                    {% for uploaded_album in uploaded_albums %}
+                    <li class="list-group-item">
+                        <a href="{{ urls.album_url(uploaded_album) }}">
+                            {{ covers.album(uploaded_album, 70, "img-small-thumbnail") }}
+                            {{ uploaded_album.name }}
+                        </a>
+                        <p>
+                            {{ album_macros.album_desc(uploaded_album, true, false) }}
+                        </p>
+                        <p>
+                            {{ uploaded_album.created|pretty_date }}
+                        </p>
+                        <div class="clear"></div>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
             <div class="panel panel-info">
                 <div class="panel-heading">

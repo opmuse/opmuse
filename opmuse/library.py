@@ -1893,6 +1893,14 @@ class LibraryDao:
         except NoResultFound:
             return
 
+    def get_albums_by_created_user(self, user_id, limit=10):
+        return (get_database().query(Album)
+                .join(Track, Album.id == Track.album_id)
+                .filter(Track.created_user_id == user_id)
+                .group_by(Album.id)
+                .order_by(Track.created.desc())
+                .limit(limit).all())
+
     def get_track_by_path(self, path):
         try:
             return (get_database().query(Track)
