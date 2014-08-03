@@ -1353,7 +1353,11 @@ class LibraryProcess:
             if library is not None and library.running is False:
                 stopped = True
 
-            track = self.process(filename)
+            try:
+                track = self.process(filename)
+            except:
+                log('Failed processing %s' % filename.decode(), traceback=True)
+                continue
 
             if tracks is not None:
                 tracks.append(track)
@@ -2333,30 +2337,33 @@ class LibraryWatchdogPlugin(SimplePlugin):
             observer.start()
 
             while self.running:
-                database_data.database = get_session()
-
-                removed = self.event_handler.pop_removed()
-
-                if len(removed) > 0:
-                    log("Watchdog removing %d files." % len(removed))
-                    library_dao.remove_paths(removed, remove = False)
-
-                added = self.event_handler.pop_added()
-
-                if len(added) > 0:
-                    log("Watchdog adding %d files." % len(added))
-                    tracks, add_files_messages = library_dao.add_files(added, move = False, remove_dirs = False)
-
                 try:
-                    database_data.database.commit()
-                except:
-                    database_data.database.rollback()
-                    raise
-                finally:
-                    database_data.database.remove()
-                    database_data.database = None
+                    database_data.database = get_session()
 
-                time.sleep(5)
+                    removed = self.event_handler.pop_removed()
+
+                    if len(removed) > 0:
+                        log("Watchdog removing %d files." % len(removed))
+                        library_dao.remove_paths(removed, remove = False)
+
+                    added = self.event_handler.pop_added()
+
+                    if len(added) > 0:
+                        log("Watchdog adding %d files." % len(added))
+                        tracks, add_files_messages = library_dao.add_files(added, move = False, remove_dirs = False)
+
+                    try:
+                        database_data.database.commit()
+                    except:
+                        database_data.database.rollback()
+                        raise
+                    finally:
+                        database_data.database.remove()
+                        database_data.database = None
+
+                    time.sleep(5)
+                except:
+                    log("Watchdog failed adding files.", traceback=True)
             else:
                 observer.stop()
 
