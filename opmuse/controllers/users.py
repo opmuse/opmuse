@@ -15,7 +15,7 @@ class Users:
     @cherrypy.tools.jinja(filename='users/index.html')
     def default(self, *args):
         if len(args) == 1:
-            raise cherrypy.InternalRedirect('/users/user/%s' % args[0])
+            raise cherrypy.InternalRedirect('/users/_user/%s' % args[0])
 
         users = (get_database().query(User).order_by(User.active.desc()).all())
 
@@ -29,7 +29,7 @@ class Users:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='users/user.html')
-    def user(self, login):
+    def _user(self, login):
         try:
             user = (get_database().query(User)
                     .filter_by(login=login)
