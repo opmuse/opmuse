@@ -256,10 +256,10 @@ class Artist(Base):
     no_album_tracks = relationship("Track", primaryjoin="and_(Artist.id==Track.artist_id, Track.album_id==None)")
 
     _updated = column_property(select([func.max(Track.updated)])
-                             .where(Track.artist_id == id).correlate_except(Track), deferred=True)
+                               .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
     _created = column_property(select([func.max(Track.created)])
-                             .where(Track.artist_id == id).correlate_except(Track), deferred=True)
+                               .where(Track.artist_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name):
         self.name = name
@@ -333,11 +333,11 @@ class Album(Base):
 
     # used for updating updated
     _updated = column_property(select([func.max(Track.updated)])
-                             .where(Track.album_id == id).correlate_except(Track), deferred=True)
+                               .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     # used for updating created
     _created = column_property(select([func.max(Track.created)])
-                             .where(Track.album_id == id).correlate_except(Track), deferred=True)
+                               .where(Track.album_id == id).correlate_except(Track), deferred=True)
 
     def __init__(self, name, date, cover, cover_path, cover_hash):
         self.name = name
@@ -1157,8 +1157,8 @@ class Library:
             to_process.append(filename)
 
             if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                p = Thread(target=LibraryProcess, args = (self.path, self.use_opmuse_txt, to_process, None, no, None, self),
-                           name="LibraryProcess_%d" % no)
+                p = Thread(target=LibraryProcess, name="LibraryProcess_%d" % no,
+                           args = (self.path, self.use_opmuse_txt, to_process, None, no, None, self))
                 p.start()
 
                 self.threads.append(p)
@@ -1271,6 +1271,7 @@ class OpmuseTxt:
                     break
 
                 time.sleep(.1)
+
     def put_track(self, database, data, track):
         """
         Gets data from opmuse.txt and sets it on the track entity.
@@ -1325,7 +1326,8 @@ class OpmuseTxt:
 
 
 class LibraryProcess:
-    def __init__(self, path, use_opmuse_txt, queue, database = None, no = -1, tracks = None, library = None, user = None):
+    def __init__(self, path, use_opmuse_txt, queue, database = None, no = -1,
+                 tracks = None, library = None, user = None):
         self.path = path
         self.no = no
         self.user = user
@@ -2074,7 +2076,8 @@ class LibraryDao:
 
         tracks = []
 
-        LibraryProcess(self.get_library_path(), self.get_library_opmuse_txt(), paths, get_database(), 0, tracks, user = user)
+        LibraryProcess(self.get_library_path(), self.get_library_opmuse_txt(),
+                       paths, get_database(), 0, tracks, user = user)
 
         # move non-track files with folder if there's no tracks left in folder
         # i.e. album covers and such
