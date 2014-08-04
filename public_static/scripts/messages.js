@@ -37,16 +37,28 @@ define(['jquery', 'inheritance', 'bootstrap-growl', 'domReady!'], function($, in
                 if (header !== null) {
                     var message = JSON.parse(header);
 
-                    $.bootstrapGrowl(message.text, {
-                        type: message.type,
-                        align: 'right',
-                        width: 'auto',
-                        delay: 6000,
-                        allow_dismiss: false
-                    });
+                    that.message(message.type, message.text);
                 }
             });
 
+        },
+        message: function (type, text) {
+            $.bootstrapGrowl(text, {
+                type: type,
+                align: 'right',
+                width: 'auto',
+                delay: 6000,
+                allow_dismiss: false
+            });
+        },
+        info: function (text) {
+            this.message('info', text);
+        },
+        success: function (text) {
+            this.message('success', text);
+        },
+        danger: function (text) {
+            this.message('danger', text);
         }
     });
 
