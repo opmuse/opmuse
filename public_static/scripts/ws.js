@@ -17,8 +17,8 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
-        function($, inheritance, logger, ajaxify) {
+define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', 'sprintf', 'domReady!'],
+        function($, inheritance, logger, ajaxify, messages) {
 
     "use strict";
 
@@ -31,6 +31,8 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
             }
 
             var that = this;
+
+            that.checkCapabilities();
 
             that.events = {};
 
@@ -60,13 +62,20 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
 
             that.internalInit();
         },
+        checkCapabilities: function () {
+            if (!Modernizr.websockets) {
+                this.error('Your browser is missing WebSockets support, things will not work as expected.');
+            }
+        },
+        error: function (text) {
+            messages.danger(text);
+            ajaxify.throb.setError(text);
+        },
+        unsetError: function () {
+            ajaxify.throb.unsetError();
+        },
         internalInit: function () {
             var that = this;
-
-            if (!("WebSocket" in window)) {
-                ajaxify.throb.setError("Browser doesn't support websockets, things will not work as expected.");
-                return;
-            }
 
             that.socket = new WebSocket(that.url);
 
@@ -82,7 +91,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
 
                     setTimeout(errHandler, errTimeout);
                 } else if (that.socket.readyState !== WebSocket.OPEN) {
-                    ajaxify.throb.setError("Couldn't establish websocket connection, might be firewall issues.");
+                    that.error("Couldn't establish websocket connection, might be firewall issues.");
                 }
             };
 
@@ -107,7 +116,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
             };
 
             that.socket.onopen = function() {
-                ajaxify.throb.unsetError();
+                that.unsetError();
 
                 logger.log('ws connection opened');
 
@@ -123,7 +132,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
                 logger.log('ws connection closed');
 
                 if (!that.unloaded) {
-                    ajaxify.throb.setError("Lost websocket connection, server is probably down.");
+                    that.error("Lost websocket connection, server is probably down.");
 
                     // TODO implement exponential backoff algo
                     setTimeout(function () {
@@ -135,7 +144,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'sprintf', 'domReady!'],
             that.socket.onerror = function(event) {
                 logger.log('ws connection errored');
 
-                ajaxify.throb.setError("Got websocket error: " + event.data);
+                that.error("Got websocket error: " + event.data);
             };
         },
         emit: function (event) {
