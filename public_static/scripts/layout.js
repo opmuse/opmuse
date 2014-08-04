@@ -142,7 +142,7 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
             return true;
         },
         hideOverlay: function() {
-            if ($("#overlay").is(".locked")) {
+            if ($("#overlay").is(".locked") || $("#overlay").is(".error")) {
                 return false;
             }
 

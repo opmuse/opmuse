@@ -155,7 +155,6 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                     return $(this).is("[data-ajaxify=continue]");
                 }
             );
-
         },
         load: function (element, trigger) {
             var that = this;
