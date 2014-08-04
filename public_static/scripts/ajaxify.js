@@ -176,7 +176,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
 
             this.activeRequest = $.ajax(href, {
                 success: function (data, textStatus, xhr) {
-                    if (typeof data != 'undefined' && data !== null) {
+                    if (typeof data != 'undefined' && data !== null && data !== '') {
                         that.setPageInDom(data);
                     }
 
