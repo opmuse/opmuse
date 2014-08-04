@@ -123,7 +123,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', '
                 $(that).trigger('open');
             };
 
-            $(window).on('beforeunload', function (event) {
+            $(window).on('unload', function (event) {
                 that.unloaded = true;
                 that.socket.close();
             });
