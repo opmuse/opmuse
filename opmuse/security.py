@@ -238,16 +238,22 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
             if cookie is None or not cookie.value:
                 return None
 
-            # XXX stolen from repoze.who._auth_tkt.parse_ticket(),
-            #     which hopefully, and likely, won't change for a while...
-            login, junk = cookie.value[40:].split('!', 1)
+            if '!' in cookie.value:
+                # XXX stolen from repoze.who._auth_tkt.parse_ticket(),
+                #     which hopefully, and likely, won't change for a while...
+                login, junk = cookie.value[40:].split('!', 1)
+            else:
+                login = None
         else:
             login = identity['login']
 
-        # TODO fix, this is because it happens before database is initialized..?
-        database = get_session()
-
         salt = ''
+
+        if login is None:
+            return salt
+
+        # TODO don't require an extra db connection....
+        database = get_session()
 
         try:
             user = database.query(User).filter_by(login = login).one()
