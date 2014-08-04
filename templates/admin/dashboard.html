@@ -51,17 +51,30 @@
                         We're scanning for updated, removed and new tracks.
                         {% if stats.files_found %}
                             <strong>
-                                {{ stats.track_paths|format_number }} of {{ stats.files_found|format_number }}
-                                ({{ ((stats.track_paths / stats.files_found) * 100)|round(1) }}%) files found have been scanned.
+                                {{ stats.processed|format_number }} of {{ stats.files_found|format_number }}
+                                ({{ ((stats.processed / stats.files_found) * 100)|round(1) }}%) files found have been scanned.
                             </strong>
                         {% else %}
                             <strong>Currently looking for files to scan.</strong>
                         {% endif %}
                     </p>
                     <div class="progress progress-striped active">
-                        <span class="progress-bar"
-                            style="width: {{ (stats.track_paths / stats.files_found) * 100 if stats.files_found else 0 }}%">
-                        </span>
+                        {#
+                            there will always be more files_found than track_paths in the database
+                            because we clean up track_paths before starting the scan.
+                        #}
+                        {% if stats.files_found %}
+                            <span class="progress-bar progress-bar-success"
+                                title="Files scanned" rel="tooltip"
+                                style="width: {{ (stats.processed / stats.files_found) * 100 }}%">
+                            </span>
+                            {% if stats.track_paths > stats.processed %}
+                                <span class="progress-bar progress-bar-info"
+                                    title="Files about to be rescanned" rel="tooltip"
+                                    style="width: {{ ((stats.track_paths - stats.processed) / stats.files_found) * 100 }}%">
+                                </span>
+                            {% endif %}
+                        {% endif %}
                     </div>
                 {% endif %}
                 <p>
@@ -143,9 +156,9 @@
                 </p>
                 <div class="progress">
                     <div class="progress-bar progress-bar-info"
-                        rel="tooltip" title="{{ (disk.free - stats.size)|format_bytes }} of other usage
+                        rel="tooltip" title="{{ (disk.total - disk.free - stats.size)|format_bytes }} of other usage
                             (files outside of opmuse and other library files such as covers)."
-                        style="width: {{ ((disk.free - stats.size) / disk.total) * 100 }}%"></div>
+                        style="width: {{ ((disk.total - disk.free - stats.size) / disk.total) * 100 }}%"></div>
                     <div class="progress-bar progress-bar-success"
                         rel="tooltip" title="{{ stats.size|format_bytes }} of track usage (tracks in opmuse library)."
                         style="width: {{ (stats.size / disk.total) * 100 }}%"></div>

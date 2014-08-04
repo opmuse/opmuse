@@ -1068,6 +1068,7 @@ class Library:
         self.scanning = False
         self.running = None
         self.files_found = None
+        self.processed = None
         self.path = path
         self.use_opmuse_txt = use_opmuse_txt
         self.threads = []
@@ -1098,6 +1099,7 @@ class Library:
 
         self.scanning = True
         self.running = True
+        self.processed = 0
 
         try:
             self._database_type = get_database_type()
@@ -1422,6 +1424,9 @@ class LibraryProcess:
 
             count += 1
             processed += 1
+
+            if library is not None:
+                library.processed += 1
 
             if stopped:
                 break

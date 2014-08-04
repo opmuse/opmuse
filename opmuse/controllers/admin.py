@@ -177,6 +177,7 @@ class Admin:
             'duration': library_dao.get_track_duration(),
             'size': library_dao.get_track_size(),
             'scanning': cherrypy.request.library.scanning,
+            'processed': cherrypy.request.library.processed,
             'files_found': cherrypy.request.library.files_found
         }
 
