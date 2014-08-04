@@ -17,8 +17,9 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscroller', 'moment', 'domReady!'],
-    function($, inheritance, ajaxify, ws) {
+define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
+        'jquery.ui', 'jquery.nanoscroller', 'moment', 'domReady!'],
+    function($, inheritance, ajaxify, ws, messages) {
 
     "use strict";
 
@@ -48,6 +49,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             this.nextButton = $('#next-button');
             this.stopButton = $('#stop-button');
             this.playerTrack = $('#player-track');
+
+            this.checkCapabilities();
 
             this.loaded = false;
 
@@ -192,6 +195,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
 
             that.internalInit();
         },
+        checkCapabilities: function () {
+            if (Modernizr.audio === false) {
+                this.disable();
+                messages.danger('Your browser doesn\'t support audio, you\'ll only be ' +
+                                'able to listen through the external streaming option.');
+            }
+        },
         setCurrent: function (track) {
             var that = this;
 
@@ -246,9 +256,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             that.pauseButton.show();
 
             if (!that.usPlaying) {
-                that.pauseButton.addClass("disabled");
-                that.nextButton.addClass("disabled");
-                that.stopButton.addClass("disabled");
+                that.disable();
             }
         },
         setStopped: function () {
@@ -259,6 +267,20 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'jquery.ui', 'jquery.nanoscrol
             that.playButton.show();
             that.pauseButton.hide();
 
+            that.enable();
+        },
+        disable: function () {
+            var that = this;
+
+            that.playButton.addClass("disabled");
+            that.pauseButton.addClass("disabled");
+            that.nextButton.addClass("disabled");
+            that.stopButton.addClass("disabled");
+        },
+        enable: function () {
+            var that = this;
+
+            that.playButton.removeClass("disabled");
             that.pauseButton.removeClass("disabled");
             that.nextButton.removeClass("disabled");
             that.stopButton.removeClass("disabled");
