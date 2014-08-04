@@ -1099,110 +1099,110 @@ class Library:
         self.scanning = True
         self.running = True
 
-        self._database_type = get_database_type()
-        self._database = get_session()
+        try:
+            self._database_type = get_database_type()
+            self._database = get_session()
 
-        # always treat paths as bytes to avoid encoding issues we don't
-        # care about
-        path = self.path.encode() if isinstance(self.path, str) else self.path
+            # always treat paths as bytes to avoid encoding issues we don't
+            # care about
+            path = self.path.encode() if isinstance(self.path, str) else self.path
 
-        path = os.path.abspath(path)
+            path = os.path.abspath(path)
 
-        log("Starting library update.")
+            log("Starting library update.")
 
-        # remove paths that doesn't exist anymore
-        for track in self._database.query(Track).all():
-            for track_path in track.paths:
-                # remove path if it has "moved" outside of library path or it
-                # doesn't exist anymore
-                if track_path.path.find(path) != 0 or not os.path.exists(track_path.path):
-                    self._database.delete(track_path)
-                    self._database.commit()
+            old_files = 0
 
-        index = 0
-
-        queue = []
-
-        for path, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                if Library.is_supported(filename):
-
-                    index += 1
-
-                    filename = os.path.join(path, filename)
-
-                    queue.append(filename)
-
-        self.files_found = index
-
-        log("%d files found" % index)
-
-        # sqlite doesn't support threaded writes so just run one thread if
-        # that's what we have
-        if self._database_type == 'sqlite':
-            thread_num = 1
-        else:
-            thread_num = math.ceil(cpu_count() / 2)
-            thread_num = thread_num if thread_num > 2 else 2
-
-        queue_len = len(queue)
-        chunk_size = math.ceil(queue_len / thread_num)
-
-        to_process = []
-
-        no = 0
-
-        for index, filename in enumerate(queue):
-
-            to_process.append(filename)
-
-            if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
-                p = Thread(target=LibraryProcess, name="LibraryProcess_%d" % no,
-                           args = (self.path, self.use_opmuse_txt, to_process, None, no, None, self))
-                p.start()
-
-                self.threads.append(p)
-
-                to_process = []
-                no += 1
-
-        for thread in self.threads:
-            thread.join()
-
-        self.threads = []
-
-        if self.running:
+            # remove paths that doesn't exist anymore
             for track in self._database.query(Track).all():
-                # remove tracks without any paths (e.g. removed since previous search)
-                #
-                # because if the file moved it will be found by the hash and just have
-                # the new path readded as opposed to when it was completely removed
-                # from the library path
-                if len(track.paths) == 0:
-                    library_dao.delete_track(track, self._database)
+                for track_path in track.paths:
+                    # remove path if it has "moved" outside of library path or it
+                    # doesn't exist anymore. it might have been moved in which case
+                    # it will be found by the LibraryProcess and re-added to the Track
+                    if track_path.path.find(path) != 0 or not os.path.exists(track_path.path):
+                        self._database.delete(track_path)
+                        self._database.commit()
+                        old_files += 1
 
-            for album in self._database.query(Album).all():
-                # remove albums without tracks
-                if len(album.tracks) == 0:
-                    library_dao.delete_album(album, self._database)
+            if old_files > 0:
+                log("%d old files removed from database." % old_files)
 
-            for artist in self._database.query(Artist).all():
-                # remove artists without tracks
-                if len(artist.tracks) == 0:
-                    library_dao.delete_artist(artist, self._database)
+            files_found = 0
 
-        self._database.commit()
-        self._database.remove()
+            queue = []
 
-        if self.running:
-            msg = "Done updating library, in {0} seconds."
-        else:
-            msg = "Stopped updating library"
+            for path, dirnames, filenames in os.walk(path):
+                for filename in filenames:
+                    if Library.is_supported(filename):
 
-        log(msg.format(round(time.time() - start_time)))
+                        files_found += 1
 
-        self.scanning = False
-        self.running = False
+                        filename = os.path.join(path, filename)
+
+                        queue.append(filename)
+
+            self.files_found = files_found
+
+            log("%d files found." % files_found)
+
+            # sqlite doesn't support threaded writes so just run one thread if
+            # that's what we have
+            if self._database_type == 'sqlite':
+                thread_num = 1
+            else:
+                thread_num = math.ceil(cpu_count() / 2)
+                thread_num = thread_num if thread_num > 2 else 2
+
+            queue_len = len(queue)
+            chunk_size = math.ceil(queue_len / thread_num)
+
+            to_process = []
+
+            no = 0
+
+            for index, filename in enumerate(queue):
+                to_process.append(filename)
+
+                if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
+                    p = Thread(target=LibraryProcess, name="LibraryProcess_%d" % no,
+                               args = (self.path, self.use_opmuse_txt, to_process, None, no, None, self))
+                    p.start()
+
+                    self.threads.append(p)
+
+                    to_process = []
+                    no += 1
+
+            for thread in self.threads:
+                thread.join()
+
+            self.threads = []
+
+            if self.running:
+                for track in self._database.query(Track).all():
+                    # remove tracks without any paths (e.g. removed since previous search)
+                    #
+                    # because if the file moved it will be found by the hash and just have
+                    # the new path readded as opposed to when it was completely removed
+                    # from the library path
+                    if len(track.paths) == 0:
+                        library_dao.delete_track(track, self._database)
+
+            self._database.commit()
+            self._database.remove()
+
+            if self.running:
+                msg = "Done updating library, in {0} seconds."
+            else:
+                msg = "Stopped updating library"
+
+            log(msg.format(round(time.time() - start_time)))
+        except:
+            log('Failed to update library.', traceback=True)
+            raise
+        finally:
+            self.scanning = False
+            self.running = False
 
     def stop(self):
         if self.running:
@@ -2449,10 +2449,11 @@ class LibraryPlugin(SimplePlugin):
         return self.library
 
     def stop(self):
-        self.library.stop()
-        self.thread.join()
-        self.library = None
-        self.thread = None
+        if self.library is not None:
+            self.library.stop()
+            self.thread.join()
+            self.library = None
+            self.thread = None
 
 
 class LibraryTool(cherrypy.Tool):
