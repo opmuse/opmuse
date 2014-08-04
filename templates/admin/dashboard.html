@@ -19,19 +19,22 @@
             <div class="panel-body">
                 <dl class="dl-horizontal">
                     <dt>library.path</dt>
-                    <dd>{{ request.app.config.opmuse['library.path'] }}</dd>
+                    {% if request.app.config.opmuse['library.path'] is defined %}
+                        <dd>{{ request.app.config.opmuse['library.path'] }}</dd>
+                    {% endif %}
                     <dt>library.fs.structure</dt>
-                    <dd>{{ request.app.config.opmuse['library.fs.structure'] }}</dd>
+                    {% if request.app.config.opmuse['library.fs.structure'] is defined %}
+                        <dd>{{ request.app.config.opmuse['library.fs.structure'] }}</dd>
+                    {% endif %}
                     <dt>lastfm.key</dt>
-                    <dd>
+                    {% if request.app.config.opmuse['lastfm.key'] is defined %}
                         {% set lastfm_key = request.app.config.opmuse['lastfm.key'] %}
-
-                        {% if lastfm_key %}
-                            <a href="http://www.last.fm/api/account/{{ lastfm_key }}">{{ lastfm_key }}</a>
-                        {% endif %}
-                    </dd>
+                        <dd><a href="http://www.last.fm/api/account/{{ lastfm_key }}">{{ lastfm_key }}</a></dd>
+                    {% endif %}
                     <dt>lastfm.secret</dt>
-                    <dd>{{ request.app.config.opmuse['lastfm.secret'] }}</dd>
+                    {% if request.app.config.opmuse['lastfm.secret'] is defined %}
+                        <dd>{{ request.app.config.opmuse['lastfm.secret'] }}</dd>
+                    {% endif %}
                 </dl>
             </div>
         </div>
