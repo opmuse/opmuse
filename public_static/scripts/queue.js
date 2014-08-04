@@ -63,8 +63,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
             that.currentTrack = null;
 
             $(window).on('beforeunload', function (event) {
-                if (!that.player.paused) {
-                    return false;
+                if (that.player.paused === false) {
+                    return 'You are playing in this tab, are you sure you want to close it?';
                 }
             });
 
