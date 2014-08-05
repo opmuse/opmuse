@@ -35,6 +35,10 @@ from opmuse.library import TrackStructureParser, Library, Album, Track, Artist
 VISIBLE_WS = "\u2423"
 
 
+def _max(items):
+    return max(items)
+
+
 def ordinal(num):
     # stolen from http://codegolf.stackexchange.com/a/4712
     k = num % 10
@@ -89,6 +93,7 @@ def get_jinja_env():
     env.filters['country'] = country
     env.filters['date'] = date
     env.filters['ordinal'] = ordinal
+    env.filters['max'] = _max
 
     env.globals['pagination_pages'] = pagination_pages
     env.globals['rand_id'] = rand_id
