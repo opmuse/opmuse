@@ -21,7 +21,7 @@ import cherrypy
 import base64
 import tempfile
 import time
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, StaleDataError
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from opmuse.ws import ws
@@ -241,7 +241,11 @@ class Covers:
         album.cover_large = resize_cover_large
         album.cover_hash = base64.b64encode(mmh3.hash_bytes(album.cover))
 
-        get_database().commit()
+        try:
+            get_database().commit()
+        except StaleDataError:
+            # album was removed, ignore
+            return
 
         ws.emit_all('covers.album.update', album.id)
 
@@ -318,7 +322,11 @@ class Covers:
         artist.cover_large = resize_cover_large
         artist.cover_hash = base64.b64encode(mmh3.hash_bytes(artist.cover))
 
-        get_database().commit()
+        try:
+            get_database().commit()
+        except StaleDataError:
+            # artist was removed, ignore
+            return
 
         ws.emit_all('covers.artist.update', artist.id)
 
