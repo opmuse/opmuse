@@ -21,6 +21,7 @@ import sys
 import threading
 import cProfile
 import tempfile
+import builtins
 
 
 class ProfiledThread(threading.Thread):
@@ -147,6 +148,7 @@ try:
     def firepy_start():
         cherrypy.request._firepy_logs = []
         cherrypy.request.firepy = firepy
+        builtins.fp = firepy
 
     def firepy_end():
         if not hasattr(cherrypy.request, '_firepy_logs'):

@@ -217,7 +217,7 @@ def main():
     parser.add_argument('-t', '--timers', action='store_true',
                         help='log timing info for requests and queries.')
     parser.add_argument('-f', '--firepy', action='store_true',
-                        help='enable firephp logging through cherrypy.request.firepy().')
+                        help='enable firephp logging through cherrypy.request.firepy() or the fp() builtin.')
 
     args = parser.parse_args()
 
