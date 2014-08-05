@@ -6,6 +6,7 @@ import rarfile
 import shutil
 import tempfile
 import cherrypy
+import re
 from collections import OrderedDict
 from urllib.parse import unquote
 from zipfile import ZipFile
@@ -592,8 +593,22 @@ class Library:
                     for tag_name in remotes_artist['lastfm']['tags']:
                         remotes.update_tag(tag_name)
 
+        album_disc_nos = {}
+
         for track in album.tracks:
             remotes.update_track(track)
+
+            if track.disc not in album_disc_nos:
+                album_disc_nos[track.disc] = []
+
+            if track.number is not None:
+                # extract max track no, '01' will become 1, '01/10' will become 10
+                album_disc_nos[track.disc].append(int(re.search('\d+$', track.number).group()))
+            else:
+                album_disc_nos[track.disc].append(track.number)
+
+        album_disc_nos = OrderedDict(sorted(album_disc_nos.items(),
+                                     key=lambda album_disc_no: album_disc_no[0]))
 
         remotes_album = remotes.get_album(album)
 
@@ -608,6 +623,7 @@ class Library:
         artist_listened_tuples = self.get_artist_listened_tuples(artist_name)
 
         return {
+            'album_disc_nos': album_disc_nos,
             'album': album,
             'dir_tracks': dir_tracks,
             'remotes_artists': remotes_artists,

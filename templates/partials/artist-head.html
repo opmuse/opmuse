@@ -263,6 +263,30 @@
     </p>
 {% endif %}
 
+{% if album_disc_nos is defined and album_disc_nos %}
+    {% for disc, numbers in album_disc_nos.items() %}
+        {% if numbers|length < numbers|max %}
+            <p class="alert alert-info">
+                {% if disc %}
+                    Disc {{ disc }}
+                {% else %}
+                    Album
+                {% endif %}
+                seems to be missing tracks, number of tracks is lower than highest track number.
+            </p>
+        {% elif numbers|length > numbers|max %}
+            <p class="alert alert-info">
+                {% if disc %}
+                    Disc {{ disc }}
+                {% else %}
+                    Album
+                {% endif %}
+                seems to have duplicate tracks, number of tracks is higher than highest track number.
+            </p>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
 <div class="artist-head">
     <div class="row">
         <div class="col-xs-12">
