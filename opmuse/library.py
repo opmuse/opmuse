@@ -64,7 +64,7 @@ __all__ = ['FileMetadata', 'library_dao', 'ApeParser', 'TrackStructureParser', '
 
 
 def debug(msg, traceback=False):
-    cherrypy.log.error(msg, context='transcoding', severity=logging.DEBUG, traceback=traceback)
+    cherrypy.log.error(msg, context='library', severity=logging.DEBUG, traceback=traceback)
 
 
 def log(msg, traceback=False):
@@ -1360,7 +1360,7 @@ class LibraryProcess:
             try:
                 track = self.process(filename)
             except:
-                log('Failed processing %s' % filename.decode(), traceback=True)
+                log('Failed processing %s' % filename.decode('utf8', 'replace'), traceback=True)
                 continue
 
             if tracks is not None:
@@ -1941,6 +1941,8 @@ class LibraryDao:
                     messages.append("Failed to get tag for %s (%s)." % (path.path.decode('utf8', 'replace'), e))
                     break
 
+                cherrypy.engine.library_watchdog.add_ignores(path.path)
+
                 filenames.append(path.path)
 
                 tag['artist'] = artist_name
@@ -2283,8 +2285,12 @@ class WatchdogEventHandler(FileSystemEventHandler):
         if not self.ignore(event.src_path) and Library.is_supported(event.src_path):
             self.removed.add(event.src_path)
 
+            debug('Watchdog, removed %s' % event.src_path)
+
         if not self.ignore(event.dest_path) and Library.is_supported(event.dest_path):
             self.added.add(event.dest_path)
+
+            debug('Watchdog, created %s' % event.dest_path)
 
     def on_created(self, event):
         FileSystemEventHandler.on_created(self, event)
@@ -2294,6 +2300,8 @@ class WatchdogEventHandler(FileSystemEventHandler):
 
         self.added.add(event.src_path)
 
+        debug('Watchdog, created %s' % event.src_path)
+
     def on_deleted(self, event):
         FileSystemEventHandler.on_deleted(self, event)
 
@@ -2302,6 +2310,8 @@ class WatchdogEventHandler(FileSystemEventHandler):
 
         self.removed.add(event.src_path)
 
+        debug('Watchdog, removed %s' % event.src_path)
+
     def on_modified(self, event):
         FileSystemEventHandler.on_modified(self, event)
 
@@ -2309,6 +2319,8 @@ class WatchdogEventHandler(FileSystemEventHandler):
             return
 
         self.added.add(event.src_path)
+
+        debug('Watchdog, modified %s' % event.src_path)
 
     def pop_added(self):
         return self._pop_set(self.added)
