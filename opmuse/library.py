@@ -2110,8 +2110,16 @@ class LibraryDao:
                     from_path = os.path.join(from_dir, from_file)
                     to_path = os.path.join(to_dir, from_file)
 
-                    if from_path == to_dir:
-                        continue
+                    # if the "file" to be moved is a dir check if it contains
+                    # any tracks and if it does, dont move it.
+                    #
+                    # this might happen when tracks from one dir moves into two
+                    # subdirs of that dir.
+                    if os.path.isdir(from_path):
+                        tracks_left = get_database().query(TrackPath).filter(TrackPath.dir == from_path).count()
+
+                        if tracks_left > 0:
+                            continue
 
                     if os.path.exists(to_path):
                         messages.append('The file "%s" already exists.' % to_path.decode('utf8', 'replace'))
