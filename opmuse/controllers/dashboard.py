@@ -162,7 +162,7 @@ class Dashboard:
                 .options(undefer(Album.artist_count))
                 .join(Track, Album.id == Track.album_id)
                 .group_by(Album.id)
-                .order_by(func.max(Track.updated).desc())
+                .order_by(func.max(Track.created).desc())
                 .limit(limit)
                 .offset(offset)
                 .all())
