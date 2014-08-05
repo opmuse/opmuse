@@ -2140,16 +2140,26 @@ class LibraryDao:
 
             files = os.listdir(dir)
 
+            opmuse_txt = os.path.join(dir, b'opmuse.txt')
+
             # remove empty dirs or dirs only containing a opmuse.txt, as
             # they are worthless on their own
             if len(files) == 0 or len(files) == 1 and b'opmuse.txt' in files:
-                opmuse_txt = os.path.join(dir, b'opmuse.txt')
-
                 if os.path.exists(opmuse_txt):
                     os.remove(opmuse_txt)
 
                 os.rmdir(dir)
                 new_dirs.add(os.path.dirname(dir))
+            elif len(files) > 1:
+                # remove "leftover" opmuse.txt file
+                only_files = []
+
+                for file in files:
+                    if not os.path.isdir(os.path.join(dir, file)):
+                        only_files.append(file)
+
+                if len(only_files) == 1 and b'opmuse.txt' in only_files:
+                    os.remove(opmuse_txt)
 
         if len(new_dirs) > 0:
             self.remove_empty_dirs(new_dirs)
