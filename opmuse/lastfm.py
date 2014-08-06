@@ -426,6 +426,21 @@ class LastfmNetwork:
 
         return "%s?%s" % (LastfmNetwork.AUTH_URL, parse.urlencode(params))
 
+    def love_track(self, track):
+        if self.session_key is None:
+            self.session_key = cherrypy.request.user.lastfm_session_key
+
+        params = {
+            'artist': track.artist.name,
+            'track': track.name,
+        }
+
+        params = self._clean_params(params)
+
+        result = self._request('track.love', None, params)
+
+        return result
+
     def _request(self, method, method_params = None, data_params = None):
         params = {
             'api_key': self.key,

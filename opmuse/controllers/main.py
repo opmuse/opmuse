@@ -27,6 +27,7 @@ from opmuse.controllers.queue import Queue
 from opmuse.controllers.users import Users
 from opmuse.controllers.settings import Settings
 from opmuse.controllers.library import Library
+from opmuse.controllers.love import Love
 from opmuse.controllers.dashboard import Dashboard
 from opmuse.controllers.admin import Admin
 from opmuse.controllers.cover import Cover
@@ -48,6 +49,7 @@ class Root:
     users = Users()
     settings = Settings()
     library = Library()
+    love = Love()
     ws = WsController()
     dashboard = Dashboard()
     admin = Admin()

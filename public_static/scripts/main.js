@@ -70,7 +70,8 @@ require([
     'album',
     'modernizr',
     'offscreennav',
-    'dashboard'
+    'dashboard',
+    'love'
     ], function($) {
 
     $.ajaxSetup({

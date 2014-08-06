@@ -156,15 +156,20 @@
                             {% endif -%}
                         </td>
                         <td>
-                            <span class="btn-group queue-btn">
-                                <a
-                                    class="btn btn-primary btn-xs queue add"
-                                    href="/queue/add/{{ track.id }}"
-                                    title="Queue this track"
-                                    rel="tooltip">
-                                    <i class="fa fa-headphones"></i>
-                                </a>
-                            </span>
+                            <a
+                                class="btn btn-primary btn-xs queue add"
+                                href="/queue/add/{{ track.id }}"
+                                title="Queue this track"
+                                rel="tooltip">
+                                <i class="fa fa-headphones"></i>
+                            </a>
+                            <a
+                                class="btn btn-danger btn-xs love"
+                                href="/love/track/{{ track.slug }}"
+                                title="Mark this track as loved"
+                                rel="tooltip">
+                                <i class="fa fa-heart"></i>
+                            </a>
                             {% if track.has_dups %}
                                 <span class="label label-warning"
                                     title="Track has duplicates, you could remove all but one of them."
