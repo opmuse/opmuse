@@ -25,6 +25,7 @@ from opmuse.ws import ws
 from opmuse.musicbrainz import musicbrainz
 from opmuse.database import get_database
 from opmuse.library import Artist, Album, Track, library_dao
+from opmuse.bgtask import NonUniqueQueueError
 
 
 class Remotes:
@@ -47,8 +48,12 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.USER_TRACKS_AGE):
             cache.keep(key)
-            cherrypy.engine.bgtask.put(self._add_listened_tracks, 10, user.id, user.lastfm_user,
-                                       user.lastfm_session_key)
+
+            try:
+                cherrypy.engine.bgtask.put_unique(self._add_listened_tracks, 10, user.id, user.lastfm_user,
+                                                  user.lastfm_session_key)
+            except NonUniqueQueueError:
+                pass
 
     def _add_listened_tracks(self, user_id, lastfm_user, lastfm_session_key):
         key = Remotes.USER_TRACKS_KEY_FORMAT % user_id
@@ -100,8 +105,12 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.USER_AGE):
             cache.keep(key)
-            cherrypy.engine.bgtask.put(self._fetch_user, 10, user.id, user.lastfm_user,
-                                       user.lastfm_session_key)
+
+            try:
+                cherrypy.engine.bgtask.put_unique(self._fetch_user, 10, user.id, user.lastfm_user,
+                                                  user.lastfm_session_key)
+            except NonUniqueQueueError:
+                pass
 
         self.update_user_tracks(user)
 
@@ -134,7 +143,11 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.TRACK_AGE):
             cache.keep(key)
-            cherrypy.engine.bgtask.put(self._fetch_track, 10, track.id)
+
+            try:
+                cherrypy.engine.bgtask.put_unique(self._fetch_track, 10, track.id)
+            except NonUniqueQueueError:
+                pass
 
     def _fetch_track(self, id):
         key = Remotes.TRACK_KEY_FORMAT % id
@@ -169,7 +182,11 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.ALBUM_AGE):
             cache.keep(key)
-            cherrypy.engine.bgtask.put(self._fetch_album, 11, album.id)
+
+            try:
+                cherrypy.engine.bgtask.put_unique(self._fetch_album, 11, album.id)
+            except NonUniqueQueueError:
+                pass
 
     def _fetch_album(self, id):
         key = Remotes.ALBUM_KEY_FORMAT % id
@@ -207,7 +224,11 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.ARTIST_AGE):
             cache.keep(key)
-            cherrypy.engine.bgtask.put(self._fetch_artist, 12, artist.id)
+
+            try:
+                cherrypy.engine.bgtask.put_unique(self._fetch_artist, 12, artist.id)
+            except NonUniqueQueueError:
+                pass
 
     def _fetch_artist(self, id):
         key = Remotes.ARTIST_KEY_FORMAT % id
@@ -243,7 +264,11 @@ class Remotes:
 
         if cache.needs_update(key, age = Remotes.TAG_AGE):
             cache.keep(key)
-            cherrypy.engine.bgtask.put(self._fetch_tag, 5, tag_name)
+
+            try:
+                cherrypy.engine.bgtask.put_unique(self._fetch_tag, 5, tag_name)
+            except NonUniqueQueueError:
+                pass
 
     def _fetch_tag(self, tag_name):
         key = Remotes.TAG_KEY_FORMAT % tag_name

@@ -103,13 +103,13 @@ class Covers:
             for artist in entity.artists:
                 if artist.cover_path is None or not os.path.exists(artist.cover_path):
                     try:
-                        cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, artist.id)
+                        cherrypy.engine.bgtask.put_unique(self.fetch_artist_cover, 15, artist.id)
                     except NonUniqueQueueError:
                         pass
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
                 try:
-                    cherrypy.engine.bgtask.put(self.fetch_album_cover, 15, entity.id)
+                    cherrypy.engine.bgtask.put_unique(self.fetch_album_cover, 15, entity.id)
                 except NonUniqueQueueError:
                     pass
 
@@ -127,7 +127,7 @@ class Covers:
 
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
                 try:
-                    cherrypy.engine.bgtask.put(self.fetch_artist_cover, 15, entity.id)
+                    cherrypy.engine.bgtask.put_unique(self.fetch_artist_cover, 15, entity.id)
                 except NonUniqueQueueError:
                     pass
 

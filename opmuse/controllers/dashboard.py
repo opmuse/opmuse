@@ -10,6 +10,7 @@ from opmuse.queues import queue_dao
 from opmuse.search import search
 from opmuse.cache import cache
 from opmuse.ws import ws
+from opmuse.bgtask import NonUniqueQueueError
 
 
 class Dashboard:
@@ -214,7 +215,11 @@ class Dashboard:
 
         if cache.needs_update(cache_key, age = cache_age):
             cache.keep(cache_key)
-            cherrypy.engine.bgtask.put(Dashboard._fetch_recent_tracks, 9)
+
+            try:
+                cherrypy.engine.bgtask.put_unique(Dashboard._fetch_recent_tracks, 9)
+            except NonUniqueQueueError:
+                pass
 
     @staticmethod
     def _fetch_recent_tracks():

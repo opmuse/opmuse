@@ -39,13 +39,16 @@ class NonUniqueQueueError(Exception):
 
 
 class UniquePriorityQueue(queue.PriorityQueue):
+    # don't ask, _init is correct dude
     def _init(self, maxsize):
         queue.PriorityQueue._init(self, maxsize)
         self.keys = set()
 
     def _put(self, item):
-        if item.key not in self.keys:
-            self.keys.add(item.key)
+        if not item.unique or item.key not in self.keys:
+            if item.unique:
+                self.keys.add(item.key)
+
             queue.PriorityQueue._put(self, item)
         else:
             debug('"%s" is already in the queue.' % item.name)
@@ -56,15 +59,30 @@ class UniquePriorityQueue(queue.PriorityQueue):
         Mark item as done.
 
         This needs to be called when a task is done or the queue
-        will continue to throw NonUniqueQueueError.
+        will continue to throw NonUniqueQueueError. Only for unique items though.
         """
-        self.keys.remove(item.key)
+        if item.unique:
+            self.keys.remove(item.key)
 
 
 @total_ordering
 class QueueItem:
-    def __init__(self, priority, func, args, kwargs):
+    def __init__(self, priority, unique, func, args, kwargs):
+        """
+        priority
+            priority in queue, higher prio will run before those with lower.
+        unique
+            if True there can only be one item with this signature in the queue.
+        func
+            function to run
+        args
+            positional arguments for func
+        kwargs
+            keyword arguments for fucn
+        """
+
         self.priority = priority
+        self.unique = unique
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -206,11 +224,19 @@ class BackgroundTaskPlugin(SimplePlugin):
 
         debug("Stopping bgtask thread #%d" % number)
 
+    def put_unique(self, func, priority, *args, **kwargs):
+        """
+            Add task to queue and throw error if there's already an item with the
+            same signature as this in the queue. Higher priority means it will
+            run before those with lower.
+        """
+        self.queue.put(QueueItem(priority, True, func, args, kwargs))
+
     def put(self, func, priority, *args, **kwargs):
         """
-            Add task to queue, higher priority means it will run before those with lower.
+            Add task to queue. Higher priority means it will run before those with lower.
         """
-        self.queue.put(QueueItem(priority, func, args, kwargs))
+        self.queue.put(QueueItem(priority, False, func, args, kwargs))
 
 
 class BackgroundTaskTool(cherrypy.Tool):
