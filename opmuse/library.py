@@ -1834,7 +1834,7 @@ class LibraryDao:
                 self.delete_album(album, database)
 
         if artist is not None:
-            database.expire(artist, ['tracks'])
+            database.expire(artist, ['albums'])
 
             if len(artist.albums) == 0:
                 self.delete_artist(artist, database)
