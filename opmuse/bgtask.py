@@ -63,9 +63,8 @@ class UniquePriorityQueue(queue.PriorityQueue):
 
 @total_ordering
 class QueueItem:
-    def __init__(self, priority, delay, func, args, kwargs):
+    def __init__(self, priority, func, args, kwargs):
         self.priority = priority
-        self.delay = delay
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -81,7 +80,7 @@ class QueueItem:
         self.done = None
 
     def values(self):
-        return self.name, self.priority, self.delay, self.func, self.args, self.kwargs
+        return self.name, self.priority, self.func, self.args, self.kwargs
 
     def __eq__(self, other):
         return other.priority == self.priority
@@ -154,7 +153,7 @@ class BackgroundTaskPlugin(SimplePlugin):
             try:
                 try:
                     item = self.queue.get(block=True, timeout=2)
-                    name, priority, delay, func, args, kwargs = item.values()
+                    name, priority, func, args, kwargs = item.values()
                 except queue.Empty:
                     if self._running == "drain":
                         break
@@ -169,12 +168,6 @@ class BackgroundTaskPlugin(SimplePlugin):
                     thread.name = name
 
                     self.running += 1
-
-                    if delay is not None:
-                        debug("Delaying bgtask for %ds in thread #%d %r with priority %d, args %r and kwargs %r." %
-                              (delay, number, func, priority, args, kwargs))
-
-                        time.sleep(delay)
 
                     debug("Running bgtask in thread #%d %r with priority %d, args %r and kwargs %r." %
                           (number, func, priority, args, kwargs))
@@ -217,14 +210,7 @@ class BackgroundTaskPlugin(SimplePlugin):
         """
             Add task to queue, higher priority means it will run before those with lower.
         """
-        self.queue.put(QueueItem(priority, None, func, args, kwargs))
-
-    def put_delay(self, func, priority, delay, *args, **kwargs):
-        """
-            Like put() but takes an extra "delay" argument which specifies a delay in seconds
-            for this task.
-        """
-        self.queue.put(QueueItem(priority, delay, func, args, kwargs))
+        self.queue.put(QueueItem(priority, func, args, kwargs))
 
 
 class BackgroundTaskTool(cherrypy.Tool):
