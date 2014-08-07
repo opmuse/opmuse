@@ -1269,10 +1269,10 @@ class OpmuseTxt:
                 lock.remove()
             except LockError:
                 if i == OpmuseTxt.TRIES - 1:
-                    log("Failed to acquire lock for %s, giving up." % self.opmuse_txt, traceback=True)
+                    log("Failed to acquire lock for %s, giving up.\n" % self.opmuse_txt, traceback=True)
                     break
 
-                time.sleep(.1)
+                time.sleep(.5)
 
     def put_track(self, database, data, track):
         """
