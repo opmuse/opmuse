@@ -23,7 +23,6 @@ from opmuse.lastfm import lastfm
 class Love:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
-    def track(self, slug):
-        track = library_dao.get_track_by_slug(slug)
-        s = lastfm.get_network().love_track(track)
-        raise cherrypy.HTTPRedirect("/library/track/" + slug)
+    def track(self, id):
+        track = library_dao.get_track(id)
+        lastfm.track_love(track.artist.name, track.name)

@@ -426,13 +426,12 @@ class LastfmNetwork:
 
         return "%s?%s" % (LastfmNetwork.AUTH_URL, parse.urlencode(params))
 
-    def love_track(self, track):
-        if self.session_key is None:
-            self.session_key = cherrypy.request.user.lastfm_session_key
+    def track_love(self, artist_name, track_name, session_key):
+        self.session_key = session_key
 
         params = {
-            'artist': track.artist.name,
-            'track': track.name,
+            'artist': artist_name,
+            'track': track_name,
         }
 
         params = self._clean_params(params)
@@ -565,6 +564,15 @@ class Lastfm:
         user = network.get_user_info()
 
         return user['name']
+
+    def track_love(self, artist_name, track_name, session_key=None):
+        if session_key is None:
+            session_key = cherrypy.request.user.lastfm_session_key
+        network = self.get_network(session_key)
+
+        result = network.track_love(artist_name, track_name, session_key)
+
+        return result
 
     def update_now_playing(self, session_key, **args):
         if session_key is None:
