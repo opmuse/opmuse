@@ -282,11 +282,15 @@ class RedirectorPlugin(BaseRedirectorPlugin):
     """
 
     def challenge(self, environ, status, app_headers, forget_headers):
-        forwarded_host = cherrypy.request.headers.get('X-Forwarded-Host')
+        forwarded_host = cherrypy.request.headers.get('X-Forwarded-Host', None)
 
         if forwarded_host is not None:
             environ['HTTP_HOST'] = forwarded_host.split(",")[0].strip()
-            environ['wsgi.url_scheme'] = cherrypy.request.scheme
+
+        scheme = cherrypy.request.headers.get('X-Forwarded-Proto', None)
+
+        if scheme is not None:
+            environ['wsgi.url_scheme'] = scheme
 
         return BaseRedirectorPlugin.challenge(self, environ, status, app_headers, forget_headers)
 
