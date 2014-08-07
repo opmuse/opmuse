@@ -27,7 +27,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
-from repoze.who.plugins.redirector import RedirectorPlugin
+from repoze.who.plugins.redirector import RedirectorPlugin as BaseRedirectorPlugin
 from repoze.who.classifiers import default_request_classifier
 from repoze.who.classifiers import default_challenge_decider
 from repoze.who._compat import get_cookies
@@ -274,6 +274,21 @@ def hash_password(password, salt):
         hashed = hashlib.sha512(("%s%s" % (hashed, salt)).encode()).hexdigest()
 
     return hashed
+
+
+class RedirectorPlugin(BaseRedirectorPlugin):
+    """
+    Extends RedirectorPlugin and adds support for http proxies via cherrypy.
+    """
+
+    def challenge(self, environ, status, app_headers, forget_headers):
+        forwarded_host = cherrypy.request.headers.get('X-Forwarded-Host')
+
+        if forwarded_host is not None:
+            environ['HTTP_HOST'] = forwarded_host
+            environ['wsgi.url_scheme'] = cherrypy.request.scheme
+
+        return BaseRedirectorPlugin.challenge(self, environ, status, app_headers, forget_headers)
 
 
 def repozewho_pipeline(app):
