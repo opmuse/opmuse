@@ -156,7 +156,7 @@ setup(
     name="opmuse",
     version=git_version,
     packages=['opmuse', 'opmuse.controllers'],
-    description="A web application to play, organize and share your music library.",
+    description="A web application to play, organize, share and make your music library social.",
     long_description=open('README.md', 'r').read(),
     author="Mattias Fliesberg",
     author_email="mattias.fliesberg@gmail.com",

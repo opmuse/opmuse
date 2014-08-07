@@ -4,7 +4,7 @@ opmuse documentation
 .. image:: ../assets/opossum-readme.png
    :align: right
 
-opmuse is a web application to play, organize and share your music library.
+opmuse is a web application to play, organize, share and make your music library social.
 
 These pages document development of opmuse. If you want to use opmuse you
 should go to the `opmuse website`_. If you actually want to develop you can
