@@ -7,9 +7,9 @@
         </div>
     {% endif %}
 
-    {% for message in messages %}
-        <li class="list-group-item message">
-            {{ message }}
+    {% for type, text in messages %}
+        <li class="list-group-item text-{{ type }} message">
+            {{ text | safe }}
         </li>
     {% endfor %}
 </ul>

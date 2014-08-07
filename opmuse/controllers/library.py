@@ -365,8 +365,8 @@ class LibraryUpload:
                     time.sleep(3)
 
             if track is None:
-                messages.append("Skipping %s, couldn't find its corresponding track %s." %
-                                (filename, audio_file))
+                messages.append(('warning', ("<strong>%s</strong>: Skipping <strong>%s</strong>, couldn't find " +
+                                "its corresponding track.") % (audio_file, filename)))
             else:
                 track_structure = TrackStructureParser(track)
                 track_path = track_structure.get_path(absolute=True)
@@ -375,10 +375,12 @@ class LibraryUpload:
                 new_path = os.path.join(track_path, filename.encode('utf8'))
 
                 if os.path.exists(new_path):
-                    messages.append("Skipping %s, already exists in %s." % (filename, relative_track_path))
+                    messages.append(('warning', ("<strong>%s</strong>: Skipping <strong>%s</strong>, already exists " +
+                                    "in <strong>%s</strong>.") % (audio_file, filename, relative_track_path)))
                 else:
                     shutil.move(path.encode('utf8'), new_path)
-                    messages.append("Uploaded %s to %s." % (filename, relative_track_path))
+                    messages.append(('info', ("<strong>%s</strong>: Uploaded <strong>%s</strong> to " +
+                                    "<strong>%s</strong>.") % (audio_file, filename, relative_track_path)))
 
         elif ext == "zip":
             # set artist name fallback to zip's name so if it's missing artist tags
@@ -406,7 +408,7 @@ class LibraryUpload:
                     paths.append(namepath.encode('utf8'))
 
             except Exception as error:
-                messages.append("%s: %s" % (os.path.basename(path), error))
+                messages.append(('danger', "<strong>%s</strong>: %s" % (os.path.basename(path), error)))
 
         elif ext == "rar":
             # look at corresponding ext == zip comment...
@@ -416,7 +418,8 @@ class LibraryUpload:
                 rar = RarFile(path)
 
                 if archive_password is None and rar.needs_password():
-                    messages.append("%s needs password but none provided." % os.path.basename(path))
+                    messages.append(('danger', "<strong>%s</strong>: Needs password but none provided." %
+                                    os.path.basename(path)))
                 else:
                     if archive_password is not None:
                         rar.setpassword(archive_password)
@@ -435,7 +438,7 @@ class LibraryUpload:
                         paths.append(namepath.encode('utf8'))
 
             except Exception as error:
-                messages.append("%s: %s" % (os.path.basename(path), error))
+                messages.append(('danger', "<strong>%s</strong>: %s" % (os.path.basename(path), error)))
 
         # this is a plain audio file
         else:

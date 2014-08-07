@@ -14,13 +14,15 @@
             {{ media.hierarchy(hierarchy) }}
         </div>
         <div class="col-xs-4">
-            <div class="result-stats panel panel-warning sidebar-nav">
+            <div class="result-stats panel panel-info sidebar-nav">
                 <div class="panel-heading">
                     <h3 class="panel-title">Messages</h3>
                 </div>
                 <ul class="list-group">
-                    {% for message in messages %}
-                        <li class="list-group-item">{{ message }}</li>
+                    {% for type, text in messages %}
+                        <li class="list-group-item text-{{ type }}">
+                            {{ text | safe }}
+                        </li>
                     {% endfor %}
                 </ul>
             </div>

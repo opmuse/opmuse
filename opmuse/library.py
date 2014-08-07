@@ -1937,8 +1937,9 @@ class LibraryDao:
             for path in track.paths:
                 try:
                     tag = reader.get_mutagen_tag(path.path)
-                except Exception as e:
-                    messages.append("Failed to get tag for %s (%s)." % (path.path.decode('utf8', 'replace'), e))
+                except Exception as error:
+                    messages.append(('danger', "Failed to get tag for <strong>%s</strong> (%s)." %
+                                    (path.path.decode('utf8', 'replace'), error)))
                     break
 
                 cherrypy.engine.library_watchdog.add_ignores(path.path)
@@ -2044,18 +2045,22 @@ class LibraryDao:
                 dirname = structure_parser.get_path(absolute = True)
                 old_dirname = os.path.dirname(filename)
 
+                filename_basename = os.path.basename(filename)
+                path = os.path.join(dirname, filename_basename)
+                filename_basename = filename_basename.decode('utf8', 'replace')
+
                 if dirname is None:
-                    messages.append(
-                        'Couldn\'t find appropriate path for %s.' % os.path.basename(filename).decode('utf8', 'replace')
-                    )
+                    messages.append(('danger', '<strong>%s</strong>: Couldn\'t find appropriate path.' %
+                                    filename_basename))
                     continue
 
                 if os.path.exists(dirname):
                     if not os.path.isdir(dirname):
                         dirname = dirname[len(library_path) - 1:]
-                        messages.append(
-                            'The path "%s" exists and is not a directory.' % dirname.decode('utf8', 'replace')
-                        )
+                        messages.append(('danger',
+                                        ('<strong>%s</strong>: File\'s directory <strong>%s</strong> exists ' +
+                                        'and is not a directory.') %
+                                        (filename_basename, dirname.decode('utf8', 'replace'))))
                         continue
                 else:
                     try:
@@ -2068,12 +2073,22 @@ class LibraryDao:
                         else:
                             raise e
 
-                path = os.path.join(dirname, os.path.basename(filename))
-
                 if path != filename:
                     if os.path.exists(path):
-                        path = path[len(library_path) - 1:]
-                        messages.append('The file "%s" already exists.' % path.decode('utf8', 'replace'))
+                        path_hash = LibraryProcess.get_hash(path)
+                        filename_hash = LibraryProcess.get_hash(filename)
+
+                        path = path[len(library_path) - 1:].decode('utf8', 'replace')
+
+                        if path_hash != filename_hash:
+                            messages.append(('danger', ('<strong>%s</strong>: A file already exists at ' +
+                                            '<strong>%s</strong> and it\'s not the same file, you might want ' +
+                                            'to investigate.') % (filename_basename, path)))
+                        else:
+                            messages.append(('warning', ('<strong>%s</strong>: A file already exists at ' +
+                                            '<strong>%s</strong> but it\'s the exact same file, so don\'t worry.') %
+                                            (filename_basename, path)))
+
                         continue
 
                     cherrypy.engine.library_watchdog.add_ignores([filename, path])
@@ -2096,6 +2111,9 @@ class LibraryDao:
                 paths.append(filename)
 
         tracks = []
+
+        if len(paths) == 0:
+            return tracks, messages
 
         LibraryProcess(self.get_library_path(), self.get_library_opmuse_txt(),
                        paths, get_database(), 0, tracks, user = user)
@@ -2122,7 +2140,8 @@ class LibraryDao:
                             continue
 
                     if os.path.exists(to_path):
-                        messages.append('The file "%s" already exists.' % to_path.decode('utf8', 'replace'))
+                        messages.append(('info', '<strong>%s</strong>: The file <strong>%s</strong> already exists.' %
+                                        (filename_basename, to_path.decode('utf8', 'replace'))))
                     else:
                         shutil.move(from_path, to_path)
 
