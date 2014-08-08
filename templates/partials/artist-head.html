@@ -264,8 +264,8 @@
 {% endif %}
 
 {% if album_disc_nos is defined and album_disc_nos %}
-    {% for disc, numbers in album_disc_nos.items() %}
-        {% if numbers|length < numbers|max %}
+    {% for disc, length, max in album_disc_nos %}
+        {% if length < max %}
             <p class="alert alert-info">
                 {% if disc %}
                     Disc {{ disc }}
@@ -274,7 +274,7 @@
                 {% endif %}
                 seems to be missing tracks, number of tracks is lower than highest track number.
             </p>
-        {% elif numbers|length > numbers|max %}
+        {% elif length > max %}
             <p class="alert alert-info">
                 {% if disc %}
                     Disc {{ disc }}
