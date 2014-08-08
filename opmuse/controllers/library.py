@@ -642,6 +642,7 @@ class Library:
             'artist_listened_tuples': artist_listened_tuples,
         }
 
+    # TODO use whoosh instead
     def get_artist_listened_tuples(self, artist_name):
         artist_listened_tuples = []
 
@@ -664,6 +665,7 @@ class Library:
 
         return artist_listened_tuples
 
+    # TODO use whoosh instead
     def get_album_listened_tuples(self, artist_name, album_name):
         album_listened_tuples = []
 

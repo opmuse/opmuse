@@ -56,7 +56,9 @@
             </ul>
         </li>
         {% endif %}
-        {% if remotes.lastfm is defined and remotes.lastfm and 'bio' in remotes.lastfm and remotes.lastfm.bio %}
+        {% if remotes.lastfm is defined and remotes.lastfm and (
+                'bio' in remotes.lastfm and remotes.lastfm.bio or 'wiki' in remotes.lastfm and remotes.lastfm.wiki
+            ) %}
             <li data-toggle="tab">
                 <a href="#lastfmtab_{{ index }}">{{ type }} on last.fm</a>
             </li>
@@ -137,14 +139,24 @@
                 </div>
             {% endfor %}
         {% endif %}
-        {% if remotes.lastfm is defined and remotes.lastfm and 'bio' in remotes.lastfm and remotes.lastfm.bio %}
-            {% do found_something.append(1) %}
-            <div class="tab-pane" id="lastfmtab_{{ index }}">
-                <div class="lastfm-content">
-                    {{ print_cover(album, artists[0]) }}
-                    {{ remotes.lastfm.bio|nl2p|safe }}
+        {% if remotes.lastfm is defined and remotes.lastfm %}
+            {% if 'bio' in remotes.lastfm and remotes.lastfm.bio %}
+                {% do found_something.append(1) %}
+                <div class="tab-pane" id="lastfmtab_{{ index }}">
+                    <div class="lastfm-content">
+                        {{ print_cover(album, artists[0]) }}
+                        {{ remotes.lastfm.bio|nl2p|safe }}
+                    </div>
                 </div>
-            </div>
+            {% elif 'wiki' in remotes.lastfm and remotes.lastfm.wiki %}
+                {% do found_something.append(1) %}
+                <div class="tab-pane" id="lastfmtab_{{ index }}">
+                    <div class="lastfm-content">
+                        {{ print_cover(album, artists[0]) }}
+                        {{ remotes.lastfm.wiki|nl2p|safe }}
+                    </div>
+                </div>
+            {% endif %}
         {% endif %}
         {% if 'google' in remotes and remotes.google and remotes.google|count > 0 %}
             {% for hit in remotes.google %}
@@ -348,11 +360,11 @@
                 </div>
             {% elif track is defined and track %}
                 <div class="reloader remotes_track_head_{{ track.id }}">
-                    {{ print_articles(remotes_artist, remotes_album, remotes_track) }}
+                    {{ print_articles(None, None, remotes_track) }}
                 </div>
             {% elif album is defined and album %}
                 <div class="reloader remotes_album_head_{{ album.id }}">
-                    {{ print_articles(remotes_artists[0] if remotes_artists is defined and remotes_artists|count > 0 else None, remotes_album) }}
+                    {{ print_articles(None, remotes_album) }}
                 </div>
             {% endif %}
         </div>

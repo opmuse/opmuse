@@ -72,7 +72,7 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'reloader', 'domReady!'],
             });
         },
         getTrackSelectors: function (id) {
-            return [".remotes_track_head_" + id];
+            return [".remotes_track_head_" + id, ".remotes_track_nav_" + id];
         },
         getArtistSelectors: function (id) {
             return [".remotes_artist_head_" + id, ".remotes_artist_nav_" + id];

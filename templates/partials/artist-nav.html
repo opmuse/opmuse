@@ -190,6 +190,34 @@
                         created {{ track.created|pretty_date }}<br>
                         {{ track.duration|format_seconds }} long
                     </li>
+                    <li class="list-group-item">
+                        Track on
+                        {%- if remotes_track -%}
+                            {% if remotes_track.lastfm and remotes_track.lastfm.url %}
+                                <a href="{{ remotes_track.lastfm.url }}">Lastfm</a>,
+                            {% endif %}
+                        {% endif %}
+                        <a href='http://www.google.com/search?q="{{
+                                (track.artist.name ~ " " ~ track.name if track.artist else track.name)|urlencode }}"'>
+                            Google</a>,
+                        <a href='http://translate.google.com/#auto/en/{{ track.name|urlencode }}'>
+                            Google Translate</a>.
+                    </li>
+                    {% if remotes_track and remotes_track.lastfm and remotes_track.lastfm.listeners %}
+                        <li class="list-group-item">
+                            <strong>{{ remotes_track.lastfm.listeners|format_number }}</strong> Lastfm Listeners
+                        </li>
+                    {% endif %}
+                    {% if remotes_track and remotes_track.lastfm and remotes_track.lastfm.tags %}
+                        <li class="list-group-item">
+                            {% for tag in remotes_track.lastfm.tags %}
+                            <span class="tag label label-primary" title="Lastfm tag, {{ tag }}">
+                                {# TODO we have no tag filter for tracks yet... #}
+                                <a href="/library/albums?filter=tag&filter_value={{ tag|urlencode }}">{{ tag }}</a>
+                            </span>
+                            {% endfor %}
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

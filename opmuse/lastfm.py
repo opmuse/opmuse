@@ -251,6 +251,37 @@ class LastfmNetwork:
 
         return albums
 
+    def get_track_info(self, artist, track, mbid = None):
+        params = {
+            'artist': artist,
+            'track': track,
+            'mbid': mbid
+        }
+
+        params = self._clean_params(params)
+
+        track = self._request('track.getInfo', params)['track']
+
+        if 'wiki' in track:
+            wiki = track['wiki']['summary']
+        else:
+            wiki = None
+
+        if track['playcount'] != '':
+            playcount = int(track['playcount'])
+        else:
+            playcount = None
+
+        return {
+            'artist': track['artist'],
+            'name': track['name'],
+            'listeners': int(track['listeners']),
+            'mbid': track['mbid'],
+            'playcount': playcount,
+            'url': track['url'],
+            'wiki': wiki,
+        }
+
     def get_album_info(self, artist, album, mbid = None):
         params = {
             'artist': artist,
@@ -270,7 +301,7 @@ class LastfmNetwork:
                 break
 
         if 'wiki' in album:
-            wiki = album['wiki']['summary'],
+            wiki = album['wiki']['summary']
         else:
             wiki = None
 
@@ -301,6 +332,25 @@ class LastfmNetwork:
         tags = []
 
         result = self._request('artist.getTopTags', params)['toptags']
+
+        if 'tag' in result:
+            for tag in self.process_list(result['tag']):
+                tags.append(tag['name'])
+
+        return tags
+
+    def get_track_top_tags(self, artist, track, mbid = None):
+        params = {
+            'artist': artist,
+            'track': track,
+            'mbid': mbid
+        }
+
+        params = self._clean_params(params)
+
+        tags = []
+
+        result = self._request('track.getTopTags', params)['toptags']
 
         if 'tag' in result:
             for tag in self.process_list(result['tag']):
@@ -709,6 +759,27 @@ class Lastfm:
 
         return ret
 
+    def get_track(self, artist_name, track_name):
+        try:
+            network = self.get_network()
+            track = network.get_track_info(artist_name, track_name)
+            tags = network.get_track_top_tags(artist_name, track_name)
+
+            return {
+                'url': track['url'],
+                'listeners': track['listeners'],
+                'playcount': track['playcount'],
+                'wiki': track['wiki'],
+                'name': track['name'],
+                'tags': tags[0:20],
+            }
+        except LastfmError as error:
+            log('Failed to get track "%s - %s": %s' % (
+                artist_name,
+                track_name,
+                error
+            ))
+
     def get_album(self, artist_name, album_name):
         try:
             network = self.get_network()
@@ -718,6 +789,7 @@ class Lastfm:
             return {
                 'url': album['url'],
                 'listeners': album['listeners'],
+                'playcount': album['playcount'],
                 'wiki': album['wiki'],
                 'name': album['name'],
                 'tags': tags[0:20],

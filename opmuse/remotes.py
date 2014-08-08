@@ -163,7 +163,8 @@ class Remotes:
         artist_name = track_entity.artist.name if track_entity.artist is not None else None
 
         track = {
-            'wikipedia': wikipedia.get_track(artist_name, album_name, track_entity.name)
+            'wikipedia': wikipedia.get_track(artist_name, album_name, track_entity.name),
+            'lastfm': lastfm.get_track(artist_name, track_entity.name)
         }
 
         cache.set(key, track)

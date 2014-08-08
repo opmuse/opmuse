@@ -2059,8 +2059,8 @@ class LibraryDao:
                         dirname = dirname[len(library_path) - 1:]
                         messages.append(('danger',
                                         ('<strong>%s</strong>: File\'s directory <strong>%s</strong> exists ' +
-                                        'and is not a directory.') %
-                                        (filename_basename, dirname.decode('utf8', 'replace'))))
+                                         'and is not a directory.') %
+                                         (filename_basename, dirname.decode('utf8', 'replace'))))
                         continue
                 else:
                     try:
@@ -2082,12 +2082,12 @@ class LibraryDao:
 
                         if path_hash != filename_hash:
                             messages.append(('danger', ('<strong>%s</strong>: A file already exists at ' +
-                                            '<strong>%s</strong> and it\'s not the same file, you might want ' +
-                                            'to investigate.') % (filename_basename, path)))
+                                                        '<strong>%s</strong> and it\'s not the same file, ' +
+                                                        'you might want to investigate.') % (filename_basename, path)))
                         else:
                             messages.append(('warning', ('<strong>%s</strong>: A file already exists at ' +
-                                            '<strong>%s</strong> but it\'s the exact same file, so don\'t worry.') %
-                                            (filename_basename, path)))
+                                                         '<strong>%s</strong> but it\'s the exact same file, ' +
+                                                         'so don\'t worry.') % (filename_basename, path)))
 
                         continue
 
