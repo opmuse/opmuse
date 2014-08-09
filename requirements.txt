@@ -1,5 +1,7 @@
 # vim: ft=conf
+#
 # don't forget about scripts/build-debs.sh when updating this file.
+# also, don't forget about readthedocs-requirements.txt
 #
 # opmuse deps
 CherryPy >=3.5.0,<3.6
