@@ -15,7 +15,7 @@ class LessCompiler:
         else:
             path = os.path.join(os.getcwd(), path)
 
-        subprocess.call([
+        subprocess.check_call([
             os.path.join(lesspath, 'bin', 'lessc'),
             os.path.join(stylespath, 'main.less'),
             path
