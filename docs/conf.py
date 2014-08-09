@@ -28,8 +28,9 @@ sys.path.insert(0, os.path.abspath('..'))
 import opmuse.boot
 opmuse.boot.configure(config_file=False)
 
-from opmuse.less_compiler import less_compiler
-less_compiler.compile('_static/bootswatch-3.1.0/opmuse/bootstrap.min.css')
+if not on_readthedocs:
+    from opmuse.less_compiler import less_compiler
+    less_compiler.compile('_static/bootswatch-3.1.0/opmuse/bootstrap.min.css')
 
 # -- General configuration ------------------------------------------------
 
