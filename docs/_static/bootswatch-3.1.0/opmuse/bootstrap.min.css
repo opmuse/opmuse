@@ -15522,9 +15522,6 @@ figure[data-effeckt-type=half-slide] {
   -ms-user-select: none;
   user-select: none;
 }
-.container {
-  width: auto !important;
-}
 a:hover {
   text-decoration: none;
 }
