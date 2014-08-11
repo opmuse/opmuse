@@ -15833,9 +15833,6 @@ body > .container-fluid {
   text-align: center;
   font-size: 10em;
 }
-body:not(.loaded) {
-  overflow: hidden;
-}
 body:not(.loaded) #overlay {
   display: table;
 }

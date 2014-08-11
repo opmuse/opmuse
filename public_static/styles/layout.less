@@ -1,9 +1,9 @@
-.fluid when (@fluid = true)  {
+.fluid-container when (@no_opmuse = false)  {
     width: auto !important;
 }
 
 .container {
-    .fluid;
+    .fluid-container;
 }
 
 a:hover {
@@ -372,9 +372,13 @@ body {
     height: 9999px;
 }
 
+.overflow-body when (@no_opmuse = false)  {
+    overflow: hidden;
+}
+
 body {
     &:not(.loaded) {
-        overflow: hidden;
+        .overflow-body;
 
         #overlay {
             display: table;

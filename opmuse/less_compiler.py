@@ -3,11 +3,21 @@ import subprocess
 
 
 class LessCompiler:
-    def compile(self, path=None, fluid=True):
-        if fluid:
-            fluid = "true"
+    def compile(self, path=None, no_opmuse=False):
+        """
+        Compiles less to css.
+
+        path
+            where to write compiled css.
+        no_opmuse
+            if true we generate a css without some opmuse
+            specific rules. useful for docs and other stuff.
+        """
+
+        if no_opmuse:
+            no_opmuse = "true"
         else:
-            fluid = "false"
+            no_opmuse = "false"
 
         from opmuse.utils import get_staticdir
 
@@ -25,7 +35,7 @@ class LessCompiler:
 
         subprocess.check_call([
             lessc,
-            "--global-var=fluid=%s" % fluid,
+            "--global-var=no_opmuse=%s" % no_opmuse,
             main_less, path
         ], cwd=stylespath)
 
