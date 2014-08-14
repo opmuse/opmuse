@@ -50,7 +50,7 @@ class WriteHandler:
     def delete_document(self, id):
         self._deletes.append(id)
 
-    def update_document(self, id, name, slug, filename = None):
+    def update_document(self, id, name, slug, filename=None):
         self._updates[id] = (name, slug, filename)
 
     def commit(self):
@@ -62,10 +62,10 @@ class WriteHandler:
                 name, slug, filename = values
 
                 writer.add_document(
-                    id = id, name=name, stemmed_name=name, metaphone_name=name,
+                    id=id, name=name, stemmed_name=name, metaphone_name=name,
                     exact_name=name, exact_metaphone_name=name,
-                    filename = filename,
-                    slug = slug
+                    filename=filename,
+                    slug=slug
                 )
                 updates += 1
 
@@ -131,7 +131,7 @@ class Search:
             name = os.path.splitext(path.filename)[0]
             filename = "%s %s" % (filename, name)
 
-        write_handler.update_document(str(track.id), name = track.name, slug = track.slug, filename = filename)
+        write_handler.update_document(str(track.id), name=track.name, slug=track.slug, filename=filename)
 
     def add_album(self, album):
         write_handler = write_handlers["Album"]
@@ -140,7 +140,7 @@ class Search:
             log("Write handler for Album isn't initialized")
             return
 
-        write_handler.update_document(str(album.id), name = album.name, slug = album.slug)
+        write_handler.update_document(str(album.id), name=album.name, slug=album.slug)
 
     def add_artist(self, artist):
         write_handler = write_handlers["Artist"]
@@ -149,26 +149,26 @@ class Search:
             log("Write handler for Artist isn't initialized")
             return
 
-        write_handler.update_document(str(artist.id), name = artist.name, slug = artist.slug)
+        write_handler.update_document(str(artist.id), name=artist.name, slug=artist.slug)
 
-    def get_results_track(self, query, exact = False, exact_metaphone = False):
+    def get_results_track(self, query, exact=False, exact_metaphone=False):
         return self._query("Track", query, exact, exact_metaphone)
 
-    def get_results_album(self, query, exact = False, exact_metaphone = False):
+    def get_results_album(self, query, exact=False, exact_metaphone=False):
         return self._query("Album", query, exact, exact_metaphone)
 
-    def get_results_artist(self, query, exact = False, exact_metaphone = False):
+    def get_results_artist(self, query, exact=False, exact_metaphone=False):
         return self._query("Artist", query, exact, exact_metaphone)
 
-    def query_track(self, query, exact = False, exact_metaphone = False):
+    def query_track(self, query, exact=False, exact_metaphone=False):
         results = self.get_results_track(query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Track, results)
 
-    def query_album(self, query, exact = False, exact_metaphone = False):
+    def query_album(self, query, exact=False, exact_metaphone=False):
         results = self.get_results_album(query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Album, results)
 
-    def query_artist(self, query, exact = False, exact_metaphone = False):
+    def query_artist(self, query, exact=False, exact_metaphone=False):
         results = self.get_results_artist(query, exact, exact_metaphone)
         return self._fetch_by_keys(opmuse.library.Artist, results)
 
@@ -198,7 +198,7 @@ class Search:
         return sorted(entities, key=lambda entity: indexed_results[entity.id], reverse=True)
 
     @memoize
-    def _query(self, index_name, query, exact = False, exact_metaphone = False):
+    def _query(self, index_name, query, exact=False, exact_metaphone=False):
         write_handler = write_handlers[index_name]
 
         if exact:
@@ -232,7 +232,7 @@ class Search:
 class WhooshPlugin(Monitor):
 
     def __init__(self, bus):
-        Monitor.__init__(self, bus, self.run, frequency = 30)
+        Monitor.__init__(self, bus, self.run, frequency=30)
 
         self._running = False
 
@@ -255,26 +255,26 @@ class WhooshPlugin(Monitor):
                     os.makedirs(index_path)
 
                 schema = whoosh.fields.Schema(
-                    id = whoosh.fields.ID(stored=True, unique=True),
-                    name = whoosh.fields.TEXT(
+                    id=whoosh.fields.ID(stored=True, unique=True),
+                    name=whoosh.fields.TEXT(
                         analyzer=RegexTokenizer() | LowercaseFilter()
                     ),
-                    stemmed_name = whoosh.fields.TEXT(
+                    stemmed_name=whoosh.fields.TEXT(
                         analyzer=SpaceSeparatedTokenizer() | LowercaseFilter() | StemFilter()
                     ),
-                    metaphone_name = whoosh.fields.TEXT(
+                    metaphone_name=whoosh.fields.TEXT(
                         analyzer=SpaceSeparatedTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
                     ),
-                    exact_name = whoosh.fields.TEXT(
+                    exact_name=whoosh.fields.TEXT(
                         analyzer=IDTokenizer() | LowercaseFilter()
                     ),
-                    exact_metaphone_name = whoosh.fields.TEXT(
+                    exact_metaphone_name=whoosh.fields.TEXT(
                         analyzer=IDTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
                     ),
-                    slug = whoosh.fields.TEXT(
+                    slug=whoosh.fields.TEXT(
                         analyzer=RegexTokenizer(r"[^_]+") | LowercaseFilter()
                     ),
-                    filename = whoosh.fields.TEXT(
+                    filename=whoosh.fields.TEXT(
                         analyzer=RegexTokenizer(r"[^ \t\r\n_\.]+") | LowercaseFilter()
                     ),
                 )

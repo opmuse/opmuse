@@ -16,7 +16,7 @@ from opmuse.cache import cache
 
 class AdminUsers:
     @staticmethod
-    def _validate_user_params(login = None, mail = None, roles = None, password1 = None, password2 = None):
+    def _validate_user_params(login=None, mail=None, roles=None, password1=None, password2=None):
         if login is None or len(login) < 3:
             messages_service.warning('Login must be at least 3 chars.')
             raise cherrypy.HTTPError(status=409)
@@ -59,7 +59,7 @@ class AdminUsers:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def add_submit(self, login = None, mail = None, roles = None, password1 = None, password2 = None):
+    def add_submit(self, login=None, mail=None, roles=None, password1=None, password2=None):
 
         AdminUsers._validate_user_params(login, mail, roles, password1, password2)
 
@@ -107,8 +107,8 @@ class AdminUsers:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def edit_submit(self, user_id, login = None, mail = None, roles = None,
-                    password1 = None, password2 = None):
+    def edit_submit(self, user_id, login=None, mail=None, roles=None,
+                    password1=None, password2=None):
         try:
             user = (get_database().query(User)
                     .filter_by(id=user_id).one())

@@ -230,7 +230,7 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
 
         return AuthTktCookiePlugin.identify(self, environ)
 
-    def get_secret(self, environ, identity = None):
+    def get_secret(self, environ, identity=None):
         if identity is None or 'login' not in identity:
             cookies = get_cookies(environ)
             cookie = cookies.get(self.cookie_name)
@@ -256,7 +256,7 @@ class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
         database = get_session()
 
         try:
-            user = database.query(User).filter_by(login = login).one()
+            user = database.query(User).filter_by(login=login).one()
             salt = user.salt
         except NoResultFound:
             pass
@@ -300,7 +300,7 @@ def repozewho_pipeline(app):
     database = DatabaseAuthenticator()
     redirector = RedirectorPlugin('/login')
 
-    auth_tkt = UserSecretAuthTktCookiePlugin(cookie_name = 'auth_tkt', include_ip = False)
+    auth_tkt = UserSecretAuthTktCookiePlugin(cookie_name='auth_tkt', include_ip=False)
     query_string = AuthTktQueryStringIdentifier()
 
     identifiers = [('query_string', query_string), ('auth_tkt', auth_tkt)]
@@ -316,8 +316,8 @@ def repozewho_pipeline(app):
         mdproviders,
         default_request_classifier,
         default_challenge_decider,
-        log_stream = cherrypy.log.access_log,
-        log_level = logging.INFO
+        log_stream=cherrypy.log.access_log,
+        log_level=logging.INFO
     )
 
 

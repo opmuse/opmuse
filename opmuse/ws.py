@@ -132,7 +132,7 @@ class Ws:
 
         return self.get_ws_user(handler.user['id'], handler.user['login'])
 
-    def get_ws_user(self, id = None, login = None):
+    def get_ws_user(self, id=None, login=None):
         """
         Get current ws user as specified for thread or by cherrypy.request
         """
@@ -175,7 +175,7 @@ class Ws:
         except:
             pass
 
-    def emit(self, event, *args, handler = None, ws_user = None):
+    def emit(self, event, *args, handler=None, ws_user=None):
         """
         Sends to active user in thread, or specific user or handler.
         """
@@ -211,14 +211,14 @@ class Ws:
         Sends to all sockets, e.g. all tabs/windows for all logged in users.
         """
 
-        self.emit(event, *args, handler = self._all_handlers)
+        self.emit(event, *args, handler=self._all_handlers)
 
     def receive(self, event, args, handler):
         ws_user = self.get_ws_user_by_handler(handler)
 
         if event in self._events:
             for callback in self._events[event]:
-                callback(*args, ws_user = ws_user)
+                callback(*args, ws_user=ws_user)
 
     def on(self, event, callback):
         if event not in self._events:

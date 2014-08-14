@@ -149,8 +149,8 @@ class FFMPEGTranscoder(Transcoder):
         cherrypy.request.transcoding_transcoder = self
 
         try:
-            self.process = subprocess.Popen(args, shell = False, stdout = subprocess.PIPE,
-                                            stderr = subprocess.PIPE, stdin = None)
+            self.process = subprocess.Popen(args, shell=False, stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE, stdin=None)
         except Exception as e:
             self.error = 'Got "%s" when starting ffmpeg.' % str(e)
             return
@@ -412,7 +412,7 @@ class Transcoding:
 
         return None, None
 
-    def transcode(self, tracks, transcoder = None):
+    def transcode(self, tracks, transcoder=None):
         if transcoder is None:
             transcoder = CopyFFMPEGTranscoder
 

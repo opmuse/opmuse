@@ -199,7 +199,7 @@ class CachePlugin(Monitor):
     """
 
     def __init__(self, bus):
-        Monitor.__init__(self, bus, self.run, frequency = CachePlugin.FREQUENCY)
+        Monitor.__init__(self, bus, self.run, frequency=CachePlugin.FREQUENCY)
         self.index = 0
 
     def run(self):

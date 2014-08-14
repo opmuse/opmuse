@@ -22,7 +22,7 @@ class Image:
 
     FNULL = open('/dev/null', 'w')
 
-    def resize(self, source, dest, width, height = None, gravity = 'center', offset = None):
+    def resize(self, source, dest, width, height=None, gravity='center', offset=None):
         if height is None:
             height = width
 
@@ -37,7 +37,7 @@ class Image:
             '-gravity', gravity,
             '-extent', extent,
             source, dest
-        ], shell = False, stdout = self.FNULL, stderr = self.FNULL, stdin = None)
+        ], shell=False, stdout=self.FNULL, stderr=self.FNULL, stdin=None)
 
         process.wait()
 

@@ -80,7 +80,7 @@ class Queue:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
-    def clear(self, what = None):
+    def clear(self, what=None):
         if what is not None and what == 'played':
             queue_dao.clear_played()
         else:

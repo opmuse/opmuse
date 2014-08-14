@@ -46,7 +46,7 @@ class Remotes:
     def update_user_tracks(self, user):
         key = Remotes.USER_TRACKS_KEY_FORMAT % user.id
 
-        if cache.needs_update(key, age = Remotes.USER_TRACKS_AGE):
+        if cache.needs_update(key, age=Remotes.USER_TRACKS_AGE):
             cache.keep(key)
 
             try:
@@ -103,7 +103,7 @@ class Remotes:
     def update_user(self, user):
         key = Remotes.USER_KEY_FORMAT % user.id
 
-        if cache.needs_update(key, age = Remotes.USER_AGE):
+        if cache.needs_update(key, age=Remotes.USER_AGE):
             cache.keep(key)
 
             try:
@@ -141,7 +141,7 @@ class Remotes:
     def update_track(self, track):
         key = Remotes.TRACK_KEY_FORMAT % track.id
 
-        if cache.needs_update(key, age = Remotes.TRACK_AGE):
+        if cache.needs_update(key, age=Remotes.TRACK_AGE):
             cache.keep(key)
 
             try:
@@ -181,7 +181,7 @@ class Remotes:
     def update_album(self, album):
         key = Remotes.ALBUM_KEY_FORMAT % album.id
 
-        if cache.needs_update(key, age = Remotes.ALBUM_AGE):
+        if cache.needs_update(key, age=Remotes.ALBUM_AGE):
             cache.keep(key)
 
             try:
@@ -223,7 +223,7 @@ class Remotes:
     def update_artist(self, artist):
         key = Remotes.ARTIST_KEY_FORMAT % artist.id
 
-        if cache.needs_update(key, age = Remotes.ARTIST_AGE):
+        if cache.needs_update(key, age=Remotes.ARTIST_AGE):
             cache.keep(key)
 
             try:
@@ -263,7 +263,7 @@ class Remotes:
     def update_tag(self, tag_name):
         key = Remotes.TAG_KEY_FORMAT % tag_name
 
-        if cache.needs_update(key, age = Remotes.TAG_AGE):
+        if cache.needs_update(key, age=Remotes.TAG_AGE):
             cache.keep(key)
 
             try:

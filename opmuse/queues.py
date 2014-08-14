@@ -71,10 +71,10 @@ class QueueEvents:
         progress = ws_user.get('queue.current_progress')
 
         if track is not None:
-            ws.emit('queue.current_track', track, ws_user = ws_user)
+            ws.emit('queue.current_track', track, ws_user=ws_user)
 
         if progress is not None:
-            ws.emit('queue.current_progress', progress, ws_user = ws_user)
+            ws.emit('queue.current_progress', progress, ws_user=ws_user)
 
     def transcoding_progress(self, progress, transcoder, track):
         ws_user = ws.get_ws_user()
@@ -96,7 +96,7 @@ class QueueEvents:
     def transcoding_start(self, transcoder, track):
         if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
             queue_current_id = cherrypy.request.queue_current_id
-            queue_dao.update_queue(queue_current_id, current_seconds = None, playing = True)
+            queue_dao.update_queue(queue_current_id, current_seconds=None, playing=True)
 
         track = self.serialize_track(track)
 
@@ -118,7 +118,7 @@ class QueueEvents:
         if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
             queue_current_id = cherrypy.request.queue_current_id
 
-            queue_dao.update_queue(queue_current_id, played = True)
+            queue_dao.update_queue(queue_current_id, played=True)
 
             cherrypy.request.queues_done = True
 
@@ -131,7 +131,7 @@ class QueueEvents:
             queue_current = queue_dao.get_queue(cherrypy.request.queue_current_id)
 
             if queue_current is not None:
-                queue_dao.update_queue(queue_current.id, playing = False)
+                queue_dao.update_queue(queue_current.id, playing=False)
 
             if queue_current is not None and queue_current.current:
                 if (hasattr(cherrypy.request, 'queue_progress') and cherrypy.request.queue_progress is not None and
@@ -146,7 +146,7 @@ class QueueEvents:
                 else:
                     error = transcoder.error
 
-                queue_dao.update_queue(queue_current.id, current_seconds = current_seconds, error = error)
+                queue_dao.update_queue(queue_current.id, current_seconds=current_seconds, error=error)
 
             ws.emit('queue.update')
 

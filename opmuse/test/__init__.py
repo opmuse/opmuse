@@ -22,7 +22,7 @@ def setup_db(self):
 
     remove_db()
 
-    self.session = get_raw_session(create_all = True)
+    self.session = get_raw_session(create_all=True)
 
     run_fixtures(self.session)
 
@@ -41,7 +41,7 @@ try:
 
             remove_db()
 
-            session = get_raw_session(create_all = True)
+            session = get_raw_session(create_all=True)
             run_fixtures(session)
             session.close()
 

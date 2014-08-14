@@ -59,7 +59,7 @@ try:
 
     class LessReloader(Monitor):
         def __init__(self, bus):
-            Monitor.__init__(self, bus, self.run, frequency = .5)
+            Monitor.__init__(self, bus, self.run, frequency=.5)
 
             self._files = {}
             self.enable = False

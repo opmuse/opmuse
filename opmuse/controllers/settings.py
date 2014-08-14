@@ -51,7 +51,7 @@ class Settings:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
-    def submit(self, login = None, mail = None, password1 = None, password2 = None):
+    def submit(self, login=None, mail=None, password1=None, password2=None):
 
         user = cherrypy.request.user
 

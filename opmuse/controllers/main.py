@@ -107,7 +107,7 @@ class Root:
 
     @cherrypy.expose
     @cherrypy.tools.multiheaders()
-    def logout(self, came_from = None):
+    def logout(self, came_from=None):
         who_api = get_api(cherrypy.request.wsgi_environ)
 
         headers = who_api.forget()
@@ -119,7 +119,7 @@ class Root:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='login.html')
     @cherrypy.tools.multiheaders()
-    def login(self, login = None, password = None, came_from = None):
+    def login(self, login=None, password=None, came_from=None):
         if login is not None and password is not None:
             who_api = get_api(cherrypy.request.wsgi_environ)
 

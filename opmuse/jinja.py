@@ -183,8 +183,8 @@ def format_bytes(bytes, precision=2):
     return "%.*f %s" % (precision, bytes, suffixes[suffixIndex])
 
 
-def track_path(track, artist = None):
-    track_structure = TrackStructureParser(track, data_override = {'artist': artist})
+def track_path(track, artist=None):
+    track_structure = TrackStructureParser(track, data_override={'artist': artist})
     path = track_structure.get_path()
 
     if path is not None:
@@ -292,7 +292,7 @@ class JinjaPlugin(SimplePlugin):
         self.env = None
 
 
-def render(path, params = []):
+def render(path, params=[]):
     # this one fucks with cherrypy.request and stuff, but seeing as this should
     # only be run in a template after all that jazz is done, it should be safe.
     # i guess we'll notice if it doesn't though :/

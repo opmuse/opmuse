@@ -29,7 +29,7 @@ class LibraryEdit:
     @cherrypy.tools.jinja(filename='library/edit.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def default(self, ids = ''):
+    def default(self, ids=''):
         ids = ids.split(',')
 
         tracks = library_dao.get_tracks_by_ids(ids)
@@ -40,7 +40,7 @@ class LibraryEdit:
     @cherrypy.tools.jinja(filename='library/edit_result.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def submit(self, ids, artists, albums, tracks, dates, numbers, discs, yes = False, no = False):
+    def submit(self, ids, artists, albums, tracks, dates, numbers, discs, yes=False, no=False):
 
         move = False
 
@@ -93,7 +93,7 @@ class LibraryEdit:
     @cherrypy.tools.jinja(filename='library/edit_result.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def move(self, ids, where = None):
+    def move(self, ids, where=None):
 
         filenames = []
 
@@ -117,7 +117,7 @@ class LibraryEdit:
             artist_name = None
 
         tracks, messages = library_dao.add_files(
-            filenames, move = True, remove_dirs = True, artist_name_override = artist_name
+            filenames, move=True, remove_dirs=True, artist_name_override=artist_name
         )
 
         tracks = LibraryEdit._sort_tracks(tracks)
@@ -128,7 +128,7 @@ class LibraryEdit:
 
     @staticmethod
     def _sort_tracks(tracks):
-        return sorted(tracks, key = lambda track: (
+        return sorted(tracks, key=lambda track: (
                       track.artist.name if track.artist is not None else '',
                       track.album.name if track.album is not None else '',
                       track.number if track.number is not None else '0',
@@ -139,7 +139,7 @@ class LibraryRemove:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/remove_modal.html')
-    def modal(self, ids, title = None):
+    def modal(self, ids, title=None):
         ids = ids.split(',')
 
         tracks = library_dao.get_tracks_by_ids(ids)
@@ -195,7 +195,7 @@ class LibrarySearch:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/search.html')
-    def default(self, query = None, type = None):
+    def default(self, query=None, type=None):
         artists = []
         albums = []
         tracks = []
@@ -291,7 +291,7 @@ class LibraryUpload:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def start(self, session = None):
+    def start(self, session=None):
         cache_key = LibraryUpload.CACHE_KEY % (cherrypy.request.user.id, session)
 
         all_tracks = []
@@ -304,7 +304,7 @@ class LibraryUpload:
     @cherrypy.tools.jinja(filename='library/upload_add.html')
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.authorize(roles=['admin'])
-    def add(self, archive_password = None, audio_file = None, session = None, artist_name_fallback = None):
+    def add(self, archive_password=None, audio_file=None, session=None, artist_name_fallback=None):
         cache_key = LibraryUpload.CACHE_KEY % (cherrypy.request.user.id, session)
 
         all_tracks = None
@@ -450,9 +450,9 @@ class LibraryUpload:
             os.utime(path, None)
 
         if len(paths) > 0:
-            tracks, add_files_messages = library_dao.add_files(paths, move = True, remove_dirs = False,
-                                                               artist_name_fallback = artist_name_fallback,
-                                                               user = cherrypy.request.user)
+            tracks, add_files_messages = library_dao.add_files(paths, move=True, remove_dirs=False,
+                                                               artist_name_fallback=artist_name_fallback,
+                                                               user=cherrypy.request.user)
             messages += add_files_messages
         else:
             tracks = []
@@ -762,16 +762,16 @@ class Library:
                     })
 
             dir_tracks[dir]['files'] = sorted(dir_tracks[dir]['files'],
-                                              key = lambda item: "%d%s" % (not item["isdir"], item["file"]))
+                                              key=lambda item: "%d%s" % (not item["isdir"], item["file"]))
 
-        dir_tracks = sorted(dir_tracks.items(), key = lambda d: d[0])
+        dir_tracks = sorted(dir_tracks.items(), key=lambda d: d[0])
 
         return dir_tracks
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/tracks.html')
-    def tracks(self, sort = None, filter = None, page = None):
+    def tracks(self, sort=None, filter=None, page=None):
         if sort is None:
             sort = "created"
 
@@ -825,7 +825,7 @@ class Library:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/artists.html')
-    def artists(self, sort = None, filter = None, filter_value = None, page = None):
+    def artists(self, sort=None, filter=None, filter_value=None, page=None):
         if sort is None:
             sort = "created"
 
@@ -865,7 +865,7 @@ class Library:
 
             if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for artist in remotes_user['lastfm']['top_artists_overall']:
-                    artist_results = search.query_artist(artist['name'], exact = True)
+                    artist_results = search.query_artist(artist['name'], exact=True)
 
                     if len(artist_results) > 0:
                         artist_ids.append(artist_results[0].id)
@@ -882,7 +882,7 @@ class Library:
 
                 if remotes_tag is not None and remotes_tag['lastfm'] is not None:
                     for artist in remotes_tag['lastfm']['artists']:
-                        artist_results = search.query_artist(artist['name'], exact = True)
+                        artist_results = search.query_artist(artist['name'], exact=True)
 
                         if len(artist_results) > 0:
                             artist_ids.append(artist_results[0].id)
@@ -911,7 +911,7 @@ class Library:
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.tools.jinja(filename='library/albums.html')
-    def albums(self, view = None, sort = None, filter = None, filter_value = None, page = None):
+    def albums(self, view=None, sort=None, filter=None, filter_value=None, page=None):
         if view is None:
             view = "covers"
 
@@ -948,7 +948,7 @@ class Library:
 
             if remotes_user is not None and remotes_user['lastfm'] is not None:
                 for album in remotes_user['lastfm']['top_albums_overall']:
-                    album_results = search.query_album(album['name'], exact = True)
+                    album_results = search.query_album(album['name'], exact=True)
 
                     if len(album_results) > 0:
                         album_ids.append(album_results[0].id)
@@ -971,7 +971,7 @@ class Library:
 
                 if remotes_tag is not None and remotes_tag['lastfm'] is not None:
                     for album in remotes_tag['lastfm']['albums']:
-                        album_results = search.query_album(album['name'], exact = True)
+                        album_results = search.query_album(album['name'], exact=True)
 
                         if len(album_results) > 0:
                             album_ids.append(album_results[0].id)

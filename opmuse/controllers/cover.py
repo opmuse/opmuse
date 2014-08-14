@@ -8,7 +8,7 @@ class Cover:
     @cherrypy.expose
     @cherrypy.tools.expires(secs=3600 * 24 * 30, force=True)
     @cherrypy.tools.authenticated(needs_auth=True)
-    def default(self, type, slug, hash = None, refresh = None, size="default"):
+    def default(self, type, slug, hash=None, refresh=None, size="default"):
         try:
             mime, cover = covers.get_cover(type, slug, size)
         except ValueError:

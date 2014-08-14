@@ -82,8 +82,8 @@ class LastfmNetwork:
     def get_auth_token(self):
         return self._request('auth.getToken')['token']
 
-    def track_update_now_playing(self, artist, title, album = None, album_artist = None,
-                                 duration = None, track_number = None, mbid = None, context = None):
+    def track_update_now_playing(self, artist, title, album=None, album_artist=None,
+                                 duration=None, track_number=None, mbid=None, context=None):
         params = {
             'artist': artist,
             'track': title,
@@ -97,10 +97,10 @@ class LastfmNetwork:
 
         params = self._clean_params(params)
 
-        self._request('track.updateNowPlaying', data_params = params)
+        self._request('track.updateNowPlaying', data_params=params)
 
-    def track_scrobble(self, artist, title, timestamp, album = None, album_artist = None, track_number = None,
-                       duration = None, stream_id = None, context = None, mbid = None):
+    def track_scrobble(self, artist, title, timestamp, album=None, album_artist=None, track_number=None,
+                       duration=None, stream_id=None, context=None, mbid=None):
         params = {
             'artist': artist,
             'track': title,
@@ -116,9 +116,9 @@ class LastfmNetwork:
 
         params = self._clean_params(params)
 
-        self._request('track.scrobble', data_params = params)
+        self._request('track.scrobble', data_params=params)
 
-    def get_user_recent_tracks(self, user_name, page = 1, limit = 50):
+    def get_user_recent_tracks(self, user_name, page=1, limit=50):
         """
         if page is None fetch all pages
         """
@@ -251,7 +251,7 @@ class LastfmNetwork:
 
         return albums
 
-    def get_track_info(self, artist, track, mbid = None):
+    def get_track_info(self, artist, track, mbid=None):
         params = {
             'artist': artist,
             'track': track,
@@ -282,7 +282,7 @@ class LastfmNetwork:
             'wiki': wiki,
         }
 
-    def get_album_info(self, artist, album, mbid = None):
+    def get_album_info(self, artist, album, mbid=None):
         params = {
             'artist': artist,
             'album': album,
@@ -321,7 +321,7 @@ class LastfmNetwork:
             'cover': cover
         }
 
-    def get_artist_top_tags(self, artist, mbid = None):
+    def get_artist_top_tags(self, artist, mbid=None):
         params = {
             'artist': artist,
             'mbid': mbid
@@ -339,7 +339,7 @@ class LastfmNetwork:
 
         return tags
 
-    def get_track_top_tags(self, artist, track, mbid = None):
+    def get_track_top_tags(self, artist, track, mbid=None):
         params = {
             'artist': artist,
             'track': track,
@@ -358,7 +358,7 @@ class LastfmNetwork:
 
         return tags
 
-    def get_album_top_tags(self, artist, album, mbid = None):
+    def get_album_top_tags(self, artist, album, mbid=None):
         params = {
             'artist': artist,
             'album': album,
@@ -488,7 +488,7 @@ class LastfmNetwork:
 
         return result
 
-    def _request(self, method, method_params = None, data_params = None):
+    def _request(self, method, method_params=None, data_params=None):
         params = {
             'api_key': self.key,
             'method': method,
@@ -697,7 +697,7 @@ class Lastfm:
             datetime.datetime.utcnow().utctimetuple()
         )
 
-    def get_user_tracks(self, user_name, session_key = None):
+    def get_user_tracks(self, user_name, session_key=None):
         if session_key is None:
             session_key = cherrypy.request.user.lastfm_session_key
 
@@ -712,7 +712,7 @@ class Lastfm:
                 error
             ))
 
-    def get_user(self, user_name, session_key = None):
+    def get_user(self, user_name, session_key=None):
         if session_key is None:
             session_key = cherrypy.request.user.lastfm_session_key
 
@@ -802,7 +802,7 @@ class Lastfm:
                 error
             ))
 
-    def get_tag(self, tag_name, limit = 50, page = 1):
+    def get_tag(self, tag_name, limit=50, page=1):
         try:
             network = self.get_network()
 

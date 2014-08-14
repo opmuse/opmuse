@@ -88,7 +88,7 @@ def command_cherrypy(*args):
     try:
         process = subprocess.Popen([
             sys.executable, 'opmuse/boot.py'
-        ] + list(args), cwd=root_path, preexec_fn = preexec_fn)
+        ] + list(args), cwd=root_path, preexec_fn=preexec_fn)
 
         process.wait()
     except KeyboardInterrupt:

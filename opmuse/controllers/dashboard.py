@@ -213,7 +213,7 @@ class Dashboard:
         cache_key = Dashboard.RECENT_TRACK_CACHE_KEY
         cache_age = Dashboard.RECENT_TRACK_CACHE_AGE
 
-        if cache.needs_update(cache_key, age = cache_age):
+        if cache.needs_update(cache_key, age=cache_age):
             cache.keep(cache_key)
 
             try:

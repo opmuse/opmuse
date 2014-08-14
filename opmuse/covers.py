@@ -86,7 +86,7 @@ class Covers:
         elif type == "artist":
             ws.emit_all('covers.artist.update', entity.id)
 
-    def get_cover(self, type, slug, size = "default"):
+    def get_cover(self, type, slug, size="default"):
         if type not in ['album', 'artist']:
             raise ValueError('Invalid type %s supplied' % type)
 

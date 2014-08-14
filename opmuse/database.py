@@ -64,7 +64,7 @@ def get_database_name():
     return match.group(1)
 
 
-def get_raw_session(create_all = False):
+def get_raw_session(create_all=False):
     engine = get_engine()
 
     if create_all:

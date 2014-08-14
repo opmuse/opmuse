@@ -566,12 +566,12 @@ class TagParser:
         """
         raise NotImplementedError()
 
-    def parse(self, filename, metadata, path = None):
+    def parse(self, filename, metadata, path=None):
         raise NotImplementedError()
 
 
 class MutagenParser(TagParser):
-    def parse(self, filename, metadata, path = None):
+    def parse(self, filename, metadata, path=None):
         try:
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
@@ -710,7 +710,7 @@ class PathParser(TagParser):
     might be album name, parent folder might be artist name ...)
     """
 
-    def parse(self, filename, metadata, path = None):
+    def parse(self, filename, metadata, path=None):
         if path is None:
             raise ValueError('PathParser requires path to be specified.')
 
@@ -802,7 +802,7 @@ class PathParser(TagParser):
         if len(track_name) == 0:
             track_name = orig_track_name
 
-        disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]{1,2})', track_dir, flags = re.IGNORECASE)
+        disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]{1,2})', track_dir, flags=re.IGNORECASE)
 
         if disc_match:
             disc = disc_match.group(2).decode('utf8')
@@ -833,7 +833,7 @@ class PathParser(TagParser):
 
         for match_file in match_files:
             for file in files:
-                if re.match(match_file, os.path.basename(file), flags = re.IGNORECASE):
+                if re.match(match_file, os.path.basename(file), flags=re.IGNORECASE):
                     match = file
                     break
 
@@ -869,7 +869,7 @@ class TagReader:
     def parse_mutagen(self, filename):
         return self.parse(filename, self._mutagen_parsers)
 
-    def parse(self, filename, parsers = None, path = None):
+    def parse(self, filename, parsers=None, path=None):
         metadata = None
 
         if parsers is None:
@@ -906,7 +906,7 @@ reader = TagReader()
 
 class StructureParser:
 
-    def __init__(self, filename, data_override = {}, data_fallback = {}):
+    def __init__(self, filename, data_override={}, data_fallback={}):
         config = cherrypy.tree.apps[''].config['opmuse']
         self._fs_structure = config['library.fs.structure']
         self._path = os.path.abspath(config['library.path']).encode('utf8')
@@ -923,7 +923,7 @@ class StructureParser:
 
         return correct_path == actual_path
 
-    def get_path(self, absolute = False):
+    def get_path(self, absolute=False):
 
         data = self.get_data()
 
@@ -1022,7 +1022,7 @@ class StructureParser:
 
 class TrackStructureParser(StructureParser):
 
-    def __init__(self, track, filename = None, data_override = {}, data_fallback = {}):
+    def __init__(self, track, filename=None, data_override={}, data_fallback={}):
         StructureParser.__init__(self, filename, data_override, data_fallback)
         self._track = track
 
@@ -1037,7 +1037,7 @@ class TrackStructureParser(StructureParser):
 
 class MetadataStructureParser(StructureParser):
 
-    def __init__(self, metadata, filename = None, data_override = {}, data_fallback = {}):
+    def __init__(self, metadata, filename=None, data_override={}, data_fallback={}):
         StructureParser.__init__(self, filename, data_override, data_fallback)
         self._metadata = metadata
 
@@ -1167,7 +1167,7 @@ class Library:
 
                 if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
                     p = Thread(target=LibraryProcess, name="LibraryProcess_%d" % no,
-                               args = (self.path, self.use_opmuse_txt, to_process, None, no, None, self))
+                               args=(self.path, self.use_opmuse_txt, to_process, None, no, None, self))
                     p.start()
 
                     self.threads.append(p)
@@ -1328,8 +1328,8 @@ class OpmuseTxt:
 
 
 class LibraryProcess:
-    def __init__(self, path, use_opmuse_txt, queue, database = None, no = -1,
-                 tracks = None, library = None, user = None):
+    def __init__(self, path, use_opmuse_txt, queue, database=None, no=-1,
+                 tracks=None, library=None, user=None):
         self.path = path
         self.no = no
         self.user = user
@@ -1653,7 +1653,7 @@ class LibraryProcess:
 
         return number
 
-    def get_track_slug(self, metadata, index = 0):
+    def get_track_slug(self, metadata, index=0):
         if metadata.artist_name is None and metadata.album_name is None:
             slug = metadata.track_name
         elif metadata.artist_name is None:
@@ -1676,7 +1676,7 @@ class LibraryProcess:
         return LibraryProcess.slugify(metadata.artist_name, index)
 
     @staticmethod
-    def slugify(string, index = 0):
+    def slugify(string, index=0):
         if string is None:
             string = ""
 
@@ -1813,7 +1813,7 @@ class LibraryDao:
         return (get_database().query(ListenedTrack)
                 .filter(ListenedTrack.user_id == user_id).delete())
 
-    def delete_track(self, track, database = None):
+    def delete_track(self, track, database=None):
         if database is None:
             database = get_database()
 
@@ -1839,7 +1839,7 @@ class LibraryDao:
             if len(artist.albums) == 0:
                 self.delete_artist(artist, database)
 
-    def delete_album(self, album, database = None):
+    def delete_album(self, album, database=None):
         if database is None:
             database = get_database()
 
@@ -1848,7 +1848,7 @@ class LibraryDao:
 
         search.delete_album(album)
 
-    def delete_artist(self, artist, database = None):
+    def delete_artist(self, artist, database=None):
         if database is None:
             database = get_database()
 
@@ -1916,7 +1916,7 @@ class LibraryDao:
         except NoResultFound:
             return
 
-    def update_tracks_tags(self, tracks, move = False):
+    def update_tracks_tags(self, tracks, move=False):
         filenames = []
         messages = []
 
@@ -2015,8 +2015,8 @@ class LibraryDao:
                 .order_by(Track.number)
                 .order_by(Track.name).all())
 
-    def add_files(self, filenames, move = False, remove_dirs = True,
-                  artist_name_override = None, artist_name_fallback = None, user = None):
+    def add_files(self, filenames, move=False, remove_dirs=True,
+                  artist_name_override=None, artist_name_fallback=None, user=None):
         """
         Processes files and adds them as tracks with artists albums etc.
 
@@ -2042,7 +2042,7 @@ class LibraryDao:
                                                            {'artist': artist_name_override},
                                                            {'artist': artist_name_fallback})
 
-                dirname = structure_parser.get_path(absolute = True)
+                dirname = structure_parser.get_path(absolute=True)
                 old_dirname = os.path.dirname(filename)
 
                 filename_basename = os.path.basename(filename)
@@ -2116,7 +2116,7 @@ class LibraryDao:
             return tracks, messages
 
         LibraryProcess(self.get_library_path(), self.get_library_opmuse_txt(),
-                       paths, get_database(), 0, tracks, user = user)
+                       paths, get_database(), 0, tracks, user=user)
 
         # move non-track files with folder if there's no tracks left in folder
         # i.e. album covers and such
@@ -2215,7 +2215,7 @@ class LibraryDao:
         except NoResultFound:
             pass
 
-    def remove_paths(self, paths, remove = True):
+    def remove_paths(self, paths, remove=True):
         dirs = set()
         tracks = set()
 
@@ -2424,13 +2424,13 @@ class LibraryWatchdogPlugin(SimplePlugin):
 
                     if len(removed) > 0:
                         log("Watchdog removing %d files." % len(removed))
-                        library_dao.remove_paths(removed, remove = False)
+                        library_dao.remove_paths(removed, remove=False)
 
                     added = self.event_handler.pop_added()
 
                     if len(added) > 0:
                         log("Watchdog adding %d files." % len(added))
-                        tracks, add_files_messages = library_dao.add_files(added, move = False, remove_dirs = False)
+                        tracks, add_files_messages = library_dao.add_files(added, move=False, remove_dirs=False)
 
                     try:
                         database_data.database.commit()
