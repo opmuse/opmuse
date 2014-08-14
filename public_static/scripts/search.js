@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritance, ajaxify) {
+define([
+        'jquery',
+        'inheritance',
+        'ajaxify',
+        'domReady!'
+    ], function ($, inheritance, ajaxify) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -42,12 +47,12 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
             that.internalInit();
         },
         internalInit: function () {
-            var query = $("#search").data("query");
+            var query = $('#search').data('query');
 
             $('.search-query')
                 .off('keyup.search-query')
                 .on('keyup.search-query', function (event) {
-                if (event.keyCode == 13 && $(this).val() != "") {
+                if (event.keyCode == 13 && $(this).val() != '') {
                     $(this).blur();
                     $(window).focus();
                     ajaxify.setPage('/search/' + encodeURIComponent($(this).val()));
@@ -57,7 +62,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Search();
         }
@@ -65,4 +70,3 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         return instance;
     })();
 });
-

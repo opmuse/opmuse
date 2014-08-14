@@ -17,11 +17,20 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
-        'jquery.ui', 'jquery.nanoscroller', 'moment', 'domReady!'],
-    function($, inheritance, ajaxify, ws, messages) {
+define([
+        'jquery',
+        'inheritance',
+        'ajaxify',
+        'ws',
+        'messages',
+        'modernizr',
+        'jquery.ui',
+        'jquery.nanoscroller',
+        'moment',
+        'domReady!'
+    ], function ($, inheritance, ajaxify, ws, messages) {
 
-    "use strict";
+    'use strict';
 
     var Player = Class.extend({
         init: function (queue) {
@@ -124,7 +133,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
                 }, 0);
             });
 
-            that.playButton.click(function() {
+            that.playButton.click(function () {
                 if (!that.loaded) {
                     that.load();
                     that.loaded = true;
@@ -140,7 +149,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
                 return false;
             });
 
-            that.pauseButton.click(function() {
+            that.pauseButton.click(function () {
                 if (that.usPlaying) {
                     that.usPlaying = false;
                     that.player.pause();
@@ -154,7 +163,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
                 return false;
             });
 
-            that.nextButton.click(function() {
+            that.nextButton.click(function () {
                 if (that.usPlaying) {
                     that.load();
 
@@ -166,7 +175,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
                 return false;
             });
 
-            that.stopButton.click(function() {
+            that.stopButton.click(function () {
                 if (that.usPlaying) {
                     that.usPlaying = false;
                     that.player.pause();
@@ -212,7 +221,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
             if (track === null) {
                 title.text('');
             } else {
-                title.text(sprintf("%s - %s", track.artist.name, track.name));
+                title.text(sprintf('%s - %s', track.artist.name, track.name));
             }
         },
         setProgress: function (seconds, seconds_ahead) {
@@ -240,9 +249,9 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
             var format = null;
 
             if (seconds >= 3600) {
-                format = "HH:mm:ss";
+                format = 'HH:mm:ss';
             } else {
-                format = "mm:ss";
+                format = 'mm:ss';
             }
 
             return moment().hours(0).minutes(0).seconds(seconds).format(format);
@@ -272,18 +281,18 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
         disable: function () {
             var that = this;
 
-            that.playButton.addClass("disabled");
-            that.pauseButton.addClass("disabled");
-            that.nextButton.addClass("disabled");
-            that.stopButton.addClass("disabled");
+            that.playButton.addClass('disabled');
+            that.pauseButton.addClass('disabled');
+            that.nextButton.addClass('disabled');
+            that.stopButton.addClass('disabled');
         },
         enable: function () {
             var that = this;
 
-            that.playButton.removeClass("disabled");
-            that.pauseButton.removeClass("disabled");
-            that.nextButton.removeClass("disabled");
-            that.stopButton.removeClass("disabled");
+            that.playButton.removeClass('disabled');
+            that.pauseButton.removeClass('disabled');
+            that.nextButton.removeClass('disabled');
+            that.stopButton.removeClass('disabled');
         },
         internalInit: function () {
             $('#next-button, #play-button, #pause-button').data('ajaxify', false);
@@ -339,16 +348,16 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
             });
         },
         initNanoScroller: function () {
-            if (!$("#queue .nano").is('.has-scrollbar')) {
-                $("#queue .nano").nanoScroller({
+            if (!$('#queue .nano').is('.has-scrollbar')) {
+                $('#queue .nano').nanoScroller({
                     alwaysVisible: true
                 });
             } else {
-                $("#queue .nano").nanoScroller();
+                $('#queue .nano').nanoScroller();
             }
 
             $('#panel').off('panelFullscreen').on('panelFullscreen', function (event) {
-                $("#queue .nano").nanoScroller();
+                $('#queue .nano').nanoScroller();
             });
         },
         internalInit: function () {
@@ -364,7 +373,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
 
             $(document).on('click', '#collapse-queue', function (event) {
                 $('#queue').toggleClass('collapsed');
-                $("#queue .nano").nanoScroller();
+                $('#queue .nano').nanoScroller();
                 return false;
             });
 
@@ -384,7 +393,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
                 items: 'li',
                 handle: '.track-icon, .album-header-icon',
                 start: function (event, ui) {
-                    if ($(ui.item).hasClass("album")) {
+                    if ($(ui.item).hasClass('album')) {
                         items = $(ui.item).nextUntil('.album', '.track');
                     }
                 },
@@ -413,11 +422,11 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
             });
 
             that.player.trackDuration.text(
-                that.player.formatSeconds(($("#queue").attr('data-queue_current_track-duration')))
+                that.player.formatSeconds(($('#queue').attr('data-queue_current_track-duration')))
             );
 
             that.player.queueDuration.text(
-                that.player.formatSeconds(($("#queue").attr('data-queue_info-duration')))
+                that.player.formatSeconds(($('#queue').attr('data-queue_info-duration')))
             );
         },
         reloadList: function () {
@@ -425,7 +434,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
 
             $.ajax(this.listUrl, {
                 success: function (data) {
-                    ajaxify.setInDom("#queue", data);
+                    ajaxify.setInDom('#queue', data);
                     ajaxify.load('#queue');
                     that.reload();
                 }
@@ -434,14 +443,14 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
         reloadCover: function () {
             $.ajax(this.coverUrl, {
                 success: function (data) {
-                    ajaxify.setInDom("#player-cover", data);
+                    ajaxify.setInDom('#player-cover', data);
                     ajaxify.load('#player-cover');
                 }
             });
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Queue();
         }
@@ -449,4 +458,3 @@ define(['jquery', 'inheritance', 'ajaxify', 'ws', 'messages', 'modernizr',
         return instance;
     })();
 });
-

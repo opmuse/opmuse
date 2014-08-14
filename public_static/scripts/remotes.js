@@ -17,10 +17,16 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ws', 'ajaxify', 'reloader', 'domReady!'],
-    function($, inheritance, ws, ajaxify, reloader) {
+define([
+        'jquery',
+        'inheritance',
+        'ws',
+        'ajaxify',
+        'reloader',
+        'domReady!'
+    ], function ($, inheritance, ws, ajaxify, reloader) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -72,20 +78,20 @@ define(['jquery', 'inheritance', 'ws', 'ajaxify', 'reloader', 'domReady!'],
             });
         },
         getTrackSelectors: function (id) {
-            return [".remotes_track_head_" + id, ".remotes_track_nav_" + id];
+            return ['.remotes_track_head_' + id, '.remotes_track_nav_' + id];
         },
         getArtistSelectors: function (id) {
-            return [".remotes_artist_head_" + id, ".remotes_artist_nav_" + id];
+            return ['.remotes_artist_head_' + id, '.remotes_artist_nav_' + id];
         },
         getAlbumSelectors: function (id) {
-            return [".remotes_album_head_" + id, ".remotes_album_nav_" + id];
+            return ['.remotes_album_head_' + id, '.remotes_album_nav_' + id];
         },
         getTagSelectors: function (tag_name) {
-            return ["[data-remotes-tag='" + tag_name + "']"];
+            return ['[data-remotes-tag="' + tag_name + '"]'];
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Remotes();
         }

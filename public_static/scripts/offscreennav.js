@@ -17,10 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
-        function($, inheritance, storage) {
+define([
+        'jquery',
+        'inheritance',
+        'storage',
+        'matchMedia',
+        'domReady!'
+    ], function ($, inheritance, storage) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -48,9 +53,9 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
                 var smallScreen = matchMedia('all and (max-width: 940px)').matches;
 
                 if (smallScreen) {
-                    $(".off-screen-nav-button").hide();
+                    $('.off-screen-nav-button').hide();
                 } else {
-                    $(".off-screen-nav-button").show();
+                    $('.off-screen-nav-button').show();
                 }
 
                 if (smallScreen) {
@@ -65,13 +70,13 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
         internalInit: function () {
             var that = this;
 
-            if ($(".effeckt-off-screen-nav").length === 0) {
-                $(".off-screen-nav-button").hide();
+            if ($('.effeckt-off-screen-nav').length === 0) {
+                $('.off-screen-nav-button').hide();
                 return;
             }
 
-            $(".off-screen-nav-button").click(function (event) {
-                if ($(".effeckt-off-screen-nav").is('.effeckt-show')) {
+            $('.off-screen-nav-button').click(function (event) {
+                if ($('.effeckt-off-screen-nav').is('.effeckt-show')) {
                     that.close();
                 } else {
                     that.open();
@@ -91,7 +96,7 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
         doNoTransition: function (show, store) {
             var that = this;
 
-            $(".effeckt-off-screen-nav, .effeckt-page-active").addClass('no-transition');
+            $('.effeckt-off-screen-nav, .effeckt-page-active').addClass('no-transition');
 
             if (show) {
                 that.open(store);
@@ -100,7 +105,7 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
             }
 
             setTimeout(function () {
-                $(".effeckt-off-screen-nav, .effeckt-page-active").removeClass('no-transition');
+                $('.effeckt-off-screen-nav, .effeckt-page-active').removeClass('no-transition');
             }, 0);
         },
         open: function (store) {
@@ -108,9 +113,9 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
                 store = true;
             }
 
-            $(".off-screen-nav-button").addClass("show");
+            $('.off-screen-nav-button').addClass('show');
 
-            $(".effeckt-off-screen-nav").css('height', 'auto').addClass("effeckt-show");
+            $('.effeckt-off-screen-nav').css('height', 'auto').addClass('effeckt-show');
 
             if (store) {
                 storage.set('offscreennav.shown', true);
@@ -121,14 +126,14 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
                 store = true;
             }
 
-            $(".off-screen-nav-button").removeClass("show");
+            $('.off-screen-nav-button').removeClass('show');
 
-            $(".effeckt-off-screen-nav").removeClass("effeckt-show");
+            $('.effeckt-off-screen-nav').removeClass('effeckt-show');
 
-            if ($(".effeckt-off-screen-nav").is('.no-transition')) {
-                $(".effeckt-off-screen-nav").css('height', '0');
+            if ($('.effeckt-off-screen-nav').is('.no-transition')) {
+                $('.effeckt-off-screen-nav').css('height', '0');
             } else {
-                $(".effeckt-off-screen-nav").one('transitionend', function (event) {
+                $('.effeckt-off-screen-nav').one('transitionend', function (event) {
                     $(this).css('height', '0');
                 });
             }
@@ -143,18 +148,18 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'],
             var navSize;
 
             // when off-screen-nav isn't shown use the full page to calculate the size
-            if ($(".effeckt-off-screen-nav.effeckt-show").length === 0) {
-                navSize = $(".effeckt-page-active").width() * (that.navCols / that.gridCols) - that.gutterWidth;
+            if ($('.effeckt-off-screen-nav.effeckt-show').length === 0) {
+                navSize = $('.effeckt-page-active').width() * (that.navCols / that.gridCols) - that.gutterWidth;
             // when off-screen-nav is shown just use it to calculate the size
             } else {
-                navSize = $(".effeckt-off-screen-nav").width();
+                navSize = $('.effeckt-off-screen-nav').width();
             }
 
-            $(".effeckt-off-screen-nav #right").width(navSize);
+            $('.effeckt-off-screen-nav #right').width(navSize);
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Offscreennav();
         }

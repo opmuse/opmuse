@@ -20,7 +20,7 @@
 define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
     function ($, inheritance, popover, layout) {
 
-    "use strict";
+    'use strict';
 
     var Throb = Class.extend({
         init: function (brand) {
@@ -73,11 +73,11 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
         },
         setError: function (msg) {
             $(this.brand).addClass('error').popover({
-                'content': $('<p>').text(msg).addClass('text-danger'),
-                'html': true,
-                'trigger': 'hover',
-                'container': 'body',
-                'placement': 'right bottom'
+                content: $('<p>').text(msg).addClass('text-danger'),
+                html: true,
+                trigger: 'hover',
+                container: 'body',
+                placement: 'right bottom'
             });
         },
         unsetError: function () {
@@ -146,13 +146,13 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                         that.setPage(href);
                     } else {
                         // open external and ctrl-click in new window/tab
-                        window.open(href, "_blank");
+                        window.open(href, '_blank');
                     }
 
                     $(this).trigger('ajaxifyClick');
 
                     // continue propagation if the link has said attribute
-                    return $(this).is("[data-ajaxify=continue]");
+                    return $(this).is('[data-ajaxify=continue]');
                 }
             );
         },
@@ -189,13 +189,13 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
 
                     layout.hideOverlay();
                     that.activeRequest = null;
-                },
+                }
             });
         },
         setPageInDom: function (data) {
             var html = $($.parseHTML(data));
 
-            document.title = $.trim(html.find("#title").text());
+            document.title = $.trim(html.find('#title').text());
 
             var notFound = 0;
 
@@ -216,7 +216,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
             // if none of the contents are found we just replace the whole
             // document, this happens when there's a standard cherrypy error
             if (notFound === this.contents.length) {
-                var newDoc = document.open("text/html", "replace");
+                var newDoc = document.open('text/html', 'replace');
                 newDoc.write(data);
                 newDoc.close();
             }
@@ -251,7 +251,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
         setPage: function (href) {
             href = this.getPage(href);
 
-            history.pushState({}, "", href);
+            history.pushState({}, '', href);
 
             this.loadPage(href);
         },
@@ -260,10 +260,10 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
         },
         isRelative: function (href) {
             return !/^http(s)?:\/\//.test(href);
-        },
+        }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Ajaxify();
         }

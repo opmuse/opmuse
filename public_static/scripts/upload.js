@@ -17,10 +17,18 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
-        'sprintf', 'bootstrap/popover', 'domReady!'], function($, inheritance, ajaxify) {
+define([
+        'jquery',
+        'inheritance',
+        'ajaxify',
+        'jquery.fileupload',
+        'typeahead',
+        'sprintf',
+        'bootstrap/popover',
+        'domReady!'
+    ], function ($, inheritance, ajaxify) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -32,7 +40,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
 
             var that = this;
 
-            // "upload session" used by backend to not cause conflicts between
+            // 'upload session' used by backend to not cause conflicts between
             // different tabs and such.
             that.session = Math.floor(Math.random() * 1000);
 
@@ -75,16 +83,16 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                     $.each(data.files, function () {
                         var file = this;
 
-                        var fileDom = $("#fileupload .files .tmpl").clone().removeClass("tmpl").data('file', file);
+                        var fileDom = $('#fileupload .files .tmpl').clone().removeClass('tmpl').data('file', file);
 
                         fileDom.data('artistNameFallback', artistNameFallback);
 
                         fileDom.find('.filename').text(file.name);
 
                         fileDom.find('.file-remove').click(function () {
-                            var tr = $(this).closest("tr");
+                            var tr = $(this).closest('tr');
 
-                            var file = tr.data("file");
+                            var file = tr.data('file');
                             var index = 0;
 
                             for (var otherIndex in that.files) {
@@ -114,7 +122,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
 
                             that.names.push($(fileDom).data('file').name);
 
-                            $("#fileupload .files > .other-file:visible").each(function () {
+                            $('#fileupload .files > .other-file:visible').each(function () {
                                 var audioFile = $(this).find('[name=audio_file]');
 
                                 audioFile.typeahead('destroy');
@@ -163,7 +171,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                         var fileDom = file[0];
                         file = file[1];
 
-                        $("#fileupload .files").append(fileDom);
+                        $('#fileupload .files').append(fileDom);
 
                         that.files.push({
                             file: file,
@@ -198,18 +206,18 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
             });
 
             $('#fileupload .start').click(function (event) {
-                $("#upload .uploaded .tracks").contents().remove();
-                $("#upload .uploaded .messages").contents().remove();
+                $('#upload .uploaded .tracks').contents().remove();
+                $('#upload .uploaded .messages').contents().remove();
 
                 that.send(true);
 
                 return false;
             });
 
-            $("#fileupload .edit-invalid").click(function (event) {
+            $('#fileupload .edit-invalid').click(function (event) {
                 var ids = [];
 
-                $(".uploaded .tracks .track").each(function () {
+                $('.uploaded .tracks .track').each(function () {
                     var invalid = $(this).data('track-invalid');
                     var id = $(this).data('track-id');
 
@@ -239,7 +247,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
 
             // first start the session in the backend, then start the actual upload
             if (start === true) {
-                $.ajax(sprintf("%s?session=%d", $("#fileupload").data('url-start'), that.session), {
+                $.ajax(sprintf('%s?session=%d', $('#fileupload').data('url-start'), that.session), {
                     success: function (data, textStatus, xhr) {
                         that.send();
                     },
@@ -247,13 +255,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                         $('.total-progress.progress').addClass('progress-bar-danger')
                         .popover({
                             html: true,
-                            trigger: "hover",
+                            trigger: 'hover',
                             placement: 'bottom',
-                            container: "#upload",
-                            title: "Error occured while starting upload.",
-                            content: $(xhr.responseText).find("#content").contents()
+                            container: '#upload',
+                            title: 'Error occured while starting upload.',
+                            content: $(xhr.responseText).find('#content').contents()
                         });
-                    },
+                    }
                 });
 
                 return;
@@ -274,8 +282,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                 var audioFile = $(file.dom).find('[name=audio_file]').val();
                 var artistNameFallback = $(file.dom).data('artistNameFallback');
 
-                var url = sprintf("%s?archive_password=%s&audio_file=%s&session=%d&artist_name_fallback=%s",
-                    $("#fileupload").attr("action"), encodeURIComponent(archivePassword),
+                var url = sprintf('%s?archive_password=%s&audio_file=%s&session=%d&artist_name_fallback=%s',
+                    $('#fileupload').attr('action'), encodeURIComponent(archivePassword),
                     encodeURIComponent(audioFile), that.session, encodeURIComponent(artistNameFallback));
 
                 that.activeUploads++;
@@ -297,7 +305,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
 
                             ajaxify.load(resultDom);
 
-                            var tracks = $("#upload .uploaded .tracks");
+                            var tracks = $('#upload .uploaded .tracks');
 
                             tracks.contents().remove();
 
@@ -305,7 +313,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                                 resultDom.find('.tracks-hierarchy')
                             );
 
-                            $("#upload .uploaded .messages").append(
+                            $('#upload .uploaded .messages').append(
                                 resultDom.find('.message')
                             );
 
@@ -317,16 +325,16 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
                         }).error(function (jqXHR, textStatus, errorThrown) {
                             that.activeUploads--;
 
-                            $(file.dom).addClass("danger").find(".progress-bar")
-                                .removeClass("progress-bar-success").addClass("progress-bar-danger");
+                            $(file.dom).addClass('danger').find('.progress-bar')
+                                .removeClass('progress-bar-success').addClass('progress-bar-danger');
 
                             $(file.dom).popover({
                                 html: true,
-                                trigger: "hover",
+                                trigger: 'hover',
                                 placement: 'bottom',
-                                container: "#upload",
-                                title: sprintf("Error occured while uploading <strong>%s</strong>.", file.file.name),
-                                content: $(jqXHR.responseText).find("#content").contents()
+                                container: '#upload',
+                                title: sprintf('Error occured while uploading <strong>%s</strong>.', file.file.name),
+                                content: $(jqXHR.responseText).find('#content').contents()
                             });
 
                             if (done) {
@@ -340,7 +348,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'jquery.fileupload', 'typeahead',
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Upload();
         }

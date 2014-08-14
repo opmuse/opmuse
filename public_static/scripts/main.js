@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
+'use strict';
 
 /**
  * load ws and layout first so we can bind
@@ -28,8 +28,8 @@
 require([
     'jquery',
     'ws',
-    'layout',
-    ], function($, ws, layout) {
+    'layout'
+    ], function ($, ws, layout) {
 
     if (opmuseGlobals.authenticated) {
         $(ws).on('open', function () {
@@ -72,7 +72,7 @@ require([
     'offscreennav',
     'dashboard',
     'love'
-    ], function($) {
+    ], function ($) {
 
     $.ajaxSetup({
         // repoze.who middleware expects content-type to be set :/
@@ -81,7 +81,7 @@ require([
 });
 
 requirejs.onError = function (err) {
-    var overlay = document.getElementById("overlay");
+    var overlay = document.getElementById('overlay');
     overlay.className = 'error';
     overlay.innerHTML = err;
 };

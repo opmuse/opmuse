@@ -17,9 +17,16 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ws', 'reloader', 'modernizr', 'domReady!'], function($, inheritance, ws, reloader) {
+define([
+        'jquery',
+        'inheritance',
+        'ws',
+        'reloader',
+        'modernizr',
+        'domReady!'
+    ], function ($, inheritance, ws, reloader) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -57,7 +64,7 @@ define(['jquery', 'inheritance', 'ws', 'reloader', 'modernizr', 'domReady!'], fu
             ws.on(['database_events.userandalbum.update', 'database_events.userandalbum.insert'],
                 function (id, columns, new_values) {
                     if (columns.seen) {
-                        var selector = "#album_" + new_values.album_id + " .album-seen-container";
+                        var selector = '#album_' + new_values.album_id + ' .album-seen-container';
 
                         if (!(selector in that.reloads)) {
                             that.reloads.push(selector);
@@ -84,12 +91,12 @@ define(['jquery', 'inheritance', 'ws', 'reloader', 'modernizr', 'domReady!'], fu
             // on cover for going to album/artist page. you'll have to click
             // the name/title instead.
             if (Modernizr.touch) {
-                $(".album figure > a, .artist figure > a").on('click', function (event) {
+                $('.album figure > a, .artist figure > a').on('click', function (event) {
                     return false;
                 });
             }
 
-            $(".album figure, .artist figure").on('mouseover', function (event) {
+            $('.album figure, .artist figure').on('mouseover', function (event) {
                 if ($(this).data('shown') !== true) {
                     var content = $(this).find('*[data-href]');
 
@@ -107,7 +114,7 @@ define(['jquery', 'inheritance', 'ws', 'reloader', 'modernizr', 'domReady!'], fu
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Album();
         }

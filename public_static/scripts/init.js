@@ -17,7 +17,7 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-"use strict";
+'use strict';
 
 var version;
 
@@ -28,8 +28,8 @@ if (typeof opmuseGlobals != 'undefined' && opmuseGlobals !== null) {
 }
 
 var require = {
-    baseUrl: "/static/scripts/",
-    urlArgs: "version=" + version,
+    baseUrl: '/static/scripts/',
+    urlArgs: 'version=' + version,
     paths: {
         'jquery.nanoscroller': 'lib/jquery.nanoscroller',
         'jquery.fileupload': 'lib/jquery.fileupload',
@@ -44,7 +44,8 @@ var require = {
         'jquery.ui': 'lib/jquery.ui',
         'typeahead': 'lib/typeahead',
         'modernizr': 'lib/modernizr',
-        'bootstrap-growl': 'lib/bootstrap-growl'
+        'bootstrap-growl': 'lib/bootstrap-growl',
+        'inheritance': 'lib/inheritance'
     },
     shim: {
         'bootstrap-growl': ['jquery'],
@@ -68,7 +69,7 @@ var require = {
     waitSeconds: 30
 };
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function () {
     /**
      * reset scroll and set overlay to size of viewport before we do anything else,
      * even before we load requirejs and jquery
@@ -76,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
     (function () {
         window.scrollTo(0, 0);
 
-        var overlay = document.getElementById("overlay");
+        var overlay = document.getElementById('overlay');
 
         overlay.setAttribute('style',
             'width: ' + window.innerWidth + 'px; ' +

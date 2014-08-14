@@ -17,9 +17,13 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
+define([
+        'jquery',
+        'inheritance',
+        'domReady!'
+    ], function ($, inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -38,16 +42,16 @@ define(['jquery', 'inheritance', 'domReady!'], function($, inheritance) {
             that.internalInit();
         },
         internalInit: function () {
-            $(".dir_table .other-files-header .other-files-header-title").click(function (event) {
+            $('.dir_table .other-files-header .other-files-header-title').click(function (event) {
                 // avoid recursion caused by bubbling
-                if ($(event.target).is(".other-files-header-title")) {
-                    $(this).closest(".other-files-header").find(".other-files-toggle").click();
+                if ($(event.target).is('.other-files-header-title')) {
+                    $(this).closest('.other-files-header').find('.other-files-toggle').click();
                 }
             });
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new DirTable();
         }

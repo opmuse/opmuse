@@ -17,9 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function($, inheritance, storage) {
+define([
+        'jquery',
+        'inheritance',
+        'storage',
+        'matchMedia',
+        'domReady!'
+    ], function ($, inheritance, storage) {
 
-    "use strict";
+    'use strict';
 
     var Panel = Class.extend({
         init: function (layout) {
@@ -29,14 +35,14 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
 
             this.layout = layout;
 
-            this.panel = $("#panel");
+            this.panel = $('#panel');
 
-            $("#panel-full").click(function (event) {
+            $('#panel-full').click(function (event) {
                 if (matchMedia('all and (max-width: 940px)').matches) {
                     return;
                 }
 
-                if ($(that.panel).hasClass("panel-fullscreen")) {
+                if ($(that.panel).hasClass('panel-fullscreen')) {
                     that.closeFullscreen();
                 } else {
                     that.openFullscreen();
@@ -48,7 +54,7 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
                 });
             });
 
-            $("#panel-handle").click(function (event) {
+            $('#panel-handle').click(function (event) {
                 if ($(that.panel).hasClass('panel-fullscreen')) {
                     return;
                 }
@@ -58,7 +64,7 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
                     return;
                 }
 
-                if (that.panel.hasClass("open")) {
+                if (that.panel.hasClass('open')) {
                     that.close();
                 } else {
                     that.open();
@@ -79,20 +85,20 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
         },
         openFullscreen: function () {
             if (this.layout.showOverlay()) {
-                $(this.panel).addClass("panel-fullscreen");
+                $(this.panel).addClass('panel-fullscreen');
             }
         },
         closeFullscreen: function () {
             if (this.layout.hideOverlay()) {
-                $(this.panel).removeClass("panel-fullscreen");
+                $(this.panel).removeClass('panel-fullscreen');
             }
         },
         open: function () {
-            this.panel.addClass("open");
+            this.panel.addClass('open');
             storage.set('layout.panel.open', true);
         },
         close: function () {
-            this.panel.removeClass("open");
+            this.panel.removeClass('open');
             storage.set('layout.panel.open', false);
         }
     });
@@ -116,19 +122,19 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
             });
         },
         resizeOverlay: function () {
-            $("#overlay").width($(window).width());
-            $("#overlay").height($(window).height());
+            $('#overlay').width($(window).width());
+            $('#overlay').height($(window).height());
         },
         lockOverlay: function () {
-            $("body").removeClass("loaded");
-            $("#overlay").addClass("locked");
+            $('body').removeClass('loaded');
+            $('#overlay').addClass('locked');
         },
         unlockOverlay: function () {
-            $("body").addClass("loaded");
-            $("#overlay").removeClass("locked");
+            $('body').addClass('loaded');
+            $('#overlay').removeClass('locked');
         },
         showOverlay: function () {
-            if ($("#overlay").is(".locked")) {
+            if ($('#overlay').is('.locked')) {
                 return false;
             }
 
@@ -136,13 +142,13 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
 
             this.overlayed++;
 
-            $("body").addClass("overlayed");
-            $("#overlay").removeClass("hide").addClass("transparent");
+            $('body').addClass('overlayed');
+            $('#overlay').removeClass('hide').addClass('transparent');
 
             return true;
         },
-        hideOverlay: function() {
-            if ($("#overlay").is(".locked") || $("#overlay").is(".error")) {
+        hideOverlay: function () {
+            if ($('#overlay').is('.locked') || $('#overlay').is('.error')) {
                 return false;
             }
 
@@ -154,15 +160,15 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
             // have been shown on ajax load but not finished. e.g. two calls
             // to showOverlay() needs two calls to hideOverlay() to actually hide it.
             if (this.overlayed === 0) {
-                $("body").removeClass("overlayed");
-                $("#overlay").addClass("hide").removeClass("transparent");
+                $('body').removeClass('overlayed');
+                $('#overlay').addClass('hide').removeClass('transparent');
             }
 
             return true;
-        },
+        }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Layout();
         }
@@ -170,4 +176,3 @@ define(['jquery', 'inheritance', 'storage', 'matchMedia', 'domReady!'], function
         return instance;
     })();
 });
-

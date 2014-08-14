@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bootstrap/tab', 'domReady!'], function($, inheritance) {
+define([
+        'jquery',
+        'inheritance',
+        'bootstrap/tab',
+        'domReady!'
+    ], function ($, inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -38,30 +43,30 @@ define(['jquery', 'inheritance', 'bootstrap/tab', 'domReady!'], function($, inhe
             that.internalInit();
         },
         internalInit: function () {
-            $("[data-toggle=tab] a, [data-toggle=pill] a").click(function (event) {
-                $(this).tab("show");
+            $('[data-toggle=tab] a, [data-toggle=pill] a').click(function (event) {
+                $(this).tab('show');
                 return false;
             });
 
-            this.setActive("pill");
-            this.setActive("tab");
+            this.setActive('pill');
+            this.setActive('tab');
         },
         /**
          * if there's no active tab/pill set first tab/pill as active...
          */
         setActive: function (type) {
-            var nav = $("[data-toggle=tab]").closest(".nav-" + type + "s");
-            var content = nav.siblings(".tab-content");
+            var nav = $('[data-toggle=tab]').closest('.nav-' + type + 's');
+            var content = nav.siblings('.tab-content');
 
-            if (content.length > 0 && content.find(">li.active").length == 0) {
+            if (content.length > 0 && content.find('>li.active').length == 0) {
                 var first = content.find(':first-child');
-                var id = first.attr("id");
-                nav.find("[href=#" + id + "]").tab("show");
+                var id = first.attr('id');
+                nav.find('[href=#' + id + ']').tab('show');
             }
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Tab();
         }

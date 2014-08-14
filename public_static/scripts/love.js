@@ -17,10 +17,13 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'messages', 'domReady!'],
-    function($, messages) {
+define([
+        'jquery',
+        'messages',
+        'domReady!'
+    ], function ($, messages) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -41,7 +44,7 @@ define(['jquery', 'messages', 'domReady!'],
         internalInit: function () {
             var that = this;
 
-            $(document).on('click', ".btn.love",
+            $(document).on('click', '.btn.love',
                 function (event) {
                     var url = $(this).attr('href');
                     $.ajax({
@@ -50,9 +53,9 @@ define(['jquery', 'messages', 'domReady!'],
                             messages.success('The track is now marked as loved');
                         },
                         error: function () {
-                            messages.danger('An error occured while trying ' + 
+                            messages.danger('An error occured while trying ' +
                                             'to mark track as loved');
-                        },
+                        }
                     });
                     return false;
                 }
@@ -63,10 +66,10 @@ define(['jquery', 'messages', 'domReady!'],
         reload: function () {
             var that = this;
             $('.btn.love').data('ajaxify', false);
-        },
+        }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Love();
         }
@@ -74,4 +77,3 @@ define(['jquery', 'messages', 'domReady!'],
         return instance;
     })();
 });
-

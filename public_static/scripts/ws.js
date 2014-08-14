@@ -17,10 +17,18 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', 'sprintf', 'domReady!'],
-        function($, inheritance, logger, ajaxify, messages) {
+define([
+        'jquery',
+        'inheritance',
+        'logger',
+        'ajaxify',
+        'messages',
+        'modernizr',
+        'sprintf',
+        'domReady!'
+    ], function ($, inheritance, logger, ajaxify, messages) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -43,7 +51,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', '
             var host = null;
 
             if (opmuseGlobals.ws_port !== null) {
-                host = sprintf("%s:%d", document.location.hostname, opmuseGlobals.ws_port);
+                host = sprintf('%s:%d', document.location.hostname, opmuseGlobals.ws_port);
             } else {
                 host = document.location.host;
             }
@@ -91,7 +99,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', '
 
                     setTimeout(errHandler, errTimeout);
                 } else if (that.socket.readyState !== WebSocket.OPEN) {
-                    that.error("Couldn't establish websocket connection, might be firewall issues.");
+                    that.error('Couldn\'t establish websocket connection, might be firewall issues.');
                 }
             };
 
@@ -115,7 +123,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', '
                 }
             };
 
-            that.socket.onopen = function() {
+            that.socket.onopen = function () {
                 that.unsetError();
 
                 logger.log('ws connection opened');
@@ -128,11 +136,11 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', '
                 that.socket.close();
             });
 
-            that.socket.onclose = function() {
+            that.socket.onclose = function () {
                 logger.log('ws connection closed');
 
                 if (!that.unloaded) {
-                    that.error("Lost websocket connection, server is probably down.");
+                    that.error('Lost websocket connection, server is probably down.');
 
                     // TODO implement exponential backoff algo
                     setTimeout(function () {
@@ -141,10 +149,10 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', '
                 }
             };
 
-            that.socket.onerror = function(event) {
+            that.socket.onerror = function (event) {
                 logger.log('ws connection errored');
 
-                that.error("Got websocket error: " + event.data);
+                that.error('Got websocket error: ' + event.data);
             };
         },
         emit: function (event) {
@@ -180,7 +188,7 @@ define(['jquery', 'inheritance', 'logger', 'ajaxify', 'messages', 'modernizr', '
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Ws();
         }

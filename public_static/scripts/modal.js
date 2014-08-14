@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bootstrap/modal', 'domReady!'], function($, inheritance) {
+define([
+        'jquery',
+        'inheritance',
+        'bootstrap/modal',
+        'domReady!'
+    ], function ($, inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -38,11 +43,11 @@ define(['jquery', 'inheritance', 'bootstrap/modal', 'domReady!'], function($, in
             that.internalInit();
         },
         internalInit: function () {
-            $("[data-toggle=modal]").data('ajaxify', false);
+            $('[data-toggle=modal]').data('ajaxify', false);
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Modal();
         }

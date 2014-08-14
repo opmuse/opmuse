@@ -17,10 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ws', 'reloader', 'domReady!'],
-    function($, inheritance, ws, reloader) {
+define([
+        'jquery',
+        'inheritance',
+        'ws',
+        'reloader',
+        'domReady!'
+    ], function ($, inheritance, ws, reloader) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -42,7 +47,7 @@ define(['jquery', 'inheritance', 'ws', 'reloader', 'domReady!'],
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Dashboard();
         }

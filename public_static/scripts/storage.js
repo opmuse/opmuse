@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'sprintf', 'domReady!'], function($, inheritance) {
+define([
+        'jquery',
+        'inheritance',
+        'sprintf',
+        'domReady!'
+    ], function ($, inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -50,7 +55,7 @@ define(['jquery', 'inheritance', 'sprintf', 'domReady!'], function($, inheritanc
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Storage();
         }
@@ -58,5 +63,3 @@ define(['jquery', 'inheritance', 'sprintf', 'domReady!'], function($, inheritanc
         return instance;
     })();
 });
-
-

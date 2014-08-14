@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, inheritance) {
+define([
+        'jquery',
+        'inheritance',
+        'bootstrap/popover',
+        'domReady!'
+    ], function ($, inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -43,24 +48,24 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, 
             $('.download').each(function () {
                 var button = this;
 
-                var url = $(button).attr("href");
+                var url = $(button).attr('href');
 
-                var ext = url.split(".").pop();
+                var ext = url.split('.').pop();
 
                 var options = {
                     html: true,
-                    placement: "top",
-                    trigger: "hover",
-                    container: "#main",
+                    placement: 'top',
+                    trigger: 'hover',
+                    container: '#main'
                 };
 
                 if (['png', 'jpg', 'gif', 'jpeg'].indexOf(ext) != -1) {
-                    options.content = $("<img>").attr("src", url);
+                    options.content = $('<img>').attr('src', url);
                     $(button).popover(options);
                 } else if (['txt', 'sfv', 'nfo', 'm3u', 'cue', 'log'].indexOf(ext) != -1) {
                     $.ajax(url, {
                         success: function (data) {
-                            options.content = $("<pre>").append(data);
+                            options.content = $('<pre>').append(data);
                             $(button).popover(options);
                         }
                     });
@@ -69,7 +74,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, 
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Download();
         }
@@ -77,4 +82,3 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, 
         return instance;
     })();
 });
-

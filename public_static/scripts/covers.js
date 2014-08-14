@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws) {
+define([
+        'jquery',
+        'inheritance',
+        'ws',
+        'domReady!'
+    ], function ($, inheritance, ws) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -50,12 +55,12 @@ define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws
                 var type;
 
                 if (this.event == 'covers.album.update') {
-                    type = "album";
+                    type = 'album';
                 } else {
-                    type = "artist";
+                    type = 'artist';
                 }
 
-                var key = type + "_" + id;
+                var key = type + '_' + id;
 
                 if (key in that.times) {
                     oldTime = that.times[key];
@@ -74,11 +79,11 @@ define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws
                 }
 
                 setTimeout(function () {
-                    that.refresh($("#" + type + "_cover_" + id));
+                    that.refresh($('#' + type + '_cover_' + id));
                 }, time);
             });
 
-            $(document).on('click.covers', "a.remove-cover", function (event) {
+            $(document).on('click.covers', 'a.remove-cover', function (event) {
                 $.ajax($(this).attr('href'));
                 return false;
             });
@@ -87,7 +92,7 @@ define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws
          * defer loading of cover images
          */
         initImages: function () {
-            $(".cover-container").each(function () {
+            $('.cover-container').each(function () {
                 var img = $(this).find('img');
                 var src = $(this).data('src');
 
@@ -97,7 +102,7 @@ define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws
             });
         },
         refresh: function (container) {
-            var img = container.find("img");
+            var img = container.find('img');
 
             if (img.length == 2) {
                 $(img.get(0)).remove();
@@ -106,21 +111,21 @@ define(['jquery', 'inheritance', 'ws', 'domReady!'], function($, inheritance, ws
                 img = $(img.get(0));
             }
 
-            img.removeClass("cover-overlay");
+            img.removeClass('cover-overlay');
 
             var overlay = img.clone()
-                .attr("src", img.attr("src") + "&refresh=" + Math.random())
-                .addClass("cover-overlay");
+                .attr('src', img.attr('src') + '&refresh=' + Math.random())
+                .addClass('cover-overlay');
 
             container.append(overlay)
 
-            overlay.removeClass("cover-hide");
+            overlay.removeClass('cover-hide');
 
-            img.addClass("cover-hide");
+            img.addClass('cover-hide');
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Covers();
         }

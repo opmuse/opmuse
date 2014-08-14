@@ -17,9 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
+define([
+        'jquery',
+        'inheritance',
+        'ajaxify',
+        'sprintf',
+        'domReady!'
+    ], function ($, inheritance, ajaxify) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -40,35 +46,35 @@ define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'domReady!'], function($,
         internalInit: function () {
             var that = this;
 
-            $(".filters .filter-value a")
+            $('.filters .filter-value a')
                 .data('ajaxify', false)
                 .click(function (event) {
-                    that.reloadPage($(this).siblings("input"));
+                    that.reloadPage($(this).siblings('input'));
                     return false;
                 }
             );
 
-            $(".filters .filter-value input").keyup(function (event) {
+            $('.filters .filter-value input').keyup(function (event) {
                 if (event.keyCode == 13) {
-                    $(this).siblings(".filter-button").click();
+                    $(this).siblings('.filter-button').click();
                 }
 
                 return false;
             });
         },
         reloadPage: function (input) {
-            var href = $(input).siblings(".filter-button").attr("href");
+            var href = $(input).siblings('.filter-button').attr('href');
             var value = $(input).val();
 
-            if (value === "") {
+            if (value === '') {
                 return false;
             }
 
-            ajaxify.setPage(sprintf("%s&filter_value=%s", href, value));
+            ajaxify.setPage(sprintf('%s&filter_value=%s', href, value));
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Filters();
         }
@@ -76,4 +82,3 @@ define(['jquery', 'inheritance', 'ajaxify', 'sprintf', 'domReady!'], function($,
         return instance;
     })();
 });
-

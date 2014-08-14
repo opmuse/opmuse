@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, inheritance) {
+define([
+        'jquery',
+        'inheritance',
+        'bootstrap/popover',
+        'domReady!'
+    ], function ($, inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -38,11 +43,11 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'domReady!'], function($, 
             that.internalInit();
         },
         internalInit: function () {
-            $("*[rel=popover]").popover();
+            $('*[rel=popover]').popover();
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Popover();
         }

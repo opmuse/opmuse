@@ -17,9 +17,13 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'domReady!'], function ($, inheritance) {
+define([
+        'jquery',
+        'inheritance',
+        'domReady!'
+    ], function ($, inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -29,15 +33,15 @@ define(['jquery', 'inheritance', 'domReady!'], function ($, inheritance) {
                 throw Error('Only one instance of Navbar allowed!');
             }
 
-            var navbar = $(".navbar-collapse");
+            var navbar = $('.navbar-collapse');
 
             $('body').on('ajaxifyInit', function (event) {
-                navbar.collapse("hide");
+                navbar.collapse('hide');
             });
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Tooltip();
         }

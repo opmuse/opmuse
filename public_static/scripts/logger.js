@@ -17,9 +17,11 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['inheritance'], function(inheritance) {
+define([
+        'inheritance'
+    ], function (inheritance) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -36,7 +38,7 @@ define(['inheritance'], function(inheritance) {
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Logger();
         }

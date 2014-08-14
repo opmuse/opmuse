@@ -17,9 +17,16 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!'], function($, inheritance, ajaxify) {
+define([
+        'jquery',
+        'inheritance',
+        'ajaxify',
+        'typeahead',
+        'sprintf',
+        'domReady!'
+    ], function ($, inheritance, ajaxify) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -38,13 +45,13 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
             that.internalInit();
         },
         initTypeahead: function () {
-            this.createTypeahead("artist");
-            this.createTypeahead("album");
-            this.createTypeahead("track");
+            this.createTypeahead('artist');
+            this.createTypeahead('album');
+            this.createTypeahead('track');
         },
         createTypeahead: function (type) {
-            $(sprintf("#edit input[name=%ss]", type)).typeahead('destroy');
-            $(sprintf("#edit input[name=%ss]:not(.locked)", type)).each(function () {
+            $(sprintf('#edit input[name=%ss]', type)).typeahead('destroy');
+            $(sprintf('#edit input[name=%ss]:not(.locked)', type)).each(function () {
                 var input = this;
 
                 $(input).typeahead({
@@ -69,7 +76,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
 
             that.initTypeahead();
 
-            $("#edit form button").click(function (event) {
+            $('#edit form button').click(function (event) {
                 var form = $(this).closest('form');
                 var data = $(form).serialize();
 
@@ -77,7 +84,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                 var name = $(this).attr('name');
 
                 if (typeof name != 'undefined' && name !== null) {
-                    data += "&" + name + "=" + name;
+                    data += '&' + name + '=' + name;
                 }
 
                 $.ajax($(form).attr('action'), {
@@ -97,29 +104,29 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                 return false;
             });
 
-            $("#edit .lock")
+            $('#edit .lock')
                 .off('click.edit')
                 .on('click.edit',
                     function (event) {
                         var type = null;
 
-                        var th = $(this).closest("th");
+                        var th = $(this).closest('th');
 
-                        if (th.is(".album")) {
+                        if (th.is('.album')) {
                             type = 'album';
-                        } else if (th.is(".artist")) {
+                        } else if (th.is('.artist')) {
                             type = 'artist';
-                        } else if (th.is(".date")) {
+                        } else if (th.is('.date')) {
                             type = 'date';
-                        } else if (th.is(".disc")) {
+                        } else if (th.is('.disc')) {
                             type = 'disc';
                         }
 
-                        var selector = "#edit input." + type;
+                        var selector = '#edit input.' + type;
 
                         if ($(this).hasClass('locked')) {
                             $(selector)
-                                .removeAttr("readonly")
+                                .removeAttr('readonly')
                                 .off('keyup.lock, blur.lock')
                                 .removeClass('locked');
 
@@ -128,8 +135,8 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                             $(selector).addClass('locked');
                             $(this).addClass('locked');
 
-                            $($(selector).attr("readonly", "readonly").get(0))
-                                .removeAttr("readonly").removeClass("locked")
+                            $($(selector).attr('readonly', 'readonly').get(0))
+                                .removeAttr('readonly').removeClass('locked')
                                 .on('keyup.lock, blur.lock',
                                     function (event) {
                                         $(selector).val($(this).val());
@@ -143,14 +150,14 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
                     }
                 );
 
-                $("#edit input").off('focus.marker').on('focus.marker', function (event) {
-                    $("#edit tr").removeClass("active");
-                    $(this).closest("tr").addClass("active");
+                $('#edit input').off('focus.marker').on('focus.marker', function (event) {
+                    $('#edit tr').removeClass('active');
+                    $(this).closest('tr').addClass('active');
                 });
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Edit();
         }
@@ -159,4 +166,3 @@ define(['jquery', 'inheritance', 'ajaxify', 'typeahead', 'sprintf', 'domReady!']
     })();
 
 });
-

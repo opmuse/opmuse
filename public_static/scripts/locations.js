@@ -17,9 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritance, ajaxify) {
+define([
+        'jquery',
+        'inheritance',
+        'ajaxify',
+        'domReady!'
+    ], function ($, inheritance, ajaxify) {
 
-    "use strict";
+    'use strict';
 
     var instance = null;
 
@@ -64,7 +69,7 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         }
     });
 
-    return (function() {
+    return (function () {
         if (instance === null) {
             instance = new Locations();
         }
@@ -72,4 +77,3 @@ define(['jquery', 'inheritance', 'ajaxify', 'domReady!'], function($, inheritanc
         return instance;
     })();
 });
-
