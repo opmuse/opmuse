@@ -46,25 +46,10 @@ define([
             });
 
             that.internalInit();
+            that.resize();
 
             $(window).resize(function () {
-                var shown = storage.get('offscreennav.shown');
-
-                var smallScreen = matchMedia('all and (max-width: 940px)').matches;
-
-                if (smallScreen) {
-                    $('.off-screen-nav-button').hide();
-                } else {
-                    $('.off-screen-nav-button').show();
-                }
-
-                if (smallScreen) {
-                    that.doNoTransition(false, false);
-                } else if (shown) {
-                    that.doNoTransition(true, false);
-                }
-
-                that.updateSize();
+                that.resize();
             });
         },
         internalInit: function () {
@@ -92,6 +77,27 @@ define([
             }
 
             that.doNoTransition(shown, false);
+        },
+        resize: function () {
+            var that = this;
+
+            var shown = storage.get('offscreennav.shown');
+
+            var smallScreen = matchMedia('all and (max-width: 940px)').matches;
+
+            if (smallScreen) {
+                $('.off-screen-nav-button').hide();
+            } else {
+                $('.off-screen-nav-button').show();
+            }
+
+            if (smallScreen) {
+                that.doNoTransition(false, false);
+            } else if (shown) {
+                that.doNoTransition(true, false);
+            }
+
+            that.updateSize();
         },
         doNoTransition: function (show, store) {
             var that = this;

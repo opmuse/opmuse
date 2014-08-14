@@ -23,6 +23,10 @@ a:hover {
     position: relative;
     margin-bottom: 60px;
 
+    @media (max-width: @screen-sm-max) {
+        margin-bottom: 0;
+    }
+
     .pagination-inner {
         float: right;
         right: -50%;
@@ -156,8 +160,15 @@ body {
 
         #panel-container {
             padding-top: 0;
-            margin-top: 0;
             top: 0;
+
+            @media (min-width: @screen-md-min) {
+                margin-top: 0;
+            }
+
+            @media (max-width: @screen-sm-max) {
+                margin-top: 20px;
+            }
 
             #panel-full,
             #panel-handle {
@@ -174,7 +185,17 @@ body {
 
     #panel-container {
         position: absolute;
-        padding-bottom: 36px;
+
+        @media (min-width: @screen-md-min) {
+            padding-bottom: 36px;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: @screen-sm-max) {
+            padding-bottom: 0;
+            margin-bottom: 36px;
+        }
+
         width: 100%;
         height: 100%;
 
@@ -334,6 +355,10 @@ body {
 
 #spacer {
     margin-top: 105px;
+
+    @media (max-width: @screen-xs-max) {
+        margin-top: 65px;
+    }
 }
 
 #overlay {

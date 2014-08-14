@@ -6,7 +6,9 @@
     {% set album = None %}
 {% endif %}
 
-<div id="player-cover">
+<div
+    id="player-cover"
+    class="hidden-xs">
     {{ covers.album(album, 80, "img-rounded") }}
 </div>
 

@@ -21,6 +21,7 @@ define([
         'jquery',
         'inheritance',
         'bootstrap/popover',
+        'modernizr',
         'domReady!'
     ], function ($, inheritance) {
 
@@ -35,6 +36,10 @@ define([
             }
 
             var that = this;
+
+            if (Modernizr.touch) {
+                return;
+            }
 
             $('#main, #queue').on('ajaxifyInit', function (event) {
                 that.internalInit();

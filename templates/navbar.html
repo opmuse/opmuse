@@ -36,14 +36,17 @@
                                 <a href="/admin/dashboard">Admin</a>
                             </li>
                         {% endif %}
+                        <li class="visible-xs {{ "active" if request.path_info|startswith("/search") else '' }}">
+                            <a href="/search">Search</a>
+                        </li>
+                        <li class="navbar-search hidden-xs">
+                            <input size="18" accesskey="s" class="search-query form-control input-sm"
+                                type="text" placeholder="Search" autocomplete="off" />
+                        </li>
                         <li class="visible-xs">
                             <a class="logout" href="/logout?came_from={{ current_url|urlencode }}">
                                 Sign out
                             </a>
-                        </li>
-                        <li class="navbar-search">
-                            <input accesskey="s" class="search-query form-control input-sm"
-                                type="text" placeholder="Search" autocomplete="off" />
                         </li>
                     {% else %}
                         <li class="{{ "active" if request.path_info|startswith("/index") else '' }}">
@@ -55,7 +58,7 @@
                     {% endif %}
                 </ul>
                 {% if authenticated %}
-                    <ul class="nav navbar-nav navbar-right navbar-you visible-lg visible-md visible-sm">
+                    <ul class="nav navbar-nav navbar-right navbar-you hidden-xs">
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                 <img class="img-rounded" src="{{ request.user.gravatar_xsmall }}" alt="{{ request.user.login }}'s Gravatar" />

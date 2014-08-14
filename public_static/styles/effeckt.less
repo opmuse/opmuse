@@ -22,6 +22,8 @@ figure[data-effeckt-type=half-slide] {
     float: right !important;
     width: 0;
 
+    .hidden-xs;
+
     &.effeckt-show {
         .make-sm-column(4);
         visibility: visible;
@@ -43,8 +45,12 @@ figure[data-effeckt-type=half-slide] {
 }
 
 .effeckt-off-screen-nav-right-squeeze.effeckt-show ~ [data-effeckt-page] {
-    .make-sm-column(8);
-    float: left !important;
+    width: auto;
+
+    @media (min-width: @screen-sm-min) {
+        .make-sm-column(8);
+        float: left !important;
+    }
 }
 
 .off-screen-nav-button {

@@ -10,16 +10,17 @@
 {% import "macros/media.html" as media %}
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
 
-<div id="search" data-query="{{ query|e }}">
+<div id="search" data-query="{{ query|e if query else '' }}">
     <div class="row">
         <div class="col-xs-7">
             <p class="result-text">
+                <input class="visible-xs search-query form-control input-md"
+                    type="text" placeholder="Search" autocomplete="off" value="{{ query if query else '' }}" />
+
                 {% if query %}
                     Showing matches for <strong>{{ query }}</strong> on artists, albums and tracks
                     presented with their full hierarchy. Use buttons on the right to perform various actions on tracks related to
                     these results.
-                {% else %}
-                    No query.
                 {% endif %}
             </p>
         </div>
@@ -40,14 +41,14 @@
     <hr />
 
     <div class="row">
-        <div class="col-xs-7">
+        <div class="col-sm-7 col-xs-12">
             <div class="results">
                 {% if hierarchy %}
                     {{ media.hierarchy(hierarchy) }}
                 {% endif %}
             </div>
         </div>
-        <div class="col-xs-5">
+        <div class="col-sm-5 hidden-xs">
             <div class="result-stats panel panel-info sidebar-nav">
                 <div class="panel-heading">
                     <h3 class="panel-title">Recent Searches</h3>

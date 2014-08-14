@@ -186,7 +186,9 @@
                             {% endif %}
                             <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
                         </td>
-                        <td>{{ track.duration|format_seconds }}</td>
+                        <td class="hidden-xs">
+                            {{ track.duration|format_seconds }}
+                        </td>
                         <td class="hidden-xs">
                             {{ track.pretty_format }}
                             {% if track.bitrate %}
@@ -203,7 +205,7 @@
             </table>
             </div>
             {% if files %}
-            <div class="table-responsive">
+            <div class="table-responsive hidden-xs">
             <table class="table table-condensed">
                 <tbody class="other-files-header">
                     <tr>

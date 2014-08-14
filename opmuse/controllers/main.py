@@ -27,6 +27,7 @@ from opmuse.controllers.queue import Queue
 from opmuse.controllers.users import Users
 from opmuse.controllers.settings import Settings
 from opmuse.controllers.library import Library
+from opmuse.controllers.search import Search
 from opmuse.controllers.love import Love
 from opmuse.controllers.dashboard import Dashboard
 from opmuse.controllers.admin import Admin
@@ -49,6 +50,7 @@ class Root:
     users = Users()
     settings = Settings()
     library = Library()
+    search = Search()
     love = Love()
     ws = WsController()
     dashboard = Dashboard()
@@ -86,15 +88,6 @@ class Root:
 
         return cherrypy.lib.static.serve_file(os.path.join(library_path, file),
                                               content_type=content_type, disposition=disposition)
-
-    @cherrypy.expose
-    def search(self, *args, **kwargs):
-        if len(args) > 1:
-            raise cherrypy.InternalRedirect('/library/search/%s/%s' % (args[0], args[1]))
-        elif len(args) > 0:
-            raise cherrypy.InternalRedirect('/library/search/%s' % args[0])
-        else:
-            raise cherrypy.InternalRedirect('/library/search')
 
     @cherrypy.expose
     def default(self, *args, **kwargs):
