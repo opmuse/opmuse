@@ -159,7 +159,7 @@ setup(
     description="A web application to play, organize, share and make your music library social.",
     long_description=open('README.md', 'r').read(),
     author="Mattias Fliesberg",
-    author_email="mattias.fliesberg@gmail.com",
+    author_email="mattias@fliesberg.email",
     url="http://opmu.se/",
     license="AGPLv3+",
     install_requires=install_requires,
