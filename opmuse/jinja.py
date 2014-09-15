@@ -111,7 +111,7 @@ def country(code):
     try:
         data = pycountry.countries.get(alpha2=code)
         return data.name
-    except IndexError:
+    except KeyError:
         return 'Unknown'
 
 
