@@ -108,8 +108,11 @@ def get_jinja_env():
 
 
 def country(code):
-    data = pycountry.countries.get(alpha2=code)
-    return data.name
+    try:
+        data = pycountry.countries.get(alpha2=code)
+        return data.name
+    except IndexError:
+        return 'Unknown'
 
 
 # implemented with the help of http://codereview.stackexchange.com/a/15239
