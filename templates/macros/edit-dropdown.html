@@ -58,9 +58,9 @@
             role="button"
             data-toggle="modal"
             data-backdrop="false"
-            data-remote="/library/remove/modal/{% for track_id in track_ids -%}
-                {{ track_id }}, {%- endfor %}?title={{ title|urlencode }}"
-            href="#{{ modalId }}">
+            data-target="#{{ modalId }}"
+            href="/library/remove/modal/{% for track_id in track_ids -%}
+                {{ track_id }}, {%- endfor %}?title={{ title|urlencode }}">
             <i class="fa fa-trash-o"></i>
             Remove
         </a>

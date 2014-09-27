@@ -15,10 +15,8 @@
         {% block container %}
             <div class="row">
                 <div class="col-xs-12">
-                    <div class="row">
-                        <div id="main" class="{{ self.main_class() }}">
-                            {% block main %}{% endblock %}
-                        </div>
+                    <div id="main" class="{{ self.main_class() }}">
+                        {% block main %}{% endblock %}
                     </div>
                 </div>
             </div>
