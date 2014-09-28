@@ -54,6 +54,7 @@ def get_staticdir():
 
 try:
     import cherrypy
+    import cgitb
     from cherrypy.process.plugins import Monitor
     from opmuse.less_compiler import less_compiler
 
@@ -111,16 +112,28 @@ try:
             else:
                 cherrypy.HTTPRedirect.set_response(self)
 
-    # http://tools.cherrypy.org/wiki/CGITB
-    def cgitb_log_err():
-        import cgitb
+    def error_handler_log():
+        config = cherrypy.tree.apps[''].config['opmuse']
+        debug = config.get('debug')
 
-        tb = cgitb.text(sys.exc_info())
+        text = cgitb.text(sys.exc_info())
+        html = cgitb.html(sys.exc_info())
 
-        def set_tb():
-            cherrypy.log(tb)
+        from opmuse.mail import mailer
 
-        cherrypy.request.hooks.attach('after_error_response', set_tb)
+        error_mail = config.get('error.mail')
+
+        if error_mail is not None:
+            mailer.send(error_mail, "Your opmuse ran into a problem!", text, html)
+
+        def _error_handler_log():
+            if debug:
+                cherrypy.response.body = html.encode('utf8')
+                cherrypy.response.headers['Content-Length'] = None
+
+            cherrypy.log(text)
+
+        cherrypy.request.hooks.attach('after_error_response', _error_handler_log)
 
     def profile_pipeline(app):
         from repoze.profile import ProfileMiddleware
@@ -212,7 +225,7 @@ try:
     firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end, priority=100)
 
     multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
-    cgitb_log_err_tool = cherrypy.Tool('before_error_response', cgitb_log_err)
+    error_handler_tool = cherrypy.Tool('before_error_response', error_handler_log)
 except ImportError:
     # ignore ImportError, because this module is used in opmuse.less_compiler
     # which is used when bulding we dont need/want depend on this

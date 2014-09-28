@@ -28,7 +28,7 @@ from opmuse.security import repozewho_pipeline, AuthenticatedTool, AuthorizeTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedTool
 from opmuse.search import WhooshPlugin
-from opmuse.utils import cgitb_log_err_tool, multi_headers_tool, LessReloader, get_staticdir
+from opmuse.utils import error_handler_tool, multi_headers_tool, LessReloader, get_staticdir
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
@@ -45,7 +45,7 @@ def configure(config_file=None, environment=None):
     cherrypy.tools.backgroundtask = BackgroundTaskTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
     cherrypy.tools.multiheaders = multi_headers_tool
-    cherrypy.tools.cgitb_log_err = cgitb_log_err_tool
+    cherrypy.tools.error_handler = error_handler_tool
     cherrypy.tools.websocket = WebSocketTool()
     cherrypy.tools.database_events = DatabaseEventsTool()
 
@@ -63,7 +63,7 @@ def configure(config_file=None, environment=None):
 
     app_config = {
         '/': {
-            'tools.cgitb_log_err.on': True,
+            'tools.error_handler.on': True,
             'tools.autovary.on': True,
             'tools.encode.on': False,
             'tools.database.on': True,
