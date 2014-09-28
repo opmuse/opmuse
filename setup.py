@@ -85,6 +85,8 @@ for install_require in chain(parse_requirements('requirements.txt'), parse_requi
                 continue
             else:
                 install_requires.append("oursql==0.9.4")
+        elif install_require.url[-17:] == "vendor/whoosh.zip":
+            install_requires.append("Whoosh==2.6.0")
         else:
             raise Exception("Don't know how to parse %s" % install_require.url)
     else:
