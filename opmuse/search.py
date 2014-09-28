@@ -258,6 +258,8 @@ class WhooshPlugin(Monitor):
         self._running = False
 
     def start(self):
+        self._stopped = False
+
         for index_name in index_names:
             index_path = os.path.join(search.index_dir, index_name)
 
@@ -311,6 +313,7 @@ class WhooshPlugin(Monitor):
         self._stopped = True
 
         for name, write_handler in write_handlers.items():
+            write_handlers[name] = None
             write_handler.stopped = True
             write_handler.commit()
 
