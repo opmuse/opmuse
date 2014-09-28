@@ -30,7 +30,7 @@ opmuse.boot.configure(config_file=False)
 
 if not on_readthedocs:
     from opmuse.less_compiler import less_compiler
-    less_compiler.compile('_static/bootswatch-3.1.0/opmuse/bootstrap.min.css', no_opmuse=True)
+    less_compiler.compile('_static/bootswatch-3.2.0/opmuse/bootstrap.min.css', no_opmuse=True)
 
 # -- General configuration ------------------------------------------------
 
