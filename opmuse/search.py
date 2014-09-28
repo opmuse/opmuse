@@ -40,6 +40,10 @@ def log(msg):
     cherrypy.log(msg, context='search')
 
 
+class SearchError(Exception):
+    pass
+
+
 class WriteHandler:
     def __init__(self, name, index):
         self.name = name
@@ -47,10 +51,18 @@ class WriteHandler:
         self._deletes = []
         self._updates = {}
 
+        self.stopped = False
+
     def delete_document(self, id):
+        if self.stopped:
+            raise SearchError("We're stopped, not accepting any more deletes")
+
         self._deletes.append(id)
 
     def update_document(self, id, name, slug, filename=None):
+        if self.stopped:
+            raise SearchError("We're stopped, not accepting any more updates")
+
         self._updates[id] = (name, slug, filename)
 
     def commit(self):
@@ -235,6 +247,7 @@ class WhooshPlugin(Monitor):
         Monitor.__init__(self, bus, self.run, frequency=30)
 
         self._running = False
+        self._stopped = False
 
     def run(self):
         self._running = True
@@ -292,7 +305,13 @@ class WhooshPlugin(Monitor):
     def stop(self):
         Monitor.stop(self)
 
+        if self._stopped:
+            return
+
+        self._stopped = True
+
         for name, write_handler in write_handlers.items():
+            write_handler.stopped = True
             write_handler.commit()
 
 
