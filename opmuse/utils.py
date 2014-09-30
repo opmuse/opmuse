@@ -116,8 +116,17 @@ try:
         config = cherrypy.tree.apps[''].config['opmuse']
         debug = config.get('debug')
 
-        text = cgitb.text(sys.exc_info())
-        html = cgitb.html(sys.exc_info())
+        exc = sys.exc_info()
+
+        try:
+            text = cgitb.text(exc)
+            html = cgitb.html(exc)
+        except:
+            # errors might be thrown when cgitb tries to inspect stuff,
+            # in which case just show a regular stacktrace
+            from cherrypy._cperror import format_exc
+            text = format_exc(exc)
+            html = None
 
         from opmuse.mail import mailer
 
@@ -128,7 +137,12 @@ try:
 
         def _error_handler_log():
             if debug:
-                cherrypy.response.body = html.encode('utf8')
+                if html is not None:
+                    cherrypy.response.body = html.encode('utf8')
+                else:
+                    cherrypy.response.body = text.encode('utf8')
+                    cherrypy.response.headers['Content-Type'] = "text/plain; charset=utf8"
+
                 cherrypy.response.headers['Content-Length'] = None
 
             cherrypy.log(text)
