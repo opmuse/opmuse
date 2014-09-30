@@ -183,8 +183,20 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                     that.activeRequest = null;
                 },
                 error: function (xhr) {
-                    if (xhr.statusText != 'abort') {
-                        that.setPageInDom(xhr.responseText);
+                    var contentType = xhr.getResponseHeader("Content-Type");
+
+                    var data = null;
+
+                    if (contentType == "text/plain") {
+                        // do you know of a way to change so the browser just
+                        // renders text/plain instead? i dont, would be nice.
+                        data = "<pre>" + xhr.responseText + "</pre>";
+                    } else if (xhr.statusText != 'abort') {
+                        data = xhr.responseText;
+                    }
+
+                    if (data !== null) {
+                        that.setPageInDom(data);
                     }
 
                     layout.hideOverlay();
