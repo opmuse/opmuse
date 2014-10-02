@@ -109,7 +109,7 @@ def configure(config_file=None, environment=None):
 
     # 5 gigabyte file upload limit
     config['server.max_request_body_size'] = 1024 ** 3 * 5
-    config['engine.timeout_monitor.frequency'] = 60 * 5
+    #config['engine.timeout_monitor.frequency'] = 60 * 5
 
     config['error_page.default'] = Root.handle_error
 
@@ -123,9 +123,13 @@ def configure(config_file=None, environment=None):
     cherrypy._cpconfig.environments['production']['opmuse']['less_reloader.enable'] = False
     cherrypy._cpconfig.environments['production']['opmuse']['cache.path'] = '/var/cache/opmuse'
 
+    # dont use the default server
+    cherrypy.server.unsubscribe()
+
+    # setup ssl/https server if enabled
     if 'ssl_server.enabled' in cherrypy.config and cherrypy.config['ssl_server.enabled']:
-        socket_host = cherrypy.config['ssl_server.socket_host']
-        socket_port = cherrypy.config['ssl_server.socket_port']
+        ssl_socket_host = cherrypy.config['ssl_server.socket_host']
+        ssl_socket_port = cherrypy.config['ssl_server.socket_port']
         ssl_certificate = cherrypy.config['ssl_server.ssl_certificate']
         ssl_private_key = cherrypy.config['ssl_server.ssl_private_key']
 
@@ -146,11 +150,19 @@ def configure(config_file=None, environment=None):
             ssl_certificate_chain = os.path.join(config_path, ssl_certificate_chain)
 
         ssl_server = cherrypy._cpserver.Server()
-        ssl_server.bind_addr = (socket_host, socket_port)
+        ssl_server.bind_addr = (ssl_socket_host, ssl_socket_port)
         ssl_server.ssl_certificate = ssl_certificate
         ssl_server.ssl_private_key = ssl_private_key
         ssl_server.ssl_certificate_chain = ssl_certificate_chain
         ssl_server.subscribe()
+
+    # setup regular http server
+    socket_host = cherrypy.config['server.socket_host']
+    socket_port = cherrypy.config['server.socket_port']
+
+    server = cherrypy._cpserver.Server()
+    server.bind_addr = (socket_host, socket_port)
+    server.subscribe()
 
     WebSocketPlugin.start.priority = 80
     WebSocketPlugin(cherrypy.engine).subscribe()
@@ -182,7 +194,7 @@ def configure(config_file=None, environment=None):
 
 
 def boot():
-    # signal_handler logs in subscribe() so we initialize
+    # signal_handler logs in its subscribe() so we initialize
     # it here so logging and everything is initialized before
     if hasattr(cherrypy.engine, 'signal_handler'):
         cherrypy.engine.signal_handler.subscribe()
