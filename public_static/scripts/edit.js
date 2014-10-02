@@ -56,7 +56,7 @@ define([
 
                 $(input).typeahead({
                     remote: {
-                        url: sprintf('/library/search/api/%s?query=%%QUERY', type),
+                        url: sprintf('/search/api/%s?query=%%QUERY', type),
                         filter: function (parsedResponse) {
                             var originalValue = $(input).data('originalValue');
                             var index = parsedResponse.indexOf(originalValue);
