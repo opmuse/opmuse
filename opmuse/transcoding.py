@@ -84,7 +84,6 @@ class Transcoder:
 
 
 class FFMPEGTranscoder(Transcoder):
-
     def __init__(self, track, skip_seconds):
         self.track = track
         self.skip_seconds = skip_seconds
@@ -106,6 +105,20 @@ class FFMPEGTranscoder(Transcoder):
 
     def __enter__(self):
         cherrypy.engine.publish('transcoding.start', transcoder=self, track=self.track)
+
+        # http server has priority of 25, so specify 20 so this can
+        # run before and stop this one which would otherwise cause
+        # a "deadlock" with the http servers stopping.
+        #
+        # that's why we do this here, because otherwise close wont be called on
+        # this generator and a sort of deadlock would occur.
+        #
+        # there's still one remaining issue here though and that is that
+        # while the server is shutting down it still accepts new requests so
+        # when this one is killed the client (i.e. browser) will just start
+        # another request which will require another call to "stop" (e.g. SIGTERM).
+        # dont know what to do about that one :/
+        cherrypy.engine.subscribe('stop', self.stop, priority=20)
 
         self.filename = self.track.paths[0].path
         self.pretty_filename = self.track.paths[0].pretty_path
@@ -190,15 +203,18 @@ class FFMPEGTranscoder(Transcoder):
         if self.stopped:
             return
 
-        if self.process is not None:
-            try:
+        try:
+            if self.process is not None:
+                debug("Stopping ffmpeg %d" % self.process.pid)
+
                 self.process.send_signal(signal.SIGTERM)
                 self.process.stdout.read()
                 self.process.wait()
-            except ProcessLookupError:
-                pass
-
-        self.stopped = True
+        except ProcessLookupError:
+            pass
+        finally:
+            cherrypy.engine.unsubscribe('stop', self.stop)
+            self.stopped = True
 
     @staticmethod
     def set_nonblocking(fileno):
