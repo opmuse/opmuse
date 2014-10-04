@@ -9,7 +9,7 @@ Jinja2 >=2.7.1,<2.8
 SQLAlchemy >=0.9.1,<0.10
 mmh3 >=2.2
 repoze.who ==2.2
-vendor/whoosh-2.6.0.zip
+whoosh ==2.4.1
 mutagenx >=1.24,<1.25
 rarfile >=2.6,<2.7
 ws4py >=0.3.2,<0.4
