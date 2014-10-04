@@ -63,12 +63,20 @@ __all__ = ['FileMetadata', 'library_dao', 'ApeParser', 'TrackStructureParser', '
            'FlacParser', 'Track', 'LibraryPlugin']
 
 
-def debug(msg, traceback=False):
-    cherrypy.log.error(msg, context='library', severity=logging.DEBUG, traceback=traceback)
-
-
 def log(msg, traceback=False):
-    cherrypy.log(msg, context='library', traceback=traceback)
+    _log(msg, traceback, logging.INFO)
+
+
+def warn(msg, traceback=False):
+    _log(msg, traceback, logging.WARNING)
+
+
+def debug(msg, traceback=False):
+    _log(msg, traceback, logging.DEBUG)
+
+
+def _log(msg, traceback, severity):
+    cherrypy.log.error(msg, context='library', severity=severity, traceback=traceback)
 
 
 class StringNotNullType(TypeDecorator):
@@ -1234,7 +1242,7 @@ class OpmuseTxt:
     whatever thread to acquire the lock first will be the authority.
     """
 
-    TRIES = 10
+    TRIES = 15
     """
     How many times to try to acquire a lock before giving up.
     """
@@ -1269,7 +1277,7 @@ class OpmuseTxt:
                 lock.remove()
             except LockError:
                 if i == OpmuseTxt.TRIES - 1:
-                    log("Failed to acquire lock for %s, giving up.\n" % self.opmuse_txt, traceback=True)
+                    warn("Failed to acquire lock for %s, giving up.\n" % self.opmuse_txt, traceback=True)
                     break
 
                 time.sleep(.5)
