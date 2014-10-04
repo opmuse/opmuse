@@ -128,12 +128,15 @@ try:
             text = format_exc(exc)
             html = None
 
-        from opmuse.mail import mailer
-
         error_mail = config.get('error.mail')
 
         if error_mail is not None:
-            mailer.send(error_mail, "Your opmuse ran into a problem!", text, html)
+            from opmuse.mail import mailer
+            import traceback
+
+            error = traceback.format_exception(*exc)[-1]
+
+            mailer.send(error_mail, "opmuse caught error: %s" % error, text, html)
 
         def _error_handler_log():
             if debug:
