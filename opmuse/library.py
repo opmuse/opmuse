@@ -1477,6 +1477,22 @@ class LibraryProcess:
 
         metadata = reader.parse(filename, None, self.path)
 
+        # change track slug until successful
+        track_slug_index, track.slug = self.get_track_slug(metadata)
+
+        i = 0
+
+        while True:
+            i += 1
+
+            try:
+                self._database.commit()
+                break
+            except IntegrityError:
+                self._database.rollback()
+
+                track_slug_index, track.slug = self.get_track_slug(metadata, track_slug_index + i)
+
         artist = None
         album = None
 
@@ -1600,22 +1616,6 @@ class LibraryProcess:
 
         if artist is not None:
             track.artist_id = artist.id
-
-        # change track slug until successful
-        track_slug_index, track.slug = self.get_track_slug(metadata)
-
-        i = 0
-
-        while True:
-            i += 1
-
-            try:
-                self._database.commit()
-                break
-            except IntegrityError:
-                self._database.rollback()
-
-                track_slug_index, track.slug = self.get_track_slug(metadata, track_slug_index + i)
 
         track_path = TrackPath(filename)
         track_path.track_id = track.id
