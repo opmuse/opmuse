@@ -16,6 +16,7 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import shutil
 import cherrypy
 from cherrypy.process.plugins import Monitor
 import whoosh.index
@@ -29,12 +30,6 @@ from opmuse.database import get_database
 import opmuse.library
 from opmuse.utils import memoize
 
-index_names = ['Artist', 'Album', 'Track']
-write_handlers = {}
-
-for index_name in index_names:
-    write_handlers[index_name] = None
-
 
 def log(msg):
     cherrypy.log(msg, context='search')
@@ -42,6 +37,81 @@ def log(msg):
 
 class SearchError(Exception):
     pass
+
+
+class WriteHandlers(dict):
+    INDEX_NAMES = ['Artist', 'Album', 'Track']
+
+    def __init__(self):
+        dict.__init__(self)
+
+        for index_name in WriteHandlers.INDEX_NAMES:
+            self[index_name] = None
+
+    @property
+    def index_dir(self):
+        cache_path = cherrypy.config['opmuse'].get('cache.path')
+        return os.path.join(cache_path, 'index')
+
+    def init_indexes(self):
+        for index_name in WriteHandlers.INDEX_NAMES:
+            index_path = os.path.join(self.index_dir, index_name)
+
+            if whoosh.index.exists_in(index_path):
+                index = whoosh.index.open_dir(index_path)
+            else:
+                if not os.path.exists(index_path):
+                    os.makedirs(index_path)
+
+                schema = whoosh.fields.Schema(
+                    id=whoosh.fields.ID(stored=True, unique=True),
+                    name=whoosh.fields.TEXT(
+                        analyzer=RegexTokenizer() | LowercaseFilter()
+                    ),
+                    stemmed_name=whoosh.fields.TEXT(
+                        analyzer=SpaceSeparatedTokenizer() | LowercaseFilter() | StemFilter()
+                    ),
+                    metaphone_name=whoosh.fields.TEXT(
+                        analyzer=SpaceSeparatedTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
+                    ),
+                    exact_name=whoosh.fields.TEXT(
+                        analyzer=IDTokenizer() | LowercaseFilter()
+                    ),
+                    exact_metaphone_name=whoosh.fields.TEXT(
+                        analyzer=IDTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
+                    ),
+                    slug=whoosh.fields.TEXT(
+                        analyzer=RegexTokenizer(r"[^_]+") | LowercaseFilter()
+                    ),
+                    filename=whoosh.fields.TEXT(
+                        analyzer=RegexTokenizer(r"[^ \t\r\n_\.]+") | LowercaseFilter()
+                    ),
+                )
+
+                index = whoosh.index.create_in(index_path, schema)
+
+            write_handler = WriteHandler(index_name, index)
+
+            self[index_name] = write_handler
+
+    def drop_indexes(self):
+        if not os.path.exists(self.index_dir):
+            return
+
+        for file in os.listdir(self.index_dir):
+            if file[0:1] == ".":
+                continue
+
+            path = os.path.join(self.index_dir, file)
+
+            if os.path.isfile(path):
+                os.unlink(path)
+            else:
+                shutil.rmtree(path)
+
+    def commit(self):
+        for name, write_handler in self.items():
+            write_handler.commit()
 
 
 class WriteHandler:
@@ -97,12 +167,6 @@ class WriteHandler:
 
 
 class Search:
-
-    @property
-    def index_dir(self):
-        cache_path = cherrypy.config['opmuse'].get('cache.path')
-        return os.path.join(cache_path, 'index')
-
     def delete_track(self, track):
         write_handler = write_handlers["Track"]
 
@@ -252,53 +316,14 @@ class WhooshPlugin(Monitor):
     def run(self):
         self._running = True
 
-        for name, write_handler in write_handlers.items():
-            write_handler.commit()
+        write_handlers.commit()
 
         self._running = False
 
     def start(self):
         self._stopped = False
 
-        for index_name in index_names:
-            index_path = os.path.join(search.index_dir, index_name)
-
-            if whoosh.index.exists_in(index_path):
-                index = whoosh.index.open_dir(index_path)
-            else:
-                if not os.path.exists(index_path):
-                    os.makedirs(index_path)
-
-                schema = whoosh.fields.Schema(
-                    id=whoosh.fields.ID(stored=True, unique=True),
-                    name=whoosh.fields.TEXT(
-                        analyzer=RegexTokenizer() | LowercaseFilter()
-                    ),
-                    stemmed_name=whoosh.fields.TEXT(
-                        analyzer=SpaceSeparatedTokenizer() | LowercaseFilter() | StemFilter()
-                    ),
-                    metaphone_name=whoosh.fields.TEXT(
-                        analyzer=SpaceSeparatedTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
-                    ),
-                    exact_name=whoosh.fields.TEXT(
-                        analyzer=IDTokenizer() | LowercaseFilter()
-                    ),
-                    exact_metaphone_name=whoosh.fields.TEXT(
-                        analyzer=IDTokenizer() | LowercaseFilter() | DoubleMetaphoneFilter()
-                    ),
-                    slug=whoosh.fields.TEXT(
-                        analyzer=RegexTokenizer(r"[^_]+") | LowercaseFilter()
-                    ),
-                    filename=whoosh.fields.TEXT(
-                        analyzer=RegexTokenizer(r"[^ \t\r\n_\.]+") | LowercaseFilter()
-                    ),
-                )
-
-                index = whoosh.index.create_in(index_path, schema)
-
-            write_handler = WriteHandler(index_name, index)
-
-            write_handlers[index_name] = write_handler
+        write_handlers.init_indexes()
 
         Monitor.start(self)
 
@@ -317,5 +342,5 @@ class WhooshPlugin(Monitor):
             write_handler.stopped = True
             write_handler.commit()
 
-
+write_handlers = WriteHandlers()
 search = Search()

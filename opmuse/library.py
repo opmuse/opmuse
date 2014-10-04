@@ -2023,6 +2023,15 @@ class LibraryDao:
                 .order_by(Track.number)
                 .order_by(Track.name).all())
 
+    def get_albums(self):
+        return get_database().query(Track).all()
+
+    def get_artists(self):
+        return get_database().query(Track).all()
+
+    def get_tracks(self):
+        return get_database().query(Track).all()
+
     def add_files(self, filenames, move=False, remove_dirs=True,
                   artist_name_override=None, artist_name_fallback=None, user=None):
         """

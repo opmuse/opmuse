@@ -33,7 +33,7 @@ from opmuse.library import TrackPath, Track, Artist, Album, UserAndAlbum, Listen
 from opmuse.security import User, Role, hash_password
 from opmuse.queues import Queue
 from opmuse.cache import CacheObject
-from opmuse.search import search
+from opmuse.search import search, write_handlers
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
@@ -63,21 +63,30 @@ def command_less():
 
 def command_whoosh(action=None):
     if action == "drop":
-        if not os.path.exists(search.index_dir):
-            return
+        write_handlers.drop_indexes()
+    elif action == "reindex":
+        from opmuse.library import library_dao
+        from opmuse.database import database_data, get_session
 
-        for file in os.listdir(search.index_dir):
-            if file[0:1] == ".":
-                continue
+        database_data.database = get_session()
 
-            path = os.path.join(search.index_dir, file)
+        write_handlers.init_indexes()
 
-            if os.path.isfile(path):
-                os.unlink(path)
-            else:
-                shutil.rmtree(path)
+        for artist in library_dao.get_artists():
+            search.add_artist(artist)
+
+        for album in library_dao.get_albums():
+            search.add_album(album)
+
+        for track in library_dao.get_tracks():
+            search.add_track(track)
+
+        write_handlers.commit()
+
+        database_data.database.remove()
+        database_data.database = None
     else:
-        parser.error('Needs to provide a valid action (drop).')
+        parser.error('Needs to provide a valid action (drop, reindex).')
 
 
 def command_cherrypy(*args):
