@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import queue
 import threading
 import cherrypy
@@ -24,6 +25,7 @@ from functools import total_ordering
 from multiprocessing import cpu_count
 from cherrypy.process.plugins import SimplePlugin
 from opmuse.database import get_session, database_data
+from opmuse.utils import get_pretty_errors, mail_pretty_errors
 
 
 def debug(msg):
@@ -221,6 +223,8 @@ class BackgroundTaskPlugin(SimplePlugin):
             except:
                 log("Error in bgtask thread #%d %r, args %r and kwargs %r." %
                     (number, func, args, kwargs), traceback=True)
+
+                mail_pretty_errors(*get_pretty_errors(sys.exc_info()))
 
         debug("Stopping bgtask thread #%d" % number)
 

@@ -112,31 +112,42 @@ try:
             else:
                 cherrypy.HTTPRedirect.set_response(self)
 
-    def error_handler_log():
-        config = cherrypy.tree.apps[''].config['opmuse']
-        debug = config.get('debug')
-
-        exc = sys.exc_info()
+    def get_pretty_errors(exc):
+        import traceback
 
         try:
             text = cgitb.text(exc)
             html = cgitb.html(exc)
         except:
             # errors might be thrown when cgitb tries to inspect stuff,
-            # in which case just show a regular stacktrace
+            # in which case just get a regular stacktrace
             from cherrypy._cperror import format_exc
             text = format_exc(exc)
             html = None
+
+        name = traceback.format_exception(*exc)[-1]
+
+        return name, text, html
+
+    def mail_pretty_errors(name, text, html):
+        config = cherrypy.tree.apps[''].config['opmuse']
 
         error_mail = config.get('error.mail')
 
         if error_mail is not None:
             from opmuse.mail import mailer
-            import traceback
 
-            error = traceback.format_exception(*exc)[-1]
+            mailer.send(error_mail, "opmuse caught error: %s" % name, text, html)
 
-            mailer.send(error_mail, "opmuse caught error: %s" % error, text, html)
+    def error_handler_log():
+        config = cherrypy.tree.apps[''].config['opmuse']
+        debug = config.get('debug')
+
+        exc = sys.exc_info()
+
+        name, text, html = get_pretty_errors(exc)
+
+        mail_pretty_errors(name, text, html)
 
         def _error_handler_log():
             if debug:
