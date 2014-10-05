@@ -131,10 +131,16 @@ def configure(config_file=None, environment=None):
 
     # setup ssl/https server if enabled
     if 'ssl_server.enabled' in cherrypy.config and cherrypy.config['ssl_server.enabled']:
-        ssl_socket_host = cherrypy.config['ssl_server.socket_host']
-        ssl_socket_port = cherrypy.config['ssl_server.socket_port']
+        ssl_socket_host = cherrypy.config.get('ssl_server.socket_host')
+        ssl_socket_port = cherrypy.config.get('ssl_server.socket_port')
         ssl_certificate = cherrypy.config['ssl_server.ssl_certificate']
         ssl_private_key = cherrypy.config['ssl_server.ssl_private_key']
+
+        if ssl_socket_host is None:
+            ssl_socket_host = '127.0.0.1'
+
+        if ssl_socket_port is None:
+            ssl_socket_port = 8443
 
         if 'ssl_server.ssl_certificate_chain' in cherrypy.config:
             ssl_certificate_chain = cherrypy.config['ssl_server.ssl_certificate_chain']
@@ -162,8 +168,14 @@ def configure(config_file=None, environment=None):
         cherrypy.ssl_server = ssl_server
 
     # setup regular http server
-    socket_host = cherrypy.config['server.socket_host']
-    socket_port = cherrypy.config['server.socket_port']
+    socket_host = cherrypy.config.get('server.socket_host')
+    socket_port = cherrypy.config.get('server.socket_port')
+
+    if socket_host is None:
+        socket_host = '127.0.0.1'
+
+    if socket_port is None:
+        socket_port = 8080
 
     server = cherrypy._cpserver.Server()
     server.bind_addr = (socket_host, socket_port)
