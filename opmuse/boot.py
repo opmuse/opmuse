@@ -321,7 +321,7 @@ def main():
 
         from cherrypy.process.plugins import Daemonizer, DropPrivileges
         Daemonizer(cherrypy.engine).subscribe()
-        DropPrivileges(cherrypy.engine, uid=args.user, gid=args.group, umask=0o022).subscribe()
+        DropPrivileges(cherrypy.engine, uid=args.user, gid=args.group, umask=0o026).subscribe()
 
     if args.pidfile is not None:
         from cherrypy.process.plugins import PIDFile

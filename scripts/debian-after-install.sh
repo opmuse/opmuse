@@ -11,8 +11,6 @@ if ! getent passwd $USER > /dev/null ; then
         --shell /usr/sbin/nologin $USER
 fi
 
-chown $USER $LOGDIR $CACHEDIR
-
 . /usr/share/debconf/confmodule
 . /usr/share/dbconfig-common/dpkg/postinst.mysql
 
@@ -37,6 +35,10 @@ if [ "$1" = "configure" ]; then
         opmuse-console user add_role admin
         opmuse-console user add "$user_name" "$user_pass" "$user_mail" admin
     fi
+
+    dpkg-statoverride --update --add $USER $GROUP 0750 $LOGDIR
+    dpkg-statoverride --update --add $USER $GROUP 0750 $CACHEDIR
+    dpkg-statoverride --update --add $USER $GROUP 0640 /etc/opmuse/opmuse.ini
 fi
 
 update-rc.d opmuse defaults
