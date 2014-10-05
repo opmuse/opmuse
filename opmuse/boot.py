@@ -231,6 +231,8 @@ def main():
                         help='Don\'t use colorlog even if it\'s installed.')
     parser.add_argument('-u', '--user', action='store',
                         help='When running as daemon, what user to run as.', default='nobody')
+    parser.add_argument('-g', '--group', action='store',
+                        help='When running as daemon, what group to run as.', default='nogroup')
     parser.add_argument('-e', '--env', action='store',
                         help='cherrypy environment.')
     parser.add_argument('-t', '--timers', action='store_true',
@@ -319,7 +321,7 @@ def main():
 
         from cherrypy.process.plugins import Daemonizer, DropPrivileges
         Daemonizer(cherrypy.engine).subscribe()
-        DropPrivileges(cherrypy.engine, uid=args.user, umask=0o022).subscribe()
+        DropPrivileges(cherrypy.engine, uid=args.user, gid=args.group, umask=0o022).subscribe()
 
     if args.pidfile is not None:
         from cherrypy.process.plugins import PIDFile

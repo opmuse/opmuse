@@ -30,7 +30,7 @@ waitkill() {
 }
 
 start() {
-    opmuse-boot --daemon --user $USER \
+    opmuse-boot --daemon --user $USER --group $GROUP \
         --log $LOGDIR/access.log --errorlog $LOGDIR/error.log \
         --pidfile $PIDFILE --env $ENVIRONMENT > /dev/null 2>&1
 }

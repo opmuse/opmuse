@@ -1,4 +1,5 @@
 USER=opmuse
+GROUP=opmuse
 LOGDIR=/var/log/opmuse
 CACHEDIR=/var/cache/opmuse
 ENVIRONMENT=production

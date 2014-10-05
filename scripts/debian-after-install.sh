@@ -2,8 +2,13 @@
 
 . /etc/default/opmuse
 
+if ! getent group $GROUP > /dev/null ; then
+    addgroup --system $GROUP
+fi
+
 if ! getent passwd $USER > /dev/null ; then
-    adduser --quiet --system --no-create-home --home $CACHEDIR --shell /usr/sbin/nologin $USER
+    adduser --quiet --system --no-create-home --ingroup $GROUP --home $CACHEDIR \
+        --shell /usr/sbin/nologin $USER
 fi
 
 chown $USER $LOGDIR $CACHEDIR
