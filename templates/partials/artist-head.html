@@ -284,7 +284,7 @@
                 {% else %}
                     Album
                 {% endif %}
-                seems to be missing tracks, number of tracks is lower than highest track number.
+                seems to be <strong>missing</strong> tracks, number of tracks is lower than highest track number.
             </p>
         {% elif length > max %}
             <p class="alert alert-warning">
@@ -293,7 +293,7 @@
                 {% else %}
                     Album
                 {% endif %}
-                seems to have duplicate tracks, number of tracks is higher than highest track number.
+                seems to have <strong>duplicate</strong> tracks, number of tracks is higher than highest track number.
             </p>
         {% endif %}
     {% endfor %}
