@@ -80,7 +80,7 @@ def drop_privileges():
 
         os.setuid(uid)
 
-        os.umask(0o026)
+        os.umask(0o027)
 
         return True
     else:
