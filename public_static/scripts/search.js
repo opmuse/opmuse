@@ -55,7 +55,24 @@ define([
                 if (event.keyCode == 13 && $(this).val() != '') {
                     $(this).blur();
                     $(window).focus();
-                    ajaxify.setPage('/search/' + encodeURIComponent($(this).val()));
+
+                    var value = $(this).val();
+                    var encodedValue = encodeURIComponent(value);
+
+                    var path;
+
+                    // this means there's no extended-ASCII chars and we can
+                    // have a fancy url like so
+                    if (encodedValue === value) {
+                        path = '/search/' + encodedValue;
+                    // this does have extended-ASCII, and because cherrypy seems
+                    // to assume latin1 for PATH_INFO we'll have to put it in
+                    // a query string...
+                    } else {
+                        path = '/search?query=' + encodedValue;
+                    }
+
+                    ajaxify.setPage(path);
                 }
 
             }).val(query);

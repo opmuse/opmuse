@@ -10,7 +10,7 @@
 {% import "macros/media.html" as media %}
 {% import "macros/edit-dropdown.html" as edit_dropdown %}
 
-<div id="search" data-query="{{ query|e if query else '' }}">
+<div id="search" data-query="{{ query if query else '' }}">
     <div class="row">
         <div class="col-xs-7">
             <p class="result-text">
