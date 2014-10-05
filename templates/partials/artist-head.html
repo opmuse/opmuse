@@ -278,7 +278,7 @@
 {% if album_disc_nos is defined and album_disc_nos %}
     {% for disc, length, max in album_disc_nos %}
         {% if length < max %}
-            <p class="alert alert-info">
+            <p class="alert alert-warning">
                 {% if disc %}
                     Disc {{ disc }}
                 {% else %}
@@ -287,7 +287,7 @@
                 seems to be missing tracks, number of tracks is lower than highest track number.
             </p>
         {% elif length > max %}
-            <p class="alert alert-info">
+            <p class="alert alert-warning">
                 {% if disc %}
                     Disc {{ disc }}
                 {% else %}
