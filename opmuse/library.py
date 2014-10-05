@@ -2024,10 +2024,10 @@ class LibraryDao:
                 .order_by(Track.name).all())
 
     def get_albums(self):
-        return get_database().query(Track).all()
+        return get_database().query(Album).all()
 
     def get_artists(self):
-        return get_database().query(Track).all()
+        return get_database().query(Artist).all()
 
     def get_tracks(self):
         return get_database().query(Track).all()
