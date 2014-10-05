@@ -16,6 +16,8 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import pwd
+import grp
 import shutil
 import argparse
 import subprocess
@@ -37,6 +39,52 @@ from opmuse.search import search, write_handlers
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 parser = argparse.ArgumentParser(description='Do common tasks for opmuse.')
+
+
+def get_env_var(var):
+    """
+    Extracts env var from opmuse "default" file.
+
+    If you know of any better way to do this please do tell.
+    """
+
+    if not os.path.exists("/etc/default/opmuse"):
+        return None
+
+    args = ["/bin/sh", "-c", ". /etc/default/opmuse; echo $%s" % var]
+
+    value = subprocess.check_output(args, env={}).strip().decode('utf8')
+
+    if value == "":
+        value = None
+
+    return value
+
+
+def drop_privileges():
+    if os.getuid() == 0:
+        user = get_env_var("USER")
+
+        if user is None:
+            return False
+
+        group = get_env_var("GROUP")
+
+        uid = pwd.getpwnam(user).pw_uid
+
+        os.setgroups([])
+
+        if group is not None:
+            gid = grp.getgrnam(group).gr_gid
+            os.setgid(gid)
+
+        os.setuid(uid)
+
+        os.umask(0o026)
+
+        return True
+    else:
+        return False
 
 
 def command_jinja(action=None, path=None):
@@ -65,6 +113,10 @@ def command_whoosh(action=None):
     if action == "drop":
         write_handlers.drop_indexes()
     elif action == "reindex":
+        # drop root privileges if root, obviously the index needs to be
+        # created with the same permissions as the app is running with.
+        drop_privileges()
+
         from opmuse.library import library_dao
         from opmuse.database import database_data, get_session
 
