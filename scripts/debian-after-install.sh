@@ -36,9 +36,17 @@ if [ "$1" = "configure" ]; then
         opmuse-console user add "$user_name" "$user_pass" "$user_mail" admin
     fi
 
-    dpkg-statoverride --update --add $USER $GROUP 0750 $LOGDIR
-    dpkg-statoverride --update --add $USER $GROUP 0750 $CACHEDIR
-    dpkg-statoverride --update --add $USER $GROUP 0640 /etc/opmuse/opmuse.ini
+    if ! dpkg-statoverride --list $LOGDIR > /dev/null ; then
+        dpkg-statoverride --update --add $USER $GROUP 0750 $LOGDIR
+    fi
+
+    if ! dpkg-statoverride --list $CACHEDIR > /dev/null ; then
+        dpkg-statoverride --update --add $USER $GROUP 0750 $CACHEDIR
+    fi
+
+    if ! dpkg-statoverride --list /etc/opmuse/opmuse.ini > /dev/null ; then
+        dpkg-statoverride --update --add $USER $GROUP 0640 /etc/opmuse/opmuse.ini
+    fi
 fi
 
 update-rc.d opmuse defaults
