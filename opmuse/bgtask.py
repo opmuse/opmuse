@@ -98,6 +98,10 @@ class QueueItem:
 
         self.started = None
         self.done = None
+        self.error = None
+
+    def fail(self, error):
+        self.error = error
 
     def values(self):
         return self.name, self.priority, self.func, self.args, self.kwargs
@@ -203,10 +207,11 @@ class BackgroundTaskPlugin(SimplePlugin):
                     except:
                         database_data.database.rollback()
                         raise
-            except:
+            except Exception as error:
                 log("Error in bgtask thread #%d %r, args %r and kwargs %r." %
                     (number, func, args, kwargs), traceback=True)
 
+                item.fail(error)
                 mail_pretty_errors(*get_pretty_errors(sys.exc_info()))
             finally:
                 if item is not None:

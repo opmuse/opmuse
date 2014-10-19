@@ -65,14 +65,18 @@
         <tr>
             <th>#</th>
             <th>Name</th>
+            <th>Failed</th>
             <th>Duration</th>
             <th>Done</th>
         </tr>
         {% for item in request.bgtask.done.queue %}
-            <tr>
+            <tr class="{{ "danger" if item.error else "" }}">
                 <th>{{ loop.index }}</th>
                 <td>
                     {{ item.name }}
+                </td>
+                <td>
+                    {{ item.error if item.error else '' }}
                 </td>
                 <td>
                     {{ (item.done - item.started)|pretty_date("") }}
