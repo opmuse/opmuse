@@ -27,7 +27,7 @@ import hashlib
 from sqlalchemy import Column, String
 from urllib import request
 from urllib import parse
-from urllib.error import HTTPError
+from urllib.error import URLError
 from opmuse.security import User
 from opmuse.search import search
 
@@ -173,8 +173,8 @@ class LastfmNetwork:
 
                 page += 1
                 tries = 1
-            except (LastfmApiError, LastfmRetry, HTTPError) as error:
-                if isinstance(error, LastfmApiError) or isinstance(error, HTTPError):
+            except (LastfmApiError, LastfmRetry) as error:
+                if isinstance(error, LastfmApiError):
                     debug('Got error while fetching recent tracks for %s%s\n' %
                           (user_name, ', not retrying' if tries > 10 else ', retrying'), traceback=True)
 
@@ -522,7 +522,23 @@ class LastfmNetwork:
         else:
             data = None
 
-        f = request.urlopen(url, data, timeout=60 * 10)
+        tries = 0
+
+        while True:
+            try:
+                tries += 1
+                f = request.urlopen(url, data, timeout=60 * 10)
+                break
+            except URLError as e:
+                # retry on connection timeout errors
+                if isinstance(e.reason, TimeoutError):
+                    # give up after 10 tries
+                    if tries >= 10:
+                        raise
+
+                    time.sleep(10)
+                else:
+                    raise
 
         result = json.loads(f.read().decode('utf8', 'replace'))
 
