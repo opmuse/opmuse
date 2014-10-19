@@ -92,7 +92,7 @@ class Google:
             'q': query
         })
 
-        results = json.loads(urllib.request.urlopen(url).read().decode("utf8", "replace"))
+        results = json.loads(urllib.request.urlopen(url, timeout=60 * 10).read().decode("utf8", "replace"))
 
         hits = []
 
@@ -112,7 +112,7 @@ class Google:
             'q': query
         })
 
-        results = json.loads(urllib.request.urlopen(url).read().decode("utf8", "replace"))
+        results = json.loads(urllib.request.urlopen(url, timeout=60 * 10).read().decode("utf8", "replace"))
 
         urls = []
 

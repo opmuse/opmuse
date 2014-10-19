@@ -160,7 +160,8 @@ class Wikipedia():
         return "%s/%s" % (Wikipedia.BASE_TITLE_URL % language, parse.quote(title))
 
     def _request(self, params, language):
-        response = request.urlopen("%s?%s" % (Wikipedia.BASE_API_URL % language, parse.urlencode(params)))
+        url = "%s?%s" % (Wikipedia.BASE_API_URL % language, parse.urlencode(params))
+        response = request.urlopen(url, timeout=60 * 10)
         return json.loads(response.read().decode("utf8"))
 
 

@@ -338,7 +338,7 @@ class Covers:
         temp_image = self._mktemp(image_ext).encode('utf8')
 
         try:
-            fp_from = urlopen(image_url)
+            fp_from = urlopen(image_url, timeout=60 * 10)
         except (HTTPError, URLError) as error:
             log('Got "%s" when downloading %s.' % (error, image_url))
             return None, None, None, None

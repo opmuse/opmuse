@@ -522,7 +522,7 @@ class LastfmNetwork:
         else:
             data = None
 
-        f = request.urlopen(url, data)
+        f = request.urlopen(url, data, timeout=60 * 10)
 
         result = json.loads(f.read().decode('utf8', 'replace'))
 
