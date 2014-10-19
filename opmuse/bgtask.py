@@ -170,6 +170,8 @@ class BackgroundTaskPlugin(SimplePlugin):
             if self._running == "stop":
                 break
 
+            item = None
+
             try:
                 try:
                     item = self.queue.get(block=True, timeout=2)
@@ -201,9 +203,15 @@ class BackgroundTaskPlugin(SimplePlugin):
                     except:
                         database_data.database.rollback()
                         raise
-                    finally:
-                        database_data.database.remove()
-                        database_data.database = None
+            except:
+                log("Error in bgtask thread #%d %r, args %r and kwargs %r." %
+                    (number, func, args, kwargs), traceback=True)
+
+                mail_pretty_errors(*get_pretty_errors(sys.exc_info()))
+            finally:
+                if item is not None:
+                    database_data.database.remove()
+                    database_data.database = None
 
                     self.queue.task_done()
                     self.queue.done(item)
@@ -212,19 +220,15 @@ class BackgroundTaskPlugin(SimplePlugin):
 
                     thread.name = 'idle'
 
-                    self.running -= 1
-
                     thread.item = None
 
                     self.done.put(item)
 
-                    if self.done.qsize() > 20:
+                    # store max 50 items in done queue
+                    if self.done.qsize() > 50:
                         self.done.get()
-            except:
-                log("Error in bgtask thread #%d %r, args %r and kwargs %r." %
-                    (number, func, args, kwargs), traceback=True)
 
-                mail_pretty_errors(*get_pretty_errors(sys.exc_info()))
+                    self.running -= 1
 
         debug("Stopping bgtask thread #%d" % number)
 
