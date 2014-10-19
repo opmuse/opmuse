@@ -396,10 +396,6 @@ class Library:
             remotes.update_artist(track.artist)
             remotes_artist = remotes.get_artist(track.artist)
 
-            if remotes_artist is not None and remotes_artist['lastfm'] is not None:
-                for tag_name in remotes_artist['lastfm']['tags']:
-                    remotes.update_tag(tag_name)
-
         remotes_track = remotes.get_track(track)
 
         if track.artist is not None:
@@ -485,10 +481,6 @@ class Library:
 
             if remotes_artist is not None:
                 remotes_artists.append(remotes_artist)
-
-                if remotes_artist['lastfm'] is not None:
-                    for tag_name in remotes_artist['lastfm']['tags']:
-                        remotes.update_tag(tag_name)
 
         disc_nos = {}
 
@@ -973,10 +965,6 @@ class Library:
                                    key=lambda album_group: album_group_order[album_group[0]]))
 
         remotes_artist = remotes.get_artist(artist)
-
-        if remotes_artist is not None and remotes_artist['lastfm'] is not None:
-            for tag_name in remotes_artist['lastfm']['tags']:
-                remotes.update_tag(tag_name)
 
         same_artists = set()
 
