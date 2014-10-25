@@ -677,8 +677,8 @@ class Library:
 
         if sort == "created":
             query = query.order_by(Track.created.desc())
-        elif sort == "added":
-            query = query.order_by(Track.added.desc())
+        elif sort == "updated":
+            query = query.order_by(Track.updated.desc())
         elif sort == "random":
             query = query.order_by(func.rand())
             page = None
@@ -738,8 +738,8 @@ class Library:
 
         if sort == "created":
             query = query.order_by(Artist.created.desc())
-        elif sort == "added":
-            query = query.order_by(Artist.added.desc())
+        elif sort == "updated":
+            query = query.order_by(Artist.updated.desc())
         elif sort == "random":
             query = query.order_by(func.rand())
             page = None
@@ -842,7 +842,7 @@ class Library:
             query = query.filter(Album.id.in_(album_ids))
         elif filter == "1year":
             now = datetime.datetime.utcnow()
-            query = query.filter(Album.added > now - datetime.timedelta(days=365))
+            query = query.filter(Album.created > now - datetime.timedelta(days=365))
         elif filter == "va":
             query = (query.join(Artist, Artist.id == Track.artist_id)
                           .having(func.count(distinct(Artist.id)) > 1))
