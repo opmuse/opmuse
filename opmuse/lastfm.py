@@ -531,8 +531,8 @@ class LastfmNetwork:
                 f = request.urlopen(url, data, timeout=60 * 10)
                 break
             except URLError as e:
-                # retry on connection timeout errors
-                if isinstance(e.reason, TimeoutError) or isinstance(e.reason, socket.timeout):
+                # retry on connection timeout, reset and refused errors
+                if isinstance(e.reason, (TimeoutError, socket.timeout, ConnectionResetError, ConnectionRefusedError)):
                     # give up after 10 tries
                     if tries >= 10:
                         raise
