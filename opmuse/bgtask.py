@@ -212,7 +212,12 @@ class BackgroundTaskPlugin(SimplePlugin):
                     (number, func, args, kwargs), traceback=True)
 
                 item.fail(error)
-                mail_pretty_errors(*get_pretty_errors(sys.exc_info()))
+
+                name, text, html = get_pretty_errors(sys.exc_info())
+
+                name = "bgtask %r: %s" % (func, name)
+
+                mail_pretty_errors(name, text, html)
             finally:
                 if item is not None:
                     database_data.database.remove()
