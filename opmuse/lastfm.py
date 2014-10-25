@@ -24,6 +24,7 @@ import time
 import math
 import json
 import hashlib
+import socket
 from sqlalchemy import Column, String
 from urllib import request
 from urllib import parse
@@ -531,7 +532,7 @@ class LastfmNetwork:
                 break
             except URLError as e:
                 # retry on connection timeout errors
-                if isinstance(e.reason, TimeoutError):
+                if isinstance(e.reason, TimeoutError) or isinstance(e.reason, socket.timeout):
                     # give up after 10 tries
                     if tries >= 10:
                         raise
