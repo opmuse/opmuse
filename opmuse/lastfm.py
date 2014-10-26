@@ -541,10 +541,17 @@ class LastfmNetwork:
                 else:
                     raise
 
-        result = json.loads(f.read().decode('utf8', 'replace'))
+        response = f.read().decode('utf8', 'replace')
 
-        if result == "":
+        if response == "":
             raise LastfmApiError("Got empty response")
+
+        result = None
+
+        try:
+            result = json.loads(response)
+        except ValueError as e:
+            raise LastfmApiError("Got invalid response: %s" % e)
 
         if 'error' in result:
             raise LastfmApiError(result['message'])
