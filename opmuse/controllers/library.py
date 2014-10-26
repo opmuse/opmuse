@@ -487,14 +487,16 @@ class Library:
         for track in album.tracks:
             remotes.update_track(track)
 
-            if track.disc not in disc_nos:
-                disc_nos[track.disc] = []
+            disc = '' if track.disc is None else track.disc
+
+            if disc not in disc_nos:
+                disc_nos[disc] = []
 
             if track.number is not None:
                 # extract max track no, '01' will become 1, '01/10' will become 10
-                disc_nos[track.disc].append(int(re.search('\d+$', track.number).group()))
+                disc_nos[disc].append(int(re.search('\d+$', track.number).group()))
             else:
-                disc_nos[track.disc].append(track.number)
+                disc_nos[disc].append(None)
 
         album_disc_nos = []
 
