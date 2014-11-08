@@ -4,6 +4,7 @@ from repoze.who._compat import get_cookies
 from opmuse.remotes import remotes
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
+from opmuse.ws import ws
 
 
 class Play:
@@ -68,7 +69,13 @@ class Play:
         def track_generator():
             yield queue.track, queue.current_seconds
 
-        return transcoding.transcode(track_generator(), transcoder)
+        #return transcoding.transcode(track_generator(), transcoder)
+
+        for data in transcoding.transcode(track_generator(), transcoder):
+            if data is None:
+                continue
+
+            ws.bemit(data)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)

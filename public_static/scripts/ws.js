@@ -105,10 +105,41 @@ define([
 
             setTimeout(errHandler, errTimeout);
 
+            var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            //var audioCtx = new AudioContext;
+
+            var start = 0;
+
             that.socket.onmessage = function (event) {
+                if (event.data instanceof Blob) {
+                    //console.log(event.data);
+
+                    var fileReader = new FileReader();
+
+                    fileReader.onload = function() {
+                        audioCtx.decodeAudioData(this.result, function(buffer) {
+                            var audioSource = audioCtx.createBufferSource();
+                            audioSource.buffer = buffer;
+
+                            audioSource.connect(audioCtx.destination);
+
+                            audioSource.start(start);
+
+                            start += audioCtx.currentTime + buffer.duration;
+
+                        }, function () {
+                            console.log("Error with decoding audio data");
+                        });
+                    };
+
+                    fileReader.readAsArrayBuffer(event.data);
+
+                    return;
+                }
+
                 var data = JSON.parse(event.data);
 
-                logger.log(sprintf('ws got event %s with args %s', data.event, JSON.stringify(data.args)));
+                //logger.log(sprintf('ws got event %s with args %s', data.event, JSON.stringify(data.args)));
 
                 if (data.event in that.events) {
                     for (var index in that.events[data.event]) {

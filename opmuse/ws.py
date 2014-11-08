@@ -109,10 +109,17 @@ class WsUser:
         for handler in self.handlers:
             WsUser.send(message, handler)
 
+    def bemit(self, message):
+        for handler in self.handlers:
+            WsUser.send(message, handler, binary=True)
+
     @staticmethod
-    def send(message, handler):
+    def send(message, handler, binary=False):
         try:
-            handler.send(json.dumps(message, cls=JSONEncoder))
+            if binary:
+                handler.send(message, binary=True)
+            else:
+                handler.send(json.dumps(message, cls=JSONEncoder))
         except Exception:
             log('Error occured while sending to %s@%s, cleaning up socket, payload %s.\n' %
                 (handler.user['login'], '%s:%d' % handler.peer_address, message), traceback=True)
@@ -175,7 +182,16 @@ class Ws:
         except:
             pass
 
-    def emit(self, event, *args, handler=None, ws_user=None):
+    def bemit(self, data):
+        ws_user = self.get_ws_user()
+
+        if ws_user is None:
+            log("Couldn't send, ignoring.")
+            return
+
+        ws_user.bemit(data)
+
+    def emit(self, event, *args, handler = None, ws_user = None):
         """
         Sends to active user in thread, or specific user or handler.
         """

@@ -139,7 +139,7 @@ class FFMPEGTranscoder(Transcoder):
                 skip_seconds_args +
                 self.ffmpeg_input_args +
                 # reads input at native frame rate, e.g. very handy for streaming.
-                ['-re'] +
+                #['-re'] +
                 ['-i', self.filename] +
                 # always produce stereo output
                 ['-ac', '2'] +
@@ -381,6 +381,7 @@ class Transcoding:
         ['foobar2000', ['audio/mp3', 'audio/ogg']],
         ['Windows.*Chrome', ['audio/mp3', 'audio/ogg']],
         ['Linux.*Chrome', ['audio/mp3', 'audio/ogg']],
+        ['Linux.*Firefox', ['audio/mp3']],
         ['VLC', ['audio/mp3', 'audio/ogg']],
         # This matches Nokia N9s default player
         ['GStreamer', ['audio/mp3', 'audio/ogg']]
