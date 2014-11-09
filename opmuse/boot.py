@@ -159,6 +159,7 @@ def configure(config_file=None, environment=None):
             ssl_certificate_chain = os.path.join(config_path, ssl_certificate_chain)
 
         ssl_server = cherrypy._cpserver.Server()
+        ssl_server.max_request_body_size = config['server.max_request_body_size']
         ssl_server.bind_addr = (ssl_socket_host, ssl_socket_port)
         ssl_server.ssl_certificate = ssl_certificate
         ssl_server.ssl_private_key = ssl_private_key
@@ -178,6 +179,7 @@ def configure(config_file=None, environment=None):
         socket_port = 8080
 
     server = cherrypy._cpserver.Server()
+    server.max_request_body_size = config['server.max_request_body_size']
     server.bind_addr = (socket_host, socket_port)
     server.subscribe()
 
