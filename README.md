@@ -52,7 +52,14 @@ The deb-multimedia repo is required for ffmpeg.
     $ apt-get update
     $ apt-get install deb-multimedia-keyring
 
-Also, you need to add the non-free component in /etc/apt/sources.list for unrar.
+You need to add the non-free component in /etc/apt/sources.list for unrar.
+There's also a bug in whoosh versions >2.4.1 right now so you need to pin
+python3-whoosh like so.
+
+    $ cat /etc/apt/preferences.d/opmuse
+    Package: python3-whoosh
+    Pin: version 2.4.1
+    Pin-Priority: 1000
 
 ### Install opmuse
 
