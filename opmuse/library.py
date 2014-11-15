@@ -45,15 +45,14 @@ from opmuse.database import Base, get_session, get_database_type, get_database, 
 from opmuse.search import search
 from opmuse.utils import memoize
 from opmuse.security import User
-import mutagenx.mp3
-import mutagenx.oggvorbis
-import mutagenx.easymp4
-import mutagenx.asf
-import mutagenx.flac
-import mutagenx.easyid3
-import mutagenx.apev2
-import mutagenx.musepack
-import mutagenx as mutagen
+import mutagen.mp3
+import mutagen.oggvorbis
+import mutagen.easymp4
+import mutagen.asf
+import mutagen.flac
+import mutagen.easyid3
+import mutagen.apev2
+import mutagen.musepack
 
 
 __all__ = ['FileMetadata', 'library_dao', 'ApeParser', 'TrackStructureParser', 'Artist', 'OggParser',
