@@ -501,7 +501,7 @@ class Library:
         album_disc_nos = []
 
         for disc, numbers in disc_nos.items():
-            max_number = max(numbers)
+            max_number = max([number for number in numbers if number is not None], default=None)
 
             if max_number is not None:
                 album_disc_nos.append((disc, len(numbers), max_number))
