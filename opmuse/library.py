@@ -1269,7 +1269,7 @@ class OpmuseTxt:
 
 class LibraryProcess:
     def __init__(self, path, use_opmuse_txt, queue, database=None, no=-1,
-                 tracks=None, library=None, user=None):
+                 tracks=None, library=None, user=None, artist_name_fallback=None):
         self.path = path
         self.no = no
         self.user = user
@@ -1298,7 +1298,7 @@ class LibraryProcess:
                 stopped = True
 
             try:
-                track = self.process(filename)
+                track = self.process(filename, artist_name_fallback)
             except:
                 log('Failed processing %s' % filename.decode('utf8', 'replace'), traceback=True)
                 continue
@@ -1383,7 +1383,7 @@ class LibraryProcess:
 
         log(msg.format(self.no, processed, queue_len, round((processed / queue_len) * 100)))
 
-    def process(self, filename):
+    def process(self, filename, artist_name_fallback=None):
         hash = LibraryProcess.get_hash(filename)
 
         try:
@@ -1428,9 +1428,14 @@ class LibraryProcess:
         artist = None
         album = None
 
-        if metadata.artist_name is not None:
+        if metadata.artist_name is None:
+            artist_name = artist_name_fallback
+        else:
+            artist_name = metadata.artist_name
+
+        if artist_name is not None:
             try:
-                artist = Artist(metadata.artist_name)
+                artist = Artist(artist_name)
 
                 self._database.add(artist)
                 self._database.commit()
@@ -1441,7 +1446,7 @@ class LibraryProcess:
                 # in which case the artist already exists so fetch it instead.
                 self._database.rollback()
                 artist = self._database.query(Artist).filter_by(
-                    name=metadata.artist_name
+                    name=artist_name
                 ).one()
 
             # change artist slug until successful
@@ -1971,6 +1976,14 @@ class LibraryDao:
 
         user
             The user that added these tracks, will be used for created_user.
+
+        artist_name_override
+            This override's the artist name for the fs structure (e.g. what
+            path/dir it will reside in)
+
+        artist_name_fallback
+            This provides a fallback for the artist name for both the fs
+            structure and the track's entity.
         """
 
         paths = []
@@ -2065,7 +2078,8 @@ class LibraryDao:
             return tracks, messages
 
         LibraryProcess(self.get_library_path(), self.get_library_opmuse_txt(),
-                       paths, get_database(), 0, tracks, user=user)
+                       paths, get_database(), 0, tracks, user=user,
+                       artist_name_fallback=artist_name_fallback)
 
         # move non-track files with folder if there's no tracks left in folder
         # i.e. album covers and such
