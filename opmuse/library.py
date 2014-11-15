@@ -59,7 +59,7 @@ import mutagenx as mutagen
 __all__ = ['FileMetadata', 'library_dao', 'ApeParser', 'TrackStructureParser', 'Artist', 'OggParser',
            'StringBinaryType', 'LibraryDao', 'mutagen', 'IntegrityError', 'MpcParser', 'StructureParser',
            'LibraryProcess', 'reader', 'TagParser', 'Library', 'Id3Parser', 'WmaParser', 'Album', 'LibraryTool',
-           'TagReader', 'PathParser', 'Mp4Parser', 'MutagenParser', 'MetadataStructureParser', 'TrackPath',
+           'TagReader', 'FsParser', 'Mp4Parser', 'MutagenParser', 'MetadataStructureParser', 'TrackPath',
            'FlacParser', 'Track', 'LibraryPlugin']
 
 
@@ -574,12 +574,12 @@ class TagParser:
         """
         raise NotImplementedError()
 
-    def parse(self, filename, metadata, path=None):
+    def parse(self, filename, metadata):
         raise NotImplementedError()
 
 
 class MutagenParser(TagParser):
-    def parse(self, filename, metadata, path=None):
+    def parse(self, filename, metadata):
         try:
             tag = self.get_tag(filename)
         except (IOError, ValueError) as error:
@@ -712,46 +712,23 @@ class Id3Parser(MutagenParser):
         return [b'mp3', b'mp2']
 
 
-class PathParser(TagParser):
+class FsParser(TagParser):
     """
-    Tries to find tags for file by looking at path components (e.g. containing folder
-    might be album name, parent folder might be artist name ...)
+    Get file-specific data like size and mtime and also covers.
+
+    Note that the only time the cover matching actually works is when we do our
+    bootup-scan. Because upon uploading files and editing files (which causes a
+    move) the covers will get moved/uploaded to the relevant folder *after* all
+    tracks have been moved or in the case of upload we will have a bit of
+    asynchronicity at work.
     """
 
-    def parse(self, filename, metadata, path=None):
-        if path is None:
-            raise ValueError('PathParser requires path to be specified.')
-
-        bfilename = filename
-        try:
-            filename = filename.decode('utf8')
-        except UnicodeDecodeError:
-            try:
-                filename = filename.decode('latin1')
-            except UnicodeDecodeError:
-                return FileMetadata(*(None, ) * 17)
-
-        track_name = os.path.splitext(os.path.basename(filename))[0]
-        track_name = track_name.replace("_", " ")
-
-        path_comp = os.path.split(os.path.dirname(filename)[len(path) + (0 if path[-1] == os.sep else 1):])
-
-        artist = album = None
-
-        if len(path_comp[0]) > 0 and len(path_comp[1]) > 0:
-            album = path_comp[1]
-            path_comp = os.path.split(path_comp[0])
-            artist = path_comp[1]
-        elif len(path_comp[0]) == 0 and len(path_comp[1]) > 0:
-            artist = path_comp[1]
-
-        stat = os.stat(bfilename)
+    def parse(self, filename, metadata):
+        stat = os.stat(filename)
         updated = datetime.datetime.fromtimestamp(stat.st_mtime)
         size = stat.st_size
 
-        number = None
-
-        track_dir = os.path.dirname(bfilename)
+        track_dir = os.path.dirname(filename)
 
         track_dir_files = []
 
@@ -788,52 +765,9 @@ class PathParser(TagParser):
 
             artist_cover_path = self.match_in_dir(artist_cover_match, track_dir_files)
 
-        orig_track_name = track_name
-
-        match = re.search('([0-9]+)', track_name)
-
-        if match is not None:
-            number = match.group(0)
-            start = match.start(0)
-            end = match.end(0)
-
-            track_name = "%s%s" % (track_name[0:start], track_name[end:])
-
-            # i don't know of any albums with more than 100 tracks, so we're
-            # going to assume it's not a track number if the number is greater
-            # than that
-            if int(number) > 100:
-                number = None
-
-        track_name = track_name.strip('\n -').split("-")[-1].strip()
-
-        if len(track_name) == 0:
-            track_name = orig_track_name
-
-        disc_match = re.search(b'(cd|disc|disk)[^0-9]*([0-9]{1,2})', track_dir, flags=re.IGNORECASE)
-
-        if disc_match:
-            disc = disc_match.group(2).decode('utf8')
-        else:
-            disc = None
-
-        if metadata is None or metadata.artist_name is None or metadata.track_name is None:
-            invalid = ['missing_tags']
-        else:
-            invalid = []
-
-        if metadata is not None:
-            structure_parser = MetadataStructureParser(metadata, bfilename)
-
-            if not structure_parser.is_valid():
-                structure_parser = MetadataStructureParser(metadata, bfilename, {'artist': 'Various Artists'})
-
-                if not structure_parser.is_valid():
-                    invalid = ['dir']
-
-        return FileMetadata(artist, album, track_name, None, number, updated, None, None,
-                            invalid, None, album_cover_path, artist_cover_path, disc, size,
-                            None, None, None)
+        return FileMetadata(None, None, None, None, None, updated, None, None,
+                            None, None, album_cover_path, artist_cover_path,
+                            None, size, None, None, None)
 
     @staticmethod
     def match_in_dir(match_files, files):
@@ -855,9 +789,7 @@ class PathParser(TagParser):
 
 
 class TagReader:
-
     def __init__(self):
-
         self._by_filename = {}
 
         self._mutagen_parsers = [
@@ -872,12 +804,12 @@ class TagReader:
         self._parsers = []
 
         self._parsers.extend(self._mutagen_parsers)
-        self._parsers.append(PathParser())
+        self._parsers.append(FsParser())
 
     def parse_mutagen(self, filename):
         return self.parse(filename, self._mutagen_parsers)
 
-    def parse(self, filename, parsers=None, path=None):
+    def parse(self, filename, parsers=None):
         metadata = None
 
         if parsers is None:
@@ -887,7 +819,7 @@ class TagReader:
             if not parser.is_supported(filename):
                 continue
 
-            new_metadata = parser.parse(filename, metadata, path)
+            new_metadata = parser.parse(filename, metadata)
 
             if not isinstance(new_metadata, FileMetadata):
                 raise Exception("TagParser.parse must return a FileMetadata instance.")
@@ -1475,7 +1407,7 @@ class LibraryProcess:
 
                 return track
 
-        metadata = reader.parse(filename, None, self.path)
+        metadata = reader.parse(filename)
 
         # change track slug until successful
         track_slug_index, track.slug = self.get_track_slug(metadata)

@@ -260,8 +260,8 @@ class LibraryUpload:
                     time.sleep(3)
 
             if track is None:
-                messages.append(('warning', ("<strong>%s</strong>: Skipping <strong>%s</strong>, couldn't find " +
-                                "its corresponding track.") % (audio_file, filename)))
+                messages.append(('warning', ("<strong>%s</strong>: Skipping <strong>%s</strong>, timeout trying to " +
+                                "find its track.") % (audio_file, filename)))
             else:
                 track_structure = TrackStructureParser(track)
                 track_path = track_structure.get_path(absolute=True)
