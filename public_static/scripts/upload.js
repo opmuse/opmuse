@@ -47,9 +47,9 @@ define([
             that.parallelUploads = 4;
             that.activeUploads = 0;
             that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
-            that.audio = ['audio/flac', 'audio/mp3', 'audio/x-ms-wma', 'audio/mp4a-latm',
-                'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav', 'audio/mpeg',
-                'audio/mp4', 'audio/x-m4a'];
+            that.audio = ['application/x-flac', 'audio/flac', 'audio/mp3', 'audio/x-ms-wma',
+                'audio/mp4a-latm', 'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav',
+                'audio/mpeg', 'audio/mp4', 'audio/x-m4a'];
 
             this.files = [];
             this.names = [];
