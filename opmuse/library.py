@@ -1173,7 +1173,7 @@ class OpmuseTxt:
     whatever thread to acquire the lock first will be the authority.
     """
 
-    TRIES = 15
+    TRIES = 20
     """
     How many times to try to acquire a lock before giving up.
     """
