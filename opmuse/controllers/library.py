@@ -627,9 +627,12 @@ class Library:
                         pretty_file = "%s/" % pretty_file
 
                     if not isdir:
-                        stat = os.stat(file)
-                        modified = datetime.datetime.fromtimestamp(stat.st_mtime)
-                        size = stat.st_size
+                        try:
+                            stat = os.stat(file)
+                            modified = datetime.datetime.fromtimestamp(stat.st_mtime)
+                            size = stat.st_size
+                        except FileNotFoundError:
+                            continue
                     else:
                         size = modified = None
 
