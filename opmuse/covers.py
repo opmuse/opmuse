@@ -245,6 +245,7 @@ class Covers:
             get_database().commit()
         except StaleDataError:
             # album was removed, ignore
+            get_database().rollback()
             return
 
         ws.emit_all('covers.album.update', album.id)
@@ -326,6 +327,7 @@ class Covers:
             get_database().commit()
         except StaleDataError:
             # artist was removed, ignore
+            get_database().rollback()
             return
 
         ws.emit_all('covers.artist.update', artist.id)
