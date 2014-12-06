@@ -923,7 +923,8 @@ class Library:
             'default': 0,
             'ep': 1,
             'split': 2,
-            'va': 3
+            'live': 3,
+            'va': 4
         }
 
         album_groups = {}
@@ -931,7 +932,15 @@ class Library:
         remotes.update_artist(artist)
 
         for album in artist.albums:
-            if album.is_split:
+            if 'live' in album.name.lower():
+                if 'live' not in album_groups:
+                    album_groups['live'] = {
+                        'title': 'Live',
+                        'albums': []
+                    }
+
+                album_groups['live']['albums'].append(album)
+            elif album.is_split:
                 if 'split' not in album_groups:
                     album_groups['split'] = {
                         'title': 'Splits',
