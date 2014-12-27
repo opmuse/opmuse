@@ -341,7 +341,7 @@ class Covers:
 
         try:
             fp_from = urlopen(image_url, timeout=60 * 10)
-        except (HTTPError, URLError) as error:
+        except (HTTPError, URLError, ConnectionResetError) as error:
             log('Got "%s" when downloading %s.' % (error, image_url))
             return None, None, None, None
 
