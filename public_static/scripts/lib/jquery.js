@@ -1,1 +1,1 @@
-../../../vendor/jquery/jquery-2.1.1.js
+../../../vendor/jquery/jquery-2.1.3.js
