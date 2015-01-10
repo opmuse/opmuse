@@ -1,4 +1,4 @@
-# vim: ft=conf
+#5 vim: ft=conf
 #
 # don't forget about scripts/build-debs.sh when updating this file.
 # also, don't forget about readthedocs-requirements.txt
@@ -17,7 +17,7 @@ wsaccel >=0.6.2,<0.7
 Unidecode >=0.04.13,<0.05
 alembic >=0.6.5,<0.7
 musicbrainzngs >=0.5,<0.6
-pycountry >=1.8,<1.9
+pycountry >=1.10,<1.11
 watchdog >=0.7.1,<0.8
 # Jinja2 deps
 MarkupSafe >=0.18,<0.24
