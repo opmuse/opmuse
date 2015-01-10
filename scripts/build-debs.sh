@@ -37,7 +37,8 @@ reprepro -b $repo deleteunreferenced
 #
 # note that we skip building mako, firepy, Sphinx and sphinx_rtd_theme
 # altogether. instead we use the os-provided ones
-grep -hiEv "repoze\.who|jinja2|alembic|mako|firepy|Sphinx|sphinx_rtd_theme|watchdog|WebOb|CherryPy|colorlog|^#" \
+grep -hiEv "repoze\.who|jinja2|alembic|mako|firepy|Sphinx|\
+    sphinx_rtd_theme|watchdog|WebOb|CherryPy|colorlog|nose|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
