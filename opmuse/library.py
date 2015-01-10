@@ -1385,6 +1385,11 @@ class LibraryProcess:
     def process(self, filename, artist_name_fallback=None):
         hash = LibraryProcess.get_hash(filename)
 
+        if self.use_opmuse_txt:
+            opmuse_txt = OpmuseTxt(filename)
+        else:
+            opmuse_txt = None
+
         try:
             track = Track(hash)
             self._database.add(track)
@@ -1402,7 +1407,11 @@ class LibraryProcess:
                     track_path.track_id = track.id
 
                     self._database.add(track_path)
+
                     self._database.commit()
+
+                if opmuse_txt is not None:
+                    opmuse_txt.process(self._database, track)
 
                 return track
 
@@ -1562,8 +1571,7 @@ class LibraryProcess:
 
         track.scanned = True
 
-        if self.use_opmuse_txt:
-            opmuse_txt = OpmuseTxt(filename)
+        if opmuse_txt is not None:
             opmuse_txt.process(self._database, track)
 
         self._database.commit()
