@@ -83,5 +83,15 @@ document.addEventListener('DOMContentLoaded', function () {
             'width: ' + window.innerWidth + 'px; ' +
             'height: ' + window.innerHeight + 'px'
         );
+
+        // disable scroll on scroll devices
+        window.onscroll = function () {
+            window.scrollTo(0, 0);
+        };
+
+        // disable scroll on touch devices
+        document.body.ontouchmove = function(event) {
+            event.preventDefault();
+        };
     })();
 }, false);

@@ -35,6 +35,9 @@ require([
         $(ws).on('open', function () {
             layout.unlockOverlay();
             layout.hideOverlay();
+
+            window.onscroll = null;
+            document.body.ontouchmove = null;
         });
     } else {
         layout.unlockOverlay();
