@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // disable scroll on touch devices
-        document.body.ontouchmove = function(event) {
+        document.body.ontouchmove = function (event) {
             event.preventDefault();
         };
     })();
