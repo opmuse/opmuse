@@ -69,7 +69,6 @@ require([
     'navbar',
     'album',
     'modernizr',
-    'offscreennav',
     'dashboard',
     'love'
     ], function ($) {
