@@ -31,17 +31,20 @@ require([
     'layout'
     ], function ($, ws, layout) {
 
-    if (opmuseGlobals.authenticated) {
-        $(ws).on('open', function () {
-            layout.unlockOverlay();
-            layout.hideOverlay();
-
-            window.onscroll = null;
-            document.body.ontouchmove = null;
-        });
-    } else {
+    var done = function () {
         layout.unlockOverlay();
         layout.hideOverlay();
+
+        window.onscroll = null;
+        document.body.ontouchmove = null;
+    };
+
+    if (opmuseGlobals.authenticated) {
+        $(ws).on('open', function () {
+            done();
+        });
+    } else {
+        done();
     }
 });
 
