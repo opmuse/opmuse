@@ -30,6 +30,11 @@ RUN rm /usr/sbin/policy-rc.d
 
 RUN apt-get install -y opmuse
 
+VOLUME ["/var/lib/mysql", \
+        "/etc/opmuse", \
+        "/var/cache/opmuse", \
+        "/var/log/opmuse"]
+
 COPY scripts/docker-start.sh /home/opmuse/start.sh
 
 ENTRYPOINT ["/home/opmuse/start.sh"]
