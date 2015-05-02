@@ -77,7 +77,7 @@ build_git jinja2 2.7.3 https://github.com/mitsuhiko/jinja2.git
 build_git alembic rel_0_7_3 https://bitbucket.org/zzzeek/alembic.git
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
 build_git webob 1.4 https://github.com/Pylons/webob.git 1.4-2 # bump version to override broken package in jessie
-build_git cherrypy 3.6.0 https://github.com/cherrypy/cherrypy.git
+build_git cherrypy 3.7.0 https://github.com/cherrypy/cherrypy.git
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
