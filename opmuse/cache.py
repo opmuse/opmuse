@@ -23,7 +23,7 @@ import pickle
 import math
 from cherrypy.process.plugins import Monitor
 from sqlalchemy.orm import deferred
-from sqlalchemy import Column, Integer, String, BLOB, BigInteger, func
+from sqlalchemy import Column, Integer, String, BLOB, BigInteger, func, text
 from sqlalchemy.dialects import mysql
 from opmuse.database import Base, get_session
 from opmuse.sizeof import total_size
@@ -240,13 +240,15 @@ class CachePlugin(Monitor):
         keys = []
 
         # remove old objects from memory
-        for key, in database.query(CacheObject.key).filter("(%d - updated) > %d" % (now, CachePlugin.GC_AGE)).all():
+        for key, in (database.query(CacheObject.key)
+                     .filter(text("(%d - updated) > %d" % (now, CachePlugin.GC_AGE))).all()):
             cache.delete(key)
             keys.append(key)
             old_item_count += 1
 
         # remove old objects from database
-        database.query(CacheObject).filter(CacheObject.key.in_(keys)).delete(synchronize_session='fetch')
+        if len(keys) > 0:
+            database.query(CacheObject).filter(CacheObject.key.in_(keys)).delete(synchronize_session='fetch')
 
         database.commit()
 
