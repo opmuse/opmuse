@@ -16,7 +16,7 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 import musicbrainzngs as mb
-from musicbrainzngs.musicbrainz import ResponseError
+from musicbrainzngs.musicbrainz import ResponseError, NetworkError
 import opmuse
 
 mb.set_useragent("opmuse", opmuse.__version__, "http://opmu.se/")
@@ -28,7 +28,7 @@ class Musicbrainz:
 
         try:
             result = mb.search_releases(release=album_entity.name, artistname=artistname)
-        except ResponseError:
+        except (ResponseError, NetworkError) as error:
             return None
 
         if len(result['release-list']) == 0:

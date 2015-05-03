@@ -28,7 +28,7 @@ import socket
 from sqlalchemy import Column, String
 from urllib import request
 from urllib import parse
-from urllib.error import URLError
+from urllib.error import URLError, HTTPError
 from opmuse.security import User
 from opmuse.search import search
 
@@ -532,7 +532,8 @@ class LastfmNetwork:
                 break
             except URLError as e:
                 # retry on connection timeout, reset and refused errors
-                if isinstance(e.reason, (TimeoutError, socket.timeout, ConnectionResetError, ConnectionRefusedError)):
+                if isinstance(e.reason, (HTTPError, TimeoutError, socket.timeout,
+                                         ConnectionResetError, ConnectionRefusedError)):
                     # give up after 10 tries
                     if tries >= 10:
                         raise
