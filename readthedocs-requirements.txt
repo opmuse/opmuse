@@ -1,13 +1,13 @@
 # vim: ft=conf
-CherryPy >=3.6.0,<3.7
-SQLAlchemy >=0.9.1,<0.10
+CherryPy >=3.7.0,<3.8
+SQLAlchemy >=1.0,<1.1
 repoze.who ==2.2
 whoosh ==2.4.1
-mutagen >=1.26,<1.27
+mutagen >=1.28,<1.29
 rarfile >=2.6,<2.7
 ws4py >=0.3.2,<0.4
 Unidecode >=0.04.13,<0.05
 musicbrainzngs >=0.5,<0.6
-pycountry >=1.8,<1.9
+pycountry >=1.10,<1.11
 watchdog >=0.7.1,<0.8
 sphinx_bootstrap_theme ==0.4.5
