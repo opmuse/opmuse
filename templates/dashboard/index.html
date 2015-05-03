@@ -37,6 +37,13 @@
 {% block main_class %}dashboard-container{% endblock %}
 
 {% block content %}
+
+{% if not user.lastfm_user %}
+    <p class="alert alert-warning">
+        Note that you need to supply a Lastfm account in <a href="/settings">Settings</a> to get all features working.
+    </p>
+{% endif %}
+
 <div class="row">
     <div class="col-sm-4">
         <div class="dashboard-box panel panel-info">
