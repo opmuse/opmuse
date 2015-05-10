@@ -932,7 +932,7 @@ class Library:
         remotes.update_artist(artist)
 
         for album in artist.albums:
-            if 'live' in album.name.lower():
+            if re.search(r'\blive\b', album.name.lower()):
                 if 'live' not in album_groups:
                     album_groups['live'] = {
                         'title': 'Live',
