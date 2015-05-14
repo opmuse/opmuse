@@ -11,7 +11,7 @@ class MainTest(WebCase):
         cookie = BaseCookie()
         cookie.load(self.cookies[0][1])
 
-        return cookie['auth_tkt'].value.strip("\"")
+        return cookie['session_id'].value
 
     def test_login_redirect(self):
         self.getPage("/")
@@ -22,7 +22,7 @@ class MainTest(WebCase):
     def test_login(self):
         self._login()
         self.assertHeader('Location', 'http://127.0.0.1:54583/')
-        self.assertHeaderMatches('Set-Cookie', 'auth_tkt="[0-9a-f]{40}admin!"')
+        self.assertHeaderMatches('Set-Cookie', 'session_id=[0-9a-f]{40}')
         self.getPage('/', headers=self.cookies)
         # opmuseGlobals script tag
         self.assertMatchesBody('authenticated: true,')
@@ -32,21 +32,23 @@ class MainTest(WebCase):
     def test_logout(self):
         self._login()
         self.getPage('/logout', headers=self.cookies)
-        self.assertHeaderMatches('Set-Cookie', 'auth_tkt="INVALID"')
+        self.getPage('/login', headers=self.cookies)
+        # opmuseGlobals script tag
+        self.assertMatchesBody('authenticated: false,')
 
     def test_opmuse_m3u(self):
-        auth_tkt = self._login()
+        session_id = self._login()
 
         self.getPage("/play/opmuse.m3u", headers=self.cookies)
 
         self.assertHeader('Content-Type', 'audio/x-mpegurl')
         self.assertMatchesBody('#EXTM3U')
-        self.assertMatchesBody('http://127.0.0.1:54583/play/stream\?auth_tkt=%s' % auth_tkt)
+        self.assertMatchesBody('http://127.0.0.1:54583/play/stream\?session_id=%s' % session_id)
 
     def test_stream(self):
-        auth_tkt = self._login()
+        session_id = self._login()
 
-        self.getPage('http://127.0.0.1:54583/play/stream?auth_tkt=%s' % auth_tkt)
+        self.getPage('http://127.0.0.1:54583/play/stream?session_id=%s' % session_id)
 
         # queue is empty
         self.assertStatus(409)
