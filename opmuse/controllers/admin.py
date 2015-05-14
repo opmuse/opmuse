@@ -57,8 +57,7 @@ class AdminUsers:
         }
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def add_submit(self, login=None, mail=None, roles=None, password1=None, password2=None):
 
         AdminUsers._validate_user_params(login, mail, roles, password1, password2)
@@ -86,8 +85,7 @@ class AdminUsers:
         raise HTTPRedirect('/admin/users')
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     @cherrypy.tools.jinja(filename='admin/users_edit.html')
     def edit(self, login):
         try:
@@ -105,8 +103,7 @@ class AdminUsers:
         }
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def edit_submit(self, user_id, login=None, mail=None, roles=None,
                     password1=None, password2=None):
         try:
@@ -145,14 +142,12 @@ class Admin:
     users = AdminUsers()
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def default(self):
         raise HTTPRedirect('/admin/dashboard')
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     @cherrypy.tools.jinja(filename='admin/dashboard.html')
     def dashboard(self):
         library_path = cherrypy.request.app.config.get('opmuse').get('library.path')
@@ -189,15 +184,13 @@ class Admin:
         }
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     @cherrypy.tools.jinja(filename='admin/bgtasks.html')
     def bgtasks(self):
         return {}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     @cherrypy.tools.jinja(filename='admin/cache.html')
     def cache(self):
         values = []

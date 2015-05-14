@@ -29,8 +29,7 @@ class Cover:
             return cover
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def refresh(self, type, slug):
         try:
             covers.refresh(type, slug)

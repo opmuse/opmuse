@@ -127,7 +127,7 @@ class Ws:
         self._events = {}
 
     def get_ws_user_by_handler(self, handler):
-        if handler.user is None:
+        if not hasattr(handler, 'user') or handler.user is None:
             return None
 
         return self.get_ws_user(handler.user['id'], handler.user['login'])
@@ -232,7 +232,7 @@ class WsController:
     def default(self, *args, **kwargs):
         if cherrypy.request.user is None:
             cherrypy.request.ws_handler.auth_user(None)
-            raise cherrypy.HTTPError(status=403)
+            raise cherrypy.HTTPError(status=401)
 
         cherrypy.request.ws_handler.auth_user(cherrypy.request.user)
 

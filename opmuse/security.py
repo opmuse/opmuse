@@ -25,19 +25,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, Table, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
-from repoze.who.middleware import PluggableAuthenticationMiddleware
-from repoze.who.plugins.auth_tkt import AuthTktCookiePlugin
-from repoze.who.plugins.redirector import RedirectorPlugin as BaseRedirectorPlugin
-from repoze.who.classifiers import default_request_classifier
-from repoze.who.classifiers import default_challenge_decider
-from repoze.who._compat import get_cookies
 from opmuse.database import Base, get_session, get_database
-from opmuse.utils import memoize
-
-
-__all__ = ["Role", "User", "is_authenticated", "is_granted", "AuthenticatedTool", "AuthorizeTool",
-           "DatabaseAuthenticator", "AuthTktQueryStringIdentifier", "UserSecretAuthTktCookiePlugin", "hash_password",
-           "repozewho_pipeline"]
+from opmuse.utils import memoize, HTTPRedirect
 
 
 class Role(Base):
@@ -100,170 +89,60 @@ class User(Base):
         return '//www.gravatar.com/avatar/%s.png?size=%s' % (hash, size)
 
 
-def is_authenticated():
-    if ('repoze.who.identity' not in cherrypy.request.wsgi_environ or
-            not cherrypy.request.wsgi_environ.get('repoze.who.identity')):
-        raise cherrypy.HTTPError(401)
-
-
 def is_granted(roles):
-    for role in cherrypy.request.user.roles:
-        if role.name in roles:
-            break
-    else:
-        return False
+    if len(roles) > 0:
+        for role in cherrypy.request.user.roles:
+            if role.name in roles:
+                break
+        else:
+            return False
 
     return True
 
 
+def check_credentials(login, password):
+    try:
+        user = get_database().query(User).filter_by(login=login).one()
+        user.active = datetime.datetime.now()
+
+        hashed = hash_password(password, user.salt)
+
+        if hashed == user.password:
+            return True
+    except NoResultFound:
+        return False
+
+
 class AuthenticatedTool(cherrypy.Tool):
     def __init__(self):
-        cherrypy.Tool.__init__(self, 'on_start_resource',
-                               self.start, priority=20)
+        cherrypy.Tool.__init__(self, 'before_handler', self.start, priority=10)
 
-    def start(self, needs_auth=False):
-        if needs_auth:
-            is_authenticated()
+    def start(self, needs_auth=False, roles=[]):
+        if re.match('^/static', cherrypy.request.path_info):
+            return
 
-        identity = cherrypy.request.wsgi_environ.get('repoze.who.identity')
-        cherrypy.request.user = None
+        login = cherrypy.session.get('_login')
 
-        if identity is not None:
-            login = identity['repoze.who.plugins.auth_tkt.userid']
+        if login:
             cherrypy.request.user = get_database().query(User).filter_by(login=login).one()
 
-
-class AuthorizeTool(cherrypy.Tool):
-    def __init__(self):
-        cherrypy.Tool.__init__(self, 'on_start_resource',
-                               self.start, priority=25)
-
-    def start(self, roles=[]):
-        is_authenticated()
-
-        if not is_granted(roles):
-            raise cherrypy.HTTPError(403)
-
-
-class DatabaseAuthenticator:
-    def authenticate(self, environ, identity):
-        try:
-            login = identity['login']
-            password = identity['password']
-        except KeyError:
-            return None
-
-        try:
-            user = get_database().query(User).filter_by(login=login).one()
-            user.active = datetime.datetime.now()
-
-            hashed = hash_password(password, user.salt)
-
-            if hashed == user.password:
-                return user.login
-
-        except NoResultFound:
-            pass
-
-        return None
-
-
-class AuthTktQueryStringIdentifier:
-    """
-    identifier plugin that fakes a cookie from a query string param to auth
-    with AuthTktCookiePlugin
-    """
-    def identify(self, environ):
-        qs = urllib.parse.parse_qsl(environ.get('QUERY_STRING'))
-
-        remove_index = auth_tkt = None
-        for index, pair in enumerate(qs):
-            # TODO use "cookie_name" prop from authtkt plugin...
-            if pair[0] == 'auth_tkt':
-                auth_tkt = pair[1]
-                remove_index = index
-
-        if remove_index is None:
-            return
-
-        qs.pop(remove_index)
-
-        cookie = environ.get('HTTP_COOKIE')
-
-        environ['QUERY_STRING'] = urllib.parse.urlencode(qs)
-        # TODO use "cookie_name" prop from authtkt plugin...
-        # TODO use repoze.who._compat.get_cookies
-        environ['HTTP_COOKIE'] = 'auth_tkt="%s"; %s' % (auth_tkt, cookie)
-
-    def remember(self, environ, identity):
-        pass
-
-    def forget(self, environ, identity):
-        pass
-
-
-class UserSecretAuthTktCookiePlugin(AuthTktCookiePlugin):
-    """
-    wrapper class around AuthTktCookiePlugin that uses the users unique salt
-    as secret for the auth cookie
-    """
-
-    def __init__(self, **kwargs):
-        secret = None
-        AuthTktCookiePlugin.__init__(self, secret, **kwargs)
-
-    def remember(self, environ, identity):
-        self.secret = self.get_secret(environ, identity)
-
-        if identity is not None:
-            identity['max_age'] = 3600 * 24 * 14
-
-        return AuthTktCookiePlugin.remember(self, environ, identity)
-
-    def identify(self, environ):
-        uri = environ['REQUEST_URI']
-
-        if re.match('^/static', uri):
-            return
-
-        self.secret = self.get_secret(environ)
-
-        return AuthTktCookiePlugin.identify(self, environ)
-
-    def get_secret(self, environ, identity=None):
-        if identity is None or 'login' not in identity:
-            cookies = get_cookies(environ)
-            cookie = cookies.get(self.cookie_name)
-
-            if cookie is None or not cookie.value:
-                return None
-
-            if '!' in cookie.value:
-                # XXX stolen from repoze.who._auth_tkt.parse_ticket(),
-                #     which hopefully, and likely, won't change for a while...
-                login, junk = cookie.value[40:].split('!', 1)
-            else:
-                login = None
+            if not is_granted(roles):
+                raise cherrypy.HTTPError(401)
+        elif needs_auth:
+            raise HTTPRedirect("/login")
         else:
-            login = identity['login']
+            cherrypy.request.user = None
 
-        salt = ''
 
-        if login is None:
-            return salt
+class SessionQueryStringTool(cherrypy.Tool):
+    def __init__(self):
+        cherrypy.Tool.__init__(self, 'on_start_resource', self.start, priority=20)
 
-        # TODO don't require an extra db connection....
-        database = get_session()
+    def start(self):
+        params = urllib.parse.parse_qs(cherrypy.request.query_string)
 
-        try:
-            user = database.query(User).filter_by(login=login).one()
-            salt = user.salt
-        except NoResultFound:
-            pass
-
-        database.remove()
-
-        return salt
+        if 'session_id' in params and len(params['session_id']) == 1:
+            cherrypy.request.cookie['session_id'] = params['session_id'][0]
 
 
 def hash_password(password, salt):
@@ -274,51 +153,6 @@ def hash_password(password, salt):
         hashed = hashlib.sha512(("%s%s" % (hashed, salt)).encode()).hexdigest()
 
     return hashed
-
-
-class RedirectorPlugin(BaseRedirectorPlugin):
-    """
-    Extends RedirectorPlugin and adds support for http proxies via cherrypy.
-    """
-
-    def challenge(self, environ, status, app_headers, forget_headers):
-        forwarded_host = cherrypy.request.headers.get('X-Forwarded-Host', None)
-
-        if forwarded_host is not None:
-            environ['HTTP_HOST'] = forwarded_host.split(",")[0].strip()
-
-        scheme = cherrypy.request.headers.get('X-Forwarded-Proto', None)
-
-        if scheme is not None:
-            environ['wsgi.url_scheme'] = scheme
-
-        return BaseRedirectorPlugin.challenge(self, environ, status, app_headers, forget_headers)
-
-
-def repozewho_pipeline(app):
-
-    database = DatabaseAuthenticator()
-    redirector = RedirectorPlugin('/login')
-
-    auth_tkt = UserSecretAuthTktCookiePlugin(cookie_name='auth_tkt', include_ip=False)
-    query_string = AuthTktQueryStringIdentifier()
-
-    identifiers = [('query_string', query_string), ('auth_tkt', auth_tkt)]
-    authenticators = [('auth_tkt', auth_tkt), ('database', database)]
-    challengers = [('redirector', redirector)]
-    mdproviders = []
-
-    return PluggableAuthenticationMiddleware(
-        app,
-        identifiers,
-        authenticators,
-        challengers,
-        mdproviders,
-        default_request_classifier,
-        default_challenge_decider,
-        log_stream=cherrypy.log.access_log,
-        log_level=logging.INFO
-    )
 
 
 class SecurityDao:

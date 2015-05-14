@@ -1,6 +1,5 @@
 import datetime
 import cherrypy
-from repoze.who._compat import get_cookies
 from opmuse.remotes import remotes
 from opmuse.queues import queue_dao
 from opmuse.transcoding import transcoding
@@ -23,6 +22,7 @@ class Play:
         Play.STREAM_PLAYING[cherrypy.request.user.id] = None
 
     @cherrypy.expose
+    @cherrypy.tools.session_query_string()
     @cherrypy.tools.transcodingsubprocess()
     @cherrypy.tools.authenticated(needs_auth=True)
     @cherrypy.config(**{'response.stream': True})
@@ -76,10 +76,6 @@ class Play:
     def opmuse_m3u(self):
         cherrypy.response.headers['Content-Type'] = 'audio/x-mpegurl'
 
-        cookies = get_cookies(cherrypy.request.wsgi_environ)
-        # TODO use "cookie_name" prop from authtkt plugin...
-        auth_tkt = cookies.get('auth_tkt').value
-
         stream_ssl = cherrypy.request.app.config.get('opmuse').get('stream.ssl')
 
         if stream_ssl is False:
@@ -100,8 +96,10 @@ class Play:
 
             host = '%s:%s' % (host, cherrypy.config['server.socket_port'])
 
-        url = "%s://%s/play/stream?auth_tkt=%s" % (scheme, host, auth_tkt)
+        url = "%s://%s/play/stream?session_id=%s" % (scheme, host, cherrypy.session.id)
 
-        cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=opmuse.m3u'
+        filename = 'opmuse_%s.m3u' % cherrypy.request.user.login
+
+        cherrypy.response.headers['Content-Disposition'] = 'attachment; filename=%s' % filename
 
         return {'url': url}

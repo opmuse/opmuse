@@ -27,8 +27,7 @@ from opmuse.security import security_dao
 class LibraryEdit:
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit.html')
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def default(self, ids=''):
         ids = ids.split(',')
 
@@ -38,8 +37,7 @@ class LibraryEdit:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit_result.html')
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def submit(self, ids, artists, albums, tracks, dates, numbers, discs, yes=False, no=False):
 
         move = False
@@ -91,8 +89,7 @@ class LibraryEdit:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/edit_result.html')
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def move(self, ids, where=None):
 
         filenames = []
@@ -178,14 +175,12 @@ class LibraryUpload:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload.html')
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def default(self):
         return {}
 
     @cherrypy.expose
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def start(self, session=None):
         cache_key = LibraryUpload.CACHE_KEY % (cherrypy.request.user.id, session)
 
@@ -197,8 +192,7 @@ class LibraryUpload:
 
     @cherrypy.expose
     @cherrypy.tools.jinja(filename='library/upload_add.html')
-    @cherrypy.tools.authenticated(needs_auth=True)
-    @cherrypy.tools.authorize(roles=['admin'])
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     def add(self, archive_password=None, audio_file=None, session=None, artist_name_fallback=None):
         cache_key = LibraryUpload.CACHE_KEY % (cherrypy.request.user.id, session)
 

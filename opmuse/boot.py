@@ -24,7 +24,7 @@ from opmuse.database_events import DatabaseEventsTool
 from os.path import join, abspath, dirname, exists
 from opmuse.library import LibraryPlugin, LibraryWatchdogPlugin, LibraryTool
 from opmuse.database import SqlAlchemyPlugin, SqlAlchemyTool
-from opmuse.security import repozewho_pipeline, AuthenticatedTool, AuthorizeTool
+from opmuse.security import SessionQueryStringTool, AuthenticatedTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedTool
 from opmuse.search import WhooshPlugin
@@ -37,10 +37,10 @@ from opmuse.cache import CachePlugin
 def configure(config_file=None, environment=None):
     cherrypy.tools.database = SqlAlchemyTool()
     cherrypy.tools.authenticated = AuthenticatedTool()
+    cherrypy.tools.session_query_string = SessionQueryStringTool()
     cherrypy.tools.jinja = Jinja()
     cherrypy.tools.jinjaenv = JinjaEnvTool()
     cherrypy.tools.jinjaauthenticated = JinjaAuthenticatedTool()
-    cherrypy.tools.authorize = AuthorizeTool()
     cherrypy.tools.library = LibraryTool()
     cherrypy.tools.backgroundtask = BackgroundTaskTool()
     cherrypy.tools.transcodingsubprocess = FFMPEGTranscoderSubprocessTool()
@@ -73,6 +73,13 @@ def configure(config_file=None, environment=None):
             'tools.jinjaenv.on': True,
             'tools.authenticated.on': True,
             'tools.database_events.on': True,
+            'tools.sessions.on': True,
+            'tools.sessions.storage_type': 'ram',
+            # there's an annoying bug with autovary and sessions where if you dont
+            # set session.path the sessions tool will try to access a None header
+            # (because path_header is None) which will cause autovary to try to
+            # sort header strs and a None value...
+            'tools.sessions.path': '/'
         }, '/ws': {
             'tools.websocket.on': True,
             'tools.websocket.handler_cls': WebSocketHandler
@@ -99,8 +106,6 @@ def configure(config_file=None, environment=None):
 
     if config_file:
         app.merge(config_file)
-
-    app.wsgiapp.pipeline.append(('repoze.who', repozewho_pipeline))
 
     if config_file is False:
         config = cherrypy._cpconfig.Config()

@@ -18,11 +18,11 @@
 import os
 import cherrypy
 import mimetypes
-from repoze.who.api import get_api
 from opmuse.library import library_dao
 from opmuse.utils import HTTPRedirect
 from opmuse.ws import WsController
 from opmuse.jinja import render_template
+from opmuse.security import check_credentials
 from opmuse.controllers.queue import Queue
 from opmuse.controllers.users import Users
 from opmuse.controllers.settings import Settings
@@ -99,46 +99,26 @@ class Root:
         raise cherrypy.NotFound()
 
     @cherrypy.expose
-    @cherrypy.tools.multiheaders()
-    def logout(self, came_from=None):
-        who_api = get_api(cherrypy.request.wsgi_environ)
-
-        headers = who_api.forget()
-
-        cherrypy.response.multiheaders = headers
-
-        raise HTTPRedirect('/login?came_from=%s' % came_from)
-
-    @cherrypy.expose
     @cherrypy.tools.jinja(filename='login.html')
-    @cherrypy.tools.multiheaders()
-    def login(self, login=None, password=None, came_from=None):
+    def login(self, login=None, password=None, came_from="/"):
         if login is not None and password is not None:
-            who_api = get_api(cherrypy.request.wsgi_environ)
-
-            creds = {
-                'login': login,
-                'password': password
-            }
-
-            authenticated, headers = who_api.login(creds)
-
-            if authenticated:
-                if cherrypy.response.header_list is None:
-                    cherrypy.response.header_list = []
-
-                cherrypy.response.multiheaders = headers
-
-                if came_from is not None and came_from != "None":
-                    raise HTTPRedirect(came_from)
-                else:
-                    raise HTTPRedirect('/')
+            if check_credentials(login, password):
+                cherrypy.session['_login'] = login
+                raise HTTPRedirect(came_from or "/")
             else:
                 messages.danger('Username and/or password is incorrect.')
-        elif hasattr(cherrypy.request, 'user') and cherrypy.request.user is not None:
-            raise HTTPRedirect('/')
 
         return {}
+
+    @cherrypy.expose
+    def logout(self, came_from="/"):
+        login = cherrypy.session.get('_login', None)
+
+        if login:
+            cherrypy.session['_login'] = None
+            cherrypy.request.user = None
+
+        raise HTTPRedirect('/login?came_from=%s' % came_from)
 
     @cherrypy.expose
     def index(self):
