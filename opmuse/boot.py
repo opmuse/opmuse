@@ -79,7 +79,9 @@ def configure(config_file=None, environment=None):
             # set session.path the sessions tool will try to access a None header
             # (because path_header is None) which will cause autovary to try to
             # sort header strs and a None value...
-            'tools.sessions.path': '/'
+            'tools.sessions.path': '/',
+            'tools.sessions.httponly': True,
+            'tools.sessions.persistent': False
         }, '/ws': {
             'tools.websocket.on': True,
             'tools.websocket.handler_cls': WebSocketHandler
