@@ -123,6 +123,8 @@ class AuthenticatedTool(cherrypy.Tool):
 
         login = cherrypy.session.get('_login')
 
+        cherrypy.response.headers['X-Opmuse-Authenticated'] = 'true' if login else 'false'
+
         if login:
             cherrypy.request.user = get_database().query(User).filter_by(login=login).one()
 

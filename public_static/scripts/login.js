@@ -42,6 +42,18 @@ define([
             });
 
             that.internalInit();
+
+            $(document).ajaxComplete(function (event, xhr) {
+                var authenticated = JSON.parse(xhr.getResponseHeader('X-Opmuse-Authenticated'));
+
+                // if authenticated state changes (e.g. when you've loaded the
+                // page when you're logged in and then your session turns invalid
+                // and you try to load another page...)
+                if (authenticated !== opmuseGlobals.authenticated) {
+                    document.location.replace('/');
+                    return;
+                }
+            });
         },
         internalInit: function () {
             if ($('#login').length > 0) {

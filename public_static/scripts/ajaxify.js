@@ -187,7 +187,7 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
 
                     var data = null;
 
-                    if (contentType.indexOf('text/plain') !== -1) {
+                    if (contentType !== null && contentType.indexOf('text/plain') !== -1) {
                         // do you know of a way to change so the browser just
                         // renders text/plain instead? i dont, would be nice.
                         data = '<pre>' + xhr.responseText + '</pre>';
