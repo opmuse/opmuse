@@ -43,14 +43,14 @@ define([
             that.internalInit();
         },
         internalInit: function () {
-            $("#deluge .torrent-import").click(function () {
+            $('#deluge .torrent-import').click(function () {
                 var button = $(this);
-                var url = button.data("import-url");
+                var url = button.data('import-url');
 
                 $.ajax(url, {
                     success: function (data, textStatus, xhr) {
                         button.closest('tr').find('.status span').text(data.status);
-                        button.attr("disabled", "disabled");
+                        button.attr('disabled', 'disabled');
                     },
                     error: function (xhr) {
                         messages.danger('Failed to make request');
