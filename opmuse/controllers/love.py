@@ -1,4 +1,4 @@
-# Copyright 2012-2014 Mattias Fliesberg
+# Copyright 2012-2015 Mattias Fliesberg
 #
 # This file is part of opmuse.
 #
