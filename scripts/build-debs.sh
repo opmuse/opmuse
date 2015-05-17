@@ -38,7 +38,7 @@ reprepro -b $repo deleteunreferenced
 # note that we skip building mako, firepy, Sphinx and sphinx_rtd_theme
 # altogether. instead we use the os-provided ones
 grep -hiEv "repoze\.who|jinja2|alembic|mako|firepy|Sphinx|\
-    sphinx_rtd_theme|watchdog|WebOb|CherryPy|colorlog|nose|^#" \
+    sphinx_rtd_theme|watchdog|WebOb|CherryPy|deluge-client|colorlog|nose|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
@@ -78,6 +78,7 @@ build_git alembic rel_0_7_3 https://bitbucket.org/zzzeek/alembic.git
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
 build_git webob 1.4 https://github.com/Pylons/webob.git 1.4-2 # bump version to override broken package in jessie
 build_git cherrypy 3.7.0 https://github.com/cherrypy/cherrypy.git
+build_git deluge-client 1.0.2 https://github.com/JohnDoee/deluge-client.git
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
