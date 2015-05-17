@@ -76,7 +76,8 @@ require([
     'album',
     'modernizr',
     'dashboard',
-    'love'
+    'love',
+    'deluge'
     ], function ($) {
 
     $.ajaxSetup({

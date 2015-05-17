@@ -25,6 +25,7 @@ from opmuse.jinja import render_template
 from opmuse.security import check_credentials
 from opmuse.controllers.queue import Queue
 from opmuse.controllers.users import Users
+from opmuse.controllers.deluge import Deluge
 from opmuse.controllers.settings import Settings
 from opmuse.controllers.library import Library
 from opmuse.controllers.search import Search
@@ -48,6 +49,7 @@ class Root:
 
     queue = Queue()
     users = Users()
+    deluge = Deluge()
     settings = Settings()
     library = Library()
     search = Search()

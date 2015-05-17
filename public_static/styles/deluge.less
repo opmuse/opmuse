@@ -1,0 +1,43 @@
+.deluge-container {
+    &#spacer {
+        margin-top: 65px;
+    }
+}
+
+#deluge {
+    table {
+        th,
+        td {
+            white-space: nowrap;
+
+            &.status {
+                span {
+                    display: block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    width: 60px;
+                }
+            }
+
+            &.name {
+                span {
+                    display: block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
+                    @media (max-width: @screen-md-max) {
+                        width: 500px;
+                    }
+
+                    @media (max-width: @screen-sm-max) {
+                        width: 300px;
+                    }
+
+                    @media (max-width: @screen-xs-max) {
+                        width: 50px;
+                    }
+                }
+            }
+        }
+    }
+}

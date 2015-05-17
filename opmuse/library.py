@@ -1642,7 +1642,7 @@ class LibraryProcess:
 
         # Disallow certain slug values that will conflict with urls.
         # Would be nice if this was automatic (search through controllers for all top-level url components).
-        if string in ('library', 'users', 'upload', 'logout', 'login', 'search',
+        if string in ('library', 'users', 'upload', 'logout', 'login', 'search', 'admin', 'deluge',
                       'queue', 'cover', 'font', 'va', 'unknown', 'download', 'settings'):
             index += 1
             return LibraryProcess.slugify(string, index)
@@ -1822,7 +1822,7 @@ class LibraryDao:
         return [result[0] for result in results]
 
     def get_library_opmuse_txt(self):
-        config = cherrypy.request.app.config['opmuse']
+        config = cherrypy.tree.apps[''].config['opmuse']
 
         if 'library.opmuse_txt' in config:
             return config['library.opmuse_txt']
@@ -1830,7 +1830,8 @@ class LibraryDao:
             return True
 
     def get_library_path(self):
-        library_path = os.path.abspath(cherrypy.request.app.config['opmuse']['library.path'])
+        config = cherrypy.tree.apps[''].config['opmuse']
+        library_path = os.path.abspath(config['library.path'])
 
         if library_path[-1] != "/":
             library_path += "/"
@@ -1981,8 +1982,11 @@ class LibraryDao:
         """
         Processes files and adds them as tracks with artists albums etc.
 
-        user
-            The user that added these tracks, will be used for created_user.
+        move
+            will move a file into its place according to fs.structure
+
+        remove_dirs
+            when files has moved this will remove empty dirs that are left behind
 
         artist_name_override
             This override's the artist name for the fs structure (e.g. what
@@ -1991,6 +1995,10 @@ class LibraryDao:
         artist_name_fallback
             This provides a fallback for the artist name for both the fs
             structure and the track's entity.
+
+        user
+            The user that added these tracks, will be used for created_user.
+
         """
 
         paths = []
@@ -2437,7 +2445,10 @@ class LibraryWatchdogPlugin(SimplePlugin):
         self.thread = None
 
     def add_ignores(self, ignores):
-        self.event_handler.add_ignores(ignores)
+        # if event_handler hasn't been initialized (like if we do this in a
+        # script outside of cherrypy) just silently ignore this
+        if self.event_handler is not None:
+            self.event_handler.add_ignores(ignores)
 
 
 class LibraryPlugin(SimplePlugin):

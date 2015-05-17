@@ -49,6 +49,7 @@ class Role(Base):
 class User(Base):
     __tablename__ = 'users'
 
+    # why no autoincrement?
     id = Column(Integer, primary_key=True)
     login = Column(String(128), index=True, unique=True)
     mail = Column(String(255), index=True, unique=True)

@@ -4,10 +4,10 @@ Getting Started
 Requirements
 ------------
 
-You need **Python 3.4**, **ffmpeg**, **ImageMagick**, **nodejs** (for less.js)
-and a Linux environment. This has only been tested on Debian and Exherbo but
-most other Linux distros should do as well as other similar \*nix OSes. If
-you're on Windows you're on your own.
+You need **Python 3.4**, **ffmpeg**, **ImageMagick**, **nodejs** (for less.js),
+**rsync** and a Linux environment. This has only been tested on Debian and
+Exherbo but most other Linux distros should do as well as other similar \*nix
+OSes. If you're on Windows you're on your own.
 
 Install
 -------
