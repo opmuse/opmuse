@@ -30,6 +30,8 @@ The recommended way to use opmuse is with Docker. This is the easiest way to do 
     # docker pull inty/opmuse
     # docker run -d -p 8080:8080 inty/opmuse
 
+You'll reach opmuse at http://localhost:8080/ and you can login with admin and no password.
+
 Here is opmuse
 --------------
 
