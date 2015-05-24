@@ -53,10 +53,31 @@ define([
                         button.attr('disabled', 'disabled');
                     },
                     error: function (xhr) {
-                        messages.danger('Failed to make request');
+                        messages.danger('Failed to import torrent');
                     }
                 });
             });
+
+            var connectivity = $("#deluge .connectivity");
+
+            if (connectivity.length > 0) {
+                var url = connectivity.data('connectivity-url');
+
+                $.ajax(url, {
+                    success: function (data, textStatus, xhr) {
+                        connectivity.removeClass("connecting");
+
+                        if (data.connected) {
+                            connectivity.addClass("connected");
+                        } else {
+                            connectivity.addClass("failed");
+                        }
+                    },
+                    error: function (xhr) {
+                        messages.danger('Failed to test connectivity');
+                    }
+                });
+            }
         }
     });
 

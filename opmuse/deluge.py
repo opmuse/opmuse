@@ -64,7 +64,7 @@ class Deluge:
 
         return tempfile.mkdtemp(dir=dir)
 
-    def connect(self):
+    def connect(self, timeout=20):
         config = cherrypy.tree.apps[''].config['opmuse']
 
         host = config['deluge.host']
@@ -72,6 +72,7 @@ class Deluge:
         user = config['deluge.user']
         password = config['deluge.password']
 
+        DelugeRPCClient.timeout = timeout
         self.client = DelugeRPCClient(host, port, user, password)
         self.client.connect()
 

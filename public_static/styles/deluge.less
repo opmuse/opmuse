@@ -5,6 +5,29 @@
 }
 
 #deluge {
+    .connectivity {
+        &.failed {
+            .host_connecting,
+            .host_is_up {
+                display: none;
+            }
+        }
+
+        &.connected {
+            .host_connecting,
+            .host_is_down {
+                display: none;
+            }
+        }
+
+        &.connecting {
+            .host_is_up,
+            .host_is_down {
+                display: none;
+            }
+        }
+    }
+
     table {
         th,
         td {

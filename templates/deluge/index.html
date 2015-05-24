@@ -12,11 +12,20 @@
         <div class="col-xs-12">
             <p>
                 Showing {{ torrents|length|format_number }} torrents from <strong>{{ deluge_host }}</strong>
-                ({% if deluge_connected -%}
-                    Host is up <i class="fa fa-smile-o"></i>
-                {%- else -%}
-                    <span class="bg-danger">Host is down <i class="fa fa-frown-o"></i></span>
-                {%- endif %}).
+
+                (<span class="connectivity connecting" data-connectivity-url="/deluge/test_connectivity">
+                    <span class="host_connecting">
+                        <i class="loader fa fa-spin fa-spinner"></i> Connecting
+                    </span>
+                    <span class="host_is_up">
+                        Host is up <i class="fa fa-smile-o"></i>
+                    </span>
+                    <span class="host_is_down">
+                        <span class="bg-danger">Host is down <i class="fa fa-frown-o"></i></span>
+                    </span>
+                </span>
+                ).
+
                 {% if deluge_updated %}
                     This list was last updated {{ deluge_updated|pretty_date }}.
                 {% endif %}

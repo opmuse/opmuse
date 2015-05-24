@@ -73,12 +73,7 @@ class Deluge:
 
         deluge_host = config['deluge.host']
 
-        try:
-            deluge_connected = deluge.connect()
-        except:
-            deluge_connected = False
-
-        if deluge_connected and cache.needs_update(Deluge.UPDATE_TORRENTS_KEY, age=Deluge.UPDATE_TORRENTS_AGE):
+        if cache.needs_update(Deluge.UPDATE_TORRENTS_KEY, age=Deluge.UPDATE_TORRENTS_AGE):
             cache.keep(Deluge.UPDATE_TORRENTS_KEY)
 
             try:
@@ -90,10 +85,20 @@ class Deluge:
 
         return {
             'deluge_host': deluge_host,
-            'deluge_connected': deluge_connected,
             'deluge_updated': deluge_updated,
             'torrents': torrents
         }
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
+    @cherrypy.tools.json_out()
+    def test_connectivity(self):
+        try:
+            connected = deluge.connect(timeout=5)
+        except:
+            connected = False
+
+        return {'connected': connected}
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
