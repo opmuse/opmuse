@@ -105,7 +105,9 @@ class Root:
     def login(self, login=None, password=None, came_from="/"):
         if login is not None and password is not None:
             if check_credentials(login, password):
+                cherrypy.session.acquire_lock()
                 cherrypy.session['_login'] = login
+                cherrypy.session.release_lock()
                 raise HTTPRedirect(came_from or "/")
             else:
                 messages.danger('Username and/or password is incorrect.')
@@ -117,7 +119,9 @@ class Root:
         login = cherrypy.session.get('_login', None)
 
         if login:
+            cherrypy.session.acquire_lock()
             cherrypy.session['_login'] = None
+            cherrypy.session.release_lock()
             cherrypy.request.user = None
 
         raise HTTPRedirect('/login?came_from=%s' % came_from)

@@ -81,7 +81,9 @@ def configure(config_file=None, environment=None):
             # sort header strs and a None value...
             'tools.sessions.path': '/',
             'tools.sessions.httponly': True,
-            'tools.sessions.persistent': False
+            'tools.sessions.persistent': False,
+            'tools.sessions.locking': 'explicit',
+            'tools.sessions.timeout': 60 * 8
         }, '/ws': {
             'tools.websocket.on': True,
             'tools.websocket.handler_cls': WebSocketHandler
