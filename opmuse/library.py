@@ -1106,7 +1106,7 @@ class Library:
 
                 if index > 0 and index % chunk_size == 0 or index == queue_len - 1:
                     p = Thread(target=LibraryProcess, name="LibraryProcess_%d" % no,
-                               args=(self.path, self.use_opmuse_txt, to_process, None, no, None, self))
+                               args=(self.use_opmuse_txt, to_process, None, no, None, self))
                     p.start()
 
                     self.threads.append(p)
@@ -1267,9 +1267,34 @@ class OpmuseTxt:
 
 
 class LibraryProcess:
-    def __init__(self, path, use_opmuse_txt, queue, database=None, no=-1,
+    def __init__(self, use_opmuse_txt, queue, database=None, no=-1,
                  tracks=None, library=None, user=None, artist_name_fallback=None):
-        self.path = path
+        """
+        use_opmuse_txt
+            whether a opmuse.txt file should be created in tracks dir or not.
+
+        queue
+            list of file paths to process
+
+        database
+            database connection to use, if None we'll create a new connection
+
+        no
+            number used to keep track of LibraryProcess instances
+
+        tracks
+            if not None this will be filled with Track instances of added files
+
+        library
+            Library instance if not running "standalone"
+
+        user
+            what user added Track instances should get as created_user
+
+        artist_name_fallback
+            If we can't find an artist name in the metadata use this for artist name
+        """
+
         self.no = no
         self.user = user
         self.use_opmuse_txt = use_opmuse_txt
@@ -2087,14 +2112,13 @@ class LibraryDao:
             else:
                 paths.append(filename)
 
+        if len(paths) == 0:
+            return [], messages
+
         tracks = []
 
-        if len(paths) == 0:
-            return tracks, messages
-
-        LibraryProcess(self.get_library_path(), self.get_library_opmuse_txt(),
-                       paths, get_database(), 0, tracks, user=user,
-                       artist_name_fallback=artist_name_fallback)
+        LibraryProcess(self.get_library_opmuse_txt(), paths, get_database(), 0, tracks,
+                       user=user, artist_name_fallback=artist_name_fallback)
 
         # move non-track files with folder if there's no tracks left in folder
         # i.e. album covers and such
@@ -2125,6 +2149,18 @@ class LibraryDao:
 
         if remove_dirs:
             self.remove_empty_dirs(old_dirs)
+
+        # updated covers again after "other files" have been moved
+        for track in tracks:
+            metadata = reader.parse(track.paths[0].path)
+
+            if track.album is not None and track.album.cover_path is None:
+                track.album.cover_path = metadata.cover_path
+
+            if track.artist is not None and track.artist.cover_path is None:
+                track.artist.cover_path = metadata.artist_cover_path
+
+        get_database().commit()
 
         return tracks, messages
 
