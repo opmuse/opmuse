@@ -30,8 +30,12 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, BigInteger, N
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
+def debug(msg, traceback=False):
+    log(msg, traceback=traceback, severity=logging.DEBUG)
+
+
 def log(msg, traceback=False, severity=logging.INFO):
-    cherrypy.log.error(msg, context='deluge', severity=severity, traceback=traceback)
+    cherrypy.log.error(msg, context='deluge', traceback=traceback, severity=severity)
 
 
 class Torrent(Base):
@@ -129,6 +133,7 @@ class Deluge:
         if ssh_host is None:
             raise Exception('You need to set deluge.ssh_host')
 
+        debug('fetching torrent %s info' % torrent_id)
         torrent = self.client.call('core.get_torrent_status', torrent_id, [])
 
         filelist_fd, filelist_path = tempfile.mkstemp()
@@ -144,6 +149,7 @@ class Deluge:
                 files.append(os.path.join(tempdir, path[1:]))
 
         try:
+            debug('rsync torrent %s from %s' % (torrent_id, ssh_host))
             output = subprocess.check_output([
                 'rsync',
                 '-a',
@@ -162,6 +168,8 @@ class Deluge:
             raise
         finally:
             os.remove(filelist_path)
+
+        debug('done rsyncing torrent %s' % torrent_id)
 
         return files
 
