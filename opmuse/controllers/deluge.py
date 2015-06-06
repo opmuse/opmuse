@@ -73,10 +73,13 @@ class Deluge:
 
         if filter == "importable":
             query = query.filter(Torrent.importable)
+        else:
+            filter = "nothing"
 
         torrents = query.all()
 
         deluge_host = config['deluge.host']
+        deluge_port = config['deluge.port']
 
         if cache.needs_update(Deluge.UPDATE_TORRENTS_KEY, age=Deluge.UPDATE_TORRENTS_AGE):
             cache.keep(Deluge.UPDATE_TORRENTS_KEY)
@@ -90,6 +93,8 @@ class Deluge:
 
         return {
             'deluge_host': deluge_host,
+            'deluge_port': deluge_port,
+            'filter': filter,
             'deluge_updated': deluge_updated,
             'torrents': torrents
         }
