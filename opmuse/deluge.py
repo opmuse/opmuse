@@ -55,7 +55,8 @@ class Torrent(Base):
     @hybrid_property
     def importable(self):
         return (self.has_supported_files & self.finished &
-                (self.import_status != "importing") & (self.import_status != "imported"))
+                (self.import_status != "importing") & (self.import_status != "imported") &
+                (self.import_status != "done"))
 
 
 class Deluge:
@@ -178,9 +179,14 @@ deluge = Deluge()
 
 
 class DelugeDao:
-    def update_import_status(self, torrent_id, status):
-        (get_database().query(Torrent).filter(Torrent.torrent_id == torrent_id)
-            .update({'import_status': status[0:128]}))
+    def update_import_status(self, status, torrent_id=None):
+        query = get_database().query(Torrent)
+
+        if torrent_id is not None:
+            query = query.filter(Torrent.torrent_id == torrent_id)
+
+        query.update({'import_status': status[0:128]})
+
         get_database().commit()
 
     def get_torrents(self):

@@ -21,8 +21,9 @@ define([
         'jquery',
         'inheritance',
         'messages',
+        'ajaxify',
         'domReady!'
-    ], function ($, inheritance, messages) {
+    ], function ($, inheritance, messages, ajaxify) {
 
     'use strict';
 
@@ -58,19 +59,35 @@ define([
                 });
             });
 
-            var connectivity = $("#deluge .connectivity");
+            $('#deluge .mark-all-as-done').click(function () {
+                var button = $(this);
+                var url = button.attr("href");
+
+                $.ajax(url, {
+                    success: function (data, textStatus, xhr) {
+                        ajaxify.setPage(document.location.href);
+                    },
+                    error: function (xhr) {
+                        messages.danger('Failed to mark all as done');
+                    }
+                });
+
+                return false;
+            });
+
+            var connectivity = $('#deluge .connectivity');
 
             if (connectivity.length > 0) {
                 var url = connectivity.data('connectivity-url');
 
                 $.ajax(url, {
                     success: function (data, textStatus, xhr) {
-                        connectivity.removeClass("connecting");
+                        connectivity.removeClass('connecting');
 
                         if (data.connected) {
-                            connectivity.addClass("connected");
+                            connectivity.addClass('connected');
                         } else {
-                            connectivity.addClass("failed");
+                            connectivity.addClass('failed');
                         }
                     },
                     error: function (xhr) {

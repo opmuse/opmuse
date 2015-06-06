@@ -41,7 +41,7 @@ class Deluge:
 
     @staticmethod
     def _import_torrent(torrent_id):
-        deluge_dao.update_import_status(torrent_id, 'importing')
+        deluge_dao.update_import_status('importing', torrent_id)
 
         try:
             deluge.connect()
@@ -55,15 +55,15 @@ class Deluge:
                 torrent_files, move=True, remove_dirs=True
             )
 
-            deluge_dao.update_import_status(torrent_id, 'imported')
+            deluge_dao.update_import_status('imported', torrent_id)
         except Exception:
             log("Failed to import torrent", traceback=True)
-            deluge_dao.update_import_status(torrent_id, 'failed')
+            deluge_dao.update_import_status('failed', torrent_id)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
     @cherrypy.tools.jinja(filename='deluge/index.html')
-    def default(self, filter=None):
+    def default(self, filter="importable"):
         config = cherrypy.tree.apps[''].config['opmuse']
 
         if 'deluge.host' not in config:
@@ -122,3 +122,11 @@ class Deluge:
             pass
 
         return {'status': status}
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
+    @cherrypy.tools.json_out()
+    def mark_all_as_done(self):
+        deluge_dao.update_import_status('done')
+
+        return {}
