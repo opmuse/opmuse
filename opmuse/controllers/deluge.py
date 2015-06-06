@@ -24,6 +24,10 @@ from opmuse.database import get_database
 from opmuse.cache import cache
 
 
+def log(msg, traceback=False):
+    cherrypy.log(msg, context='controllers.deluge', traceback=traceback)
+
+
 class Deluge:
     UPDATE_TORRENTS_KEY = "update_torrents"
     UPDATE_TORRENTS_KEY_DONE = "update_torrents_done"
@@ -52,8 +56,9 @@ class Deluge:
             )
 
             deluge_dao.update_import_status(torrent_id, 'imported')
-        except Exception as e:
-            deluge_dao.update_import_status(torrent_id, str(e))
+        except Exception:
+            log("Failed to import torrent", traceback=True)
+            deluge_dao.update_import_status(torrent_id, 'failed')
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
