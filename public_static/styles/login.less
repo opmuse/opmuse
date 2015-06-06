@@ -7,4 +7,21 @@
     .quote {
         text-align: right;
     }
+
+    button[type=submit] {
+        .icon-loading {
+            display: none;
+        }
+
+        &.disabled {
+
+            .icon-loading {
+                display: inline;
+            }
+
+            .icon-sign-in {
+                display: none;
+            }
+        }
+    }
 }

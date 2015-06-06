@@ -66,6 +66,18 @@ define([
                 var data = $(this).serialize();
                 var action = $(this).attr('action');
 
+                var loginInput = $(this).find("input[name=login]");
+                var passwordInput = $(this).find("input[name=password]");
+
+                if (loginInput.val().length === 0) {
+                    return false;
+                }
+
+                var submitButton = $(this).find("button[type=submit]");
+
+                submitButton.attr('disabled', 'disabled');
+                submitButton.addClass('disabled');
+
                 // we don't want a ajax redirect but a proper one so
                 // we handle it ourselves in success()
                 locations.disable();
@@ -84,8 +96,11 @@ define([
                             return;
                         }
 
-                        $('input[name=login]').focus().select();
-                        $('input[name=password]').val('');
+                        submitButton.removeAttr('disabled');
+                        submitButton.removeClass('disabled');
+
+                        loginInput.focus().select();
+                        passwordInput.val('');
 
                         locations.enable();
                     },
