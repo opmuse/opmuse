@@ -29,8 +29,8 @@
                             <a href="/users">Users</a>
                         </li>
                         {% if 'deluge.host' in request.app.config['opmuse'] and is_granted("admin") %}
-                            <li class="{{ "active" if request.path_info|startswith("/deluge") else '' }}">
-                                <a href="/deluge">Deluge</a>
+                            <li class="{{ "active" if request.path_info|startswith("/torrents") else '' }}">
+                                <a href="/torrents">Torrents</a>
                             </li>
                         {% endif %}
                         <li class="visible-xs {{ "active" if request.path_info|startswith("/settings") else '' }}">

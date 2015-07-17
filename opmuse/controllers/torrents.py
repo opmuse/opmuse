@@ -17,11 +17,13 @@
 
 import cherrypy
 import os
+from opmuse.utils import HTTPRedirect
 from opmuse.deluge import deluge_dao, deluge, Torrent
 from opmuse.library import library_dao
 from opmuse.bgtask import NonUniqueQueueError
 from opmuse.database import get_database
 from opmuse.cache import cache
+from opmuse.whatcd import whatcd, WhatcdError
 
 
 def log(msg, traceback=False):
@@ -62,7 +64,7 @@ class Deluge:
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
-    @cherrypy.tools.jinja(filename='deluge/index.html')
+    @cherrypy.tools.jinja(filename='torrents/deluge/index.html')
     def default(self, filter="importable"):
         config = cherrypy.tree.apps[''].config['opmuse']
 
@@ -130,3 +132,34 @@ class Deluge:
         deluge_dao.update_import_status('done')
 
         return {}
+
+
+class Search:
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
+    @cherrypy.tools.jinja(filename='torrents/search/index.html')
+    def default(self, query=None):
+        error = None
+
+        if query is not None:
+            torrents = []
+
+            try:
+                for torrent in whatcd.search(query):
+                    torrents.append(torrent)
+
+            except WhatcdError as e:
+                error = str(e)
+        else:
+            torrents = None
+
+        return {"query": query, "torrents": torrents, "error": error}
+
+
+class Torrents:
+    deluge = Deluge()
+    search = Search()
+
+    @cherrypy.expose
+    def default(self):
+        raise HTTPRedirect('/torrents/deluge')

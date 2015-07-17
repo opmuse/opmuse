@@ -29,10 +29,10 @@ define([
 
     var instance = null;
 
-    var Deluge = Class.extend({
+    var TorrentsDeluge = Class.extend({
         init: function () {
             if (instance !== null) {
-                throw Error('Only one instance of Deluge allowed!');
+                throw Error('Only one instance of TorrentsDeluge allowed!');
             }
 
             var that = this;
@@ -44,7 +44,7 @@ define([
             that.internalInit();
         },
         internalInit: function () {
-            $('#deluge .torrent-import').click(function () {
+            $('#torrents_deluge .torrent-import').click(function () {
                 var button = $(this);
                 var url = button.data('import-url');
 
@@ -59,9 +59,9 @@ define([
                 });
             });
 
-            $('#deluge .mark-all-as-done').click(function () {
+            $('#torrents_deluge .mark-all-as-done').click(function () {
                 var button = $(this);
-                var url = button.attr("href");
+                var url = button.attr('href');
 
                 $.ajax(url, {
                     success: function (data, textStatus, xhr) {
@@ -75,7 +75,7 @@ define([
                 return false;
             });
 
-            var connectivity = $('#deluge .connectivity');
+            var connectivity = $('#torrents_deluge .connectivity');
 
             if (connectivity.length > 0) {
                 var url = connectivity.data('connectivity-url');
@@ -100,7 +100,7 @@ define([
 
     return (function () {
         if (instance === null) {
-            instance = new Deluge();
+            instance = new TorrentsDeluge();
         }
 
         return instance;

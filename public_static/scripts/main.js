@@ -77,7 +77,8 @@ require([
     'modernizr',
     'dashboard',
     'love',
-    'deluge'
+    'torrents_deluge',
+    'torrents_search'
     ], function ($) {
 
     $.ajaxSetup({

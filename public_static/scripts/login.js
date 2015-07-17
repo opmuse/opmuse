@@ -66,14 +66,14 @@ define([
                 var data = $(this).serialize();
                 var action = $(this).attr('action');
 
-                var loginInput = $(this).find("input[name=login]");
-                var passwordInput = $(this).find("input[name=password]");
+                var loginInput = $(this).find('input[name=login]');
+                var passwordInput = $(this).find('input[name=password]');
 
                 if (loginInput.val().length === 0) {
                     return false;
                 }
 
-                var submitButton = $(this).find("button[type=submit]");
+                var submitButton = $(this).find('button[type=submit]');
 
                 submitButton.attr('disabled', 'disabled');
                 submitButton.addClass('disabled');

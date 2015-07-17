@@ -1,13 +1,13 @@
 {% extends "body.html" %}
 
-{% block main_class %}deluge-container{% endblock %}
+{% set subnav_file_path = "partials/torrents-nav.html" %}
 
 {% block title  %}
-    Deluge
+    Torrents - Deluge
 {% endblock %}
 
 {% block content %}
-<div id="deluge">
+<div id="torrents_deluge">
     <div class="row">
         <div class="col-md-2">
             <div class="row">
@@ -18,7 +18,7 @@
 
                         <dt>Status</dt>
                         <dd>
-                            <span class="connectivity connecting" data-connectivity-url="/deluge/test_connectivity">
+                            <span class="connectivity connecting" data-connectivity-url="/torrents/deluge/test_connectivity">
                                 <span class="host_connecting">
                                     <i class="loader fa fa-spin fa-spinner"></i> Connecting
                                 </span>
@@ -51,7 +51,7 @@
                     {% for _filter, icon in [('importable', 'download'), ('nothing', 'circle-o')] %}
                         <p>
                             <a class="btn btn-sm {{ "btn-primary" if filter == _filter else "btn-default" }}"
-                                   href="/deluge?filter={{ _filter }}">
+                                   href="/torrents/deluge?filter={{ _filter }}">
                                 <i class="fa fa-{{ icon }}"></i>
                             </a>
                             {{ _filter|capitalize }}
@@ -61,7 +61,7 @@
                 <div class="col-md-12 col-xs-4">
                     <p><strong>Actions</strong></p>
                     <p>
-                        <a class="mark-all-as-done btn btn-sm btn-default" href="/deluge/mark_all_as_done">
+                        <a class="mark-all-as-done btn btn-sm btn-default" href="/torrents/deluge/mark_all_as_done">
                             <i class="fa fa-check"></i>
                             Mark all as done
                         </a>
@@ -112,7 +112,7 @@
                         <td>
                             {% if torrent.importable %}
                                 <button type="button"
-                                    data-import-url="/deluge/import_torrent/{{ torrent.torrent_id }}"
+                                    data-import-url="/torrents/deluge/import_torrent/{{ torrent.torrent_id }}"
                                     class="torrent-import btn btn-default btn-xs">
                                     <i class="fa fa-download"></i>
                                     Import
