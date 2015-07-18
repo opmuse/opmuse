@@ -32,6 +32,7 @@ from opmuse.utils import error_handler_tool, multi_headers_tool, LessReloader, g
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
+from opmuse.sessions import SqlalchemySession
 
 
 def configure(config_file=None, environment=None):
@@ -61,6 +62,8 @@ def configure(config_file=None, environment=None):
         print('Configuration is missing!')
         sys.exit(1)
 
+    cache_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'cache'))
+
     app_config = {
         '/': {
             'tools.error_handler.on': True,
@@ -74,7 +77,9 @@ def configure(config_file=None, environment=None):
             'tools.authenticated.on': True,
             'tools.database_events.on': True,
             'tools.sessions.on': True,
-            'tools.sessions.storage_type': 'ram',
+            # use sqlalchemy for dev env because it saves session when cherrypy
+            # restarts but it doesn't support locking so we use ram for production.
+            'tools.sessions.storage_type': 'ram' if environment == 'production' else 'sqlalchemy',
             # there's an annoying bug with autovary and sessions where if you dont
             # set session.path the sessions tool will try to access a None header
             # (because path_header is None) which will cause autovary to try to
@@ -89,6 +94,7 @@ def configure(config_file=None, environment=None):
             'tools.websocket.handler_cls': WebSocketHandler
         }, '/static': {
             'tools.jinjaauthenticated.on': False,
+            'tools.sessions.on': False,
             'tools.database.on': False,
             'tools.staticdir.on': True,
             'tools.staticdir.dir': get_staticdir(),
@@ -123,7 +129,7 @@ def configure(config_file=None, environment=None):
     config['error_page.default'] = Root.handle_error
 
     config['opmuse'] = {}
-    config['opmuse']['cache.path'] = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'cache'))
+    config['opmuse']['cache.path'] = cache_path
 
     cherrypy.config.update(config)
 
