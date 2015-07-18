@@ -25,12 +25,14 @@ from configparser import ConfigParser
 from itertools import chain
 from setuptools import setup
 from pip.req import parse_requirements
+from pip.download import PipSession
 from opmuse.less_compiler import less_compiler
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
+
 
 def copy(src, dst):
     shutil.copyfile(src, dst)
@@ -74,19 +76,10 @@ if not on_readthedocs and not os.path.exists("build/templates"):
 
 install_requires = []
 
-for install_require in chain(parse_requirements('requirements.txt'), parse_requirements('mysql-requirements.txt')):
+for install_require in chain(parse_requirements('requirements.txt', session=PipSession()),
+                             parse_requirements('mysql-requirements.txt', session=PipSession())):
     if install_require.req is not None:
         install_requires.append(str(install_require.req))
-    elif install_require.url is not None:
-        if install_require.url[-23:] == "vendor/oursql-0.9.4.zip":
-            if on_readthedocs:
-                # ignore oursql when on readthedocs because it isn't needed for
-                # building the docs
-                continue
-            else:
-                install_requires.append("oursql==0.9.4")
-        else:
-            raise Exception("Don't know how to parse %s" % install_require.url)
     else:
         raise Exception("Couldn't parse requirement from requirements.txt")
 
