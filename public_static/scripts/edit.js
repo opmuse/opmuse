@@ -66,7 +66,7 @@ define([
                             var index;
 
                             for (index in data) {
-                                if (data[index]['name'] == originalValue) {
+                                if (data[index].name == originalValue) {
                                     removeIndex = index;
                                     break;
                                 }

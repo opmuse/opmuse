@@ -67,7 +67,7 @@ define([
             var that = this;
 
             var mySource = new Bloodhound({
-                datumTokenizer: function(data) {
+                datumTokenizer: function (data) {
                     return Bloodhound.tokenizers.whitespace(data.name);
                 },
                 queryTokenizer: Bloodhound.tokenizers.whitespace,
