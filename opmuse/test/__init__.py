@@ -64,6 +64,9 @@ try:
             run_fixtures(session)
             session.close()
 
+        def test_gc(self):
+            pass
+
         def assertHeaderMatches(self, key, pattern, msg=None):
             lowkey = key.lower()
 
