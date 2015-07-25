@@ -137,8 +137,8 @@ else:
         ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'public_static/scripts/init.js']),
         ('/usr/share/opmuse/public_static/lib/requirejs', ['public_static/lib/requirejs/require.js'])] +
         get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
+        get_datafiles('public_static/lib/Font-Awesome/fonts', '/usr/share/opmuse/public_static/') +
         get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
-        get_datafiles('public_static/styles/lib', '/usr/share/opmuse/public_static/') +
         get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
         get_datafiles('build/templates', '/usr/share/opmuse'))
 
