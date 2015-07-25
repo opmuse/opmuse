@@ -73,7 +73,7 @@ done
 # these packages pypi builds are broken but building from git works, so let's
 # do that instead.
 build_git jinja2 2.7.3 https://github.com/mitsuhiko/jinja2.git
-build_git alembic rel_0_7_8 https://bitbucket.org/zzzeek/alembic.git
+build_git alembic rel_0_7_7 https://bitbucket.org/zzzeek/alembic.git
 build_git watchdog v0.7.1 https://github.com/gorakhargosh/watchdog.git
 build_git cherrypy 3.8.0 https://github.com/cherrypy/cherrypy.git
 build_git deluge-client 1.0.2 https://github.com/JohnDoee/deluge-client.git
