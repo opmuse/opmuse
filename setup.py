@@ -135,7 +135,7 @@ else:
         ('/usr/share/opmuse', ['alembic.ini']),
         ('/usr/share/opmuse/public_static/styles', ['build/main.css']),
         ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'public_static/scripts/init.js']),
-        ('/usr/share/opmuse/public_static/scripts/lib', ['public_static/scripts/lib/require.js'])] +
+        ('/usr/share/opmuse/public_static/lib/requirejs', ['public_static/lib/requirejs/require.js'])] +
         get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
         get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
         get_datafiles('public_static/styles/lib', '/usr/share/opmuse/public_static/') +
