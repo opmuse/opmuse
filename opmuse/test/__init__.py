@@ -52,6 +52,8 @@ try:
     from cherrypy.test import helper
 
     class WebCase(helper.CPWebCase):
+        interactive = False
+
         @staticmethod
         def _opmuse_setup_server():
             configure(config_file=test_config_file, environment='production')
