@@ -4,7 +4,7 @@ Getting Started
 Requirements
 ------------
 
-You need **Python 3.4**, **ffmpeg**, **ImageMagick**, **nodejs** (for less.js),
+You need **Python 3.4**, **ffmpeg**, **ImageMagick**, **nodejs**, **npm**,
 **rsync** and a Linux environment. This has only been tested on Debian and
 Exherbo but most other Linux distros should do as well as other similar \*nix
 OSes. If you're on Windows you're on your own.
@@ -16,10 +16,11 @@ Install
 
     $ git clone https://github.com/opmuse/opmuse.git
     $ cd opmuse
-    $ git submodule update --init --recursive
     $ virtualenv -p python3.4 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
+    $ npm install
+    $ ./bower install
     $ cp config/opmuse.dist.ini config/opmuse.ini
     $ edit config/opmuse.ini # fix library.path
 

@@ -4,6 +4,8 @@
 /build/*
 /public_static/styles/*.css
 /public_static/styles/*/*.css
+/public_static/lib/*
+/node_modules/*
 /opmuse.db
 /opmuse.db-journal
 *.pyc

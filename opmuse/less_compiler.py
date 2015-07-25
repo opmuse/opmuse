@@ -40,7 +40,7 @@ class LessCompiler:
 
         stylespath = os.path.join(get_staticdir(), 'styles')
 
-        lesspath = os.path.join(os.path.dirname(__file__), '..', 'vendor', 'less.js')
+        lesspath = os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'less')
 
         if path is None:
             path = os.path.join(stylespath, 'main.css')

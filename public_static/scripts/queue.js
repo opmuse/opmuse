@@ -24,7 +24,7 @@ define([
         'ws',
         'messages',
         'modernizr',
-        'jquery.ui',
+        'jquery.ui/sortable',
         'jquery.nanoscroller',
         'moment',
         'domReady!'

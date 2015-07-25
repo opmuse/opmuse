@@ -42,7 +42,7 @@ class Search:
         else:
             raise cherrypy.NotFound()
 
-        return [entity.name for entity in entities]
+        return [{"name": entity.name} for entity in entities]
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True)

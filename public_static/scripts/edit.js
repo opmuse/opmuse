@@ -54,21 +54,41 @@ define([
             $(sprintf('#edit input[name=%ss]:not(.locked)', type)).each(function () {
                 var input = this;
 
-                $(input).typeahead({
+                var mySource = new Bloodhound({
+                    datumTokenizer: Bloodhound.tokenizers.whitespace,
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
                     remote: {
                         url: sprintf('/search/api/%s?query=%%QUERY', type),
-                        filter: function (parsedResponse) {
+                        filter: function (data) {
                             var originalValue = $(input).data('originalValue');
-                            var index = parsedResponse.indexOf(originalValue);
 
-                            if (index != -1) {
-                                parsedResponse.splice(index, 1);
+                            var removeIndex = null;
+                            var index;
+
+                            for (index in data) {
+                                if (data[index]['name'] == originalValue) {
+                                    removeIndex = index;
+                                    break;
+                                }
                             }
 
-                            return parsedResponse;
+                            if (removeIndex !== null) {
+                                data.splice(removeIndex, 1);
+                            }
+
+                            return data;
                         }
                     }
                 });
+
+                mySource.initialize();
+
+                $(input).typeahead(null,
+                    {
+                        displayKey: 'name',
+                        source: mySource.ttAdapter()
+                    }
+                );
             });
         },
         internalInit: function () {

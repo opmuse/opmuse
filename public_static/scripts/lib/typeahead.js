@@ -1,1 +1,0 @@
-../../../vendor/typeahead.js/dist/typeahead.js

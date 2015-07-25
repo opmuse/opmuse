@@ -63,6 +63,26 @@ define([
 
             that.internalInit();
         },
+        typeahead: function (input) {
+            var that = this;
+
+            var mySource = new Bloodhound({
+                datumTokenizer: function(data) {
+                    return Bloodhound.tokenizers.whitespace(data.name);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: that.names
+            });
+
+            mySource.initialize();
+
+            var dataSet = {
+                displayKey: 'name',
+                source: mySource.ttAdapter()
+            };
+
+            $(input).typeahead(null, dataSet);
+        },
         internalInit: function () {
             var that = this;
 
@@ -120,15 +140,13 @@ define([
                         } else if (that.audio.indexOf(file.type) != -1) {
                             fileDom.addClass('audio-file');
 
-                            that.names.push($(fileDom).data('file').name);
+                            that.names.push({'name': $(fileDom).data('file').name});
 
                             $('#fileupload .files > .other-file:visible').each(function () {
                                 var audioFile = $(this).find('[name=audio_file]');
 
                                 audioFile.typeahead('destroy');
-                                audioFile.typeahead({
-                                    local: that.names
-                                });
+                                that.typeahead(audioFile);
                             });
 
                             files.unshift([fileDom, file]);
@@ -155,9 +173,7 @@ define([
                             audioFile.show();
 
                             audioFile.typeahead('destroy');
-                            audioFile.typeahead({
-                                local: that.names
-                            });
+                            that.typeahead(audioFile);
 
                             files.push([fileDom, file]);
                         }
@@ -269,7 +285,7 @@ define([
 
             var count = that.parallelUploads - that.activeUploads;
 
-            that.names = [];
+            that.names.splice(0, that.names.length);
 
             for (var index = 0; index < count; index++) {
                 if (index >= that.files.length) {

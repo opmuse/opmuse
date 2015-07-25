@@ -1,0 +1,12 @@
+{
+    "name": "opmuse",
+    "license": "AGPL-3.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/opmuse/opmuse"
+    },
+    "dependencies": {
+        "bower": "~1.4.1",
+        "less": "~2.5.0"
+    }
+}
