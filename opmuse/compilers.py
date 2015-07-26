@@ -17,6 +17,7 @@
 
 import os
 import subprocess
+from subprocess import CalledProcessError
 import cherrypy
 import glob
 
@@ -60,13 +61,16 @@ class LessCompiler:
         lessc = os.path.join(lesspath, 'bin', 'lessc')
         main_less = os.path.join(self.dir_from, 'main.less')
 
-        subprocess.check_call([
-            lessc,
-            "--global-var=no_opmuse=%s" % no_opmuse,
-            main_less, path
-        ], cwd=self.dir_to)
+        try:
+            subprocess.check_call([
+                lessc,
+                "--global-var=no_opmuse=%s" % no_opmuse,
+                main_less, path
+            ], cwd=self.dir_to)
 
-        log("compiled main.css")
+            log("Compiled main.css")
+        except CalledProcessError as e:
+            log("Failed to compile main.css", traceback=True)
 
 
 less_compiler = LessCompiler()
@@ -97,13 +101,16 @@ class JsCompiler:
         path = os.path.join(self.dir_to, basename)
         traceur_path = os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'traceur-cli', 'traceur-cli')
 
-        subprocess.check_call([
-            traceur_path,
-            '--script', script,
-            '--out', path
-        ], cwd=self.dir_from)
+        try:
+            subprocess.check_call([
+                traceur_path,
+                '--script', script,
+                '--out', path
+            ], cwd=self.dir_from)
 
-        log("compiled %s" % basename)
+            log("compiled %s" % basename)
+        except CalledProcessError as e:
+            log("Failed to compile %s" % basename, traceback=True)
 
 
 js_compiler = JsCompiler()
