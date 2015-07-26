@@ -19,19 +19,18 @@
 
 define([
         'jquery',
-        'inheritance',
         'ws',
         'ajaxify',
         'reloader',
         'domReady!'
-    ], function ($, inheritance, ws, ajaxify, reloader) {
+    ], function ($, ws, ajaxify, reloader) {
 
     'use strict';
 
     var instance = null;
 
-    var Remotes = Class.extend({
-        init: function () {
+    class Remotes {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Remotes allowed!');
             }
@@ -76,20 +75,20 @@ define([
                 var selectors = that.getTagSelectors(tag_name);
                 reloader.load(selectors);
             });
-        },
-        getTrackSelectors: function (id) {
+        }
+        getTrackSelectors (id) {
             return ['.remotes_track_head_' + id, '.remotes_track_nav_' + id];
-        },
-        getArtistSelectors: function (id) {
+        }
+        getArtistSelectors (id) {
             return ['.remotes_artist_head_' + id, '.remotes_artist_nav_' + id];
-        },
-        getAlbumSelectors: function (id) {
+        }
+        getAlbumSelectors (id) {
             return ['.remotes_album_head_' + id, '.remotes_album_nav_' + id];
-        },
-        getTagSelectors: function (tag_name) {
+        }
+        getTagSelectors (tag_name) {
             return ['[data-remotes-tag="' + tag_name + '"]'];
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

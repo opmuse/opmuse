@@ -19,25 +19,24 @@
 
 define([
         'jquery',
-        'inheritance',
         'ws',
         'ajaxify',
         'logger',
         'sprintf',
         'domReady!'
-    ], function ($, inheritance, ws, ajaxify, logger) {
+    ], function ($, ws, ajaxify, logger) {
 
     'use strict';
 
     var instance = null;
 
-    var Reloader = Class.extend({
-        init: function () {
+    class Reloader {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Reloader allowed!');
             }
-        },
-        load: function (selectors) {
+        }
+        load (selectors) {
             var usedSelectors = [];
 
             for (var index in selectors) {
@@ -82,7 +81,7 @@ define([
                 });
             }
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

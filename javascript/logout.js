@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'domReady!'
-    ], function ($, inheritance, ajaxify) {
+    ], function ($, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Logout = Class.extend({
-        init: function () {
+    class Logout {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Logout allowed!');
             }
@@ -41,11 +40,11 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('.logout').data('ajaxify', false);
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

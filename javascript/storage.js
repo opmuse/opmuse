@@ -19,29 +19,28 @@
 
 define([
         'jquery',
-        'inheritance',
         'sprintf',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Storage = Class.extend({
-        init: function () {
+    class Storage {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Storage allowed!');
             }
 
             this.storage = localStorage;
             this.typeKeyFormat = '__type__.%s';
-        },
-        set: function (key, value) {
+        }
+        set (key, value) {
             this.storage.setItem(key, value);
             this.storage.setItem(sprintf(this.typeKeyFormat, key), typeof value);
-        },
-        get: function (key) {
+        }
+        get (key) {
             var type = this.storage.getItem(sprintf(this.typeKeyFormat, key));
             var value = this.storage.getItem(key);
 
@@ -53,7 +52,7 @@ define([
 
             return value;
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

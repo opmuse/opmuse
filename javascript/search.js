@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'domReady!'
-    ], function ($, inheritance, ajaxify) {
+    ], function ($, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Search = Class.extend({
-        init: function () {
+    class Search {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Search allowed!');
             }
@@ -45,8 +44,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var query = $('#search').data('query');
 
             $('.search-query')
@@ -77,7 +76,7 @@ define([
 
             }).val(query);
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

@@ -30,6 +30,10 @@
 
         <script src="/static/scripts/init.js?version={{ opmuse_version }}"></script>
 
+        {# traceur is broken as an AMD module so we include it like this
+           https://github.com/google/traceur-compiler/issues/1933 #}
+        <script src="/static/lib/traceur/traceur.js?version={{ opmuse_version }}"></script>
+
         <script
             data-main="/static/scripts/main.js"
             src="/static/lib/requirejs/require.js?version={{ opmuse_version }}">

@@ -19,19 +19,18 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'typeahead',
         'sprintf',
         'domReady!'
-    ], function ($, inheritance, ajaxify) {
+    ], function ($, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Edit = Class.extend({
-        init: function () {
+    class Edit {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Edit allowed!');
             }
@@ -43,13 +42,13 @@ define([
             });
 
             that.internalInit();
-        },
-        initTypeahead: function () {
+        }
+        initTypeahead () {
             this.createTypeahead('artist');
             this.createTypeahead('album');
             this.createTypeahead('track');
-        },
-        createTypeahead: function (type) {
+        }
+        createTypeahead (type) {
             $(sprintf('#edit input[name=%ss]', type)).typeahead('destroy');
             $(sprintf('#edit input[name=%ss]:not(.locked)', type)).each(function () {
                 var input = this;
@@ -90,8 +89,8 @@ define([
                     }
                 );
             });
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var that = this;
 
             that.initTypeahead();
@@ -175,7 +174,7 @@ define([
                     $(this).closest('tr').addClass('active');
                 });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

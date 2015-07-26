@@ -19,7 +19,6 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'ws',
         'messages',
@@ -28,12 +27,12 @@ define([
         'jquery.nanoscroller',
         'moment',
         'domReady!'
-    ], function ($, inheritance, ajaxify, ws, messages) {
+    ], function ($, ajaxify, ws, messages) {
 
     'use strict';
 
-    var Player = Class.extend({
-        init: function (queue) {
+    class Player {
+        constructor (queue) {
             if (instance !== null) {
                 throw Error('Only one instance of Player allowed!');
             }
@@ -203,15 +202,15 @@ define([
             that.pauseButton.hide();
 
             that.internalInit();
-        },
-        checkCapabilities: function () {
+        }
+        checkCapabilities () {
             if (Modernizr.audio === false) {
                 this.disable();
                 messages.danger('Your browser doesn\'t support audio, you\'ll only be ' +
                                 'able to listen through the external streaming option.');
             }
-        },
-        setCurrent: function (track) {
+        }
+        setCurrent (track) {
             var that = this;
 
             that.currentTrack = track;
@@ -223,8 +222,8 @@ define([
             } else {
                 title.text(sprintf('%s - %s', track.artist.name, track.name));
             }
-        },
-        setProgress: function (seconds, seconds_ahead) {
+        }
+        setProgress (seconds, seconds_ahead) {
             var that = this;
 
             var seconds_perc = 0;
@@ -240,8 +239,8 @@ define([
             that.playerProgress.find('.progress-bar.ahead').width(seconds_ahead_perc + '%');
 
             that.trackTime.text(that.formatSeconds(seconds - seconds_ahead));
-        },
-        formatSeconds: function (seconds) {
+        }
+        formatSeconds (seconds) {
             if (typeof seconds == 'undefined' || seconds === null) {
                 seconds = 0;
             }
@@ -255,8 +254,8 @@ define([
             }
 
             return moment().hours(0).minutes(0).seconds(seconds).format(format);
-        },
-        setPlaying: function (user_agent, format) {
+        }
+        setPlaying (user_agent, format) {
             var that = this;
 
             that.playing = true;
@@ -267,8 +266,8 @@ define([
             if (!that.usPlaying) {
                 that.disable();
             }
-        },
-        setStopped: function () {
+        }
+        setStopped () {
             var that = this;
 
             that.playing = false;
@@ -277,43 +276,43 @@ define([
             that.pauseButton.hide();
 
             that.enable();
-        },
-        disable: function () {
+        }
+        disable () {
             var that = this;
 
             that.playButton.addClass('disabled');
             that.pauseButton.addClass('disabled');
             that.nextButton.addClass('disabled');
             that.stopButton.addClass('disabled');
-        },
-        enable: function () {
+        }
+        enable () {
             var that = this;
 
             that.playButton.removeClass('disabled');
             that.pauseButton.removeClass('disabled');
             that.nextButton.removeClass('disabled');
             that.stopButton.removeClass('disabled');
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('#next-button, #play-button, #pause-button').data('ajaxify', false);
-        },
-        unload: function () {
+        }
+        unload () {
             if (typeof this.player != 'undefined' && this.player !== null) {
                 this.player.src = '/play/stream?dead=true';
             }
-        },
-        load: function () {
+        }
+        load () {
             if (typeof this.player != 'undefined' && this.player !== null) {
                 // stupid cache bustin because firefox seems to refuse to not cache
                 this.player.src = '/play/stream?b=' + Math.random();
             }
         }
-    });
+    }
 
     var instance = null;
 
-    var Queue = Class.extend({
-        init: function () {
+    class Queue {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Queue allowed!');
             }
@@ -346,8 +345,8 @@ define([
             ws.on('queue.update', function () {
                 that.reloadList();
             });
-        },
-        initNanoScroller: function () {
+        }
+        initNanoScroller () {
             if (!$('#queue .nano').is('.has-scrollbar')) {
                 $('#queue .nano').nanoScroller({
                     alwaysVisible: true
@@ -359,8 +358,8 @@ define([
             $('#panel').off('panelFullscreen').on('panelFullscreen', function (event) {
                 $('#queue .nano').nanoScroller();
             });
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var that = this;
 
             $(document).on('click.queue', that.buttonSelectors,
@@ -378,8 +377,8 @@ define([
             });
 
             that.reload();
-        },
-        reload: function () {
+        }
+        reload () {
             var that = this;
 
             $(that.buttonSelectors + ', #collapse-queue , .open-stream').data('ajaxify', false);
@@ -428,8 +427,8 @@ define([
             that.player.queueDuration.text(
                 that.player.formatSeconds(($('#queue').attr('data-queue_info-duration')))
             );
-        },
-        reloadList: function () {
+        }
+        reloadList () {
             var that = this;
 
             $.ajax(this.listUrl, {
@@ -439,8 +438,8 @@ define([
                     that.reload();
                 }
             });
-        },
-        reloadCover: function () {
+        }
+        reloadCover () {
             $.ajax(this.coverUrl, {
                 success: function (data) {
                     ajaxify.setInDom('#player-cover', data);
@@ -448,7 +447,7 @@ define([
                 }
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

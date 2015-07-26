@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap/modal',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Modal = Class.extend({
-        init: function () {
+    class Modal {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Modal allowed!');
             }
@@ -41,11 +40,11 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('[data-toggle=modal]').data('ajaxify', false);
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

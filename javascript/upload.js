@@ -19,21 +19,20 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'jquery.fileupload',
         'typeahead',
         'sprintf',
         'bootstrap/popover',
         'domReady!'
-    ], function ($, inheritance, ajaxify) {
+    ], function ($, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Upload = Class.extend({
-        init: function () {
+    class Upload {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Upload allowed!');
             }
@@ -62,8 +61,8 @@ define([
             this.totalLoaded = 0;
 
             that.internalInit();
-        },
-        typeahead: function (input) {
+        }
+        typeahead (input) {
             var that = this;
 
             var mySource = new Bloodhound({
@@ -82,8 +81,8 @@ define([
             };
 
             $(input).typeahead(null, dataSet);
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var that = this;
 
             if ($('#fileupload').data('initialized')) {
@@ -195,7 +194,7 @@ define([
                         });
                     }
                 },
-                progress: function (event, data) {
+                progress (event, data) {
                     var loaded = $(data.fileDom).data('loaded');
 
                     if (typeof loaded == 'undefined' || loaded === null) {
@@ -248,8 +247,8 @@ define([
 
                 return false;
             });
-        },
-        done: function () {
+        }
+        done () {
             this.totalSize = 0;
             this.totalLoaded = 0;
 
@@ -257,8 +256,8 @@ define([
                 $('.total-progress.progress').removeClass('active').find('.progress-bar')
                     .eq(0).css('width', '0%');
             }, 3000);
-        },
-        send: function (start) {
+        }
+        send (start) {
             var that = this;
 
             // first start the session in the backend, then start the actual upload
@@ -362,7 +361,7 @@ define([
                 })(file, done);
             }
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

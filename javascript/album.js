@@ -19,12 +19,11 @@
 
 define([
         'jquery',
-        'inheritance',
         'ws',
         'reloader',
         'modernizr',
         'domReady!'
-    ], function ($, inheritance, ws, reloader) {
+    ], function ($, ws, reloader) {
 
     'use strict';
 
@@ -33,8 +32,8 @@ define([
     /**
      * note that this handles both albums and artists.
      */
-    var Album = Class.extend({
-        init: function () {
+    class Album {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Album allowed!');
             }
@@ -48,8 +47,8 @@ define([
             });
 
             that.internalInit();
-        },
-        initReloader: function () {
+        }
+        initReloader () {
             var that = this;
 
             var reloadTimeout = 200;
@@ -85,8 +84,8 @@ define([
                     }
                 }
             );
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             // because we have no hover on touch devices disable click
             // on cover for going to album/artist page. you'll have to click
             // the name/title instead.
@@ -112,7 +111,7 @@ define([
                 $(this).data('shown', true);
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

@@ -19,18 +19,17 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap/popover',
         'modernizr',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Popover = Class.extend({
-        init: function () {
+    class Popover {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Popover allowed!');
             }
@@ -46,11 +45,11 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('*[rel=popover]').popover();
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

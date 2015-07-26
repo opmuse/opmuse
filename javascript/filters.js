@@ -19,18 +19,17 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'sprintf',
         'domReady!'
-    ], function ($, inheritance, ajaxify) {
+    ], function ($, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Filters = Class.extend({
-        init: function () {
+    class Filters {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Filters allowed!');
             }
@@ -42,8 +41,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var that = this;
 
             $('.filters .filter-value a')
@@ -61,8 +60,8 @@ define([
 
                 return false;
             });
-        },
-        reloadPage: function (input) {
+        }
+        reloadPage (input) {
             var href = $(input).siblings('.filter-button').attr('href');
             var value = $(input).val();
 
@@ -72,7 +71,7 @@ define([
 
             ajaxify.setPage(sprintf('%s&filter_value=%s', href, value));
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

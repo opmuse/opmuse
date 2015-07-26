@@ -19,18 +19,17 @@
 
 define([
         'jquery',
-        'inheritance',
         'locations',
         'ajaxify',
         'domReady!'
-    ], function ($, inheritance, locations, ajaxify) {
+    ], function ($, locations, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Login = Class.extend({
-        init: function () {
+    class Login {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Login allowed!');
             }
@@ -54,8 +53,8 @@ define([
                     return;
                 }
             });
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             if ($('#login').length > 0) {
                 $('.login, .home').data('ajaxify', false);
             }
@@ -112,7 +111,7 @@ define([
                 return false;
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

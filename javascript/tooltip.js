@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap/tooltip',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Tooltip = Class.extend({
-        init: function () {
+    class Tooltip {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Tooltip allowed!');
             }
@@ -41,11 +40,11 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('*[rel=tooltip]').tooltip();
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

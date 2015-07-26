@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap-growl',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Messages = Class.extend({
-        init: function () {
+    class Messages {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Messages allowed!');
             }
@@ -46,8 +45,8 @@ define([
                 }
             });
 
-        },
-        message: function (type, text) {
+        }
+        message (type, text) {
             $.bootstrapGrowl(text, {
                 type: type,
                 align: 'right',
@@ -55,17 +54,17 @@ define([
                 delay: 6000,
                 allow_dismiss: false
             });
-        },
-        info: function (text) {
+        }
+        info (text) {
             this.message('info', text);
-        },
-        success: function (text) {
+        }
+        success (text) {
             this.message('success', text);
-        },
-        danger: function (text) {
+        }
+        danger (text) {
             this.message('danger', text);
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

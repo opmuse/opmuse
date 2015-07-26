@@ -27,8 +27,8 @@ define([
 
     var instance = null;
 
-    var Love = Class.extend({
-        init: function () {
+    class Love {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Love allowed!');
             }
@@ -40,8 +40,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var that = this;
 
             $(document).on('click', '.btn.love',
@@ -62,12 +62,12 @@ define([
             );
 
             that.reload();
-        },
-        reload: function () {
+        }
+        reload () {
             var that = this;
             $('.btn.love').data('ajaxify', false);
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

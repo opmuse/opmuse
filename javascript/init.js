@@ -44,8 +44,7 @@ var require = {
         'bloodhound': '../lib/typeahead.js/dist/bloodhound',
         'typeahead': '../lib/typeahead.js/dist/typeahead.jquery',
         'modernizr': '../lib/modernizr/modernizr',
-        'bootstrap-growl': '../lib/bootstrap-growl/jquery.bootstrap-growl',
-        'inheritance': 'lib/inheritance'
+        'bootstrap-growl': '../lib/bootstrap-growl/jquery.bootstrap-growl'
     },
     shim: {
         'bootstrap-growl': ['jquery'],

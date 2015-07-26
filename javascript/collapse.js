@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap/collapse',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Collapse = Class.extend({
-        init: function () {
+    class Collapse {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Collapse allowed!');
             }
@@ -41,11 +40,11 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('[data-toggle=collapse]').data('ajaxify', false);
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

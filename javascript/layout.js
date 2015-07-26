@@ -19,16 +19,15 @@
 
 define([
         'jquery',
-        'inheritance',
         'storage',
         'matchMedia',
         'domReady!'
-    ], function ($, inheritance, storage) {
+    ], function ($, storage) {
 
     'use strict';
 
-    var Panel = Class.extend({
-        init: function (layout) {
+    class Panel {
+        constructor (layout) {
             var panelOpen = storage.get('layout.panel.open');
 
             var that = this;
@@ -82,31 +81,31 @@ define([
                     that.closeFullscreen();
                 }
             }).resize();
-        },
-        openFullscreen: function () {
+        }
+        openFullscreen () {
             if (this.layout.showOverlay()) {
                 $(this.panel).addClass('panel-fullscreen');
             }
-        },
-        closeFullscreen: function () {
+        }
+        closeFullscreen () {
             if (this.layout.hideOverlay()) {
                 $(this.panel).removeClass('panel-fullscreen');
             }
-        },
-        open: function () {
+        }
+        open () {
             this.panel.addClass('open');
             storage.set('layout.panel.open', true);
-        },
-        close: function () {
+        }
+        close () {
             this.panel.removeClass('open');
             storage.set('layout.panel.open', false);
         }
-    });
+    }
 
     var instance = null;
 
-    var Layout = Class.extend({
-        init: function () {
+    class Layout {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Layout allowed!');
             }
@@ -120,20 +119,20 @@ define([
             $(window).resize(function () {
                 that.resizeOverlay();
             });
-        },
-        resizeOverlay: function () {
+        }
+        resizeOverlay () {
             $('#overlay').width($(window).width());
             $('#overlay').height($(window).height());
-        },
-        lockOverlay: function () {
+        }
+        lockOverlay () {
             $('body').removeClass('loaded');
             $('#overlay').addClass('locked');
-        },
-        unlockOverlay: function () {
+        }
+        unlockOverlay () {
             $('body').addClass('loaded');
             $('#overlay').removeClass('locked');
-        },
-        showOverlay: function () {
+        }
+        showOverlay () {
             if ($('#overlay').is('.locked')) {
                 return false;
             }
@@ -146,8 +145,8 @@ define([
             $('#overlay').removeClass('hide').addClass('transparent');
 
             return true;
-        },
-        hideOverlay: function () {
+        }
+        hideOverlay () {
             if ($('#overlay').is('.locked') || $('#overlay').is('.error')) {
                 return false;
             }
@@ -166,7 +165,7 @@ define([
 
             return true;
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

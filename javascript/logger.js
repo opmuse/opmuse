@@ -17,26 +17,24 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'inheritance'
-    ], function (inheritance) {
+define([], function () {
 
     'use strict';
 
     var instance = null;
 
-    var Logger = Class.extend({
-        init: function () {
+    class Logger {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Logger allowed!');
             }
-        },
-        log: function (message) {
+        }
+        log (message) {
             if (typeof console != 'undefined' && console !== null) {
                 console.log(message);
             }
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'domReady!'
-    ], function ($, inheritance, ajaxify) {
+    ], function ($, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Locations = Class.extend({
-        init: function () {
+    class Locations {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Locations allowed!');
             }
@@ -49,14 +48,14 @@ define([
                     ajaxify.setPage(location);
                 }
             });
-        },
-        enable: function () {
+        }
+        enable () {
             this.disabled = false;
-        },
-        disable: function () {
+        }
+        disable () {
             this.disabled = true;
-        },
-        getLocation: function (xhr) {
+        }
+        getLocation (xhr) {
             var header = xhr.getResponseHeader('X-Opmuse-Location');
 
             if (header !== null) {
@@ -67,7 +66,7 @@ define([
 
             return null;
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

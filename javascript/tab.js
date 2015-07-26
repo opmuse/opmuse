@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap/tab',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Tab = Class.extend({
-        init: function () {
+    class Tab {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Tab allowed!');
             }
@@ -41,8 +40,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('[data-toggle=tab] a, [data-toggle=pill] a').click(function (event) {
                 $(this).tab('show');
                 return false;
@@ -50,11 +49,11 @@ define([
 
             this.setActive('pill');
             this.setActive('tab');
-        },
+        }
         /**
          * if there's no active tab/pill set first tab/pill as active...
          */
-        setActive: function (type) {
+        setActive (type) {
             var nav = $('[data-toggle=tab]').closest('.nav-' + type + 's');
             var content = nav.siblings('.tab-content');
 
@@ -64,7 +63,7 @@ define([
                 nav.find('[href=#' + id + ']').tab('show');
             }
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

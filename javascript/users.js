@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'ajaxify',
         'domReady!'
-    ], function ($, inheritance, ajaxify) {
+    ], function ($, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var Users = Class.extend({
-        init: function () {
+    class Users {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Users allowed!');
             }
@@ -41,8 +40,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var that = this;
 
             $('#users .users-add-form button').click(function (event) {
@@ -63,7 +62,7 @@ define([
                 return false;
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

@@ -19,18 +19,17 @@
 
 define([
         'jquery',
-        'inheritance',
         'messages',
         'ajaxify',
         'domReady!'
-    ], function ($, inheritance, messages, ajaxify) {
+    ], function ($, messages, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var TorrentsSearch = Class.extend({
-        init: function () {
+    class TorrentsSearch {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of TorrentsSearch allowed!');
             }
@@ -42,8 +41,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('#torrents_search .torrent-search-query')
                 .off('keyup.search-query')
                 .on('keyup.search-query', function (event) {
@@ -56,7 +55,7 @@ define([
 
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

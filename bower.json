@@ -1,6 +1,7 @@
 {
     "name": "opmuse",
     "dependencies": {
+        "traceur": "~0.0.91",
         "bootstrap-growl": "~1.1.0",
         "Font-Awesome": "~4.3.0",
         "jquery": "~2.1.4",

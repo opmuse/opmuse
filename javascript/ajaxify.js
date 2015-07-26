@@ -17,13 +17,13 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
-    function ($, inheritance, popover, layout) {
+define(['jquery', 'bootstrap/popover', 'layout', 'domReady!'],
+    function ($, popover, layout) {
 
     'use strict';
 
-    var Throb = Class.extend({
-        init: function (brand) {
+    class Throb {
+        constructor (brand) {
             var that = this;
 
             this.brand = brand;
@@ -62,16 +62,16 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                     }
                 }, timeout);
             });
-        },
-        stop: function () {
+        }
+        stop () {
             $(this.brand).removeClass('throb');
-        },
-        start: function () {
+        }
+        start () {
             this.startTime = new Date().getTime();
 
             $(this.brand).addClass('throb');
-        },
-        setError: function (msg) {
+        }
+        setError (msg) {
             $(this.brand).addClass('error').popover({
                 content: $('<p>').text(msg).addClass('text-danger'),
                 html: true,
@@ -79,11 +79,11 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                 container: 'body',
                 placement: 'right bottom'
             });
-        },
-        unsetError: function () {
+        }
+        unsetError () {
             $(this.brand).removeClass('error').popover('destroy');
         }
-    });
+    }
 
     var instance = null;
 
@@ -91,8 +91,8 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
      * This one listens to click events and loads the href in the content div
      * instead of reloading the full page.
      */
-    var Ajaxify = Class.extend({
-        init: function () {
+    class Ajaxify {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Ajaxify allowed!');
             }
@@ -155,8 +155,8 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                     return $(this).is('[data-ajaxify=continue]');
                 }
             );
-        },
-        load: function (element, trigger) {
+        }
+        load (element, trigger) {
             var that = this;
 
             if (typeof trigger == 'undefined' || trigger === null) {
@@ -166,8 +166,8 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
             if (trigger) {
                 $(this.selector).trigger('ajaxifyInit');
             }
-        },
-        loadPage: function (href) {
+        }
+        loadPage (href) {
             var that = this;
             var contents = that.contents.join(',');
 
@@ -203,8 +203,8 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                     that.activeRequest = null;
                 }
             });
-        },
-        setPageInDom: function (data) {
+        }
+        setPageInDom (data) {
             var html = $($.parseHTML(data));
 
             document.title = $.trim(html.find('#title').text());
@@ -234,8 +234,8 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
             }
 
             this.load(this.selector);
-        },
-        setInDom: function (content, newContent) {
+        }
+        setInDom (content, newContent) {
             $(content).empty();
 
             if ($(newContent).length == 0) {
@@ -246,34 +246,34 @@ define(['jquery', 'inheritance', 'bootstrap/popover', 'layout', 'domReady!'],
                 .append($(newContent).contents());
 
             this.fixAttributes(newContent, content);
-        },
-        fixAttributes: function (newContent, content) {
+        }
+        fixAttributes (newContent, content) {
             // TODO adds attributes but doesn't remove no longer existing attributes
             $.each($(newContent).get(0).attributes, function (index, attribute) {
                 $(content).attr(attribute.name, attribute.value);
             });
-        },
-        getPage: function (href) {
+        }
+        getPage (href) {
             if (!this.isRelative(href)) {
                 href = this.getPathComponent(href);
             }
 
             return href;
-        },
-        setPage: function (href) {
+        }
+        setPage (href) {
             href = this.getPage(href);
 
             history.pushState({}, '', href);
 
             this.loadPage(href);
-        },
-        getPathComponent: function (href) {
+        }
+        getPathComponent (href) {
             return href.match(/^http(s)?:\/\/[^\/]+(.*)/)[2];
-        },
-        isRelative: function (href) {
+        }
+        isRelative (href) {
             return !/^http(s)?:\/\//.test(href);
         }
-    });
+    };
 
     return (function () {
         if (instance === null) {

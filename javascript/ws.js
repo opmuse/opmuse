@@ -19,21 +19,20 @@
 
 define([
         'jquery',
-        'inheritance',
         'logger',
         'ajaxify',
         'messages',
         'modernizr',
         'sprintf',
         'domReady!'
-    ], function ($, inheritance, logger, ajaxify, messages) {
+    ], function ($, logger, ajaxify, messages) {
 
     'use strict';
 
     var instance = null;
 
-    var Ws = Class.extend({
-        init: function () {
+    class Ws {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Ws allowed!');
             }
@@ -69,20 +68,20 @@ define([
             that.url = scheme + '://' + host + '/ws';
 
             that.internalInit();
-        },
-        checkCapabilities: function () {
+        }
+        checkCapabilities () {
             if (!Modernizr.websockets) {
                 this.error('Your browser is missing WebSockets support, things will not work as expected.');
             }
-        },
-        error: function (text) {
+        }
+        error (text) {
             messages.danger(text);
             ajaxify.throb.setError(text);
-        },
-        unsetError: function () {
+        }
+        unsetError () {
             ajaxify.throb.unsetError();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             var that = this;
 
             that.socket = new WebSocket(that.url);
@@ -154,8 +153,8 @@ define([
 
                 that.error('Got websocket error: ' + event.data);
             };
-        },
-        emit: function (event) {
+        }
+        emit (event) {
             var that = this;
 
             var args = [].splice.call(arguments, 1);
@@ -164,8 +163,8 @@ define([
                 'event': event,
                 'args': args
             }));
-        },
-        on: function (event, callback) {
+        }
+        on (event, callback) {
             var that = this;
 
             var events;
@@ -186,7 +185,7 @@ define([
                 that.events[event].push(callback);
             }
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

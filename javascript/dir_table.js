@@ -19,16 +19,15 @@
 
 define([
         'jquery',
-        'inheritance',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var DirTable = Class.extend({
-        init: function () {
+    class DirTable {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of DirTable allowed!');
             }
@@ -40,8 +39,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('.dir_table .other-files-header .other-files-header-title').click(function (event) {
                 // avoid recursion caused by bubbling
                 if ($(event.target).is('.other-files-header-title')) {
@@ -49,7 +48,7 @@ define([
                 }
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

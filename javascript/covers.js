@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'ws',
         'domReady!'
-    ], function ($, inheritance, ws) {
+    ], function ($, ws) {
 
     'use strict';
 
     var instance = null;
 
-    var Covers = Class.extend({
-        init: function () {
+    class Covers {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Covers allowed!');
             }
@@ -87,11 +86,11 @@ define([
                 $.ajax($(this).attr('href'));
                 return false;
             });
-        },
+        }
         /**
          * defer loading of cover images
          */
-        initImages: function () {
+        initImages () {
             $('.cover-container').each(function () {
                 var img = $(this).find('img');
                 var src = $(this).data('src');
@@ -100,8 +99,8 @@ define([
                     img.attr('src', src);
                 }
             });
-        },
-        refresh: function (container) {
+        }
+        refresh (container) {
             var img = container.find('img');
 
             if (img.length == 2) {
@@ -123,7 +122,7 @@ define([
 
             img.addClass('cover-hide');
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

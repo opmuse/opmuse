@@ -19,18 +19,17 @@
 
 define([
         'jquery',
-        'inheritance',
         'messages',
         'ajaxify',
         'domReady!'
-    ], function ($, inheritance, messages, ajaxify) {
+    ], function ($, messages, ajaxify) {
 
     'use strict';
 
     var instance = null;
 
-    var TorrentsDeluge = Class.extend({
-        init: function () {
+    class TorrentsDeluge {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of TorrentsDeluge allowed!');
             }
@@ -42,8 +41,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('#torrents_deluge .torrent-import').click(function () {
                 var button = $(this);
                 var url = button.data('import-url');
@@ -96,7 +95,7 @@ define([
                 });
             }
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

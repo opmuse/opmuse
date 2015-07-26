@@ -19,16 +19,15 @@
 
 define([
         'jquery',
-        'inheritance',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Tooltip = Class.extend({
-        init: function () {
+    class Tooltip {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Navbar allowed!');
             }
@@ -39,7 +38,7 @@ define([
                 navbar.collapse('hide');
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

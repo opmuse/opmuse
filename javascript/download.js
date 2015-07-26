@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap/popover',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Download = Class.extend({
-        init: function () {
+    class Download {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Download allowed!');
             }
@@ -41,8 +40,8 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('.download').data('ajaxify', false);
 
             $('.download').each(function () {
@@ -72,7 +71,7 @@ define([
                 }
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

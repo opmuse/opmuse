@@ -19,17 +19,16 @@
 
 define([
         'jquery',
-        'inheritance',
         'bootstrap/button',
         'domReady!'
-    ], function ($, inheritance) {
+    ], function ($) {
 
     'use strict';
 
     var instance = null;
 
-    var Button = Class.extend({
-        init: function () {
+    class Button {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Button allowed!');
             }
@@ -41,11 +40,11 @@ define([
             });
 
             that.internalInit();
-        },
-        internalInit: function () {
+        }
+        internalInit () {
             $('.dropdown-toggle').data('ajaxify', false);
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {

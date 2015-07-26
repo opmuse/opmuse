@@ -19,18 +19,17 @@
 
 define([
         'jquery',
-        'inheritance',
         'ws',
         'reloader',
         'domReady!'
-    ], function ($, inheritance, ws, reloader) {
+    ], function ($, ws, reloader) {
 
     'use strict';
 
     var instance = null;
 
-    var Dashboard = Class.extend({
-        init: function () {
+    class Dashboard {
+        constructor () {
             if (instance !== null) {
                 throw Error('Only one instance of Dashboard allowed!');
             }
@@ -45,7 +44,7 @@ define([
                 reloader.load(['#dashboard-listening-now']);
             });
         }
-    });
+    }
 
     return (function () {
         if (instance === null) {
