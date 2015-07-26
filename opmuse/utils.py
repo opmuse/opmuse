@@ -56,19 +56,20 @@ try:
     import cherrypy
     import cgitb
     from cherrypy.process.plugins import Monitor
-    from opmuse.less_compiler import less_compiler
 
-    class LessReloader(Monitor):
-        def __init__(self, bus):
+    class FileReloader(Monitor):
+        def __init__(self, bus, name, compiler):
             Monitor.__init__(self, bus, self.run, frequency=.5)
 
+            self.name = name
+            self.compiler = compiler
             self._files = {}
             self.enable = False
 
         def start(self):
             Monitor.start(self)
 
-            self.enable = cherrypy.config['opmuse'].get('less_reloader.enable')
+            self.enable = cherrypy.config['opmuse'].get('%s.enable' % self.name)
 
             if self.enable is None:
                 self.enable = True
@@ -76,8 +77,7 @@ try:
             if not self.enable:
                 return
 
-            less_compiler.compile()
-            cherrypy.log('compiled main.css')
+            self.compiler.compile()
 
         start.priority = 80
 
@@ -85,13 +85,8 @@ try:
             if not self.enable:
                 return
 
-            from opmuse.boot import get_staticdir
-
-            for path, dirnames, filenames in os.walk(os.path.join(get_staticdir(), 'styles')):
+            for path, dirnames, filenames in os.walk(self.compiler.dir_from):
                 for filename in filenames:
-                    if filename[-4:] != 'less':
-                        continue
-
                     filepath = os.path.join(path, filename)
                     mtime = os.stat(filepath).st_mtime
 
@@ -99,10 +94,22 @@ try:
                         old_mtime = self._files[filepath]
 
                         if mtime > old_mtime:
-                            cherrypy.log('%s changed, recompiling main.css' % filename)
-                            less_compiler.compile()
+                            cherrypy.log('%s changed' % filename)
+                            self.compiler.compile(filename)
 
                     self._files[filepath] = mtime
+
+    from opmuse.compilers import less_compiler
+
+    class LessReloader(FileReloader):
+        def __init__(self, bus):
+            FileReloader.__init__(self, bus, 'less_reloader', less_compiler)
+
+    from opmuse.compilers import js_compiler
+
+    class JsReloader(FileReloader):
+        def __init__(self, bus):
+            FileReloader.__init__(self, bus, 'js_reloader', js_compiler)
 
     class HTTPRedirect(cherrypy.HTTPRedirect):
         def set_response(self):

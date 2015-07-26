@@ -104,9 +104,13 @@ def command_jinja(action=None, path=None):
 
 
 def command_less():
-    from opmuse.utils import less_compiler
+    from opmuse.compilers import less_compiler
     less_compiler.compile()
-    print("compiled main.css")
+
+
+def command_js():
+    from opmuse.compilers import js_compiler
+    js_compiler.compile()
 
 
 def command_whoosh(action=None):
@@ -262,7 +266,7 @@ def command_user(action=None, *args):
 
 
 def main():
-    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less', 'jinja', 'user'),
+    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less', 'js', 'jinja', 'user'),
                         help='Command to run.')
     parser.add_argument('additional', nargs='*', help='Additional arguments.')
 

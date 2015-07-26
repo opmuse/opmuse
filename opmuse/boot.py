@@ -28,7 +28,7 @@ from opmuse.security import SessionQueryStringTool, AuthenticatedTool
 from opmuse.transcoding import FFMPEGTranscoderSubprocessTool
 from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedTool
 from opmuse.search import WhooshPlugin
-from opmuse.utils import error_handler_tool, multi_headers_tool, LessReloader, get_staticdir
+from opmuse.utils import error_handler_tool, multi_headers_tool, LessReloader, JsReloader, get_staticdir
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
@@ -136,6 +136,7 @@ def configure(config_file=None, environment=None):
     cherrypy._cpconfig.environments['production']['opmuse'] = {}
     cherrypy._cpconfig.environments['production']['opmuse']['jinja.auto_reload'] = False
     cherrypy._cpconfig.environments['production']['opmuse']['less_reloader.enable'] = False
+    cherrypy._cpconfig.environments['production']['opmuse']['js_reloader.enable'] = False
     cherrypy._cpconfig.environments['production']['opmuse']['cache.path'] = '/var/cache/opmuse'
 
     # dont use the default server
@@ -204,6 +205,7 @@ def configure(config_file=None, environment=None):
     WebSocketPlugin(cherrypy.engine).subscribe()
 
     LessReloader(cherrypy.engine).subscribe()
+    JsReloader(cherrypy.engine).subscribe()
 
     cherrypy.engine.database = SqlAlchemyPlugin(cherrypy.engine)
     cherrypy.engine.database.subscribe()

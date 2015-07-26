@@ -7,6 +7,7 @@
     },
     "dependencies": {
         "bower": "~1.4.1",
-        "less": "~2.5.0"
+        "less": "~2.5.0",
+        "traceur-cli": "~0.0.62"
     }
 }

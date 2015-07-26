@@ -2,9 +2,7 @@
 /docs/_build/*
 /virtualenv/*
 /build/*
-/public_static/styles/*.css
-/public_static/styles/*/*.css
-/public_static/lib/*
+/public_static/*
 /node_modules/*
 /opmuse.db
 /opmuse.db-journal
