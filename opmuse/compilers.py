@@ -92,13 +92,18 @@ class JsCompiler:
 
         if script is None:
             for script in glob.glob(os.path.join(self.dir_from, '*.js')):
-                self._compile(script)
+                self._compile(script, path)
         else:
-            self._compile(script)
+            self._compile(script, path)
 
-    def _compile(self, script):
+    def _compile(self, script, path):
         basename = os.path.basename(script)
-        path = os.path.join(self.dir_to, basename)
+
+        if path is None:
+            path = os.path.join(self.dir_to, basename)
+        else:
+            path = os.path.join(os.getcwd(), path, basename)
+
         traceur_path = os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'traceur', 'traceur')
 
         try:

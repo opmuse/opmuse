@@ -1,6 +1,6 @@
 ({
-    baseUrl: "../public_static/scripts",
-    mainConfigFile: '../public_static/scripts/init.js',
+    baseUrl: "../build/javascript/scripts",
+    mainConfigFile: '../build/javascript/scripts/init.js',
     name: "main",
     out: "../build/main.js"
 })

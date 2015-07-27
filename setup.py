@@ -26,7 +26,7 @@ from itertools import chain
 from setuptools import setup
 from pip.req import parse_requirements
 from pip.download import PipSession
-from opmuse.less_compiler import less_compiler
+from opmuse.compilers import js_compiler, less_compiler
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
@@ -107,7 +107,10 @@ def build():
         else:
             sys.stdout.write(line)
 
-    less_compiler.compile('build/main.css')
+    less_compiler.compile(path='build/main.css')
+    js_compiler.compile(path='build/javascript/scripts')
+
+    shutil.copytree('public_static/lib', 'build/javascript/lib')
 
     subprocess.check_call(['node', 'public_static/lib/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
 
