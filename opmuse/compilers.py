@@ -99,7 +99,7 @@ class JsCompiler:
     def _compile(self, script):
         basename = os.path.basename(script)
         path = os.path.join(self.dir_to, basename)
-        traceur_path = os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'traceur-cli', 'traceur-cli')
+        traceur_path = os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'traceur', 'traceur')
 
         try:
             subprocess.check_call([
