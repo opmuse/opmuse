@@ -24,6 +24,7 @@ import fileinput
 from configparser import ConfigParser
 from itertools import chain
 from setuptools import setup
+from setuptools.command.build_py import build_py
 from pip.req import parse_requirements
 from pip.download import PipSession
 from opmuse.compilers import js_compiler, less_compiler
@@ -84,7 +85,7 @@ for install_require in chain(parse_requirements('requirements.txt', session=PipS
         raise Exception("Couldn't parse requirement from requirements.txt")
 
 
-def build():
+def build_opmuse():
     config = ConfigParser()
     config.read('setup.cfg')
 
@@ -137,16 +138,22 @@ else:
         ('/etc/opmuse', ['build/opmuse.ini']),
         ('/usr/share/opmuse', ['alembic.ini']),
         ('/usr/share/opmuse/public_static/styles', ['build/main.css']),
-        ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'public_static/scripts/init.js']),
-        ('/usr/share/opmuse/public_static/lib/requirejs', ['public_static/lib/requirejs/require.js'])] +
+        ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'build/javascript/scripts/init.js']),
+        ('/usr/share/opmuse/public_static/lib/requirejs', ['public_static/lib/requirejs/require.js']) +
+        ('/usr/share/opmuse/public_static/lib/traceur', ['public_static/lib/traceur/traceur.js'])] +
         get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
         get_datafiles('public_static/lib/Font-Awesome/fonts', '/usr/share/opmuse/public_static/') +
         get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
         get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
         get_datafiles('build/templates', '/usr/share/opmuse'))
 
-if not on_readthedocs and (len(sys.argv) == 1 or sys.argv[1] != 'setopt'):
-    build()
+class OpmuseBuild(build_py):
+    def run(self):
+        build_opmuse()
+        build_py.run(self)
+
+cmdclass = {}
+cmdclass['build_py'] = OpmuseBuild
 
 setup(
     name="opmuse",
@@ -159,6 +166,7 @@ setup(
     url="http://opmu.se/",
     license="AGPLv3+",
     install_requires=install_requires,
+    cmdclass=cmdclass,
     entry_points={
         'console_scripts': [
             'opmuse-console = opmuse.commands:main',
