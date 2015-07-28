@@ -194,7 +194,7 @@ define([
                         });
                     }
                 },
-                progress (event, data) {
+                progress: function (event, data) {
                     var loaded = $(data.fileDom).data('loaded');
 
                     if (typeof loaded == 'undefined' || loaded === null) {
