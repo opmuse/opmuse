@@ -59,7 +59,7 @@ def get_database_name():
     config = cherrypy.tree.apps[''].config['opmuse']
     url = config['database.url']
 
-    match = re.search(r'/([^/]+)$', url)
+    match = re.search(r'://[^/]+/([^\?]+)', url)
 
     return match.group(1)
 
