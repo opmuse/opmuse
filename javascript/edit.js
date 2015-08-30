@@ -48,8 +48,12 @@ define([
             this.createTypeahead('album');
             this.createTypeahead('track');
         }
-        createTypeahead (type) {
+        destroyTypeahead (type) {
             $(sprintf('#edit input[name=%ss]', type)).typeahead('destroy');
+        }
+        createTypeahead (type) {
+            this.destroyTypeahead(type);
+
             $(sprintf('#edit input[name=%ss]:not(.locked)', type)).each(function () {
                 var input = this;
 
@@ -151,6 +155,8 @@ define([
 
                             $(this).removeClass('locked');
                         } else {
+                            that.destroyTypeahead(type);
+
                             $(selector).addClass('locked');
                             $(this).addClass('locked');
 
@@ -163,7 +169,7 @@ define([
                                 ).blur();
                         }
 
-                        that.initTypeahead();
+                        that.createTypeahead(type);
 
                         return false;
                     }
