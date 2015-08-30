@@ -277,7 +277,7 @@ class LastfmNetwork:
             'artist': track['artist'],
             'name': track['name'],
             'listeners': int(track['listeners']),
-            'mbid': track['mbid'],
+            'mbid': track['mbid'] if 'mbid' in track else None,
             'playcount': playcount,
             'url': track['url'],
             'wiki': wiki,
