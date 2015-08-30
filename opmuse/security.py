@@ -21,6 +21,7 @@ import cherrypy
 import urllib
 import re
 import datetime
+from jinja2.filters import do_urlencode
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import Column, Integer, String, Table, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, backref
@@ -132,7 +133,7 @@ class AuthenticatedTool(cherrypy.Tool):
             if not is_granted(roles):
                 raise cherrypy.HTTPError(401)
         elif needs_auth:
-            raise HTTPRedirect("/login")
+            raise HTTPRedirect("/login?came_from=%s" % do_urlencode(cherrypy.url()))
         else:
             cherrypy.request.user = None
 
