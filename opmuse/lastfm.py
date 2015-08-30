@@ -315,7 +315,7 @@ class LastfmNetwork:
             'artist': album['artist'],
             'name': album['name'],
             'listeners': int(album['listeners']),
-            'mbid': album['mbid'],
+            'mbid': album['mbid'] if 'mbid' in album else None,
             'playcount': playcount,
             'url': album['url'],
             'wiki': wiki,
@@ -420,7 +420,7 @@ class LastfmNetwork:
         return {
             'name': artist['name'],
             'listeners': int(artist['stats']['listeners']) if artist['stats']['listeners'] != '' else 0,
-            'mbid': artist['mbid'],
+            'mbid': artist['mbid'] if 'mbid' in artist else None,
             'playcount': int(artist['stats']['playcount']) if artist['stats']['playcount'] != '' else 0,
             'url': artist['url'],
             'bio': artist['bio']['summary'],
@@ -496,6 +496,8 @@ class LastfmNetwork:
             'sk': self.session_key
         }
 
+        params = self._clean_params(params)
+
         if method_params is not None:
             params.update(method_params)
 
@@ -566,7 +568,7 @@ class LastfmNetwork:
             if value is not None:
                 new_params[name] = value
 
-        return params
+        return new_params
 
     def md5(self, string):
         m = hashlib.md5()
