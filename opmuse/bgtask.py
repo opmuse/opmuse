@@ -21,6 +21,8 @@ import threading
 import cherrypy
 import logging
 import time
+from datetime import datetime, timedelta
+from croniter import croniter
 from functools import total_ordering
 from multiprocessing import cpu_count
 from cherrypy.process.plugins import SimplePlugin
@@ -156,7 +158,7 @@ class BackgroundTaskPlugin(SimplePlugin):
             for thread in self.threads:
                 thread.join()
 
-            self.theads = None
+            self.threads = None
 
         if self._running == "drain":
             log("Done draining bgtasks.")
@@ -255,6 +257,65 @@ class BackgroundTaskPlugin(SimplePlugin):
             Add task to queue. Higher priority means it will run before those with lower.
         """
         self.queue.put(QueueItem(priority, False, func, args, kwargs))
+
+
+class BackgroundTaskCronPlugin(SimplePlugin):
+    def __init__(self, bus):
+        SimplePlugin.__init__(self, bus)
+
+        self._crons = []
+
+    def start(self):
+        self._running = True
+
+        self.thread = threading.Thread(target=self.run)
+        self.thread.start()
+
+    start.priority = 90
+
+    def stop(self):
+        self._running = False
+
+        self.thread.join()
+
+    def add_cron(self, cron):
+        if not isinstance(cron, BackgroundTaskCron):
+            raise Exception('Not an instance of BackgroundTaskCron')
+
+        debug("Scheduling %s with %s" % (repr(cron), cron.expression()))
+
+        self._crons.append(cron)
+
+    def run(self):
+        while self._running:
+            time.sleep(1)
+
+            now = datetime.now().replace(microsecond=0)
+
+            for cron in self._crons:
+                expression = cron.expression()
+
+                iter = croniter(expression, now - timedelta(seconds=1))
+
+                next = iter.get_next(datetime)
+
+                if next == now:
+                    try:
+                        debug("Cron scheduling %s" % repr(cron))
+                        cherrypy.engine.bgtask.put_unique(cron.run, cron.priority())
+                    except NonUniqueQueueError:
+                        pass
+
+
+class BackgroundTaskCron:
+    def priority(self):
+        raise NotImplementedError()
+
+    def expression(self):
+        raise NotImplementedError()
+
+    def run(self):
+        raise NotImplementedError()
 
 
 class BackgroundTaskTool(cherrypy.Tool):

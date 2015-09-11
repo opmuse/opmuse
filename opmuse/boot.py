@@ -30,7 +30,7 @@ from opmuse.jinja import Jinja, JinjaEnvTool, JinjaPlugin, JinjaAuthenticatedToo
 from opmuse.search import WhooshPlugin
 from opmuse.utils import error_handler_tool, multi_headers_tool, LessReloader, JsReloader, get_staticdir
 from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
-from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskTool
+from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskCronPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
 from opmuse.sessions import SqlalchemySession
 
@@ -227,6 +227,9 @@ def configure(config_file=None, environment=None):
 
     cherrypy.engine.bgtask = BackgroundTaskPlugin(cherrypy.engine)
     cherrypy.engine.bgtask.subscribe()
+
+    cherrypy.engine.bgtaskcron = BackgroundTaskCronPlugin(cherrypy.engine)
+    cherrypy.engine.bgtaskcron.subscribe()
 
     return app
 
