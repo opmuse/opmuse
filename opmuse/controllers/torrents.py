@@ -18,7 +18,7 @@
 import cherrypy
 import os
 from opmuse.utils import HTTPRedirect
-from opmuse.deluge import deluge_dao, deluge, Torrent
+from opmuse.deluge import deluge_dao, deluge, Torrent, DelugeBackgroundTaskCron
 from opmuse.library import library_dao
 from opmuse.bgtask import NonUniqueQueueError
 from opmuse.database import get_database
@@ -31,16 +31,6 @@ def log(msg, traceback=False):
 
 
 class Deluge:
-    UPDATE_TORRENTS_KEY = "update_torrents"
-    UPDATE_TORRENTS_KEY_DONE = "update_torrents_done"
-    UPDATE_TORRENTS_AGE = 60 * 5
-
-    @staticmethod
-    def _update_torrents():
-        deluge.connect()
-        deluge.update_torrents()
-        cache.keep(Deluge.UPDATE_TORRENTS_KEY_DONE)
-
     @staticmethod
     def _import_torrent(torrent_id):
         deluge_dao.update_import_status('importing', torrent_id)
@@ -83,15 +73,7 @@ class Deluge:
         deluge_host = config['deluge.host']
         deluge_port = config['deluge.port']
 
-        if cache.needs_update(Deluge.UPDATE_TORRENTS_KEY, age=Deluge.UPDATE_TORRENTS_AGE):
-            cache.keep(Deluge.UPDATE_TORRENTS_KEY)
-
-            try:
-                cherrypy.engine.bgtask.put_unique(Deluge._update_torrents, 20)
-            except NonUniqueQueueError:
-                pass
-
-        deluge_updated = cache.storage.get_updated(Deluge.UPDATE_TORRENTS_KEY_DONE)
+        deluge_updated = cache.storage.get_updated(DelugeBackgroundTaskCron.UPDATE_TORRENTS_KEY_DONE)
 
         return {
             'deluge_host': deluge_host,

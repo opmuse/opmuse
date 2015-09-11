@@ -26,6 +26,8 @@ from subprocess import CalledProcessError
 from deluge_client import DelugeRPCClient
 from opmuse.library import Library
 from opmuse.database import Base, get_session, get_database
+from opmuse.bgtask import BackgroundTaskCron
+from opmuse.cache import cache
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, BigInteger, Numeric
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -176,6 +178,21 @@ class Deluge:
 
 
 deluge = Deluge()
+
+
+class DelugeBackgroundTaskCron(BackgroundTaskCron):
+    UPDATE_TORRENTS_KEY_DONE = "update_torrents_done"
+
+    def priority(self):
+        return 10
+
+    def expression(self):
+        return '*/5 * * * *'
+
+    def run(self):
+        deluge.connect()
+        deluge.update_torrents()
+        cache.keep(DelugeBackgroundTaskCron.UPDATE_TORRENTS_KEY_DONE)
 
 
 class DelugeDao:

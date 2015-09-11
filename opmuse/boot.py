@@ -33,6 +33,7 @@ from opmuse.ws import WebSocketPlugin, WebSocketHandler, WebSocketTool
 from opmuse.bgtask import BackgroundTaskPlugin, BackgroundTaskCronPlugin, BackgroundTaskTool
 from opmuse.cache import CachePlugin
 from opmuse.sessions import SqlalchemySession
+from opmuse.deluge import DelugeBackgroundTaskCron
 
 
 def configure(config_file=None, environment=None):
@@ -230,6 +231,8 @@ def configure(config_file=None, environment=None):
 
     cherrypy.engine.bgtaskcron = BackgroundTaskCronPlugin(cherrypy.engine)
     cherrypy.engine.bgtaskcron.subscribe()
+
+    cherrypy.engine.bgtaskcron.add_cron(DelugeBackgroundTaskCron())
 
     return app
 
