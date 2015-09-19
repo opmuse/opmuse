@@ -7,7 +7,7 @@
     },
     "dependencies": {
         "bower": "~1.5.2",
-        "less": "~2.5.0",
+        "less": "~2.5.1",
         "traceur": "~0.0.91"
     }
 }
