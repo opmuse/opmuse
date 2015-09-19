@@ -1222,7 +1222,7 @@ class OpmuseTxt:
             try:
                 track.created = datetime.datetime.strptime(data['created'][0:19], "%Y-%m-%dT%H:%M:%S")
             except ValueError:
-                log('Error occured while reading created from %s, ignoring.' % self.opmuse_txt, traceback=True)
+                log('Error occured while reading created from %s, ignoring.' % self.opmuse_txt)
 
         if 'created_user' in data:
             try:
@@ -2382,6 +2382,7 @@ class WatchdogEventHandler(FileSystemEventHandler):
     def ignore(self, ignore):
         try:
             self.ignores.remove(ignore)
+            debug("Watchdog, ignoring %s" % ignore)
             return True
         except KeyError:
             return False
@@ -2466,7 +2467,7 @@ class LibraryWatchdogPlugin(SimplePlugin):
         self.thread = Thread(
             name="LibraryWatchdog",
             target=run,
-            args=(self, os.path.abspath(config['library.path']))
+            args=(self, os.path.abspath(config['library.path']).encode('utf8'))
         )
 
         self.thread.start()
