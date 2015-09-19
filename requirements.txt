@@ -24,6 +24,7 @@ croniter >=0.3,<0.4
 MarkupSafe >=0.18,<0.24
 # alembic deps
 Mako >=0.8.1
+python-editor >=0.3
 # watchdog deps
 PyYAML ==3.10
 argh >=0.24.1,<0.25
