@@ -6,7 +6,7 @@
         "Font-Awesome": "~4.4.0",
         "jquery": "~2.1.4",
         "blueimp-file-upload": "~9.9.3",
-        "jquery-ui": "~1.11.2",
+        "jquery-ui": "~1.11.4",
         "matchMedia": "~0.1.0",
         "momentjs": "~2.3.1",
         "nanoscroller": "~0.8.0",
