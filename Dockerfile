@@ -15,8 +15,8 @@ RUN dpkg-reconfigure locales
 RUN echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
 RUN curl -s http://apt.opmu.se/opmuse.pub | apt-key add -
 RUN echo "deb http://www.deb-multimedia.org jessie main non-free" > /etc/apt/sources.list.d/deb-multimedia.list
-RUN wget -q http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2014.2_all.deb
-RUN dpkg -i deb-multimedia-keyring_2014.2_all.deb
+RUN wget -q http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2015.6.1_all.deb
+RUN dpkg -i deb-multimedia-keyring_2016.6.1_all.deb
 RUN apt-get update
 
 RUN echo "Package: python3-whoosh\nPin: version 2.4.1\nPin-Priority: 1000" > /etc/apt/preferences.d/opmuse
