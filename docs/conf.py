@@ -25,13 +25,6 @@ git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).str
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
 
-import opmuse.boot
-opmuse.boot.configure(config_file=False)
-
-if not on_readthedocs:
-    from opmuse.less_compiler import less_compiler
-    less_compiler.compile('_static/bootswatch-3.2.0/opmuse/bootstrap.min.css', no_opmuse=True)
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -113,29 +106,20 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'bootstrap'
+
+if not on_readthedocs:
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    'bootswatch_theme': 'opmuse',
-    'bootstrap_version': '3',
-    'navbar_class': "navbar navbar-inverse",
-    'navbar_pagenav': False,
-    'navbar_sidebarrel': False,
-    'navbar_site_name': "Pages",
-    'navbar_links': [
-        ("Contributing", "contributing"),
-        ("Getting Started", "gettingstarted"),
-        ("Testing", "testing"),
-    ],
-    'source_link_position': "footer",
-}
+#html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-import sphinx_bootstrap_theme
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+#import sphinx_bootstrap_theme
+#html_theme_path =
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

@@ -38,7 +38,6 @@ Index
    contributing
    gettingstarted
    testing
-   reference
 
 Indices and tables
 ==================
