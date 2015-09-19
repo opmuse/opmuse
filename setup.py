@@ -139,7 +139,7 @@ else:
         ('/usr/share/opmuse', ['alembic.ini']),
         ('/usr/share/opmuse/public_static/styles', ['build/main.css']),
         ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'build/javascript/scripts/init.js']),
-        ('/usr/share/opmuse/public_static/lib/requirejs', ['public_static/lib/requirejs/require.js']) +
+        ('/usr/share/opmuse/public_static/lib/requirejs', ['public_static/lib/requirejs/require.js']),
         ('/usr/share/opmuse/public_static/lib/traceur', ['public_static/lib/traceur/traceur.js'])] +
         get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
         get_datafiles('public_static/lib/Font-Awesome/fonts', '/usr/share/opmuse/public_static/') +
