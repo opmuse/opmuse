@@ -18,11 +18,15 @@
 import os
 import subprocess
 from subprocess import CalledProcessError
-import cherrypy
 import glob
 
 
 def log(msg, traceback=False):
+    try:
+        import cherrypy
+    except ImportError:
+        return
+
     cherrypy.log(msg, context='compilers', traceback=traceback)
 
 
