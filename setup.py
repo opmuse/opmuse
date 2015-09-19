@@ -149,7 +149,9 @@ else:
 
 class OpmuseBuild(build_py):
     def run(self):
-        build_opmuse()
+        if not on_readthedocs:
+            build_opmuse()
+
         build_py.run(self)
 
 cmdclass = {}
