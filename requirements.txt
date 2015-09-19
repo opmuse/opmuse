@@ -5,7 +5,7 @@
 #
 # opmuse deps
 CherryPy >=3.8.0,<3.9
-Jinja2 >=2.7.1,<2.8
+Jinja2 >=2.8,<2.9
 SQLAlchemy >=1.0,<1.1
 mmh3 >=2.2
 whoosh ==2.4.1
