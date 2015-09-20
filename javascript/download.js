@@ -55,18 +55,33 @@ define([
                     html: true,
                     placement: 'top',
                     trigger: 'hover',
-                    container: '#main'
+                    container: '#main',
+                    content: 'Loading...'
                 };
 
                 if (['png', 'jpg', 'gif', 'jpeg'].indexOf(ext) != -1) {
                     options.content = $('<img>').attr('src', url);
                     $(button).popover(options);
                 } else if (['txt', 'sfv', 'nfo', 'm3u', 'cue', 'log'].indexOf(ext) != -1) {
-                    $.ajax(url, {
-                        success: function (data) {
-                            options.content = $('<pre>').append(data);
-                            $(button).popover(options);
+                    $(button).popover($.extend({}, options));
+
+                    $(button).on('show.bs.popover', function () {
+                        if ($(this).data('popovered') === true) {
+                            return;
                         }
+
+                        var popover = $(this).data('bs.popover');
+
+                        popover.options.content = '';
+
+                        $.ajax(url, {
+                            success: function (data) {
+                                popover.options.content = $('<pre>').append(data);
+                                popover.setContent();
+                            }
+                        });
+
+                        $(this).data('popovered', true)
                     });
                 }
             });
