@@ -74,6 +74,10 @@ class Deluge:
     def connect(self, timeout=20):
         config = cherrypy.tree.apps[''].config['opmuse']
 
+        if 'deluge.host' not in config:
+            log('Deluge not configured, skipping')
+            return False
+
         host = config['deluge.host']
         port = config['deluge.port']
         user = config['deluge.user']
@@ -190,9 +194,9 @@ class DelugeBackgroundTaskCron(BackgroundTaskCron):
         return '*/5 * * * *'
 
     def run(self):
-        deluge.connect()
-        deluge.update_torrents()
-        cache.keep(DelugeBackgroundTaskCron.UPDATE_TORRENTS_KEY_DONE)
+        if deluge.connect():
+            deluge.update_torrents()
+            cache.keep(DelugeBackgroundTaskCron.UPDATE_TORRENTS_KEY_DONE)
 
 
 class DelugeDao:
