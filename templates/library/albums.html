@@ -97,6 +97,12 @@
                                 <a href="{{ album_url }}">
                                     {{ album.name }}
                                 </a>
+                                {% if not album.seen %}
+                                    <span class="album-seen label label-success">
+                                        <i class="fa fa-plus"></i>
+                                        New
+                                    </span>
+                                {% endif %}
                             </td>
                             <td>
                                 {{ album_macros.album_desc(album, true, false) }}
