@@ -408,6 +408,12 @@ class Album(Base):
         if cherrypy.request.user is None:
             raise ValueError("Album.seen can only be used from a request")
 
+        now = datetime.datetime.utcnow()
+
+        # always report albums older than 90 days as seen
+        if self.created + datetime.timedelta(days=90) < now:
+            return now
+
         try:
             user_and_album = self._seen()
         except NoResultFound:
@@ -419,6 +425,11 @@ class Album(Base):
     def seen(self, value):
         if cherrypy.request.user is None:
             raise ValueError("Album.seen can only be used from a request")
+
+        now = datetime.datetime.utcnow()
+
+        if self.created + datetime.timedelta(days=90) < now:
+            return
 
         session = Session.object_session(self)
 
