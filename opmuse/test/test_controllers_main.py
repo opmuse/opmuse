@@ -33,8 +33,6 @@ class MainTest(WebCase):
     def test_login_redirect(self):
         self.getPage("/")
         self.assertHeader('Location', 'http://127.0.0.1:54583/login')
-        self.getPage("/", headers=[('Referer', 'http://www.google.com/')])
-        self.assertNoHeader('Location')
 
     def test_login(self):
         self._login()
