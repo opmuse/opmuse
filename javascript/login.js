@@ -55,16 +55,16 @@ define([
                 }
             });
 
-            if ($("#login .ophelia-box").is(':visible')) {
-                $("#login .ophelia-box").addClass('loaded').one('transitionend', function (event) {
-                    $("#login .login-box").addClass('loaded').one('transitionend', function (event) {
+            if ($('#login .ophelia-box').is(':visible')) {
+                $('#login .ophelia-box').addClass('loaded').one('transitionend', function (event) {
+                    $('#login .login-box').addClass('loaded').one('transitionend', function (event) {
                         if (!$('html').hasClass('touch')) {
                             $('input[name=login]').focus();
                         }
                     });
                 });
             } else {
-                $("#login .ophelia-box, #login .login-box").addClass('loaded');
+                $('#login .ophelia-box, #login .login-box').addClass('loaded');
 
                 if (!$('html').hasClass('touch')) {
                     $('input[name=login]').focus();
@@ -106,7 +106,7 @@ define([
                         var location = locations.getLocation(xhr);
 
                         if (location !== null) {
-                            $("#login").addClass('logged-in').one('transitionend', function () {
+                            $('#login').addClass('logged-in').one('transitionend', function () {
                                 layout.showOverlay();
                                 document.location.replace(location);
                             });;

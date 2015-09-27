@@ -165,8 +165,8 @@ define([
                 }).removeClass('transparent');
 
                 // for when transitionend doesn't fire (e.g. on login page(
-                if (!$("#overlay").is(":visible")) {
-                    $("#overlay").hide().removeClass('initial');
+                if (!$('#overlay').is(':visible')) {
+                    $('#overlay').hide().removeClass('initial');
                 }
 
                 if (!$('#overlay').hasClass('initial')) {

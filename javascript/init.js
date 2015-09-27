@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'height: ' + window.innerHeight + 'px'
         );
 
-        overlay.className = overlay.className + " domcontentloaded";
+        overlay.className = overlay.className + ' domcontentloaded';
 
         // disable scroll on scroll devices
         window.onscroll = function () {
