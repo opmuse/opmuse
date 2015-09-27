@@ -37,7 +37,7 @@ class LessCompiler:
         self.dir_from = os.path.join(os.path.dirname(__file__), '..', 'less')
         self.dir_to = os.path.join(get_staticdir(), 'styles')
 
-    def compile(self, script=None, path=None, no_opmuse=False):
+    def compile(self, script=None, path=None):
         """
         Compiles less to css.
 
@@ -45,15 +45,7 @@ class LessCompiler:
             script name, ignored for LessCompiler (used by JsCompiler)
         path
             where to write compiled css.
-        no_opmuse
-            if true we generate a css without some opmuse
-            specific rules. useful for docs and other stuff.
         """
-
-        if no_opmuse:
-            no_opmuse = "true"
-        else:
-            no_opmuse = "false"
 
         lesspath = os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'less')
 
@@ -67,9 +59,7 @@ class LessCompiler:
 
         try:
             subprocess.check_call([
-                lessc,
-                "--global-var=no_opmuse=%s" % no_opmuse,
-                main_less, path
+                lessc, main_less, path
             ], cwd=self.dir_to)
 
             log("Compiled main.css")

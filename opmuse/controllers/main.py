@@ -129,17 +129,9 @@ class Root:
     @cherrypy.expose
     def index(self):
         if cherrypy.request.user is None:
-            raise cherrypy.InternalRedirect('/index_unauth')
+            raise HTTPRedirect('/login')
         else:
             raise cherrypy.InternalRedirect('/index_auth')
-
-    @cherrypy.expose
-    @cherrypy.tools.jinja(filename='index_unauth.html')
-    def index_unauth(self):
-        if 'Referer' not in cherrypy.request.headers:
-            raise HTTPRedirect('/login')
-
-        return {}
 
     @cherrypy.expose
     def index_auth(self):

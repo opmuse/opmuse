@@ -39,10 +39,14 @@
             src="/static/lib/requirejs/require.js?version={{ opmuse_version }}">
         </script>
     </head>
-    <body lang="en">
-        <div id="overlay" class="locked">
+    <body lang="en" class="{% block body_class %}{% endblock %}">
+        <div id="overlay" class="locked initial">
             <div class="loading">
-                <i class="loader fa fa-spin fa-spinner"></i>
+                <div class="sk-three-bounce">
+                    <div class="sk-child sk-bounce1"></div>
+                    <div class="sk-child sk-bounce2"></div>
+                    <div class="sk-child sk-bounce3"></div>
+                </div>
             </div>
         </div>
         {% block body %}{% endblock %}

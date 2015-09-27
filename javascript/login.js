@@ -21,8 +21,9 @@ define([
         'jquery',
         'locations',
         'ajaxify',
+        'layout',
         'domReady!'
-    ], function ($, locations, ajaxify) {
+    ], function ($, locations, ajaxify, layout) {
 
     'use strict';
 
@@ -53,13 +54,27 @@ define([
                     return;
                 }
             });
+
+            if ($("#login .ophelia-box").is(':visible')) {
+                $("#login .ophelia-box").addClass('loaded').one('transitionend', function (event) {
+                    $("#login .login-box").addClass('loaded').one('transitionend', function (event) {
+                        if (!$('html').hasClass('touch')) {
+                            $('input[name=login]').focus();
+                        }
+                    });
+                });
+            } else {
+                $("#login .ophelia-box, #login .login-box").addClass('loaded');
+
+                if (!$('html').hasClass('touch')) {
+                    $('input[name=login]').focus();
+                }
+            }
         }
         internalInit () {
             if ($('#login').length > 0) {
                 $('.login, .home').data('ajaxify', false);
             }
-
-            $('input[name=login]').focus();
 
             $('#login form').submit(function () {
                 var data = $(this).serialize();
@@ -91,15 +106,17 @@ define([
                         var location = locations.getLocation(xhr);
 
                         if (location !== null) {
-                            document.location.replace(location);
+                            $("#login").addClass('logged-in').one('transitionend', function () {
+                                layout.showOverlay();
+                                document.location.replace(location);
+                            });;
                             return;
                         }
 
                         submitButton.removeAttr('disabled');
                         submitButton.removeClass('disabled');
 
-                        loginInput.focus().select();
-                        passwordInput.val('');
+                        passwordInput.val('').focus().select();
 
                         locations.enable();
                     },

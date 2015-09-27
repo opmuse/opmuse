@@ -142,7 +142,7 @@ define([
             this.overlayed++;
 
             $('body').addClass('overlayed');
-            $('#overlay').removeClass('hide').addClass('transparent');
+            $('#overlay').show().removeClass('hide-overlay').addClass('transparent');
 
             return true;
         }
@@ -160,7 +160,18 @@ define([
             // to showOverlay() needs two calls to hideOverlay() to actually hide it.
             if (this.overlayed === 0) {
                 $('body').removeClass('overlayed');
-                $('#overlay').addClass('hide').removeClass('transparent');
+                $('#overlay').addClass('hide-overlay').one('transitionend', function () {
+                    $(this).hide().removeClass('initial');
+                }).removeClass('transparent');
+
+                // for when transitionend doesn't fire (e.g. on login page(
+                if (!$("#overlay").is(":visible")) {
+                    $("#overlay").hide().removeClass('initial');
+                }
+
+                if (!$('#overlay').hasClass('initial')) {
+                    $('#overlay').hide();
+                }
             }
 
             return true;

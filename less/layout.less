@@ -1,9 +1,5 @@
-.fluid-container when (@no_opmuse = false)  {
-    width: auto !important;
-}
-
 .container {
-    .fluid-container;
+    width: auto !important;
 }
 
 a:hover {
@@ -75,12 +71,6 @@ body {
 .overlayed {
     #panel {
         z-index: 2002;
-    }
-
-    #overlay {
-        .loading {
-            display: none;
-        }
     }
 }
 
@@ -372,13 +362,39 @@ body {
     z-index: 2001;
     background-color: @white;
 
-    &.hide {
-        display: none;
+    &.initial {
+        .transition(opacity .5s ease);
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .6) 100%), url('/static/images/stardust.png');
+        background-color: #444349;
+
+        &.transparent {
+            background-color: transparent;
+        }
+    }
+
+    min-height: 100%;
+    min-height: 100vh;
+
+    /* for safari and old chrome */
+    display: -webkit-flex;
+    -webkit-align-items: center;
+
+    display: flex;
+    align-items: center;
+
+    &.hide-overlay {
+        opacity: 0;
+    }
+
+    &.domcontentloaded {
+        .loading {
+            opacity: 1;
+        }
     }
 
     &.transparent {
         background-color: rgba(255, 255, 255, 0.2);
-        display: block;
+        display: flex;
     }
 
     &.error {
@@ -390,10 +406,13 @@ body {
     }
 
     .loading {
-        display: table-cell;
+        .transition(opacity .5s ease);
+        margin: 0 auto;
+        opacity: 0;
         vertical-align: middle;
         text-align: center;
-        font-size: 10em;
+        font-size: 1.5em;
+        color: @white;
     }
 
     /* this will pose a real problem in the FUTURE when screens will be HUGE */
@@ -401,17 +420,9 @@ body {
     height: 9999px;
 }
 
-.overflow-body when (@no_opmuse = false)  {
-    overflow: hidden;
-}
-
 body {
     &:not(.loaded) {
-        .overflow-body;
-
-        #overlay {
-            display: table;
-        }
+        overflow: hidden;
     }
 }
 

@@ -1,15 +1,7 @@
 <form method="post" action="/login?{{ request.query_string }}">
-    <p class="input-group">
-        <span class="input-group-addon"><i class="fa fa-user"></i></span>
-        <input autocomplete="off" type="text" name="login" placeholder="Username" class="form-control input-lg" />
-    </p>
-    <p class="input-group">
-        <span class="input-group-addon"><i class="fa fa-key"></i></span>
-        <input autocomplete="off" type="password" name="password" placeholder="Password" class="form-control input-lg" />
-    </p>
-    <button class="btn btn-primary btn-block btn-lg" type="submit" autocomplete="off">
-        <i class="icon-loading fa fa-spinner fa-spin"></i>
-        <i class="icon-sign-in fa fa-sign-in"></i>
-        Sign in
+    <input autocomplete="off" type="text" name="login" placeholder="Username" class="form-control input-lg" />
+    <input autocomplete="off" type="password" name="password" placeholder="Password" class="form-control input-lg" />
+    <button class="btn btn-primary btn-lg" type="submit" autocomplete="off">
+        <i class="fa fa-sign-in"></i>
     </button>
 </form>

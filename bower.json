@@ -7,7 +7,7 @@
         "jquery": "~2.1.4",
         "blueimp-file-upload": "~9.9.3",
         "jquery-ui": "~1.11.4",
-        "matchMedia": "~0.1.0",
+        "matchMedia": "~0.2.0",
         "momentjs": "~2.3.1",
         "nanoscroller": "~0.8.0",
         "requirejs": "~2.1.20",
@@ -17,7 +17,8 @@
         "typeahead.js": "~0.10.5",
         "sprintf": "~1.0.3",
         "typeahead.js-bootstrap3.less": "~0.2.3",
-        "Effeckt.css": "git://github.com/h5bp/Effeckt.css.git#54175897a1c"
+        "Effeckt.css": "git://github.com/h5bp/Effeckt.css.git#54175897a1c",
+        "SpinKit": "~1.2.2"
     },
     "resolutions": {
         "bootstrap": "~3.3.4"
