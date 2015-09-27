@@ -130,7 +130,7 @@ define([
                 $(that).trigger('open');
             };
 
-            $(window).on('unload', function (event) {
+            $(window).on('beforeunload', function (event) {
                 that.unloaded = true;
                 that.socket.close();
             });
