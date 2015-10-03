@@ -100,22 +100,11 @@ class Covers:
 
             remotes.update_album(entity)
 
-            for artist in entity.artists:
-                if artist.cover_path is None or not os.path.exists(artist.cover_path):
-                    try:
-                        cherrypy.engine.bgtask.put_unique(self.fetch_artist_cover, 15, artist.id)
-                    except NonUniqueQueueError:
-                        pass
-
             if entity.cover_path is None or not os.path.exists(entity.cover_path):
                 try:
                     cherrypy.engine.bgtask.put_unique(self.fetch_album_cover, 15, entity.id)
                 except NonUniqueQueueError:
                     pass
-
-                for artist in entity.artists:
-                    if artist.cover is not None:
-                        return self.guess_mime(artist), artist.cover_large if size == "large" else artist.cover
 
         elif type == "artist":
             entity = library_dao.get_artist_by_slug(slug)
