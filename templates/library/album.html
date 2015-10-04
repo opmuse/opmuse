@@ -22,30 +22,83 @@
 
 <div id="album">
     {% set artists = album.artists %}
+
     {% include "partials/artist-head.html" %}
-
-    <hr />
-
-    <div class="btn-group queue-btn">
-        <a
-            accesskey="a"
-            class="queue add add-album btn-sm btn btn-primary"
-            title="Queue whole album"
-            rel="tooltip"
-            href="/queue/add/
-                {%- for track in album.tracks -%}
-                    {{ track.id }},
-                {%- endfor -%}
-            ">
-            <i class="fa fa-headphones"></i>
-        </a>
-    </div>
-
-    {{ edit_dropdown.dropdown(album.tracks) }}
 
     <div class="clear"></div>
 
-    {{ tracks.dir_table(dir_tracks) }}
+    <div class="btn-container">
+        <div class="btn-group queue-btn">
+            <a
+                accesskey="a"
+                class="queue add add-album btn-sm btn btn-primary"
+                title="Queue whole album"
+                rel="tooltip"
+                href="/queue/add/
+                    {%- for track in album.tracks -%}
+                        {{ track.id }},
+                    {%- endfor -%}
+                ">
+                <i class="fa fa-headphones"></i>
+            </a>
+        </div>
+        {{ edit_dropdown.dropdown(album.tracks) }}
+    </div>
+
+    <ul class="nav nav-tabs nav-justified">
+        <li role="presentation" data-toggle="tab"><a href="#tracks">Tracks</a></li>
+        <li role="presentation" data-toggle="tab"><a href="#files">Files</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane" id="tracks">
+            <table class="table table-striped">
+                {% for track in album.tracks %}
+                    <tr>
+                        <td>
+                            {% if track.disc %}
+                                {{ track.disc }} -
+                            {% endif %}
+                            {{ track.number }}
+                        </td>
+                        <td>
+                            <a
+                                class="btn btn-primary btn-xs queue add"
+                                href="/queue/add/{{ track.id }}"
+                                title="Queue this track"
+                                rel="tooltip">
+                                <i class="fa fa-headphones"></i>
+                            </a>
+                            <a
+                                class="btn btn-danger btn-xs love"
+                                href="/love/track/{{ track.id }}"
+                                title="Mark this track as loved"
+                                rel="tooltip">
+                                <i class="fa fa-heart"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
+                            <br>
+                            <small class="hidden-xs">
+                                {{ track.pretty_format }}
+
+                                {% if track.bitrate %}
+                                    @ {{ (track.bitrate / 1024) | format_number }} kbits/s
+                                {% endif %}
+                            </small>
+                        </td>
+                        <td class="hidden-xs">
+                            {{ track.duration|format_seconds }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="tab-pane" id="files">
+            {{ tracks.dir_table(dir_tracks) }}
+        </div>
+    </div>
 </div>
 {% endblock %}
 

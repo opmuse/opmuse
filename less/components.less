@@ -167,7 +167,7 @@
 }
 
 .queue-btn {
-    float: left;
+    float: right;
 }
 
 .cover-container {
@@ -324,95 +324,6 @@
 .dir_table {
     .folder-name {
         margin-top: 20px;
-    }
-
-    .table-responsive {
-        margin: 10px 0 0 25px;
-
-        @media (max-width: @screen-md-min) {
-            margin-left: 0;
-        }
-    }
-
-    .table {
-        tbody {
-            border: 0;
-        }
-
-        .label {
-            display: block;
-            float: left;
-            margin: 5px 4px 0 0;
-        }
-
-        .other-files .label {
-            display: inline;
-            float: none;
-        }
-
-        tbody.other-files-header .other-files-header-title {
-            cursor: pointer;
-        }
-
-        .other-files-header {
-            a {
-                float: right;
-
-                .in, .out {
-                    display: none;
-                }
-
-                &:not(.collapsed) .out {
-                    display: inline;
-                }
-
-                &.collapsed .in {
-                    display: inline;
-                }
-            }
-        }
-
-        .other-files-header,
-        .other-files {
-            &.collapse {
-                &:not(.in) {
-                    display: none;
-                }
-            }
-
-            .album-name,
-            .artist-name {
-                display: inline;
-
-                &:after {
-                    content: " - ";
-                }
-            }
-
-            .track-number,
-            .track-duration {
-                display: none;
-            }
-
-            .track-file {
-                float: right;
-            }
-
-            .file-size,
-            .file-modified {
-                float: right;
-            }
-
-            .file-size:before {
-                content: ', ';
-            }
-        }
-
-        td:empty {
-            width: 0;
-            padding: 0;
-            margin: 0;
-        }
     }
 }
 

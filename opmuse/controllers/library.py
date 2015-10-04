@@ -604,18 +604,24 @@ class Library:
             if len(track.paths) == 0:
                 continue
 
-            dir = track.paths[0].dir
+            for path in track.paths:
+                dir = path.dir
 
-            if dir not in dir_tracks:
-                dir_tracks[dir] = {
-                    'tracks': [],
-                    'pretty_dir': track.paths[0].pretty_dir,
-                    'files': [],
-                    'paths': []
-                }
+                if dir not in dir_tracks:
+                    dir_tracks[dir] = {
+                        'paths': [],
+                        'tracks': [],
+                        'paths_and_tracks': [],
+                        'pretty_dir': path.pretty_dir,
+                        'files': [],
+                    }
 
-            dir_tracks[dir]['paths'].append(track.paths[0].path)
-            dir_tracks[dir]['tracks'].append(track)
+                dir_tracks[dir]['paths'].append(path.path)
+                dir_tracks[dir]['tracks'].append(track)
+                dir_tracks[dir]['paths_and_tracks'].append((path, track))
+
+        for dir, dir_track in dir_tracks.items():
+            dir_tracks[dir]['paths_and_tracks'] = sorted(dir_track['paths_and_tracks'], key=lambda pat: pat[0].path)
 
         for dir, item in dir_tracks.items():
             if not os.path.exists(dir):

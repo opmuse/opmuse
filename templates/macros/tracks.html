@@ -120,55 +120,23 @@
 
         {% for dir, item in dir_tracks %}
             {% set tracks = item['tracks'] %}
+            {% set paths_and_tracks = item['paths_and_tracks'] %}
             {% set files = item['files'] %}
             {% set pretty_dir = item['pretty_dir'] %}
             <h4 class="folder-name">
                 <i title="{{ dir.decode('utf8', 'replace') }}" rel="tooltip" class="fa fa-folder-open"></i>
                 {{ pretty_dir }}
+                {{ edit_dropdown.dropdown(tracks, btn_size = "btn-xs") }}
             </h4>
+            <div class="clear"></div>
             <div class="table-responsive">
             <table class="table table-striped">
-                <tr>
-                    <td colspan="6">
-                        <div class="btn-group queue-btn">
-                            <a
-                                accesskey="a"
-                                class="queue add add-album btn-xs btn btn-primary"
-                                title="Queue this folder."
-                                rel="tooltip"
-                                href="/queue/add/
-                                    {%- for track in tracks -%}
-                                        {{ track.id }},
-                                    {%- endfor -%}
-                                ">
-                                <i class="fa fa-headphones"></i>
-                            </a>
-                        </div>
-                        {{ edit_dropdown.dropdown(tracks, btn_size = "btn-xs") }}
-                    </td>
-                </tr>
-                {% for track in tracks %}
+                {% for path, track in paths_and_tracks %}
                     <tr>
-                        <td>{{ track.number }}</td>
                         <td>
-                            {%- if track.album and track.album.artists|length > 1%}
-                                <a href="{{ urls.artist_url(track.artist) }}">{{ track.artist.name|show_ws }}</a>
-                            {% endif -%}
-                        </td>
-                        <td>
-                            <a
-                                class="btn btn-primary btn-xs queue add"
-                                href="/queue/add/{{ track.id }}"
-                                title="Queue this track"
-                                rel="tooltip">
-                                <i class="fa fa-headphones"></i>
-                            </a>
-                            <a
-                                class="btn btn-danger btn-xs love"
-                                href="/love/track/{{ track.id }}"
-                                title="Mark this track as loved"
-                                rel="tooltip">
-                                <i class="fa fa-heart"></i>
+                            <a href="/library/track/{{ track.slug|urlencode }}">
+                                <i class="fa fa-file-o"></i>
+                                {{ path.filename.decode('utf8', 'replace') }}
                             </a>
                             {% if track.has_dups %}
                                 <span class="label label-warning"
@@ -184,41 +152,19 @@
                                     <i class="fa fa-thumbs-down"></i>
                                 </span>
                             {% endif %}
-                            <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
-                        </td>
-                        <td class="hidden-xs">
-                            {{ track.duration|format_seconds }}
-                        </td>
-                        <td class="hidden-xs">
-                            {{ track.pretty_format }}
-                            {% if track.bitrate %}
-                                @ {{ (track.bitrate / 1024) | format_number }} kbits/s
-                            {% endif %}
-                        </td>
                         {% if track.invalid %}
-                            <td>{{ invalid_label(track.invalid) }}</td>
-                        {% else %}
-                            <td></td>
+                            {{ invalid_label(track.invalid) }}
                         {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
             </div>
             {% if files %}
-            <div class="table-responsive hidden-xs">
+            <h5>{{ files|count }} Other Files</h5>
+            <div class="table-responsive">
             <table class="table table-condensed">
-                <tbody class="other-files-header">
-                    <tr>
-                        <th class="other-files-header-title">
-                            {{ files|count }} Other Files
-                            <a class="btn btn-default btn-xs collapsed other-files-toggle" data-toggle="collapse" href="#other_files_{{ index }}">
-                                <i class="fa fa-angle-down in"></i>
-                                <i class="fa fa-angle-up out"></i>
-                            </a>
-                        </th>
-                    </tr>
-                </tbody>
-                <tbody class="other-files collapse" id="other_files_{{ index }}">
+                <tbody class="other-files" id="other_files_{{ index }}">
                     {% for item in files %}
                     <tr>
                         <td>
@@ -250,12 +196,15 @@
                                         Album Cover
                                     </p>
                                 {% endif %}
-                                <span class="file-size">
-                                    {{ item.size|format_bytes }}
-                                </span>
-                                <span class="file-modified">
-                                    modified {{ item.modified|pretty_date }}
-                                </span>
+                                <br>
+                                <small>
+                                    <span class="file-size">
+                                        {{ item.size|format_bytes }}
+                                    </span>
+                                    <span class="file-modified">
+                                        modified {{ item.modified|pretty_date }}
+                                    </span>
+                                </small>
                             {% endif %}
                         </td>
                     </tr>

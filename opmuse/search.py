@@ -277,6 +277,9 @@ class Search:
     def _query(self, index_name, query, exact=False, exact_metaphone=False):
         write_handler = write_handlers[index_name]
 
+        if write_handler is None:
+            raise SearchError('Server probably stopped!')
+
         if exact:
             terms = [
                 (QueryParser("exact_name", write_handler.index.schema)

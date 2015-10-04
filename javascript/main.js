@@ -71,7 +71,6 @@ require([
     'covers',
     'remotes',
     'filters',
-    'dir_table',
     'navbar',
     'album',
     'modernizr',

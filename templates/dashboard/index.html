@@ -23,7 +23,7 @@
                 {% if user.user.active %}
                     Last seen {{ user.user.active|pretty_date }}.
                 {% endif %}
-                {% if user.user.lastfm_user %}
+                {% if user.user and user.user.lastfm_user %}
                     {% if user.remotes_user and user.remotes_user.lastfm %}
                         Played <strong>{{ user.remotes_user.lastfm.playcount|format_number }}</strong> tracks.
                     {% endif %}
@@ -38,7 +38,7 @@
 
 {% block content %}
 
-{% if not user.lastfm_user %}
+{% if not user or not user.lastfm_user %}
     <p class="alert alert-warning">
         Note that you need to supply a Lastfm account in <a href="/settings">Settings</a> to get all features working.
     </p>
