@@ -372,6 +372,15 @@ define([
                 return false;
             });
 
+            $(document).on('click.toggle', '#toggle-regular, #toggle-random',
+                function (event) {
+                    var url = $(this).attr('href');
+                    $.ajax(url);
+                    $("#toggle-button").empty().append($(this).find(".fa").clone());
+                    return false;
+                }
+            );
+
             that.reload();
         }
         reload () {

@@ -62,6 +62,36 @@
     </div>
 
     <div class="btn-stream">
+        <div class="btn-group toggle-mode">
+            <button type="button" class="btn btn-sm btn-danger" id="toggle-button">
+                {% if mode == "regular" %}
+                    <i class="fa fa-play"></i>
+                {% else %}
+                    <i class="fa fa-random"></i>
+                {% endif %}
+            </button>
+            <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="/play/mode/regular" id="toggle-regular" rel="popover" data-container="body"
+                        data-ajaxify="false"
+                        data-trigger="hover" data-content="Play the queue from top to bottom" data-placement="left">
+                        <i class="fa fa-play"></i> Regular
+                    </a>
+                </li>
+                <li>
+                    <a href="/play/mode/random" id="toggle-random" rel="popover" data-container="body"
+                        data-ajaxify="false"
+                        data-trigger="hover" data-content="Play random tracks from your library" data-placement="left">
+                        <i class="fa fa-random"></i> Random
+                    </a>
+                </li>
+            </ul>
+        </div>
         <a rel="tooltip" class="open-stream" target="_blank" href="/play/opmuse.m3u" accesskey="d"
             title="Open in External Player.">
             <i class="fa fa-download"></i>

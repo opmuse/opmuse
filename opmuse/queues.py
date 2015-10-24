@@ -219,6 +219,14 @@ class QueueDao:
         except ObjectDeletedError:
             pass
 
+    def get_random_track(self, user_id):
+        tracks = library_dao.get_random_tracks(1)
+
+        if len(tracks) > 0:
+            return tracks[0]
+        else:
+            return None
+
     def get_next(self, user_id):
         database = get_database()
         current_queue = next_queue = None

@@ -2297,6 +2297,9 @@ class LibraryDao:
 
         return artist, album
 
+    def get_random_tracks(self, limit):
+        return self._get_random_entity(Track, limit)
+
     def get_random_artists(self, limit):
         return self._get_random_entity(Artist, limit)
 
@@ -2319,7 +2322,7 @@ class LibraryDao:
                     .all())
 
         if len(entities) < limit:
-            entities += self.get_random_entity(Entity, limit - len(entities))
+            entities += self._get_random_entity(Entity, limit - len(entities))
 
         return entities
 

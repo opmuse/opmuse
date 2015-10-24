@@ -394,7 +394,7 @@
 
         .open-stream {
             &:not(.open) {
-                display: block;
+                display: inline-block;
                 color: @white;
                 padding: 1px 8px;
                 font-size: 22px;
@@ -403,6 +403,10 @@
             &.open {
                 display: none;
             }
+        }
+
+        .toggle-mode {
+            display: none;
         }
     }
 
@@ -437,11 +441,15 @@
             top: auto;
             right: auto;
 
+            .toggle-mode {
+                display: inline-block;
+            }
+
             .open-stream {
                 display: none;
 
                 &.open {
-                    display: block;
+                    display: inline-block;
                 }
             }
         }

@@ -24,6 +24,7 @@ from opmuse.transcoding import transcoding
 
 class Play:
     STREAM_PLAYING = {}
+    STREAM_MODE = {}
 
     def __init__(self):
         cherrypy.engine.subscribe('transcoding.end', self.transcoding_end)
@@ -37,6 +38,16 @@ class Play:
 
     def transcoding_end(self, track, transcoder):
         Play.STREAM_PLAYING[cherrypy.request.user.id] = None
+
+    @cherrypy.expose
+    @cherrypy.tools.authenticated(needs_auth=True)
+    def mode(self, mode):
+        if mode not in ('regular', 'random'):
+            raise cherrypy.HTTPError(status=409)
+
+        user = cherrypy.request.user
+
+        Play.STREAM_MODE[user.id] = mode
 
     @cherrypy.expose
     @cherrypy.tools.session_query_string()
@@ -64,26 +75,37 @@ class Play:
                 Play.STREAM_PLAYING[user.id] != user_agent):
             raise cherrypy.HTTPError(status=503)
 
-        queue = queue_dao.get_next(user.id)
+        if user.id in Play.STREAM_MODE and Play.STREAM_MODE[user.id] is not None:
+            mode = Play.STREAM_MODE[user.id]
+        else:
+            mode = 'regular'
 
-        if queue is None:
+        if mode == "random":
+            track = queue_dao.get_random_track(user.id)
+            current_seconds = 0
+        else:
+            queue = queue_dao.get_next(user.id)
+            track = queue.track
+            current_seconds = queue.current_seconds
+
+        if track is None:
             raise cherrypy.HTTPError(status=409)
 
         transcoder, format = transcoding.determine_transcoder(
-            queue.track,
+            track,
             user_agent,
             [accept.value for accept in cherrypy.request.headers.elements('Accept')]
         )
 
         cherrypy.log(
             '%s is streaming "%s" in %s (original was %s) with "%s"' %
-            (user.login, queue.track, format, queue.track.format, user_agent)
+            (user.login, track, format, track.format, user_agent)
         )
 
         cherrypy.response.headers['Content-Type'] = format
 
         def track_generator():
-            yield queue.track, queue.current_seconds
+            yield track, current_seconds
 
         return transcoding.transcode(track_generator(), transcoder)
 

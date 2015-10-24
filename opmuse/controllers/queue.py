@@ -17,6 +17,7 @@
 
 import cherrypy
 from opmuse.queues import queue_dao
+from opmuse.controllers.play import Play
 
 
 class Queue:
@@ -69,7 +70,13 @@ class Queue:
         queues, queue_info = queue_dao.get_queues(user.id)
         queue_current_track = queue_dao.get_current_track(user.id)
 
+        if user.id in Play.STREAM_MODE and Play.STREAM_MODE[user.id] is not None:
+            mode = Play.STREAM_MODE[user.id]
+        else:
+            mode = 'regular'
+
         return {
+            'mode': mode,
             'queues': queues,
             'queue_info': queue_info,
             'queue_current_track': queue_current_track
