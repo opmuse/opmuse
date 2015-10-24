@@ -413,10 +413,6 @@
 }
 
 #panel {
-    &.panel-fullscreen.open {
-        .panel-width(@progress-width: 87%);
-    }
-
     @media (max-width: @screen-md-min) {
         .panel-open;
         .panel-width(@progress-width: 80%);
@@ -447,26 +443,6 @@
                 &.open {
                     display: block;
                 }
-            }
-        }
-    }
-
-    &.panel-fullscreen {
-        #queue {
-            height: 100%;
-            position: relative;
-
-            .tracks-wrapper {
-                position: absolute;
-                border-bottom-left-radius: 3px;
-                border-bottom-right-radius: 3px;
-                height: auto;
-                margin-bottom: 55px;
-                top: 33px;
-                left: 0;
-                bottom: 0;
-                right: 0;
-                display: block;
             }
         }
     }

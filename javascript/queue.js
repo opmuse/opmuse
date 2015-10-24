@@ -354,10 +354,6 @@ define([
             } else {
                 $('#queue .nano').nanoScroller();
             }
-
-            $('#panel').off('panelFullscreen').on('panelFullscreen', function (event) {
-                $('#queue .nano').nanoScroller();
-            });
         }
         internalInit () {
             var that = this;
