@@ -6,8 +6,8 @@
         "url": "https://github.com/opmuse/opmuse"
     },
     "dependencies": {
-        "bower": "~1.5.2",
-        "less": "~2.5.1",
-        "traceur": "~0.0.91"
+        "bower": "~1.5.3",
+        "less": "~2.5.3",
+        "traceur": "~0.0.92"
     }
 }
