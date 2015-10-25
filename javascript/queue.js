@@ -387,7 +387,7 @@ define([
                 function (event) {
                     var url = $(this).attr('href');
                     $.ajax(url);
-                    $("#toggle-button").empty().append($(this).find(".fa").clone());
+                    $('#toggle-button').empty().append($(this).find('.fa').clone());
                     return false;
                 }
             );
