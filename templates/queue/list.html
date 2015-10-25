@@ -26,52 +26,43 @@
 <div id="queue"
     data-queue_info-duration="{{ queue_info.duration }}"
     data-queue_current_track-duration="{{ queue_current_track.duration if queue_current_track else '' }}">
-    <div class="btn-group btn-clear">
-        <a
-            id="clear-queue"
-            class="btn btn-sm btn-danger"
-            accesskey="t"
-            href="/queue/clear">
-            <i class="fa fa-trash-o"></i>
-            All
-        </a>
-        <a
-            id="clear-played-queue"
-            accesskey="r"
-            class="btn btn-sm btn-danger"
-            href="/queue/clear/played">
-            <i class="fa fa-trash-o"></i>
-            Played
-        </a>
-        <a
-            rel="tooltip"
-            title="This will shuffle everything after the currently playing song."
-            id="shuffle-queue"
-            class="btn btn-sm btn-warning"
-            href="/queue/shuffle">
-            <i class="fa fa-random"></i>
-        </a>
-        <a
-            rel="tooltip"
-            title="This will collapse all headers to make sorting easier."
-            id="collapse-queue"
-            class="btn btn-sm btn-success"
-            href="#">
-            <i class="fa fa-caret-square-o-down"></i>
-        </a>
-    </div>
-
-    <div class="btn-stream">
+    <div class="btn-controls">
+        <div class="btn-group">
+            <a
+                id="clear-queue"
+                class="btn btn-sm btn-success"
+                accesskey="t"
+                href="/queue/clear">
+                <i class="fa fa-trash-o"></i>
+                All
+            </a>
+            <a
+                id="clear-played-queue"
+                accesskey="r"
+                class="btn btn-sm btn-success"
+                href="/queue/clear/played">
+                <i class="fa fa-trash-o"></i>
+                Played
+            </a>
+            <a
+                rel="tooltip"
+                title="This will shuffle everything after the currently playing song."
+                id="shuffle-queue"
+                class="btn btn-sm btn-success"
+                href="/queue/shuffle">
+                <i class="fa fa-random"></i>
+            </a>
+        </div>
         <div class="btn-group toggle-mode">
-            <button type="button" class="btn btn-sm btn-danger" id="toggle-button">
+            <button type="button" class="btn btn-sm btn-success" id="toggle-button">
                 {% if mode == "regular" %}
-                    <i class="fa fa-play"></i>
+                    <i class="fa fa-arrow-right"></i>
                 {% else %}
-                    <i class="fa fa-random"></i>
+                    <i class="fa fa-question"></i>
                 {% endif %}
             </button>
-            <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" data-placement="left">
                 <span class="caret"></span>
                 <span class="sr-only">Toggle</span>
             </button>
@@ -80,18 +71,29 @@
                     <a href="/play/mode/regular" id="toggle-regular" rel="popover" data-container="body"
                         data-ajaxify="false"
                         data-trigger="hover" data-content="Play the queue from top to bottom" data-placement="left">
-                        <i class="fa fa-play"></i> Regular
+                        <i class="fa fa-arrow-right"></i> Regular
                     </a>
                 </li>
                 <li>
                     <a href="/play/mode/random" id="toggle-random" rel="popover" data-container="body"
                         data-ajaxify="false"
                         data-trigger="hover" data-content="Play random tracks from your library" data-placement="left">
-                        <i class="fa fa-random"></i> Random
+                        <i class="fa fa-question"></i> Random
                     </a>
                 </li>
             </ul>
         </div>
+        <a
+            rel="tooltip"
+            title="This will collapse all headers to make sorting easier."
+            id="collapse-queue"
+            class="btn btn-sm btn-default"
+            href="#">
+            <i class="fa fa-caret-square-o-down"></i>
+        </a>
+    </div>
+
+    <div class="btn-stream">
         <a rel="tooltip" class="open-stream" target="_blank" href="/play/opmuse.m3u" accesskey="d"
             title="Open in External Player.">
             <i class="fa fa-download"></i>
@@ -100,7 +102,7 @@
             data-content="
                 <p>Open in an External Player that supports m3u playlists and mp3 or ogg streams.</p>
                 <p>The one thing you need to do is put your player on repeat for the one track the playlist will contain.</p>"
-            data-delay="1000" class="open-stream open btn btn-info btn-sm" target="_blank" href="/play/opmuse.m3u">
+            data-delay="1000" class="open-stream open btn btn-default btn-sm" target="_blank" href="/play/opmuse.m3u">
             <i class="fa fa-download"></i>
         </a>
     </div>
