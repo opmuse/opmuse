@@ -201,6 +201,17 @@ define([
 
             that.pauseButton.hide();
 
+            var currentTrack = this.playerTrack.data('current_track');
+            var currentProgress = this.playerTrack.data('current_progress');
+
+            if (currentTrack !== null) {
+                that.setCurrent(currentTrack);
+            }
+
+            if (currentProgress !== null) {
+                that.setProgress(currentProgress.seconds, currentProgress.seconds_ahead);
+            }
+
             that.internalInit();
         }
         checkCapabilities () {

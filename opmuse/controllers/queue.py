@@ -17,6 +17,7 @@
 
 import cherrypy
 from opmuse.queues import queue_dao
+from opmuse.cache import cache
 from opmuse.controllers.play import Play
 
 
@@ -28,11 +29,15 @@ class Queue:
         user = cherrypy.request.user
         queues, queue_info = queue_dao.get_queues(user.id)
         queue_current_track = queue_dao.get_current_track(user.id)
+        current_track = cache.get('queue.current_track_%d' % user.id)
+        current_progress = cache.get('queue.current_progress_%d' % user.id)
 
         return {
             'queues': queues,
             'queue_info': queue_info,
-            'queue_current_track': queue_current_track
+            'queue_current_track': queue_current_track,
+            'current_track': current_track,
+            'current_progress': current_progress
         }
 
     @cherrypy.expose

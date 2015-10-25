@@ -25,6 +25,7 @@ from sqlalchemy.orm.exc import NoResultFound, ObjectDeletedError
 from opmuse.database import Base, get_database
 from opmuse.security import User
 from opmuse.library import Track, Artist, Album, library_dao
+from opmuse.cache import cache
 from opmuse.ws import ws
 from opmuse.utils import memoize
 
@@ -67,20 +68,20 @@ class QueueEvents:
             ws.emit('queue.next.none')
 
     def queue_open(self, ws_user):
-        track = ws_user.get('queue.current_track')
-        progress = ws_user.get('queue.current_progress')
+        track = cache.get('queue.current_track_%d' % ws_user.id)
+        progress = cache.get('queue.current_progress_%d' % ws_user.id)
 
         if track is not None:
-            ws.emit('queue.current_track', track, ws_user=ws_user)
+            ws.emit('queue.current_track_%d' % ws_user.id, track, ws_user=ws_user)
 
         if progress is not None:
-            ws.emit('queue.current_progress', progress, ws_user=ws_user)
+            ws.emit('queue.current_progress_%d' % ws_user.id, progress, ws_user=ws_user)
 
     def transcoding_progress(self, progress, transcoder, track):
         ws_user = ws.get_ws_user()
 
         if ws_user is not None:
-            ws_user.set('queue.current_progress', progress)
+            cache.set('queue.current_progress_%d' % ws_user.id, progress)
 
         if 'User-Agent' in cherrypy.request.headers:
             user_agent = cherrypy.request.headers['User-Agent']
@@ -110,7 +111,7 @@ class QueueEvents:
         ws_user = ws.get_ws_user()
 
         if ws_user is not None:
-            ws_user.set('queue.current_track', track)
+            cache.set('queue.current_track_%d' % ws_user.id, track)
 
         ws.emit('queue.start', track, user_agent, format)
 
@@ -123,8 +124,8 @@ class QueueEvents:
             cherrypy.request.queues_done = True
 
             ws_user = ws.get_ws_user()
-            ws_user.set('queue.current_track', None)
-            ws_user.set('queue.current_progress', None)
+            cache.set('queue.current_track_%d' % ws_user.id, None)
+            cache.set('queue.current_progress_%d' % ws_user.id, None)
 
     def transcoding_end(self, track, transcoder):
         if hasattr(cherrypy.request, 'queue_current_id') and cherrypy.request.queue_current_id is not None:
@@ -158,6 +159,7 @@ class QueueEvents:
 
     def serialize_track(self, track):
         return {
+            'id': track.id,
             'album': {
                 'name': track.album.name if track.album is not None else None
             },
@@ -170,6 +172,19 @@ class QueueEvents:
 
 
 class QueueDao:
+    def get_current_track(self, user_id):
+        track = cache.get('queue.current_track_%d' % user_id)
+
+        if track is not None:
+            track = library_dao.get_track(track['id'])
+
+            if track is None:
+                return self._get_current_track(user_id)
+            else:
+                return track
+        else:
+            return None
+
     @memoize
     def get_playing_track(self, user_id):
         try:
@@ -184,7 +199,7 @@ class QueueDao:
         except NoResultFound:
             return None
 
-    def get_current_track(self, user_id):
+    def _get_current_track(self, user_id):
         try:
             return (get_database()
                     .query(Track)
@@ -435,8 +450,8 @@ class QueueDao:
 
     def _reset_current(self):
         ws_user = ws.get_ws_user()
-        ws_user.set('queue.current_track', None)
-        ws_user.set('queue.current_progress', None)
+        cache.set('queue.current_track_%d' % ws_user.id, None)
+        cache.set('queue.current_progress_%d' % ws_user.id, None)
 
         ws.emit('queue.reset')
 

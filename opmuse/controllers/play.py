@@ -85,8 +85,12 @@ class Play:
             current_seconds = 0
         else:
             queue = queue_dao.get_next(user.id)
-            track = queue.track
-            current_seconds = queue.current_seconds
+
+            if queue is not None:
+                track = queue.track
+                current_seconds = queue.current_seconds
+            else:
+                track = None
 
         if track is None:
             raise cherrypy.HTTPError(status=409)
