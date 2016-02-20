@@ -66,13 +66,14 @@ When you do a git pull some of these might be required.
 
 .. code-block:: console
 
-    $ git submodule update --init --recursive
-
     $ merge config/opmuse.dist.ini config/opmuse.ini
 
+    $ source virtualenv/bin/activate
     $ pip install --upgrade -r requirements.txt
     $ pip install --upgrade -r mysql-requirements.txt
     $ pip install --upgrade -r dev-requirements.txt
+    $ npm install
+    $ ./bower install
 
     $ ./console database reset # will initiate rescan, might not be required
     $ ./console database update
