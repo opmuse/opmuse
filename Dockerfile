@@ -19,8 +19,6 @@ RUN wget -q http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb
 RUN dpkg -i deb-multimedia-keyring_2015.6.1_all.deb
 RUN apt-get update
 
-RUN echo "Package: python3-whoosh\nPin: version 2.4.1\nPin-Priority: 1000" > /etc/apt/preferences.d/opmuse
-
 RUN echo "mysql-server mysql-server/root_password password" | debconf-set-selections
 RUN echo "mysql-server mysql-server/root_password_again password" | debconf-set-selections
 
