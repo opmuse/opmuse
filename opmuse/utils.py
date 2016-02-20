@@ -190,28 +190,6 @@ try:
             unwind=False,
         )
 
-    def firepy(message):
-        cherrypy.request._firepy_logs.append([{"Type": 'LOG'}, message])
-
-    def firepy_start():
-        cherrypy.request._firepy_logs = []
-        cherrypy.request.firepy = firepy
-        builtins.fp = firepy
-
-    def firepy_end():
-        if not hasattr(cherrypy.request, '_firepy_logs'):
-            return
-
-        from firepy.firephp import FirePHP
-
-        headers = FirePHP.base_headers()
-
-        for key, value in headers:
-            cherrypy.response.headers[key] = value
-
-        for key, value in FirePHP.generate_headers(cherrypy.request._firepy_logs):
-            cherrypy.response.headers[key] = value
-
     def multi_headers():
         if hasattr(cherrypy.response, 'multiheaders'):
             headers = []
@@ -254,10 +232,6 @@ try:
             return cherrypy.request.memoize[key]
 
         return wrapper
-
-    firepy_tool = cherrypy.Tool('on_start_resource', firepy)
-    firepy_start_tool = cherrypy.Tool('on_start_resource', firepy_start)
-    firepy_end_tool = cherrypy.Tool('before_finalize', firepy_end, priority=100)
 
     multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
     error_handler_tool = cherrypy.Tool('before_error_response', error_handler_log)

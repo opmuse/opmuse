@@ -38,13 +38,12 @@ If you want to use **MySQL** instead of SQLite (MySQL is recommended).
     $ edit config/opmuse.ini # fix database.url
     $ ./console database create
 
-If you want some additional dev tools (firepy, repoze.profile).
+If you want some additional dev tools and stuff (repoze.profile, colorlog), install 'em
 
 .. code-block:: console
 
     $ source virtualenv/bin/activate
-    $ pip install -r dev-requirements.txt --allow-external firepy --allow-unverified firepy
-    $ ./console cherrypy -- -f # start with firepy (use with cherrypy.request.firepy())
+    $ pip install -r dev-requirements.txt
     $ ./console cherrypy -- -p # start with repoze.profile (access it at /__profile__)
 
 You probably want fixtures for some default data (an admin account with password admin for one).

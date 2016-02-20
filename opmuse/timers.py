@@ -35,9 +35,6 @@ def debug(msg):
 
 
 def log_timers(msg):
-    if hasattr(cherrypy.request, 'firepy'):
-        cherrypy.request.firepy(msg)
-
     thread = threading.current_thread()
     logname = "opmuse.%s.%d.timers.log" % (thread.name, thread.ident)
 
