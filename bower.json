@@ -1,38 +1,38 @@
 {
-  "name": "opmuse",
-  "dependencies": {
-    "traceur": "~0.0.91",
-    "bootstrap-growl": "~1.1.0",
-    "Font-Awesome": "~4.4.0",
-    "jquery": "~2.1.4",
-    "blueimp-file-upload": "~9.11.2",
-    "jquery-ui": "~1.11.4",
-    "matchMedia": "~0.2.0",
-    "momentjs": "~2.3.1",
-    "nanoscroller": "~0.8.0",
-    "requirejs": "~2.1.20",
-    "requirejs-domReady": "~2.0.1",
-    "r.js": "~2.1.20",
-    "bootstrap": "~3.3.5",
-    "typeahead.js": "~0.10.5",
-    "sprintf": "~1.0.3",
-    "typeahead.js-bootstrap3.less": "~0.2.3",
-    "Effeckt.css": "git://github.com/h5bp/Effeckt.css.git#54175897a1c",
-    "SpinKit": "~1.2.2"
-  },
+    "name": "opmuse",
+    "dependencies": {
+        "traceur": "~0.0.91",
+        "bootstrap-growl": "~1.1.0",
+        "Font-Awesome": "~4.5.0",
+        "jquery": "~2.1.4",
+        "blueimp-file-upload": "~9.11.2",
+        "jquery-ui": "~1.11.4",
+        "matchMedia": "~0.2.0",
+        "momentjs": "~2.3.1",
+        "nanoscroller": "~0.8.0",
+        "requirejs": "~2.1.20",
+        "requirejs-domReady": "~2.0.1",
+        "r.js": "~2.1.20",
+        "bootstrap": "~3.3.5",
+        "typeahead.js": "~0.10.5",
+        "sprintf": "~1.0.3",
+        "typeahead.js-bootstrap3.less": "~0.2.3",
+        "Effeckt.css": "git://github.com/h5bp/Effeckt.css.git#54175897a1c",
+        "SpinKit": "~1.2.2"
+    },
     "resolutions": {
         "bootstrap": "~3.3.4"
     },
-  "authors": [
-    "Mattias Fliesberg <mattias@fliesberg.email>"
-  ],
-  "license": "AGPLv3+",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
-  "private": true
+    "authors": [
+        "Mattias Fliesberg <mattias@fliesberg.email>"
+    ],
+    "license": "AGPLv3+",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "private": true
 }
