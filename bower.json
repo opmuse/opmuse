@@ -4,7 +4,7 @@
         "traceur": "~0.0.91",
         "bootstrap-growl": "~1.1.0",
         "Font-Awesome": "~4.5.0",
-        "jquery": "~2.1.4",
+        "jquery": "~2.2.0",
         "blueimp-file-upload": "~9.11.2",
         "jquery-ui": "~1.11.4",
         "matchMedia": "~0.2.0",

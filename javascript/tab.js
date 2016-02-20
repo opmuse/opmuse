@@ -60,7 +60,7 @@ define([
             if (content.length > 0 && content.find('>li.active').length == 0) {
                 var first = content.find(':first-child');
                 var id = first.attr('id');
-                nav.find('[href=#' + id + ']').tab('show');
+                nav.find('[href="#' + id + '"]').tab('show');
             }
         }
     }
