@@ -408,6 +408,9 @@ class Album(Base):
         if cherrypy.request.user is None:
             raise ValueError("Album.seen can only be used from a request")
 
+        if self.created is None:
+            return None
+
         now = datetime.datetime.utcnow()
 
         # always report albums older than 90 days as seen
