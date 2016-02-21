@@ -15,8 +15,8 @@ reprepro -b $repo deleteunreferenced
 # built further down from their git repos. we build dev-requirements.txt even if
 # they're not dependencies but so you can use them for debuging.
 #
-# note that we skip building mako, Sphinx and sphinx_rtd_theme
-# altogether. instead we use the os-provided ones
+# note that we skip building mako, Sphinx and sphinx_rtd_theme altogether.
+# instead we use the os-provided ones
 grep -hiEv "mako|Sphinx|sphinx_rtd_theme|colorlog|nose|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
@@ -48,6 +48,11 @@ while read -A req; do
             none none none none none none none none none
     fi
 done
+
+# build an empty package for python3-pyyaml with python3-yaml as dep as watchdog
+# depends on python3-pyyaml and not python3-yaml as debian calls it
+./scripts/build-python-deb.sh $repo master none python3-pyyaml none none \
+    none python3-yaml none none none none none none none --no-prefix empty
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \

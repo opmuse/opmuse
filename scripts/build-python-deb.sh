@@ -2,10 +2,10 @@
 
 set -e
 
-if [[ $# -ne 15 && $# -ne 16 ]]; then
+if [[ $# -ne 15 && $# -ne 16 && $# -ne 17 ]]; then
     echo -n "Usage: $(basename $0) repo dist package_file package_name package_version "
     echo -n "package_before package_after package_deps package_confs package_init package_default "
-    echo "package_debconf package_templates package_before_remove package_after_remove [--no-prefix]"
+    echo "package_debconf package_templates package_before_remove package_after_remove [--no-prefix] [input_type]"
     exit 1
 fi
 
@@ -33,6 +33,12 @@ if [[ $16 == "--no-prefix" ]]; then
     prefix=0
 else
     prefix=1
+fi
+
+input_type=$17
+
+if [[ $input_type = "" ]]; then
+    input_type=python
 fi
 
 args=(
@@ -130,7 +136,12 @@ if [[ $package_version != "none" ]]; then
     package_install=${package_install}${package_version}
 fi
 
-args+=(-s python -t deb $package_install)
+if [[ $input_type == "empty" ]]; then
+    package_install=(-n $package_install)
+fi
+
+args+=(-s $input_type -t deb)
+args+=($package_install)
 
 rm ${full_package_name}*.deb > /dev/null 2>&1 || true
 
