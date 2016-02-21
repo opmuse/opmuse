@@ -2,10 +2,11 @@
 
 set -e
 
-if [[ $# -ne 15 && $# -ne 16 && $# -ne 17 ]]; then
+if [[ $# -ne 15 && $# -ne 16 && $# -ne 17 && $# -ne 18 ]]; then
     echo -n "Usage: $(basename $0) repo dist package_file package_name package_version "
     echo -n "package_before package_after package_deps package_confs package_init package_default "
-    echo "package_debconf package_templates package_before_remove package_after_remove [--no-prefix] [input_type]"
+    echo -n "package_debconf package_templates package_before_remove package_after_remove [--no-prefix] "
+    echo "[input_type] [version]"
     exit 1
 fi
 
@@ -36,6 +37,7 @@ else
 fi
 
 input_type=$17
+version=$18
 
 if [[ $input_type = "" ]]; then
     input_type=python
@@ -48,6 +50,10 @@ args=(
     --python-bin /usr/bin/python3.4
     --python-pip /usr/bin/pip3
 )
+
+if [[ $version != "" ]]; then
+    args+=(-v $version)
+fi
 
 if [[ $prefix -eq 1 ]]; then
     full_package_name=python3-${package_name#python-}

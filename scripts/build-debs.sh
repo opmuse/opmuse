@@ -52,7 +52,7 @@ done
 # build an empty package for python3-pyyaml with python3-yaml as dep as watchdog
 # depends on python3-pyyaml and not python3-yaml as debian calls it
 ./scripts/build-python-deb.sh $repo master none python3-pyyaml none none \
-    none python3-yaml none none none none none none none --no-prefix empty
+    none "python3-yaml (>= 3.11)" none none none none none none none --no-prefix empty "3.11"
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
