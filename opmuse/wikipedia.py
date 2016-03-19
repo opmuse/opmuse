@@ -145,6 +145,9 @@ class Wikipedia():
         if 'query' not in response:
             return None
 
+        if 'pages' not in response['query']:
+            return None
+
         response = response['query']['pages'].popitem()[1]
 
         if 'extract' in response:

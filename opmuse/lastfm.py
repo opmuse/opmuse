@@ -413,7 +413,7 @@ class LastfmNetwork:
         cover = None
 
         for image in artist['image']:
-            if image['size'] == "extralarge" and image['#text'] != '':
+            if image['size'] == "extralarge" and '#text' in image and image['#text'] != '':
                 cover = image['#text']
                 break
 
@@ -436,15 +436,22 @@ class LastfmNetwork:
 
         params = self._clean_params(params)
 
+        result = self._request('tag.getTopAlbums', params)
+
+        if 'topalbums' not in result:
+            return []
+
+        topalbums = result['topalbums']
+
+        if 'album' not in topalbums:
+            return []
+
         albums = []
 
-        result = self._request('tag.getTopAlbums', params)['topalbums']
-
-        if 'album' in result:
-            for album in self.process_list(result['album']):
-                albums.append({
-                    'name': album['name']
-                })
+        for album in self.process_list(topalbums['album']):
+            albums.append({
+                'name': album['name']
+            })
 
         return albums
 
