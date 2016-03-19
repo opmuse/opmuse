@@ -85,7 +85,15 @@ class Deluge:
 
         DelugeRPCClient.timeout = timeout
         self.client = DelugeRPCClient(host, port, user, password)
-        self.client.connect()
+
+        try:
+            self.client.connect()
+        except OSError:
+            if e.errno == 113: # "No route to host"
+                log('No route to host: %s' % host)
+                return False
+            else:
+                raise e
 
         return self.client.connected
 
