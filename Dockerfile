@@ -15,8 +15,8 @@ RUN dpkg-reconfigure locales
 RUN echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
 RUN curl -s http://apt.opmu.se/opmuse.pub | apt-key add -
 RUN echo "deb http://www.deb-multimedia.org jessie main non-free" > /etc/apt/sources.list.d/deb-multimedia.list
-RUN wget -q http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2015.6.1_all.deb
-RUN dpkg -i deb-multimedia-keyring_2015.6.1_all.deb
+RUN wget -q https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.3.7_all.deb
+RUN dpkg -i deb-multimedia-keyring_2016.3.7_all.deb
 RUN apt-get update
 
 RUN echo "mysql-server mysql-server/root_password password" | debconf-set-selections
