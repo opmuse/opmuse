@@ -88,7 +88,7 @@ class Deluge:
 
         try:
             self.client.connect()
-        except OSError:
+        except OSError as e:
             if e.errno == 113: # "No route to host"
                 log('No route to host: %s' % host)
                 return False
