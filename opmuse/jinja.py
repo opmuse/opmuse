@@ -164,7 +164,7 @@ def show_ws(string):
     Helper for replacing trailing whitespace with the unicode visible space
     character
     """
-    if string is None or len(string) == 0:
+    if string is None or isinstance(string, StrictUndefined) or len(string) == 0:
         return "[MISSING]"
 
     return replace_ws(replace_ws(string)[::-1])[::-1]
