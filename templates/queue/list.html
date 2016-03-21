@@ -156,7 +156,7 @@
                                     {{ q.track.number }}
                                 {% endif %}
                             </span>
-                            {% if info.artists|length > 1 %}
+                            {% if info.artists|length > 1 and q.track.artist %}
                                 <span class="artist-name" title="{{ q.track.artist.name|show_ws }}">
                                     <a href="{{ urls.artist_url(q.track.artist) }}">
                                         {{ q.track.artist.name|show_ws }}
