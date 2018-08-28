@@ -7,13 +7,13 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN sed -i "s/jessie main/jessie main contrib non-free/" /etc/apt/sources.list
 RUN apt-get update
 
-RUN apt-get install -y curl wget locales
+RUN apt-get install -y curl wget locales apt-transport-https python3-pkg-resources
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 RUN dpkg-reconfigure locales
 
-RUN echo "deb http://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
-RUN curl -s http://apt.opmu.se/opmuse.pub | apt-key add -
+RUN echo "deb https://apt.opmu.se/debian/ master main" > /etc/apt/sources.list.d/opmuse.list
+RUN curl -s https://apt.opmu.se/opmuse.pub | apt-key add -
 RUN echo "deb http://www.deb-multimedia.org jessie main non-free" > /etc/apt/sources.list.d/deb-multimedia.list
 RUN wget -q https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb
 RUN dpkg -i deb-multimedia-keyring_2016.8.1_all.deb
