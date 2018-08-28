@@ -25,8 +25,14 @@ from configparser import ConfigParser
 from itertools import chain
 from setuptools import setup
 from setuptools.command.build_py import build_py
-from pip._internal.req import parse_requirements
-from pip._internal.download import PipSession
+
+try:
+    from pip._internal.req import parse_requirements
+    from pip._internal.download import PipSession
+except ImportError:
+    from pip.req import parse_requirements
+    from pip.download import PipSession
+
 from opmuse.compilers import js_compiler, less_compiler
 
 project_root = os.path.dirname(os.path.abspath(__file__))
