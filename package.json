@@ -15,7 +15,6 @@
     "@bower_components/blueimp-tmpl": "blueimp/JavaScript-Templates#>=2.5.4",
     "@bower_components/bootstrap": "twbs/bootstrap#~3.3.5",
     "@bower_components/bootstrap-growl": "ifightcrime/bootstrap-growl#~1.1.0",
-    "@bower_components/jQuery": "jquery/jquery#~2.1.4",
     "@bower_components/jquery": "jquery/jquery-dist#~2.2.0",
     "@bower_components/jquery-ui": "components/jqueryui#~1.11.4",
     "@bower_components/matchMedia": "paulirish/matchMedia.js#~0.3.0",
