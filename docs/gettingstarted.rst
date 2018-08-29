@@ -5,9 +5,9 @@ Requirements
 ------------
 
 You need **Python 3.4**, **ffmpeg**, **ImageMagick**, **nodejs**, **npm**,
-**rsync** and a Linux environment. This has only been tested on Debian and
-Exherbo but most other Linux distros should do as well as other similar \*nix
-OSes. If you're on Windows you're on your own.
+**yarn**, **rsync** and a Linux environment. This has only been tested on
+Debian and Exherbo but most other Linux distros should do as well as other
+similar \*nix OSes. If you're on Windows you're on your own.
 
 Install
 -------
@@ -19,8 +19,7 @@ Install
     $ virtualenv -p python3.4 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
-    $ npm install
-    $ ./bower install
+    $ yarn
     $ cp config/opmuse.dist.ini config/opmuse.ini
     $ edit config/opmuse.ini # fix library.path
 
@@ -71,8 +70,6 @@ When you do a git pull some of these might be required.
     $ pip install --upgrade -r requirements.txt
     $ pip install --upgrade -r mysql-requirements.txt
     $ pip install --upgrade -r dev-requirements.txt
-    $ npm install
-    $ ./bower install
-
+    $ yarn
     $ ./console database reset # will initiate rescan, might not be required
     $ ./console database update

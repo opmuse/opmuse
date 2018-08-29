@@ -119,7 +119,7 @@ def build_opmuse():
 
     shutil.copytree('public_static/lib', 'build/javascript/lib')
 
-    subprocess.check_call(['node', 'public_static/lib/r.js/dist/r.js', '-o', 'scripts/build-requirejs.js'])
+    subprocess.check_call(['node', 'node_modules/requirejs/bin/r.js', '-o', 'scripts/build-requirejs.js'])
 
     if not os.path.exists('build/debian-dbconfig-install'):
         os.mkdir('build/debian-dbconfig-install')

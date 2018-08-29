@@ -1,13 +1,41 @@
 {
-    "name": "opmuse",
-    "license": "AGPL-3.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/opmuse/opmuse"
-    },
-    "dependencies": {
-        "bower": "~1.8.4",
-        "less": "~2.6.0",
-        "traceur": "~0.0.92"
-    }
+  "name": "opmuse",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/opmuse/opmuse"
+  },
+  "dependencies": {
+    "@bower_components/Effeckt.css": "git://github.com/h5bp/Effeckt.css.git#54175897a1c",
+    "@bower_components/Font-Awesome": "FortAwesome/Font-Awesome#~4.5.0",
+    "@bower_components/SpinKit": "tobiasahlin/SpinKit#~1.2.2",
+    "@bower_components/blueimp-canvas-to-blob": "blueimp/JavaScript-Canvas-to-Blob#>=2.1.1",
+    "@bower_components/blueimp-file-upload": "blueimp/jQuery-File-Upload#~9.11.2",
+    "@bower_components/blueimp-load-image": "blueimp/JavaScript-Load-Image#>=1.13.0",
+    "@bower_components/blueimp-tmpl": "blueimp/JavaScript-Templates#>=2.5.4",
+    "@bower_components/bootstrap": "twbs/bootstrap#~3.3.5",
+    "@bower_components/bootstrap-growl": "ifightcrime/bootstrap-growl#~1.1.0",
+    "@bower_components/jQuery": "jquery/jquery#~2.1.4",
+    "@bower_components/jquery": "jquery/jquery-dist#~2.2.0",
+    "@bower_components/jquery-ui": "components/jqueryui#~1.11.4",
+    "@bower_components/matchMedia": "paulirish/matchMedia.js#~0.3.0",
+    "@bower_components/modernizr": "Modernizr/Modernizr#~2.8.3",
+    "@bower_components/momentjs": "moment/moment#~2.3.1",
+    "@bower_components/nanoscroller": "jamesflorentino/nanoScrollerJS#~0.8.0",
+    "@bower_components/requirejs": "jrburke/requirejs-bower#~2.1.20",
+    "@bower_components/requirejs-domReady": "requirejs/domReady#~2.0.1",
+    "@bower_components/sprintf": "alexei/sprintf.js#~1.0.3",
+    "@bower_components/traceur": "jmcriffey/bower-traceur#~0.0.91",
+    "@bower_components/typeahead.js": "twitter/typeahead.js#~0.10.5",
+    "@bower_components/typeahead.js-bootstrap3.less": "hyspace/typeahead.js-bootstrap3.less#~0.2.3",
+    "less": "~2.6.0",
+    "requirejs": "~2.1.20",
+    "traceur": "~0.0.92"
+  },
+  "engines": {
+    "yarn": ">= 1.0.0"
+  },
+  "scripts": {
+    "postinstall": "node -e \"try { require('fs').symlinkSync(require('path').resolve('node_modules/@bower_components'), 'public_static/lib', 'junction') } catch (e) { }\""
+  }
 }
