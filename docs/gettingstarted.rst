@@ -4,7 +4,7 @@ Getting Started
 Requirements
 ------------
 
-You need **Python 3.4**, **ffmpeg**, **ImageMagick**, **nodejs**, **npm**,
+You need **Python 3.5**, **ffmpeg**, **ImageMagick**, **nodejs**, **npm**,
 **yarn**, **rsync** and a Linux environment. This has only been tested on
 Debian and Exherbo but most other Linux distros should do as well as other
 similar \*nix OSes. If you're on Windows you're on your own.
@@ -16,7 +16,7 @@ Install
 
     $ git clone https://github.com/opmuse/opmuse.git
     $ cd opmuse
-    $ virtualenv -p python3.4 ./virtualenv
+    $ virtualenv -p python3.5 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ yarn
