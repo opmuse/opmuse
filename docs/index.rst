@@ -38,6 +38,7 @@ Index
    contributing
    gettingstarted
    testing
+   apt_repo
 
 Indices and tables
 ==================
