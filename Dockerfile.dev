@@ -1,0 +1,41 @@
+FROM debian:stretch
+MAINTAINER Mattias Fliesberg <mattias@fliesberg.email>
+
+WORKDIR /root/opmuse
+
+COPY . /root/opmuse
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN sed -i "s/stretch main/stretch main contrib non-free/" /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y curl wget locales apt-transport-https python3 python3-pip python3-pkg-resources \
+        gnupg ffmpeg imagemagick rsync git && \
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    dpkg-reconfigure locales && \
+    apt-get update && \
+    echo "mysql-server mysql-server/root_password password" | debconf-set-selections && \
+    echo "mysql-server mysql-server/root_password_again password" | debconf-set-selections && \
+    apt-get install -y default-mysql-server default-libmysqlclient-dev && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get install -y nodejs && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && \
+    apt-get install -y yarn && \
+    /etc/init.d/mysql start && \
+    pip3 install -r requirements.txt && \
+    pip3 install -r mysql-requirements.txt && \
+    pip3 install -r dev-requirements.txt && \
+    yarn && \
+    cp config/opmuse.dist.ini config/opmuse.ini && \
+    sed -i "s/^\(database\.url\)/#\1/; s/^#\(database\.url = 'mysql\)/\1/" config/opmuse.ini && \
+    sed -i "s/^#\(server.socket_host = \).*/\1'0.0.0.0'/" config/opmuse.ini && \
+    ./console database create && \
+    ./console database fixtures
+
+COPY scripts/docker-dev-start.sh /start.sh
+
+ENTRYPOINT ["/start.sh"]
+
+EXPOSE 8080
