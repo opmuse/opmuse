@@ -1,6 +1,31 @@
 Getting Started
 ===============
 
+Docker
+------
+
+You can use the opmuse-dev docker image for development.
+
+This will get a copy of the repo from the docker image and mount it inside the container.
+
+.. code-block:: console
+
+    $ docker export $(docker run -d inty/opmuse-dev) | tar xf - root/opmuse --strip-components=1
+    $ cd opmuse
+    $ docker run -d -p 8080:8080 --name=opmuse-dev -v `pwd`:/root/opmuse inty/opmuse-dev
+
+To get cherrypy's output do this
+
+.. code-block:: console
+
+    $ docker start -a opmuse-dev
+
+To get a shell
+
+.. code-block:: console
+
+    $ docker exec -it opmuse-dev /bin/bash
+
 Requirements
 ------------
 
