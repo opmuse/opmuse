@@ -10,13 +10,8 @@ else
     export PYTHONPATH=$PYTHONPATH:$ROOT
 fi
 
-if [ ! -f /.dockerenv ]; then
-    if [ -f $ROOT/virtualenv/bin/activate ]; then
-        . $ROOT/virtualenv/bin/activate
-    else
-        echo "error: Missing virtualenv."
-        exit 1
-    fi
+if [ -f $ROOT/virtualenv/bin/activate ]; then
+    . $ROOT/virtualenv/bin/activate
 fi
 
 python3 $ROOT/opmuse/commands.py $@
