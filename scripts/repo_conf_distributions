@@ -1,0 +1,7 @@
+Origin: opmuse
+Label: opmuse
+Suite: master
+Codename: master
+Architectures: i386 amd64
+Components: main
+Description: Apt repository for opmuse

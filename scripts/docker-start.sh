@@ -2,9 +2,9 @@
 
 /etc/init.d/mysql start
 
-. /etc/default/opmuse
-
 while `sleep 10`; do
+    . /etc/default/opmuse
+
     /usr/bin/opmuse-boot \
         --user $USER \
         --group $GROUP \
