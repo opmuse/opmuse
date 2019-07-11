@@ -109,10 +109,10 @@ def get_jinja_env():
 
 def country(code):
     try:
-        data = pycountry.countries.get(alpha2=code)
+        data = pycountry.countries.get(alpha_2=code)
         return data.name
     except KeyError:
-        return 'Unknown'
+        return code
 
 
 # implemented with the help of http://codereview.stackexchange.com/a/15239
