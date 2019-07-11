@@ -4,14 +4,14 @@
 # also, don't forget about readthedocs-requirements.txt
 #
 # opmuse deps
-CherryPy >=5.1,<5.2
+CherryPy >=16,<17
 Jinja2 >=2.8,<2.9
 SQLAlchemy >=1.0,<1.1
 mmh3 >=2.2
 whoosh >=2.7,<2.8
 mutagen >=1.42,<1.43
 rarfile >=3.0,<3.1
-ws4py >=0.3.2,<0.4
+ws4py >=0.5.1,<0.6
 wsaccel >=0.6.2,<0.7
 Unidecode >=0.04.13,<0.05
 alembic >=0.8,<0.9
