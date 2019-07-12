@@ -20,11 +20,10 @@ pycountry >=18,<19
 watchdog >=0.9,<0.10
 deluge-client >=1.7,<1.8
 croniter >=0.3,<0.4
-# Jinja2 deps
-MarkupSafe >=1.1
-# alembic deps
-Mako >=1.0
-python-editor >=1.0
-# watchdog deps
-argh >=0.26.2
-pathtools >=0.1.2
+## The follow are deps on packages we use that are missing
+## from debian. So we need to build them when building our package.
+# cherrypy deps
+portend >=2.1.1
+tempora <1.13
+# tempora deps
+pytz >=2019

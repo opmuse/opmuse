@@ -17,7 +17,7 @@ reprepro -b $repo deleteunreferenced
 #
 # note that we skip building mako, Sphinx and sphinx_rtd_theme altogether.
 # instead we use the os-provided ones
-grep -hiEv "mako|Sphinx|sphinx_rtd_theme|colorlog|nose|^#" \
+grep -hiEv "Sphinx|sphinx_rtd_theme|colorlog|nose|^#" \
     requirements.txt mysql-requirements.txt dev-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
@@ -52,11 +52,11 @@ done
 # build an empty package for python3-pyyaml with python3-yaml as dep as watchdog
 # depends on python3-pyyaml and not python3-yaml as debian calls it
 ./scripts/build-python-deb.sh $repo master none python3-pyyaml none none \
-    none "python3-yaml (>= 3.11)" none none none none none none none --no-prefix empty "3.11"
+    none "python3-yaml (>= 3.13)" none none none none none none none --no-prefix empty "3.13"
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo master setup.py opmuse none scripts/debian-before-install.sh \
-    scripts/debian-after-install.sh python3.5,ffmpeg,imagemagick,unrar,default-mysql-server,debconf,dbconfig-common,rsync \
+    scripts/debian-after-install.sh python3,ffmpeg,imagemagick,unrar,default-mysql-server,debconf,dbconfig-common,rsync \
     /etc/opmuse/opmuse.ini scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf \
     scripts/debian-templates scripts/debian-before-remove scripts/debian-after-remove --no-prefix
 

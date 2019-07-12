@@ -3,7 +3,9 @@
 /etc/init.d/mysql start
 
 while `sleep 10`; do
-    . /etc/default/opmuse
+    if [ -f /etc/default/opmuse ]; then
+        . /etc/default/opmuse
+    fi
 
     /usr/bin/opmuse-boot \
         --user $USER \

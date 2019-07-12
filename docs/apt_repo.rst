@@ -35,8 +35,8 @@ You can test it out like this
 
 .. code-block:: console
 
-    $ apt-get update
-    $ apt-get install opmuse
+    $ apt-get update --allow-insecure-repositories
+    $ apt-get install opmuse --allow-unauthenticated
 
 This will upgrade the package already in the container. If you want to do an initial install just purge opmuse first.
 
@@ -49,6 +49,8 @@ To start a rebuild do this
 
     $ rm -rf build
     $ ./console jinja compile build/templates
-    $ ./scripts/build-debs.sh /srv/reprepro
+    $ ./scripts/build-debs.sh /srv/repo
+    $ apt-get update --allow-insecure-repositories
+    $ apt-get install opmuse --allow-unauthenticated
 
 And of course if there are new packages you might need to run yarn and pip.

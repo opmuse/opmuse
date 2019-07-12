@@ -41,7 +41,7 @@ Install
 
     $ git clone https://github.com/opmuse/opmuse.git
     $ cd opmuse
-    $ virtualenv -p python3.5 ./virtualenv
+    $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ yarn

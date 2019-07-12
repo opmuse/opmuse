@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:buster
 MAINTAINER Mattias Fliesberg <mattias@fliesberg.email>
 
 WORKDIR /root/
@@ -6,11 +6,11 @@ WORKDIR /root/
 ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL en_US.UTF8
 
-RUN sed -i "s/stretch main/stretch main contrib non-free/" /etc/apt/sources.list && \
+RUN sed -i "s/buster main/buster main contrib non-free/" /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y curl wget locales apt-transport-https python3 python3-pip \
         python3-pkg-resources gnupg ffmpeg imagemagick rsync git zsh vim procps reprepro \
-        ruby ruby-dev build-essential python3-virtualenv virtualenv && \
+        ruby ruby-dev build-essential python3-virtualenv virtualenv python3-simplejson && \
     gem install fpm && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     echo "export LC_ALL=en_US.utf8" >> /root/.bashrc && \
@@ -33,6 +33,10 @@ COPY . /srv/opmuse/
 
 RUN cd /srv/ && \
     cd opmuse && \
+    rm -rf build && \
+    rm -rf node_modules && \
+    rm -rf virtualenv/* && \
+    rm -f public_static/lib && \
     virtualenv -ppython3 virtualenv && \
     . virtualenv/bin/activate && \
     pip install -r requirements.txt && \
@@ -44,7 +48,7 @@ RUN cd /srv/ && \
     rm -rf build && \
     echo "deb file:///srv/repo master main" >> /etc/apt/sources.list && \
     /etc/init.d/mysql start && \
-    apt-get update && \
+    apt-get update --allow-insecure-repositories && \
     apt-get install -y opmuse --allow-unauthenticated
 
 COPY scripts/docker-start.sh /start.sh
