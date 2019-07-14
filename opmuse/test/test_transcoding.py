@@ -22,11 +22,15 @@ from opmuse.transcoding import transcoding, CopyFFMPEGTranscoder, OggFFMPEGTrans
 from opmuse.library import Track
 from .test_library import library_start
 from . import setup_db, teardown_db
-from nose.tools import with_setup
 
 
-@with_setup(setup_db, teardown_db)
 class TestTranscoding:
+    def setup_method(self):
+        setup_db(self)
+
+    def teardown_method(self):
+        teardown_db(self)
+
     def test_determine_transcoder(self):
         library_start()
 
@@ -88,7 +92,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse").one(), 0
 
         for data in transcoding.transcode(track_generator()):
-            assert b"Ogg" in magic.from_buffer(data)
+            assert "Ogg" in magic.from_buffer(data)
             break
         else:
             assert False
@@ -98,7 +102,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse mp3").one(), 0
 
         for data in transcoding.transcode(track_generator()):
-            assert b"ID3" in magic.from_buffer(data)
+            assert "ID3" in magic.from_buffer(data)
             break
         else:
             assert False
@@ -110,7 +114,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse").one(), 0
 
         for data in transcoding.transcode(track_generator(), Mp3FFMPEGTranscoder):
-            assert b"ID3" in magic.from_buffer(data)
+            assert "ID3" in magic.from_buffer(data)
             break
         else:
             assert False
@@ -120,7 +124,7 @@ class TestTranscoding:
             yield self.session.query(Track).filter(Track.name == "opmuse mp3").one(), 0
 
         for data in transcoding.transcode(track_generator(), OggFFMPEGTranscoder):
-            assert b"Ogg" in magic.from_buffer(data)
+            assert "Ogg" in magic.from_buffer(data)
             break
         else:
             assert False

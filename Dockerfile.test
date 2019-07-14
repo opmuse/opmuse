@@ -1,0 +1,8 @@
+FROM inty/opmuse-dev
+MAINTAINER Mattias Fliesberg <mattias@fliesberg.email>
+
+WORKDIR /builds
+
+COPY scripts/docker-test-start.sh /start.sh
+
+ENTRYPOINT ["/start.sh"]

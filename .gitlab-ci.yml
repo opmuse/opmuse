@@ -1,0 +1,10 @@
+stages:
+    - test
+
+pytest:
+    stage: test
+    image: inty/opmuse-test
+    script:
+        - pytest opmuse/test
+    only:
+        - branches

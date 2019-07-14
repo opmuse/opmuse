@@ -16,12 +16,16 @@
 # along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
 
 from . import setup_db, teardown_db
-from nose.tools import with_setup
 from opmuse.security import User, hash_password
 
 
-@with_setup(setup_db, teardown_db)
 class TestSecurity:
+    def setup_method(self):
+        setup_db(self)
+
+    def teardown_method(self):
+        teardown_db(self)
+
     def test_login(self):
         user = self.session.query(User).filter_by(login="admin").one()
 

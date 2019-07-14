@@ -1,17 +1,16 @@
 Testing
 =======
 
-We use `nose`_ to run and write our tests. This is how we run the tests,
+We use `pytest`_ to run and write our tests. This is how we run the tests,
 assuming you've setup a dev environment according to :doc:`gettingstarted`
 first.
 
-.. _`nose`: https://nose.readthedocs.org/
+.. _`pytest`: https://pytest.readthedocs.io/
 
 .. code-block:: console
 
-    $ source virtualenv/bin/activate
     $ pip install -r dev-requirements.txt
-    $ nosetests -w opmuse/test/
+    $ pytest opmuse/test/
 
 Regular tests
 -------------

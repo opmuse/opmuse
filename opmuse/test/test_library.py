@@ -18,7 +18,6 @@
 import os
 from opmuse.library import Library, Artist
 from . import setup_db, teardown_db
-from nose.tools import with_setup
 
 
 def library_start():
@@ -27,8 +26,13 @@ def library_start():
     library.start()
 
 
-@with_setup(setup_db, teardown_db)
 class TestLibrary:
+    def setup_method(self):
+        setup_db(self)
+
+    def teardown_method(self):
+        teardown_db(self)
+
     def test_tracks(self):
 
         library_start()
