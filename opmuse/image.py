@@ -43,4 +43,5 @@ class Image:
 
         return process.returncode == 0
 
+
 image = Image()

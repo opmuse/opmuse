@@ -505,7 +505,7 @@ class Library:
 
             if track.number is not None:
                 # extract max track no, '01' will become 1, '01/10' will become 10
-                disc_nos[disc].append(int(re.search('\d+', track.number).group()))
+                disc_nos[disc].append(int(re.search(r'\d+', track.number).group()))
             else:
                 disc_nos[disc].append(None)
 

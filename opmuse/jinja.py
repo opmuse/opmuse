@@ -150,7 +150,7 @@ def rand_id():
 
 
 def replace_ws(string):
-    match = re.search('\S', string)
+    match = re.search(r'\S', string)
 
     if match is not None:
         index = match.start()

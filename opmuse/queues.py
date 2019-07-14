@@ -465,5 +465,6 @@ class QueueDao:
 
         return index
 
+
 queue_dao = QueueDao()
 queue_events = QueueEvents()

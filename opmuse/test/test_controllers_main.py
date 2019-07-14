@@ -58,7 +58,7 @@ class MainTest(WebCase):
 
         self.assertHeader('Content-Type', 'audio/x-mpegurl')
         self.assertMatchesBody('#EXTM3U')
-        self.assertMatchesBody('http://127.0.0.1:54583/play/stream\?session_id=%s' % session_id)
+        self.assertMatchesBody(r'http://127.0.0.1:54583/play/stream\?session_id=%s' % session_id)
 
     def test_stream(self):
         session_id = self._login()

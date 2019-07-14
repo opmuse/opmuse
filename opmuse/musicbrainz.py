@@ -199,4 +199,5 @@ class Musicbrainz:
             'country': country
         }
 
+
 musicbrainz = Musicbrainz()

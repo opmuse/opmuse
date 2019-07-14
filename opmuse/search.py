@@ -345,5 +345,6 @@ class WhooshPlugin(Monitor):
             write_handler.stopped = True
             write_handler.commit()
 
+
 write_handlers = WriteHandlers()
 search = Search()

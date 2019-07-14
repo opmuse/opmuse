@@ -38,4 +38,5 @@ class Messages:
             'text': text
         })
 
+
 messages = Messages()

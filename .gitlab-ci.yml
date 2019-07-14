@@ -1,6 +1,14 @@
 stages:
     - test
 
+pycodestyle:
+    stage: test
+    image: inty/opmuse-test
+    script:
+        - pycodestyle --ignore=E501,W504,E722,E261 opmuse
+    only:
+        - branches
+
 pytest:
     stage: test
     image: inty/opmuse-test

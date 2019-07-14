@@ -757,12 +757,12 @@ class FsParser(TagParser):
         if metadata is not None and metadata.album_name is not None:
             album_slug = LibraryProcess.slugify(metadata.album_name)[1]
             album_cover_match.append(
-                ('.*%s.*\.(jpg|png|gif)$' % re.escape(album_slug)).encode("utf8")
+                (r'.*%s.*\.(jpg|png|gif)$' % re.escape(album_slug)).encode("utf8")
             )
 
         album_cover_match += [
-            b'.*(cover|front|folder).*\.(jpg|png|gif)$',
-            b'.*\.(jpg|png|gif)$'
+            r'.*(cover|front|folder).*\.(jpg|png|gif)$'.encode("utf8"),
+            r'.*\.(jpg|png|gif)$'.encode("utf8")
         ]
 
         album_cover_path = self.match_in_dir(album_cover_match, track_dir_files)
@@ -773,7 +773,7 @@ class FsParser(TagParser):
             artist_slug = LibraryProcess.slugify(metadata.artist_name)[1]
 
             artist_cover_match = [
-                ('.*%s.*\.(jpg|png|gif)$' % re.escape(artist_slug)).encode("utf8")
+                (r'.*%s.*\.(jpg|png|gif)$' % re.escape(artist_slug)).encode("utf8")
             ]
 
             artist_cover_path = self.match_in_dir(artist_cover_match, track_dir_files)
