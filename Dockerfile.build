@@ -39,12 +39,12 @@ RUN cd /srv/ && \
     rm -f public_static/lib && \
     virtualenv -ppython3 virtualenv && \
     . virtualenv/bin/activate && \
-    pip install -r requirements.txt && \
-    deactivate && \
+    pip install -r requirements.txt -r mysql-requirements.txt && \
     cp config/opmuse.dist.ini config/opmuse.ini && \
     ./console jinja compile build/templates && \
     yarn && \
     ./scripts/build-debs.sh /srv/repo && \
+    deactivate && \
     rm -rf build && \
     echo "deb file:///srv/repo master main" >> /etc/apt/sources.list && \
     /etc/init.d/mysql start && \
