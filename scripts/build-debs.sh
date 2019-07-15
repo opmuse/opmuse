@@ -2,9 +2,15 @@
 
 set -e
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage: $(basename $0) repo"
+if [[ $# -ne 1 && $# -ne 2 ]]; then
+    echo "Usage: $(basename $0) repo [--debug]"
     exit 1
+fi
+
+if [[ $2 = "--debug" ]]; then
+    export debug=yes
+else
+    export debug=no
 fi
 
 repo=$1

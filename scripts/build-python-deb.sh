@@ -51,6 +51,10 @@ args=(
     --python-pip /usr/bin/pip3
 )
 
+if [[ $debug = "yes" ]]; then
+    args+=(--debug)
+fi
+
 if [[ $version != "" ]]; then
     args+=(-v $version)
 fi
