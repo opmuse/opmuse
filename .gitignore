@@ -11,3 +11,6 @@
 /cache/*
 /log/*
 /sample_library/*
+*.deb
+*.tar.gz
+*.egg-info
