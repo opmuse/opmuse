@@ -5,6 +5,7 @@ pycodestyle:
     stage: test
     image: inty/opmuse-test
     script:
+        - pip3 install -r dev-requirements.txt
         - pycodestyle --ignore=E501,W504,E722,E261 opmuse
     only:
         - branches
@@ -13,6 +14,8 @@ pytest:
     stage: test
     image: inty/opmuse-test
     script:
-        - pytest opmuse/test
+        - pip3 install -r requirements.txt -r dev-requirements.txt
+        - yarn
+        - pytest -o log_cli=true --verbose opmuse/test
     only:
         - branches
