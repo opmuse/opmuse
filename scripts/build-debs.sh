@@ -17,14 +17,8 @@ repo=$1
 
 reprepro -b $repo deleteunreferenced
 
-# build deb packages from requirements.txt files except the broken ones, they're
-# built further down from their git repos. we build dev-requirements.txt even if
-# they're not dependencies but so you can use them for debuging.
-#
-# note that we skip building mako, Sphinx and sphinx_rtd_theme altogether.
-# instead we use the os-provided ones
-grep -hiEv "Sphinx|sphinx_rtd_theme|colorlog|pytest|^#" \
-    requirements.txt mysql-requirements.txt dev-requirements.txt | \
+# build deb packages from requirements.txt files.
+grep -hiEv "^#" requirements.txt mysql-requirements.txt | \
 while read -A req; do
     if [[ -f $req[1] ]]; then
         if [[ $req[1] =~ "\.zip$" ]]; then
