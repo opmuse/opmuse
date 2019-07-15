@@ -31,6 +31,7 @@ from rarfile import RarFile
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, distinct, and_
+from sqlalchemy.sql import text
 from opmuse.database import get_database
 from opmuse.library import (library_dao, TrackPath, TrackStructureParser, Album,
                             Track, Artist, UserAndAlbum, Library as LibraryService)
@@ -706,11 +707,11 @@ class Library:
             page = None
 
         if filter == "woartist":
-            query = query.filter("artist_id is null")
+            query = query.filter(text("artist_id is null"))
         elif filter == "woalbum":
-            query = query.filter("album_id is null")
+            query = query.filter(text("album_id is null"))
         elif filter == "invalid":
-            query = query.filter("invalid is not null")
+            query = query.filter(text("invalid is not null"))
         elif filter == "duplicates":
             query = (query.join(TrackPath, Track.id == TrackPath.track_id)
                           .having(func.count(distinct(TrackPath.id)) > 1))
@@ -780,7 +781,7 @@ class Library:
 
             query = query.filter(Artist.id.in_(artist_ids))
         elif filter == "invalid":
-            query = query.filter("invalid is not null")
+            query = query.filter(text("invalid is not null"))
         elif filter == "tag":
             artist_ids = []
 
@@ -869,7 +870,7 @@ class Library:
             query = (query.join(Artist, Artist.id == Track.artist_id)
                           .having(func.count(distinct(Artist.id)) > 1))
         elif filter == "invalid":
-            query = query.filter("invalid is not null")
+            query = query.filter(text("invalid is not null"))
         elif filter == "tag":
             album_ids = []
 

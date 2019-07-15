@@ -38,6 +38,7 @@ from sqlalchemy.dialects import mysql
 from sqlalchemy.orm import relationship, deferred, validates, column_property
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql import text
 from multiprocessing import cpu_count
 from threading import Thread
 from unidecode import unidecode
@@ -1753,7 +1754,7 @@ class LibraryDao:
             query = (get_database().query(ListenedTrack.artist_name, func.count(ListenedTrack.id).label('count'))
                      .filter(ListenedTrack.user_id == user_id)
                      .group_by(ListenedTrack.artist_name)
-                     .order_by('count DESC'))
+                     .order_by(text('count DESC')))
 
             if start_date is not None:
                 query = query.filter(ListenedTrack.timestamp > int(start_date.timestamp()))
@@ -1961,7 +1962,7 @@ class LibraryDao:
 
     def get_invalid_track_count(self):
         return (get_database().query(func.count(Track.id))
-                .filter("invalid is not null", Track.scanned).scalar())
+                .filter(text("invalid is not null"), Track.scanned).scalar())
 
     def get_album_count(self):
         return get_database().query(func.count(Album.id)).scalar()

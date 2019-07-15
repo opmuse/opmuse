@@ -20,7 +20,7 @@ import math
 import random
 from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, or_, and_
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, text
 from sqlalchemy.orm.exc import NoResultFound, ObjectDeletedError
 from opmuse.database import Base, get_database
 from opmuse.security import User
@@ -378,7 +378,7 @@ class QueueDao:
     def clear_played(self):
         user_id = cherrypy.request.user.id
         get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.played,
-                                           "not current")).delete(synchronize_session='fetch')
+                                           text("not current"))).delete(synchronize_session='fetch')
         get_database().commit()
         ws.emit('queue.update')
 
@@ -436,7 +436,7 @@ class QueueDao:
         query = get_database().query(Queue).filter(and_(Queue.user_id == user_id, Queue.id.in_(ids)))
 
         try:
-            query.filter("current").one()
+            query.filter(text("current")).one()
 
             self._reset_current()
         except NoResultFound:
