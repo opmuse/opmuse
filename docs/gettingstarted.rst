@@ -18,7 +18,7 @@ To get cherrypy's output do this
 
 .. code-block:: console
 
-    $ docker start -a opmuse-dev
+    $ docker logs -f opmuse-dev
 
 To get a shell
 
