@@ -4,7 +4,7 @@
 # also, don't forget about readthedocs-requirements.txt
 #
 # opmuse deps
-CherryPy >=16,<17
+CherryPy >=18,<19
 Jinja2 >=2.10,<2.11
 SQLAlchemy >=1.3,<1.4
 mmh3 >=2.5

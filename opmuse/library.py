@@ -26,10 +26,11 @@ import shutil
 import time
 import random
 import logging
+import contextlib2
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from cherrypy.process.plugins import SimplePlugin
-from cherrypy.lib.lockfile import LockFile, LockError
+from zc.lockfile import LockFile, LockError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey, VARBINARY, BINARY, BLOB,
@@ -1204,7 +1205,8 @@ class OpmuseTxt:
 
         for i in range(0, OpmuseTxt.TRIES):
             try:
-                lock = LockFile(self.opmuse_txt + b'.lock')
+                lock_path = self.opmuse_txt + b'.lock'
+                lock = LockFile(lock_path)
 
                 # if there's a opmuse.txt file use its data for this track
                 if os.path.exists(self.opmuse_txt):
@@ -1219,8 +1221,11 @@ class OpmuseTxt:
                 # in the future we might want to store data in opmuse.txt that will
                 # change after first creation. then we'll have to add code here ^^
 
-                lock.release()
-                lock.remove()
+                lock.close()
+
+                with contextlib2.suppress(FileNotFoundError):
+                    os.remove(lock_path)
+
             except LockError:
                 if i == OpmuseTxt.TRIES - 1:
                     warn("Failed to acquire lock for %s, giving up.\n" % self.opmuse_txt, traceback=True)
