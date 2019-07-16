@@ -26,7 +26,7 @@ import shutil
 import time
 import random
 import logging
-import contextlib2
+import contextlib
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from cherrypy.process.plugins import SimplePlugin
@@ -1223,7 +1223,7 @@ class OpmuseTxt:
 
                 lock.close()
 
-                with contextlib2.suppress(FileNotFoundError):
+                with contextlib.suppress(FileNotFoundError):
                     os.remove(lock_path)
 
             except LockError:
