@@ -18,8 +18,7 @@
  */
 
 define([
-        'jquery',
-        'domReady!'
+        'jquery'
     ], function ($) {
 
     'use strict';

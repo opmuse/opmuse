@@ -29,6 +29,8 @@ import signal
 from sqlalchemy.exc import ProgrammingError
 from alembic.config import Config
 from alembic import command
+import jinja2_webpack.scan as webpack_scan
+from opmuse.jinja import get_jinja_env
 from opmuse.boot import configure
 from opmuse.database import Base, get_engine, get_database_name, get_database_type, get_raw_session
 from opmuse.library import TrackPath, Track, Artist, Album, UserAndAlbum, ListenedTrack
@@ -92,25 +94,38 @@ def command_jinja(action=None, path=None):
         if path is None:
             parser.error('Needs to provide a path.')
 
-        from opmuse.jinja import get_jinja_env
         jinja_env = get_jinja_env()
 
         if os.path.exists(path):
             shutil.rmtree(path)
 
         jinja_env.compile_templates(path, zip=None)
+    elif action == "webpack_scan":
+        cache_path = cherrypy.config['opmuse'].get('cache.path')
+        entries_path = os.path.join(root_path, 'webpack-asset-entries.js')
+        templates_path = os.path.join(root_path, "templates")
+
+        jinja_env = get_jinja_env()
+
+        templates = []
+
+        for root, dirname, filenames in os.walk(templates_path):
+            for filename in filenames:
+                if filename.endswith(".html"):
+                    templates.append(os.path.join(root, filename))
+
+        assets = webpack_scan.find_resources(templates_path, root_path, jinja_env, templates)
+
+        with open(entries_path, 'w') as outfile:
+            for path in assets:
+                fullpath = os.path.join(root_path, path)
+
+                if not os.path.exists(fullpath):
+                    continue
+
+                print('require("./%s");' % path, file=outfile)
     else:
-        parser.error('Needs to provide a valid action (compile).')
-
-
-def command_less():
-    from opmuse.compilers import less_compiler
-    less_compiler.compile()
-
-
-def command_js():
-    from opmuse.compilers import js_compiler
-    js_compiler.compile()
+        parser.error('Needs to provide a valid action (compile, webpack_scan).')
 
 
 def command_whoosh(action=None):
@@ -266,7 +281,7 @@ def command_user(action=None, *args):
 
 
 def main():
-    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'less', 'js', 'jinja', 'user'),
+    parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'jinja', 'user'),
                         help='Command to run.')
     parser.add_argument('additional', nargs='*', help='Additional arguments.')
 

@@ -19,12 +19,11 @@
 
 define([
         'jquery',
-        'ajaxify',
+        'opmuse/ajaxify',
         'jquery.fileupload',
         'typeahead',
         'sprintf',
-        'bootstrap/popover',
-        'domReady!'
+        'bootstrap'
     ], function ($, ajaxify) {
 
     'use strict';

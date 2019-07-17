@@ -17,8 +17,8 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(['jquery', 'bootstrap/popover', 'layout', 'domReady!'],
-    function ($, popover, layout) {
+define(['jquery', 'opmuse/layout', 'bootstrap'],
+    function ($, layout) {
 
     'use strict';
 

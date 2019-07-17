@@ -19,14 +19,13 @@
 
 define([
         'jquery',
-        'ajaxify',
-        'ws',
-        'messages',
+        'opmuse/ajaxify',
+        'opmuse/ws',
+        'opmuse/messages',
         'modernizr',
         'jquery.ui/sortable',
         'jquery.nanoscroller',
-        'moment',
-        'domReady!'
+        'moment'
     ], function ($, ajaxify, ws, messages) {
 
     'use strict';

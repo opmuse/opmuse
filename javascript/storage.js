@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'sprintf',
-        'domReady!'
+        'sprintf'
     ], function ($) {
 
     'use strict';

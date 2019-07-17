@@ -3,11 +3,16 @@ MAINTAINER Mattias Fliesberg <mattias@fliesberg.email>
 
 WORKDIR /root/opmuse
 
-COPY . /root/opmuse
+COPY . /tmp/opmuse
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN sed -i "s/buster main/buster main contrib non-free/" /etc/apt/sources.list && \
+RUN cd /root && \
+    git clone /tmp/opmuse && \
+    cd opmuse && \
+    cp /tmp/opmuse/.git/config .git/config && \
+    rm -rf /tmp/opmuse && \
+    sed -i "s/buster main/buster main contrib non-free/" /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y curl wget locales apt-transport-https python3 python3-pip python3-pkg-resources \
         gnupg ffmpeg imagemagick rsync git zsh vim procps && \
@@ -29,6 +34,7 @@ RUN sed -i "s/buster main/buster main contrib non-free/" /etc/apt/sources.list &
     pip3 install -r mysql-requirements.txt && \
     pip3 install -r dev-requirements.txt && \
     yarn && \
+    yarn build:dev && \
     cp config/opmuse.dist.ini config/opmuse.ini && \
     sed -i "s/^\(database\.url\)/#\1/; s/^#\(database\.url = 'mysql\)/\1/" config/opmuse.ini && \
     sed -i "s/^#\(server.socket_host = \).*/\1'0.0.0.0'/" config/opmuse.ini && \

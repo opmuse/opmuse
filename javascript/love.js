@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'messages',
-        'domReady!'
+        'opmuse/messages'
     ], function ($, messages) {
 
     'use strict';

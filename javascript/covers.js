@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'ws',
-        'domReady!'
+        'opmuse/ws'
     ], function ($, ws) {
 
     'use strict';

@@ -27,8 +27,8 @@
  */
 require([
     'jquery',
-    'ws',
-    'layout'
+    'opmuse/ws',
+    'opmuse/layout'
     ], function ($, ws, layout) {
 
     var done = function () {
@@ -50,34 +50,34 @@ require([
 
 require([
     'jquery',
-    'ajaxify',
-    'download',
-    'collapse',
-    'button',
-    'queue',
-    'search',
-    'edit',
-    'logout',
-    'login',
-    'upload',
-    'messages',
-    'modal',
-    'tab',
-    'popover',
-    'tooltip',
-    'locations',
-    'you',
-    'users',
-    'covers',
-    'remotes',
-    'filters',
-    'navbar',
-    'album',
+    'opmuse/ajaxify',
+    'opmuse/download',
+    'opmuse/collapse',
+    'opmuse/button',
+    'opmuse/queue',
+    'opmuse/search',
+    'opmuse/edit',
+    'opmuse/logout',
+    'opmuse/login',
+    'opmuse/upload',
+    'opmuse/messages',
+    'opmuse/modal',
+    'opmuse/tab',
+    'opmuse/popover',
+    'opmuse/tooltip',
+    'opmuse/locations',
+    'opmuse/you',
+    'opmuse/users',
+    'opmuse/covers',
+    'opmuse/remotes',
+    'opmuse/filters',
+    'opmuse/navbar',
+    'opmuse/album',
     'modernizr',
-    'dashboard',
-    'love',
-    'torrents_deluge',
-    'torrents_search'
+    'opmuse/dashboard',
+    'opmuse/love',
+    'opmuse/torrents_deluge',
+    'opmuse/torrents_search'
     ], function ($) {
 
     $.ajaxSetup({
@@ -85,9 +85,3 @@ require([
         headers: { 'Content-type': 'text/plain' }
     });
 });
-
-requirejs.onError = function (err) {
-    var overlay = document.getElementById('overlay');
-    overlay.className = 'error';
-    overlay.innerHTML = err;
-};

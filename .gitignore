@@ -14,3 +14,5 @@
 *.deb
 *.tar.gz
 *.egg-info
+/yarn-error.log
+/webpack-asset-entries.js

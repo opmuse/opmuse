@@ -25,7 +25,7 @@
                     {%- endif -%}&size={{ size }}"
             {% endif %}>
                 <img alt="Album cover" class="album-cover {{ cover_class }}"
-                    src="/static/images/cover_placeholder.png"
+                    src="{{ "assets/images/cover_placeholder.png" | webpack }}"
                     width="{{ width }}" height="{{ height }}">
             </span>
 {% endmacro %}
@@ -49,7 +49,7 @@
             {%- endif -%}&size={{ size }}"
         {% endif %}>
         <img width="{{ width }}" height="{{ height }}"
-            src="/static/images/cover_placeholder.png"
+            src="{{ "assets/images/cover_placeholder.png" | webpack }}"
             alt="Artist cover" class="artist-cover {{ cover_class }}" />
     </span>
 {% endmacro %}

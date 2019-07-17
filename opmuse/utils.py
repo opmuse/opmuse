@@ -22,6 +22,8 @@ import threading
 import cProfile
 import tempfile
 import builtins
+import cherrypy
+import cgitb
 
 
 class ProfiledThread(threading.Thread):
@@ -52,190 +54,134 @@ def get_staticdir():
     return staticdir
 
 
-try:
-    import cherrypy
-    import cgitb
-    from cherrypy.process.plugins import Monitor
+class HTTPRedirect(cherrypy.HTTPRedirect):
+    def set_response(self):
+        if cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            response = cherrypy.serving.response
+            response.headers['X-Opmuse-Location'] = json.dumps(self.urls)
+        else:
+            cherrypy.HTTPRedirect.set_response(self)
 
-    class FileReloader(Monitor):
-        def __init__(self, bus, name, compiler):
-            Monitor.__init__(self, bus, self.run, frequency=.5)
 
-            self.name = name
-            self.compiler = compiler
-            self._files = {}
-            self.enable = False
+def get_pretty_errors(exc):
+    import traceback
 
-        def start(self):
-            Monitor.start(self)
+    try:
+        text = cgitb.text(exc)
+        html = cgitb.html(exc)
+    except:
+        # errors might be thrown when cgitb tries to inspect stuff,
+        # in which case just get a regular stacktrace
+        from cherrypy._cperror import format_exc
+        text = format_exc(exc)
+        html = None
 
-            self.enable = cherrypy.config['opmuse'].get('%s.enable' % self.name)
+    name = traceback.format_exception(*exc)[-1]
 
-            if self.enable is None:
-                self.enable = True
+    return name, text, html
 
-            if not self.enable:
-                return
 
-            self.compiler.compile()
+def mail_pretty_errors(name, text, html):
+    config = cherrypy.tree.apps[''].config['opmuse']
 
-        start.priority = 80
+    error_mail = config.get('error.mail')
 
-        def run(self):
-            if not self.enable:
-                return
+    if error_mail is not None:
+        from opmuse.mail import mailer
 
-            for path, dirnames, filenames in os.walk(self.compiler.dir_from):
-                for filename in filenames:
-                    filepath = os.path.join(path, filename)
-                    mtime = os.stat(filepath).st_mtime
+        mailer.send(error_mail, "opmuse caught error: %s" % name, text, html)
 
-                    if filepath in self._files:
-                        old_mtime = self._files[filepath]
 
-                        if mtime > old_mtime:
-                            cherrypy.log('%s changed' % filename)
-                            self.compiler.compile(filename)
+def error_handler_log():
+    config = cherrypy.tree.apps[''].config['opmuse']
+    debug = config.get('debug')
 
-                    self._files[filepath] = mtime
+    exc = sys.exc_info()
 
-    from opmuse.compilers import less_compiler
+    name, text, html = get_pretty_errors(exc)
 
-    class LessReloader(FileReloader):
-        def __init__(self, bus):
-            FileReloader.__init__(self, bus, 'less_reloader', less_compiler)
+    mail_pretty_errors(name, text, html)
 
-    from opmuse.compilers import js_compiler
-
-    class JsReloader(FileReloader):
-        def __init__(self, bus):
-            FileReloader.__init__(self, bus, 'js_reloader', js_compiler)
-
-    class HTTPRedirect(cherrypy.HTTPRedirect):
-        def set_response(self):
-            if cherrypy.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                response = cherrypy.serving.response
-                response.headers['X-Opmuse-Location'] = json.dumps(self.urls)
+    def _error_handler_log():
+        if debug:
+            if html is not None:
+                cherrypy.response.body = html.encode('utf8')
             else:
-                cherrypy.HTTPRedirect.set_response(self)
+                cherrypy.response.body = text.encode('utf8')
+                cherrypy.response.headers['Content-Type'] = "text/plain; charset=utf8"
 
-    def get_pretty_errors(exc):
-        import traceback
+            cherrypy.response.headers['Content-Length'] = None
 
-        try:
-            text = cgitb.text(exc)
-            html = cgitb.html(exc)
-        except:
-            # errors might be thrown when cgitb tries to inspect stuff,
-            # in which case just get a regular stacktrace
-            from cherrypy._cperror import format_exc
-            text = format_exc(exc)
-            html = None
+        cherrypy.log(text)
 
-        name = traceback.format_exception(*exc)[-1]
+    cherrypy.request.hooks.attach('after_error_response', _error_handler_log)
 
-        return name, text, html
 
-    def mail_pretty_errors(name, text, html):
-        config = cherrypy.tree.apps[''].config['opmuse']
+def profile_pipeline(app):
+    from repoze.profile import ProfileMiddleware
 
-        error_mail = config.get('error.mail')
+    cache_path = cherrypy.config['opmuse'].get('cache.path')
+    profile_path = os.path.join(cache_path, 'profile')
 
-        if error_mail is not None:
-            from opmuse.mail import mailer
+    if not os.path.exists(profile_path):
+        os.mkdir(profile_path)
 
-            mailer.send(error_mail, "opmuse caught error: %s" % name, text, html)
+    return ProfileMiddleware(
+        app,
+        log_filename=os.path.join(profile_path, 'profile.log'),
+        # cachegrind_filename is broken in python 3 :(
+        cachegrind_filename=None,
+        discard_first_request=True,
+        flush_at_shutdown=True,
+        path='/__profile__',
+        unwind=False,
+    )
 
-    def error_handler_log():
-        config = cherrypy.tree.apps[''].config['opmuse']
-        debug = config.get('debug')
 
-        exc = sys.exc_info()
+def multi_headers():
+    if hasattr(cherrypy.response, 'multiheaders'):
+        headers = []
+        for header in cherrypy.response.multiheaders:
+            new_header = tuple()
+            for val in header:
+                if isinstance(val, str):
+                    val = val.encode()
+                new_header += (val, )
+            headers.append(new_header)
+        cherrypy.response.header_list.extend(headers)
 
-        name, text, html = get_pretty_errors(exc)
 
-        mail_pretty_errors(name, text, html)
+def memoize(func):
+    """
+        memoize decorator which memoizes on current request.
+    """
+    def wrapper(self, *args, **kwargs):
+        # if stage is None we're running in a bgtask or something outside
+        # a regular request so we just pass it along...
+        #
+        # TODO for bgtasks we could implement something similar to this using
+        #      threading.local()...
+        if cherrypy.request.stage is None:
+            return func(self, *args, **kwargs)
 
-        def _error_handler_log():
-            if debug:
-                if html is not None:
-                    cherrypy.response.body = html.encode('utf8')
-                else:
-                    cherrypy.response.body = text.encode('utf8')
-                    cherrypy.response.headers['Content-Type'] = "text/plain; charset=utf8"
+        if not hasattr(cherrypy.request, 'memoize'):
+            cherrypy.request.memoize = {}
 
-                cherrypy.response.headers['Content-Length'] = None
+        if len(kwargs) > 0:
+            # to avoid different call signatures creating different keys, e.g. func(1)
+            # and func(arg=1) might be the same call but will have different signatures.
+            # also, dicts aren't hashable.
+            raise Exception('memoize doesn\'t support keywords args.')
 
-            cherrypy.log(text)
+        key = (func, args)
 
-        cherrypy.request.hooks.attach('after_error_response', _error_handler_log)
+        if key not in cherrypy.request.memoize:
+            cherrypy.request.memoize[key] = func(self, *args)
 
-    def profile_pipeline(app):
-        from repoze.profile import ProfileMiddleware
+        return cherrypy.request.memoize[key]
 
-        cache_path = cherrypy.config['opmuse'].get('cache.path')
-        profile_path = os.path.join(cache_path, 'profile')
+    return wrapper
 
-        if not os.path.exists(profile_path):
-            os.mkdir(profile_path)
 
-        return ProfileMiddleware(
-            app,
-            log_filename=os.path.join(profile_path, 'profile.log'),
-            # cachegrind_filename is broken in python 3 :(
-            cachegrind_filename=None,
-            discard_first_request=True,
-            flush_at_shutdown=True,
-            path='/__profile__',
-            unwind=False,
-        )
-
-    def multi_headers():
-        if hasattr(cherrypy.response, 'multiheaders'):
-            headers = []
-            for header in cherrypy.response.multiheaders:
-                new_header = tuple()
-                for val in header:
-                    if isinstance(val, str):
-                        val = val.encode()
-                    new_header += (val, )
-                headers.append(new_header)
-            cherrypy.response.header_list.extend(headers)
-
-    def memoize(func):
-        """
-            memoize decorator which memoizes on current request.
-        """
-        def wrapper(self, *args, **kwargs):
-            # if stage is None we're running in a bgtask or something outside
-            # a regular request so we just pass it along...
-            #
-            # TODO for bgtasks we could implement something similar to this using
-            #      threading.local()...
-            if cherrypy.request.stage is None:
-                return func(self, *args, **kwargs)
-
-            if not hasattr(cherrypy.request, 'memoize'):
-                cherrypy.request.memoize = {}
-
-            if len(kwargs) > 0:
-                # to avoid different call signatures creating different keys, e.g. func(1)
-                # and func(arg=1) might be the same call but will have different signatures.
-                # also, dicts aren't hashable.
-                raise Exception('memoize doesn\'t support keywords args.')
-
-            key = (func, args)
-
-            if key not in cherrypy.request.memoize:
-                cherrypy.request.memoize[key] = func(self, *args)
-
-            return cherrypy.request.memoize[key]
-
-        return wrapper
-
-    multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
-    error_handler_tool = cherrypy.Tool('before_error_response', error_handler_log)
-except ImportError:
-    # ignore ImportError, because this module is used in opmuse.less_compiler
-    # which is used when bulding we dont need/want depend on this
-    pass
+multi_headers_tool = cherrypy.Tool('on_end_resource', multi_headers)
+error_handler_tool = cherrypy.Tool('before_error_response', error_handler_log)

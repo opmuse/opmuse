@@ -27,54 +27,9 @@ if (typeof opmuseGlobals != 'undefined' && opmuseGlobals !== null) {
     version = 1;
 }
 
-var require = {
-    baseUrl: '/static/scripts/',
-    urlArgs: 'version=' + version,
-    paths: {
-        'jquery.nanoscroller': '../lib/nanoscroller/bin/javascripts/jquery.nanoscroller',
-        'jquery.fileupload': '../lib/blueimp-file-upload/js/jquery.fileupload',
-        'jquery.ui.widget': '../lib/jquery-ui/ui/widget',
-        'jquery': '../lib/jquery/dist/jquery',
-        'bootstrap': '../lib/bootstrap/js/',
-        'domReady': '../lib/requirejs-domReady/domReady',
-        'sprintf': '../lib/sprintf/src/sprintf',
-        'moment': '../lib/momentjs/moment',
-        'matchMedia': '../lib/matchMedia/matchMedia',
-        'jquery.ui': '../lib/jquery-ui/ui/',
-        'bloodhound': '../lib/typeahead.js/dist/bloodhound',
-        'typeahead': '../lib/typeahead.js/dist/typeahead.jquery',
-        'modernizr': '../lib/modernizr/modernizr',
-        'bootstrap-growl': '../lib/bootstrap-growl/jquery.bootstrap-growl'
-    },
-    shim: {
-        'bootstrap-growl': ['jquery'],
-        'typeahead': ['jquery', 'bloodhound'],
-        'jquery.ui/core': ['jquery'],
-        'jquery.ui/widget': ['jquery.ui/core'],
-        'jquery.ui/mouse': ['jquery.ui/widget'],
-        'jquery.ui/sortable': ['jquery.ui/mouse'],
-        'bootstrap/popover': ['jquery', 'bootstrap/tooltip'],
-        'bootstrap/button': ['jquery', 'bootstrap/dropdown'],
-        'bootstrap/affix': ['jquery'],
-        'bootstrap/alert': ['jquery'],
-        'bootstrap/carousel': ['jquery'],
-        'bootstrap/collapse': ['jquery'],
-        'bootstrap/dropdown': ['jquery'],
-        'bootstrap/modal': ['jquery'],
-        'bootstrap/scrollspy': ['jquery'],
-        'bootstrap/tab': ['jquery'],
-        'bootstrap/tests': ['jquery'],
-        'bootstrap/tooltip': ['jquery'],
-        'bootstrap/transition': ['jquery'],
-        'jquery.nanoscroller': ['jquery']
-    },
-    waitSeconds: 30
-};
-
 document.addEventListener('DOMContentLoaded', function () {
     /**
      * reset scroll and set overlay to size of viewport before we do anything else,
-     * even before we load requirejs and jquery
      */
     (function () {
         window.scrollTo(0, 0);

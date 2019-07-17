@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'bootstrap-growl',
-        'domReady!'
+        'bootstrap-growl'
     ], function ($) {
 
     'use strict';

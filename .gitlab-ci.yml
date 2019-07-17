@@ -16,6 +16,8 @@ pytest:
     script:
         - pip3 install -r requirements.txt -r dev-requirements.txt
         - yarn
+        - cp config/opmuse.dist.ini config/opmuse.ini
+        - yarn build:dev
         - pytest -o log_cli=true --verbose opmuse/test
     only:
         - branches

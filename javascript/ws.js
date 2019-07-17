@@ -19,12 +19,11 @@
 
 define([
         'jquery',
-        'logger',
-        'ajaxify',
-        'messages',
+        'opmuse/logger',
+        'opmuse/ajaxify',
+        'opmuse/messages',
         'modernizr',
-        'sprintf',
-        'domReady!'
+        'sprintf'
     ], function ($, logger, ajaxify, messages) {
 
     'use strict';

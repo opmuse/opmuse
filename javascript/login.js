@@ -19,10 +19,9 @@
 
 define([
         'jquery',
-        'locations',
-        'ajaxify',
-        'layout',
-        'domReady!'
+        'opmuse/locations',
+        'opmuse/ajaxify',
+        'opmuse/layout'
     ], function ($, locations, ajaxify, layout) {
 
     'use strict';

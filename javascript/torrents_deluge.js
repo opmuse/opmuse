@@ -19,9 +19,8 @@
 
 define([
         'jquery',
-        'messages',
-        'ajaxify',
-        'domReady!'
+        'opmuse/messages',
+        'opmuse/ajaxify'
     ], function ($, messages, ajaxify) {
 
     'use strict';

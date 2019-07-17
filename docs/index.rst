@@ -1,7 +1,7 @@
 Documentation
 =============
 
-.. image:: ../assets/opossum-readme.png
+.. image:: ../assets/images/opossum-readme.png
    :align: right
 
 opmuse is a web application to play, organize, share and make your music library social.

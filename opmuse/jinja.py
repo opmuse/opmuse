@@ -27,6 +27,8 @@ from cherrypy.process.plugins import SimplePlugin
 from cherrypy._cptools import HandlerWrapperTool
 from cherrypy._cpdispatch import PageHandler
 from jinja2 import Environment, FileSystemLoader, ModuleLoader, StrictUndefined
+from jinja2_webpack import Environment as WebpackEnvironment
+from jinja2_webpack.filter import WebpackFilter
 import opmuse
 from opmuse.security import is_granted as _is_granted
 from opmuse.pretty import pretty_date as _pretty_date
@@ -77,6 +79,18 @@ def get_jinja_env():
         auto_reload=auto_reload,
         cache_size=-1
     )
+
+    cache_path = cherrypy.config['opmuse'].get('cache.path')
+    webpack_manifest_path = os.path.join(cache_path, 'webpack-manifest.json')
+
+    if os.path.exists(webpack_manifest_path):
+        webpack_env = WebpackEnvironment(manifest=webpack_manifest_path, publicRoot='')
+        env.filters['webpack'] = WebpackFilter(webpack_env)
+    else:
+        def webpack_filter(*args):
+            raise Exception("webpack-manifest.json is missing, please run `yarn build:dev` and restart opmuse")
+
+        env.filters['webpack'] = webpack_filter
 
     env.filters['nl2p'] = nl2p
     env.filters['format_seconds'] = format_seconds

@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'bootstrap/collapse',
-        'domReady!'
+        'bootstrap'
     ], function ($) {
 
     'use strict';

@@ -12,7 +12,6 @@ can of course be done anywhere that has the right stuff.
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ deactivate
-    $ ./console jinja compile build/templates
     $ yarn
 
 Optionally set the lastfm key and secret.
@@ -37,20 +36,3 @@ You can test it out like this
 
     $ apt-get update --allow-insecure-repositories
     $ apt-get install opmuse --allow-unauthenticated
-
-This will upgrade the package already in the container. If you want to do an initial install just purge opmuse first.
-
-Update / Rebuild
-----------------
-
-To start a rebuild do this
-
-.. code-block:: console
-
-    $ rm -rf build
-    $ ./console jinja compile build/templates
-    $ ./scripts/build-debs.sh /srv/repo
-    $ apt-get update --allow-insecure-repositories
-    $ apt-get install opmuse --allow-unauthenticated
-
-And of course if there are new packages you might need to run yarn and pip.

@@ -19,25 +19,10 @@
             };
         </script>
 
-        <link
-            rel="stylesheet"
-            href="/static/styles/main.css?version={{ opmuse_version }}"
-            type="text/css" />
-
-        <link href="/static/images/favicon.png?version=2" rel="shortcut icon" />
-
-        <link rel="apple-touch-icon" href="/static/images/opossum-white.png"/> 
-
-        <script src="/static/scripts/init.js?version={{ opmuse_version }}"></script>
-
-        {# traceur is broken as an AMD module so we include it like this
-           https://github.com/google/traceur-compiler/issues/1933 #}
-        <script src="/static/lib/traceur/traceur.js?version={{ opmuse_version }}"></script>
-
-        <script
-            data-main="/static/scripts/main.js"
-            src="/static/lib/requirejs/require.js?version={{ opmuse_version }}">
-        </script>
+        <link href="{{ "assets/images/favicon.png" | webpack }}" rel="shortcut icon" />
+        <link rel="apple-touch-icon" href="{{ "assets/images/opossum-white.png" | webpack }}"/>
+        <link rel="stylesheet" href="{{ "css_main" | webpack }}" type="text/css">
+        <script src="{{ "js_init" | webpack }}"></script>
     </head>
     <body lang="en" class="{% block body_class %}{% endblock %}">
         <div id="overlay" class="locked initial">
@@ -50,5 +35,6 @@
             </div>
         </div>
         {% block body %}{% endblock %}
+        <script src="{{ "js_main" | webpack }}"></script>
     </body>
 </html>

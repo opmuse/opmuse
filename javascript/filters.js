@@ -19,9 +19,8 @@
 
 define([
         'jquery',
-        'ajaxify',
-        'sprintf',
-        'domReady!'
+        'opmuse/ajaxify',
+        'sprintf'
     ], function ($, ajaxify) {
 
     'use strict';

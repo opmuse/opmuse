@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'bootstrap/button',
-        'domReady!'
+        'bootstrap'
     ], function ($) {
 
     'use strict';

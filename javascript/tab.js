@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'bootstrap/tab',
-        'domReady!'
+        'bootstrap'
     ], function ($) {
 
     'use strict';

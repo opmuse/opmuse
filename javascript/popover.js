@@ -19,9 +19,8 @@
 
 define([
         'jquery',
-        'bootstrap/popover',
-        'modernizr',
-        'domReady!'
+        'bootstrap',
+        'modernizr'
     ], function ($) {
 
     'use strict';

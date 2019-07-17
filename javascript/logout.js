@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'ajaxify',
-        'domReady!'
+        'opmuse/ajaxify'
     ], function ($, ajaxify) {
 
     'use strict';

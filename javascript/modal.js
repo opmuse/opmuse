@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'bootstrap/modal',
-        'domReady!'
+        'bootstrap'
     ], function ($) {
 
     'use strict';

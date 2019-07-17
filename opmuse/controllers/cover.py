@@ -37,7 +37,7 @@ class Cover:
             else:
                 placeholder = 'cover_placeholder.png'
 
-            images_path = os.path.join(get_staticdir(), 'images')
+            images_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'assets', 'images')
 
             return cherrypy.lib.static.serve_file(os.path.join(images_path, placeholder))
         else:

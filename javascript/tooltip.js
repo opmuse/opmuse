@@ -19,8 +19,7 @@
 
 define([
         'jquery',
-        'bootstrap/tooltip',
-        'domReady!'
+        'bootstrap'
     ], function ($) {
 
     'use strict';

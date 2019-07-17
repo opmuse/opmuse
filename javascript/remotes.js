@@ -19,10 +19,9 @@
 
 define([
         'jquery',
-        'ws',
-        'ajaxify',
-        'reloader',
-        'domReady!'
+        'opmuse/ws',
+        'opmuse/ajaxify',
+        'opmuse/reloader'
     ], function ($, ws, ajaxify, reloader) {
 
     'use strict';

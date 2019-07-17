@@ -19,9 +19,8 @@
 
 define([
         'jquery',
-        'storage',
-        'matchMedia',
-        'domReady!'
+        'opmuse/storage',
+        'matchMedia'
     ], function ($, storage) {
 
     'use strict';

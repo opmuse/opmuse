@@ -45,6 +45,7 @@ Install
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
     $ yarn
+    $ yarn build:dev
     $ cp config/opmuse.dist.ini config/opmuse.ini
     $ edit config/opmuse.ini # fix library.path
 
@@ -96,5 +97,6 @@ When you do a git pull some of these might be required.
     $ pip install --upgrade -r mysql-requirements.txt
     $ pip install --upgrade -r dev-requirements.txt
     $ yarn
+    $ yarn build:dev
     $ ./console database reset # will initiate rescan, might not be required
     $ ./console database update

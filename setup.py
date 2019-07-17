@@ -25,6 +25,7 @@ from configparser import ConfigParser
 from itertools import chain
 from setuptools import setup
 from setuptools.command.build_py import build_py
+from distutils.command.install_data import install_data
 
 try:
     from pip._internal.req import parse_requirements
@@ -32,8 +33,6 @@ try:
 except ImportError:
     from pip.req import parse_requirements
     from pip.download import PipSession
-
-from opmuse.compilers import js_compiler, less_compiler
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
@@ -76,11 +75,6 @@ def get_datafiles(src, dest, exclude_exts=[], followlinks=False):
     return datafiles
 
 
-if not on_readthedocs and not os.path.exists("build/templates"):
-    print('You need to run "console jinja compile" before you build.')
-    sys.exit(1)
-
-
 install_requires = []
 
 for install_require in chain(parse_requirements('requirements.txt', session=PipSession()),
@@ -95,8 +89,10 @@ def build_opmuse():
     config = ConfigParser()
     config.read('setup.cfg')
 
-    if not os.path.exists('build'):
-        os.mkdir('build')
+    if os.path.exists('build'):
+        shutil.rmtree('build')
+
+    os.mkdir('build')
 
     copy('config/opmuse.dist.ini', 'build/opmuse.ini')
 
@@ -114,20 +110,29 @@ def build_opmuse():
         else:
             sys.stdout.write(line)
 
-    less_compiler.compile(path='build/main.css')
-    js_compiler.compile(path='build/javascript/scripts')
+    virtualenv_bin = os.path.join(project_root, 'virtualenv', 'bin', 'python')
+    commands_path = os.path.join(project_root, 'opmuse', 'commands.py')
 
-    shutil.copytree('public_static/lib', 'build/javascript/lib')
+    if not os.path.exists(virtualenv_bin):
+        raise Exception("virtualenv is required for building")
 
-    subprocess.check_call(['node', 'node_modules/requirejs/bin/r.js', '-o', 'scripts/build-requirejs.js'])
+    subprocess.check_call([virtualenv_bin, commands_path, 'jinja', 'compile', 'build/templates'],
+        env={'PYTHONPATH': project_root}
+    )
 
-    if not os.path.exists('build/debian-dbconfig-install'):
-        os.mkdir('build/debian-dbconfig-install')
+    subprocess.check_call([virtualenv_bin, commands_path, 'jinja', 'webpack_scan'],
+        env={'PYTHONPATH': project_root}
+    )
+
+    subprocess.check_call(["npx", "webpack", '--config', 'webpack.prod.js'],
+        env={'NODE_ENV': "production"}
+    )
+
+    os.mkdir('build/debian-dbconfig-install')
 
     copy('scripts/debian-dbconfig-install-mysql', 'build/debian-dbconfig-install/mysql')
 
-    if not os.path.exists('build/debian-dbconfig-upgrade-mysql'):
-        os.mkdir('build/debian-dbconfig-upgrade-mysql')
+    os.mkdir('build/debian-dbconfig-upgrade-mysql')
 
     copy('scripts/debian-dbconfig-upgrade-mysql', 'build/debian-dbconfig-upgrade-mysql/all')
 
@@ -139,29 +144,34 @@ else:
         ('/usr/share/dbconfig-common/scripts/opmuse/install/', ['build/debian-dbconfig-install/mysql']),
         ('/usr/share/dbconfig-common/scripts/opmuse/upgrade/mysql/', ['build/debian-dbconfig-upgrade-mysql/all']),
         # global
-        ('/var/cache/opmuse', ['cache/.keep']),
+        ('/var/cache/opmuse', ['cache/.keep', 'cache/webpack-manifest.json']),
         ('/var/log/opmuse', ['log/.keep']),
         ('/etc/opmuse', ['build/opmuse.ini']),
-        ('/usr/share/opmuse', ['alembic.ini']),
-        ('/usr/share/opmuse/public_static/styles', ['build/main.css']),
-        ('/usr/share/opmuse/public_static/scripts', ['build/main.js', 'build/javascript/scripts/init.js']),
-        ('/usr/share/opmuse/public_static/lib/requirejs', ['public_static/lib/requirejs/require.js']),
-        ('/usr/share/opmuse/public_static/lib/traceur', ['public_static/lib/traceur/traceur.js'])] +
-        get_datafiles('public_static/fonts', '/usr/share/opmuse/public_static') +
-        get_datafiles('public_static/lib/Font-Awesome/fonts', '/usr/share/opmuse/public_static/') +
-        get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
-        get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
-        get_datafiles('build/templates', '/usr/share/opmuse'))
+        ('/usr/share/opmuse', ['alembic.ini'])])
 
-class OpmuseBuild(build_py):
+
+class OpmuseBuildPy(build_py):
     def run(self):
         if not on_readthedocs:
             build_opmuse()
 
         build_py.run(self)
 
+class OpmuseInstallData(install_data):
+    def initialize_options(self):
+        install_data.initialize_options(self)
+
+        if not on_readthedocs:
+            self.data_files += (
+                get_datafiles('build/public_static/build', '/usr/share/opmuse') +
+                get_datafiles('public_static/images', '/usr/share/opmuse/public_static') +
+                get_datafiles('assets', '/usr/share/opmuse') +
+                get_datafiles('database', '/usr/share/opmuse', exclude_exts=['.pyc']) +
+                get_datafiles('build/templates', '/usr/share/opmuse'))
+
 cmdclass = {}
-cmdclass['build_py'] = OpmuseBuild
+cmdclass['build_py'] = OpmuseBuildPy
+cmdclass['install_data'] = OpmuseInstallData
 
 setup(
     name="opmuse",
