@@ -21,33 +21,8 @@ reprepro -b $repo deleteunreferenced
 # build deb packages from requirements.txt files.
 grep -hiEv "^#" requirements.txt mysql-requirements.txt | \
 while read -A req; do
-    if [[ -f $req[1] ]]; then
-        if [[ $req[1] =~ "\.zip$" ]]; then
-            dir=${req[1]/\//_}
-
-            if [[ -d $dir ]]; then
-                rm -rf $dir
-            fi
-
-            unzip $req[1] -d $dir
-
-            name=$(echo ${req[1]:t} | sed "s/^\([^-]\+\)-.*/\1/")
-
-            if [[ -f $(print $dir/**/setup.py) ]]; then
-                ./scripts/build-python-deb.sh $repo $dist $dir/**/setup.py $name \
-                    none none none none none none none none none none none
-            else
-                echo "Couldn't find setup.py for $req"
-                exit 1
-            fi
-        else
-            echo "Don't know how to build $req"
-            exit 1
-        fi
-    else
-        ./scripts/build-python-deb.sh $repo $dist none $req[1] $req[2] none \
-            none none none none none none none none none
-    fi
+    ./scripts/build-python-deb.sh $repo $dist none $req[1] $req[2] none \
+        none none none none none none none none none
 done
 
 # build an empty package for python3-pyyaml with python3-yaml as dep as watchdog
