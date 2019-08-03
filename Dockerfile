@@ -9,7 +9,7 @@ RUN sed -i "s/buster main/buster main contrib non-free/" /etc/apt/sources.list &
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     echo "export LC_ALL=en_US.utf8" >> /root/.bashrc && \
     dpkg-reconfigure locales && \
-    echo "deb https://apt.opmu.se/debian-buster/ master main" > /etc/apt/sources.list.d/opmuse.list && \
+    echo "deb https://apt.opmu.se/debian-buster/ buster main" > /etc/apt/sources.list.d/opmuse.list && \
     curl -s https://apt.opmu.se/opmuse.pub | apt-key add - && \
     apt-get update && \
     echo "mysql-server mysql-server/root_password password" | debconf-set-selections && \
