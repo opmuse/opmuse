@@ -26,6 +26,7 @@ import string
 import random
 import cherrypy
 import signal
+import locale
 from sqlalchemy.exc import ProgrammingError
 from alembic.config import Config
 from alembic import command
@@ -281,6 +282,8 @@ def command_user(action=None, *args):
 
 
 def main():
+    locale.setlocale(locale.LC_ALL, 'en_US.utf8')
+
     parser.add_argument('command', choices=('database', 'cherrypy', 'whoosh', 'jinja', 'user'),
                         help='Command to run.')
     parser.add_argument('additional', nargs='*', help='Additional arguments.')
