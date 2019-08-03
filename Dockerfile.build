@@ -42,7 +42,7 @@ RUN cd /srv/ && \
     deactivate && \
     cp config/opmuse.dist.ini config/opmuse.ini && \
     yarn && \
-    ./scripts/build-debs.sh /srv/repo && \
+    ./scripts/build-debs.sh /srv/repo buster && \
     echo "deb file:///srv/repo buster main" >> /etc/apt/sources.list && \
     /etc/init.d/mysql start && \
     apt-get update --allow-insecure-repositories
