@@ -44,9 +44,9 @@ Install
     $ virtualenv -p python3 ./virtualenv
     $ source virtualenv/bin/activate
     $ pip install -r requirements.txt
+    $ cp config/opmuse.dist.ini config/opmuse.ini
     $ yarn
     $ yarn build:dev
-    $ cp config/opmuse.dist.ini config/opmuse.ini
     $ edit config/opmuse.ini # fix library.path
 
 If you just want to use **SQLite**.
