@@ -20,7 +20,7 @@
 define([
         'jquery',
         'bootstrap',
-        'modernizr'
+        'npm-modernizr'
     ], function ($) {
 
     'use strict';

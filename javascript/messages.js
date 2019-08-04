@@ -19,7 +19,7 @@
 
 define([
         'jquery',
-        'bootstrap-growl'
+        'bootstrap-growl-ifightcrime'
     ], function ($) {
 
     'use strict';

@@ -184,7 +184,8 @@
 
     .tracks-wrapper {
         background-image: url('../assets/images/stressed_linen.png');
-        height: 332px;
+        height: 323px;
+        overflow-y: auto;
         box-shadow:
             inset 0px 11px 8px -10px rgba(0, 0, 0, 0.5),
             inset 0px -11px 8px -10px rgba(0, 0, 0, 0.8);
@@ -203,11 +204,6 @@
             margin: 0;
             padding: 0;
 
-            @media (max-width: @screen-md-min) {
-                overflow: hidden;
-                height: auto;
-            }
-
             li:last-child {
                 margin-bottom: 10px;
             }
@@ -219,8 +215,6 @@
             min-height: 300px;
             height: auto;
             position: static;
-            overflow-y: auto;
-            overflow-x: hidden;
             width: auto;
             padding-right: 6px;
 

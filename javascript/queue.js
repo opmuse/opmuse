@@ -22,11 +22,10 @@ define([
         'opmuse/ajaxify',
         'opmuse/ws',
         'opmuse/messages',
-        'modernizr',
+        'moment',
+        'npm-modernizr',
         'jquery.ui/sortable',
-        'jquery.nanoscroller',
-        'moment'
-    ], function ($, ajaxify, ws, messages) {
+    ], function ($, ajaxify, ws, messages, moment) {
 
     'use strict';
 
@@ -345,25 +344,11 @@ define([
                 that.reload();
             });
 
-            $('#queue').on('ajaxifyInit', function (event) {
-                that.initNanoScroller();
-            });
-
             that.internalInit();
-            that.initNanoScroller();
 
             ws.on('queue.update', function () {
                 that.reloadList();
             });
-        }
-        initNanoScroller () {
-            if (!$('#queue .nano').is('.has-scrollbar')) {
-                $('#queue .nano').nanoScroller({
-                    alwaysVisible: true
-                });
-            } else {
-                $('#queue .nano').nanoScroller();
-            }
         }
         internalInit () {
             var that = this;
@@ -378,7 +363,6 @@ define([
 
             $(document).on('click', '#collapse-queue', function (event) {
                 $('#queue').toggleClass('collapsed');
-                $('#queue .nano').nanoScroller();
                 return false;
             });
 

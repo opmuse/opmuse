@@ -22,8 +22,7 @@ define([
         'opmuse/logger',
         'opmuse/ajaxify',
         'opmuse/messages',
-        'modernizr',
-        'sprintf'
+        'npm-modernizr'
     ], function ($, logger, ajaxify, messages) {
 
     'use strict';

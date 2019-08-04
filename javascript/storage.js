@@ -18,8 +18,7 @@
  */
 
 define([
-        'jquery',
-        'sprintf'
+        'jquery'
     ], function ($) {
 
     'use strict';

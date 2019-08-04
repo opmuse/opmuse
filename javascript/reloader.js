@@ -21,8 +21,7 @@ define([
         'jquery',
         'opmuse/ws',
         'opmuse/ajaxify',
-        'opmuse/logger',
-        'sprintf'
+        'opmuse/logger'
     ], function ($, ws, ajaxify, logger) {
 
     'use strict';

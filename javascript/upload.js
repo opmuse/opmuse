@@ -20,9 +20,9 @@
 define([
         'jquery',
         'opmuse/ajaxify',
-        'jquery.fileupload',
-        'typeahead',
-        'sprintf',
+        'typeahead.js/dist/bloodhound',
+        'typeahead.js/dist/typeahead.jquery',
+        'blueimp-file-upload-npm',
         'bootstrap'
     ], function ($, ajaxify) {
 

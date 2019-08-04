@@ -73,7 +73,7 @@ require([
     'opmuse/filters',
     'opmuse/navbar',
     'opmuse/album',
-    'modernizr',
+    'npm-modernizr',
     'opmuse/dashboard',
     'opmuse/love',
     'opmuse/torrents_deluge',

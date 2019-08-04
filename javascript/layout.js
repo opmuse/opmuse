@@ -20,7 +20,7 @@
 define([
         'jquery',
         'opmuse/storage',
-        'matchMedia'
+        'matchmedia-polyfill'
     ], function ($, storage) {
 
     'use strict';

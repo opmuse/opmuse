@@ -20,8 +20,8 @@
 define([
         'jquery',
         'opmuse/ajaxify',
-        'typeahead',
-        'sprintf'
+        'typeahead.js/dist/bloodhound',
+        'typeahead.js/dist/typeahead.jquery'
     ], function ($, ajaxify) {
 
     'use strict';
