@@ -6,7 +6,9 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 const FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
 const ManifestPlugin = require('webpack-manifest-plugin');
 
-module.exports = {
+function get_conf(defaultFilename)
+{
+return {
     entry: {
         js_init: './javascript/init.js',
         js_main: './javascript/main.js',
@@ -14,7 +16,7 @@ module.exports = {
         assets: './webpack-asset-entries.js'
     },
     output: {
-        filename: '[name].[contenthash].js',
+        filename: defaultFilename + '.js',
         path: path.resolve(__dirname, 'public_static/build/'),
         publicPath: '/static/build/'
     },
@@ -53,10 +55,10 @@ module.exports = {
             fileName: path.resolve(__dirname, 'cache/webpack-manifest.json'),
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css',
+            filename: defaultFilename + '.css',
             chunkFilename: '[id].css',
         }),
-        new FixStyleOnlyEntriesPlugin(),
+        new FixStyleOnlyEntriesPlugin()
     ],
     module: {
         rules: [
@@ -97,9 +99,12 @@ module.exports = {
                 test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/,
                 loader: 'file-loader',
                 options: {
-                    name: '[path][name].[contenthash].[ext]',
+                    name: '[path]' + defaultFilename + '.[ext]',
                 },
             },
         ]
     }
 };
+};
+
+exports.get_conf = get_conf;
