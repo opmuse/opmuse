@@ -26,10 +26,10 @@ define([
 
     var instance = null;
 
-    class You {
+    class Settings {
         constructor () {
             if (instance !== null) {
-                throw Error('Only one instance of You allowed!');
+                throw Error('Only one instance of Settings allowed!');
             }
 
             var that = this;
@@ -43,7 +43,7 @@ define([
         internalInit () {
             var that = this;
 
-            $('#you form button').click(function (event) {
+            $('#settings form button').click(function (event) {
                 var form = $(this).closest('form');
                 var data = $(form).serialize();
 
@@ -68,7 +68,7 @@ define([
 
     return (function () {
         if (instance === null) {
-            instance = new You();
+            instance = new Settings();
         }
 
         return instance;

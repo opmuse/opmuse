@@ -92,4 +92,4 @@ class Settings:
                 user.password = hash_password(password1, user.salt)
                 messages_service.success('Your password was changed.')
 
-        raise HTTPRedirect('/settings')
+        raise cherrypy.InternalRedirect('/settings')

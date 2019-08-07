@@ -66,7 +66,7 @@ require([
     'opmuse/popover',
     'opmuse/tooltip',
     'opmuse/locations',
-    'opmuse/you',
+    'opmuse/settings',
     'opmuse/users',
     'opmuse/covers',
     'opmuse/remotes',
