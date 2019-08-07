@@ -61,7 +61,7 @@ docker_test:
 
 docker:
     extends: .docker
-    stage: docker-dev
+    stage: docker
     variables:
         DOCKER_URL: $DOCKER_HUB_TRIGGER_OPMUSE
     when: manual
