@@ -1,5 +1,24 @@
 stages:
     - test
+    - docker-dev
+    - docker-build
+    - docker-test
+    - docker
+
+variables:
+    DOCKER_HUB_TRIGGER_OPMUSE_DEV: ""
+    DOCKER_HUB_TRIGGER_OPMUSE_BUILD: ""
+    DOCKER_HUB_TRIGGER_OPMUSE_TEST: ""
+    DOCKER_HUB_TRIGGER_OPMUSE: ""
+
+.docker:
+    variables:
+        DOCKER_URL:
+    image: inty/opmuse-test
+    script:
+        - curl --fail -X POST -sv $DOCKER_URL
+    only:
+        - /^develop$/
 
 pycodestyle:
     stage: test
@@ -21,3 +40,28 @@ pytest:
         - pytest -o log_cli=true --verbose opmuse/test
     only:
         - branches
+
+docker_dev:
+    extends: .docker
+    stage: docker-dev
+    variables:
+        DOCKER_URL: $DOCKER_HUB_TRIGGER_OPMUSE_DEV
+
+docker_build:
+    extends: .docker
+    stage: docker-build
+    variables:
+        DOCKER_URL: $DOCKER_HUB_TRIGGER_OPMUSE_BUILD
+
+docker_test:
+    extends: .docker
+    stage: docker-test
+    variables:
+        DOCKER_URL: $DOCKER_HUB_TRIGGER_OPMUSE_TEST
+
+docker:
+    extends: .docker
+    stage: docker-dev
+    variables:
+        DOCKER_URL: $DOCKER_HUB_TRIGGER_OPMUSE
+    when: manual
