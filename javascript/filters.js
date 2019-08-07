@@ -17,65 +17,47 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ajaxify'
-    ], function ($, ajaxify) {
+import $ from 'jquery';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+class Filters {
+    constructor() {
+        var that = this;
 
-    var instance = null;
-
-    class Filters {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Filters allowed!');
-            }
-
-            var that = this;
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
+        $('#main').on('ajaxifyInit', function(event) {
             that.internalInit();
-        }
-        internalInit () {
-            var that = this;
+        });
 
-            $('.filters .filter-value a')
-                .data('ajaxify', false)
-                .click(function (event) {
-                    that.reloadPage($(this).siblings('input'));
-                    return false;
-                }
-            );
+        that.internalInit();
+    }
+    internalInit() {
+        var that = this;
 
-            $('.filters .filter-value input').keyup(function (event) {
-                if (event.keyCode == 13) {
-                    $(this).siblings('.filter-button').click();
-                }
-
+        $('.filters .filter-value a')
+            .data('ajaxify', false)
+            .click(function(event) {
+                that.reloadPage($(this).siblings('input'));
                 return false;
             });
-        }
-        reloadPage (input) {
-            var href = $(input).siblings('.filter-button').attr('href');
-            var value = $(input).val();
 
-            if (value === '') {
-                return false;
+        $('.filters .filter-value input').keyup(function(event) {
+            if (event.keyCode == 13) {
+                $(this).siblings('.filter-button').click();
             }
 
-            ajaxify.setPage(sprintf('%s&filter_value=%s', href, value));
-        }
+            return false;
+        });
     }
+    reloadPage(input) {
+        var href = $(input).siblings('.filter-button').attr('href');
+        var value = $(input).val();
 
-    return (function () {
-        if (instance === null) {
-            instance = new Filters();
+        if (value === '') {
+            return false;
         }
 
-        return instance;
-    })();
-});
+        ajaxify.setPage(sprintf('%s&filter_value=%s', href, value));
+    }
+}
+
+export default new Filters();

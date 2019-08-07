@@ -17,61 +17,44 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ajaxify'
-    ], function ($, ajaxify) {
+import $ from 'jquery';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+class Locations {
+    constructor() {
+        var that = this;
 
-    var instance = null;
+        that.disabled = false;
 
-    class Locations {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Locations allowed!');
+        $(document).ajaxComplete(function(event, xhr) {
+            if (that.disabled) {
+                return;
             }
 
-            var that = this;
+            var location = that.getLocation(xhr);
 
-            that.disabled = false;
-
-            $(document).ajaxComplete(function (event, xhr) {
-                if (that.disabled) {
-                    return;
-                }
-
-                var location = that.getLocation(xhr);
-
-                if (location !== null) {
-                    ajaxify.setPage(location);
-                }
-            });
-        }
-        enable () {
-            this.disabled = false;
-        }
-        disable () {
-            this.disabled = true;
-        }
-        getLocation (xhr) {
-            var header = xhr.getResponseHeader('X-Opmuse-Location');
-
-            if (header !== null) {
-                var locations = JSON.parse(header);
-
-                return locations[0];
+            if (location !== null) {
+                ajaxify.setPage(location);
             }
-
-            return null;
-        }
+        });
     }
+    enable() {
+        this.disabled = false;
+    }
+    disable() {
+        this.disabled = true;
+    }
+    getLocation(xhr) {
+        var header = xhr.getResponseHeader('X-Opmuse-Location');
 
-    return (function () {
-        if (instance === null) {
-            instance = new Locations();
+        if (header !== null) {
+            var locations = JSON.parse(header);
+
+            return locations[0];
         }
 
-        return instance;
-    })();
-});
+        return null;
+    }
+}
+
+export default new Locations();

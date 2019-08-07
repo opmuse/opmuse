@@ -17,139 +17,123 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/storage',
-        'matchmedia-polyfill'
-    ], function ($, storage) {
+import $ from 'jquery';
+import storage from 'opmuse/storage';
+import 'matchmedia-polyfill';
 
-    'use strict';
+class Panel {
+    constructor(layout) {
+        var panelOpen = storage.get('layout.panel.open');
 
-    class Panel {
-        constructor (layout) {
-            var panelOpen = storage.get('layout.panel.open');
+        var that = this;
 
-            var that = this;
+        this.layout = layout;
 
-            this.layout = layout;
+        this.panel = $('#panel');
 
-            this.panel = $('#panel');
+        $('#panel-handle').click(function(event) {
+            // @navbarCollapseWidth
+            if (matchMedia('all and (max-width: 940px)').matches) {
+                return;
+            }
 
-            $('#panel-handle').click(function (event) {
-                // @navbarCollapseWidth
-                if (matchMedia('all and (max-width: 940px)').matches) {
-                    return;
-                }
-
-                if (that.panel.hasClass('open')) {
-                    that.close();
-                } else {
-                    that.open();
-                }
-            });
-
-            if (panelOpen === true) {
+            if (that.panel.hasClass('open')) {
+                that.close();
+            } else {
                 that.open();
             }
+        });
 
-            $(window).resize(function () {
-                // @navbarCollapseWidth
-                if (matchMedia('all and (max-width: 940px)').matches) {
-                    that.open();
-                }
-            }).resize();
+        if (panelOpen === true) {
+            that.open();
         }
-        open () {
-            this.panel.addClass('open');
-            storage.set('layout.panel.open', true);
-        }
-        close () {
-            this.panel.removeClass('open');
-            storage.set('layout.panel.open', false);
-        }
+
+        $(window).resize(function() {
+            // @navbarCollapseWidth
+            if (matchMedia('all and (max-width: 940px)').matches) {
+                that.open();
+            }
+        }).resize();
     }
-
-    var instance = null;
-
-    class Layout {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Layout allowed!');
-            }
-
-            var that = this;
-
-            this.panel = new Panel(this);
-            this.overlayed = 0;
-
-            // initial resizing is done in init.js pre jquery and everything...
-            $(window).resize(function () {
-                that.resizeOverlay();
-            });
-        }
-        resizeOverlay () {
-            $('#overlay').width($(window).width());
-            $('#overlay').height($(window).height());
-        }
-        lockOverlay () {
-            $('body').removeClass('loaded');
-            $('#overlay').addClass('locked');
-        }
-        unlockOverlay () {
-            $('body').addClass('loaded');
-            $('#overlay').removeClass('locked');
-        }
-        showOverlay () {
-            if ($('#overlay').is('.locked')) {
-                return false;
-            }
-
-            $(window).scrollTop(0);
-
-            this.overlayed++;
-
-            $('body').addClass('overlayed');
-            $('#overlay').show().removeClass('hide-overlay').addClass('transparent');
-
-            return true;
-        }
-        hideOverlay () {
-            if ($('#overlay').is('.locked') || $('#overlay').is('.error')) {
-                return false;
-            }
-
-            if (this.overlayed > 0) {
-                this.overlayed--;
-            }
-
-            // i.e. to avoid overlay being removed on panel close when it might
-            // have been shown on ajax load but not finished. e.g. two calls
-            // to showOverlay() needs two calls to hideOverlay() to actually hide it.
-            if (this.overlayed === 0) {
-                $('body').removeClass('overlayed');
-                $('#overlay').addClass('hide-overlay').one('transitionend', function () {
-                    $(this).hide().removeClass('initial');
-                }).removeClass('transparent');
-
-                // for when transitionend doesn't fire (e.g. on login page(
-                if (!$('#overlay').is(':visible')) {
-                    $('#overlay').hide().removeClass('initial');
-                }
-
-                if (!$('#overlay').hasClass('initial')) {
-                    $('#overlay').hide();
-                }
-            }
-
-            return true;
-        }
+    open() {
+        this.panel.addClass('open');
+        storage.set('layout.panel.open', true);
     }
+    close() {
+        this.panel.removeClass('open');
+        storage.set('layout.panel.open', false);
+    }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Layout();
+class Layout {
+    constructor() {
+
+        var that = this;
+
+        this.panel = new Panel(this);
+        this.overlayed = 0;
+
+        // initial resizing is done in init.js pre jquery and everything...
+        $(window).resize(function() {
+            that.resizeOverlay();
+        });
+    }
+    resizeOverlay() {
+        $('#overlay').width($(window).width());
+        $('#overlay').height($(window).height());
+    }
+    lockOverlay() {
+        $('body').removeClass('loaded');
+        $('#overlay').addClass('locked');
+    }
+    unlockOverlay() {
+        $('body').addClass('loaded');
+        $('#overlay').removeClass('locked');
+    }
+    showOverlay() {
+        if ($('#overlay').is('.locked')) {
+            return false;
         }
 
-        return instance;
-    })();
-});
+        $(window).scrollTop(0);
+
+        this.overlayed++;
+
+        $('body').addClass('overlayed');
+        $('#overlay').show().removeClass('hide-overlay').addClass('transparent');
+
+        return true;
+    }
+    hideOverlay() {
+        if ($('#overlay').is('.locked') || $('#overlay').is('.error')) {
+            return false;
+        }
+
+        if (this.overlayed > 0) {
+            this.overlayed--;
+        }
+
+        // i.e. to avoid overlay being removed on panel close when it might
+        // have been shown on ajax load but not finished. e.g. two calls
+        // to showOverlay() needs two calls to hideOverlay() to actually hide it.
+        if (this.overlayed === 0) {
+            $('body').removeClass('overlayed');
+            $('#overlay').addClass('hide-overlay').one('transitionend', function() {
+                $(this).hide().removeClass('initial');
+            }).removeClass('transparent');
+
+            // for when transitionend doesn't fire (e.g. on login page(
+            if (!$('#overlay').is(':visible')) {
+                $('#overlay').hide().removeClass('initial');
+            }
+
+            if (!$('#overlay').hasClass('initial')) {
+                $('#overlay').hide();
+            }
+        }
+
+        return true;
+    }
+}
+
+export default new Layout();

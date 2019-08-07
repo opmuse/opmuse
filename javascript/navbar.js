@@ -17,33 +17,10 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery'
-    ], function ($) {
+import $ from 'jquery';
 
-    'use strict';
+var navbar = $('.navbar-collapse');
 
-    var instance = null;
-
-    class Tooltip {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Navbar allowed!');
-            }
-
-            var navbar = $('.navbar-collapse');
-
-            $('body').on('ajaxifyInit', function (event) {
-                navbar.collapse('hide');
-            });
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Tooltip();
-        }
-
-        return instance;
-    })();
+$('body').on('ajaxifyInit', function(event) {
+    navbar.collapse('hide');
 });

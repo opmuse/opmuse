@@ -17,75 +17,58 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ws',
-        'opmuse/ajaxify',
-        'opmuse/logger'
-    ], function ($, ws, ajaxify, logger) {
+import $ from 'jquery';
+import ws from 'opmuse/ws';
+import ajaxify from 'opmuse/ajaxify';
+import logger from 'opmuse/logger';
 
-    'use strict';
+class Reloader {
+    constructor() {
+    }
+    load(selectors) {
+        var usedSelectors = [];
 
-    var instance = null;
+        for (var index in selectors) {
+            var selector = selectors[index];
 
-    class Reloader {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Reloader allowed!');
+            if ($(selector).length > 0) {
+                if (!$(selector).hasClass('reloader')) {
+                    logger.log(sprintf('Missing reloader class on %s!', selector));
+                    continue;
+                }
+
+                usedSelectors.push(selector);
             }
         }
-        load (selectors) {
-            var usedSelectors = [];
 
-            for (var index in selectors) {
-                var selector = selectors[index];
+        if (usedSelectors.length > 0) {
+            $.ajax(document.location.href, {
+                success: function(data, textStatus, xhr) {
+                    var page = $($.parseHTML(data));
 
-                if ($(selector).length > 0) {
-                    if (!$(selector).hasClass('reloader')) {
-                        logger.log(sprintf('Missing reloader class on %s!', selector));
-                        continue;
+                    for (var index in usedSelectors) {
+                        var selector = usedSelectors[index];
+
+                        (function(selector) {
+                            var element = $(selector);
+
+                            element.addClass('reloader-hide').one('transitionend', function(event) {
+                                var content = element.get(0);
+                                var newContent = page.find(selector).get(0);
+
+                                content.innerHTML = newContent.innerHTML;
+                                ajaxify.fixAttributes(newContent, content);
+                                ajaxify.load(selector);
+
+                                $(this).removeClass('reloader-hide');
+                            });
+                        })(selector);
                     }
-
-                    usedSelectors.push(selector);
-                }
-            }
-
-            if (usedSelectors.length > 0) {
-                $.ajax(document.location.href, {
-                    success: function (data, textStatus, xhr) {
-                        var page = $($.parseHTML(data));
-
-                        for (var index in usedSelectors) {
-                            var selector = usedSelectors[index];
-
-                            (function (selector) {
-                                var element = $(selector);
-
-                                element.addClass('reloader-hide').one('transitionend', function (event) {
-                                    var content = element.get(0);
-                                    var newContent = page.find(selector).get(0);
-
-                                    content.innerHTML = newContent.innerHTML;
-                                    ajaxify.fixAttributes(newContent, content);
-                                    ajaxify.load(selector);
-
-                                    $(this).removeClass('reloader-hide');
-                                });
-                            })(selector);
-                        }
-                    },
-                    error: function (xhr) {
-                    }
-                });
-            }
+                },
+                error: function(xhr) {}
+            });
         }
     }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Reloader();
-        }
-
-        return instance;
-    })();
-});
+export default new Reloader();

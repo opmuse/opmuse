@@ -17,31 +17,21 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'bootstrap'
-    ], function ($) {
+import $ from 'jquery';
+import 'bootstrap';
 
-    'use strict';
+class Tab {
+    constructor() {
+        var that = this;
 
-    var instance = null;
-
-    class Tab {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Tab allowed!');
-            }
-
-            var that = this;
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
+        $('#main').on('ajaxifyInit', function(event) {
             that.internalInit();
-        }
-        internalInit () {
-            $('[data-toggle=tab] a, [data-toggle=pill] a').click(function (event) {
+        });
+
+        that.internalInit();
+    }
+    internalInit() {
+            $('[data-toggle=tab] a, [data-toggle=pill] a').click(function(event) {
                 $(this).tab('show');
                 return false;
             });
@@ -52,23 +42,16 @@ define([
         /**
          * if there's no active tab/pill set first tab/pill as active...
          */
-        setActive (type) {
-            var nav = $('[data-toggle=tab]').closest('.nav-' + type + 's');
-            var content = nav.siblings('.tab-content');
+    setActive(type) {
+        var nav = $('[data-toggle=tab]').closest('.nav-' + type + 's');
+        var content = nav.siblings('.tab-content');
 
-            if (content.length > 0 && content.find('>li.active').length == 0) {
-                var first = content.find(':first-child');
-                var id = first.attr('id');
-                nav.find('[href="#' + id + '"]').tab('show');
-            }
+        if (content.length > 0 && content.find('>li.active').length == 0) {
+            var first = content.find(':first-child');
+            var id = first.attr('id');
+            nav.find('[href="#' + id + '"]').tab('show');
         }
     }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Tab();
-        }
-
-        return instance;
-    })();
-});
+export default new Tab();

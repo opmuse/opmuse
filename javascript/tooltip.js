@@ -17,39 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'bootstrap'
-    ], function ($) {
+import $ from 'jquery';
+import 'bootstrap';
 
-    'use strict';
+function init() {
+    $('*[rel=tooltip]').tooltip();
+}
 
-    var instance = null;
-
-    class Tooltip {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Tooltip allowed!');
-            }
-
-            var that = this;
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            $('*[rel=tooltip]').tooltip();
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Tooltip();
-        }
-
-        return instance;
-    })();
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

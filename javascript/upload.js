@@ -17,256 +17,249 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ajaxify',
-        'typeahead.js/dist/bloodhound',
-        'typeahead.js/dist/typeahead.jquery',
-        'blueimp-file-upload-npm',
-        'bootstrap'
-    ], function ($, ajaxify) {
+import $ from 'jquery';
+import ajaxify from 'opmuse/ajaxify';
+import 'typeahead.js/dist/bloodhound';
+import 'typeahead.js/dist/typeahead.jquery';
+import 'blueimp-file-upload-npm';
+import 'bootstrap';
 
-    'use strict';
+class Upload {
+    constructor() {
+        var that = this;
 
-    var instance = null;
+        // 'upload session' used by backend to not cause conflicts between
+        // different tabs and such.
+        that.session = Math.floor(Math.random() * 1000);
 
-    class Upload {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Upload allowed!');
-            }
+        that.parallelUploads = 4;
+        that.activeUploads = 0;
+        that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
+        that.audio = ['application/x-flac', 'audio/flac', 'audio/mp3', 'audio/x-ms-wma',
+            'audio/mp4a-latm', 'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav',
+            'audio/mpeg', 'audio/mp4', 'audio/x-m4a'
+        ];
 
-            var that = this;
+        this.files = [];
+        this.names = [];
 
-            // 'upload session' used by backend to not cause conflicts between
-            // different tabs and such.
-            that.session = Math.floor(Math.random() * 1000);
-
-            that.parallelUploads = 4;
-            that.activeUploads = 0;
-            that.archives = ['application/zip', 'application/rar', 'application/x-rar'];
-            that.audio = ['application/x-flac', 'audio/flac', 'audio/mp3', 'audio/x-ms-wma',
-                'audio/mp4a-latm', 'audio/ogg', 'audio/x-ape', 'audio/x-musepack', 'audio/wav',
-                'audio/mpeg', 'audio/mp4', 'audio/x-m4a'];
-
-            this.files = [];
-            this.names = [];
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            this.totalSize = 0;
-            this.totalLoaded = 0;
-
+        $('#main').on('ajaxifyInit', function(event) {
             that.internalInit();
+        });
+
+        this.totalSize = 0;
+        this.totalLoaded = 0;
+
+        that.internalInit();
+    }
+    typeahead(input) {
+        var that = this;
+
+        var mySource = new Bloodhound({
+            datumTokenizer: function(data) {
+                return Bloodhound.tokenizers.whitespace(data.name);
+            },
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: that.names
+        });
+
+        mySource.initialize();
+
+        var dataSet = {
+            displayKey: 'name',
+            source: mySource.ttAdapter()
+        };
+
+        $(input).typeahead(null, dataSet);
+    }
+    internalInit() {
+        var that = this;
+
+        if ($('#fileupload').data('initialized')) {
+            return;
         }
-        typeahead (input) {
-            var that = this;
 
-            var mySource = new Bloodhound({
-                datumTokenizer: function (data) {
-                    return Bloodhound.tokenizers.whitespace(data.name);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                local: that.names
-            });
+        $('#fileupload').data('initialized', true);
 
-            mySource.initialize();
+        $('#fileupload').fileupload({
+            singleFileUploads: false,
+            multipart: false,
+            add: function(event, data) {
+                var files = [];
 
-            var dataSet = {
-                displayKey: 'name',
-                source: mySource.ttAdapter()
-            };
+                var artistNameFallback = sprintf('Unknown Artist %d', Math.floor(Math.random() * 1000));
 
-            $(input).typeahead(null, dataSet);
-        }
-        internalInit () {
-            var that = this;
+                $.each(data.files, function() {
+                    var file = this;
 
-            if ($('#fileupload').data('initialized')) {
-                return;
-            }
+                    var fileDom = $('#fileupload .files .tmpl').clone().removeClass('tmpl').data('file', file);
 
-            $('#fileupload').data('initialized', true);
+                    fileDom.data('artistNameFallback', artistNameFallback);
 
-            $('#fileupload').fileupload({
-                singleFileUploads: false,
-                multipart: false,
-                add: function (event, data) {
-                    var files = [];
+                    fileDom.find('.filename').text(file.name);
 
-                    var artistNameFallback = sprintf('Unknown Artist %d', Math.floor(Math.random() * 1000));
+                    fileDom.find('.file-remove').click(function() {
+                        var tr = $(this).closest('tr');
 
-                    $.each(data.files, function () {
-                        var file = this;
+                        var file = tr.data('file');
+                        var index = 0;
 
-                        var fileDom = $('#fileupload .files .tmpl').clone().removeClass('tmpl').data('file', file);
+                        for (var otherIndex in that.files) {
+                            var otherFile = that.files[otherIndex].file;
 
-                        fileDom.data('artistNameFallback', artistNameFallback);
-
-                        fileDom.find('.filename').text(file.name);
-
-                        fileDom.find('.file-remove').click(function () {
-                            var tr = $(this).closest('tr');
-
-                            var file = tr.data('file');
-                            var index = 0;
-
-                            for (var otherIndex in that.files) {
-                                var otherFile = that.files[otherIndex].file;
-
-                                if (file === otherFile) {
-                                    break;
-                                }
-
-                                index++;
+                            if (file === otherFile) {
+                                break;
                             }
 
-                            that.files.splice(index, 1);
+                            index++;
+                        }
 
-                            tr.remove();
+                        that.files.splice(index, 1);
 
-                            return false;
+                        tr.remove();
+
+                        return false;
+                    });
+
+                    if (that.archives.indexOf(file.type) != -1) {
+                        fileDom.find('[name=archive_password]').show();
+                        fileDom.addClass('archive-file');
+
+                        files.unshift([fileDom, file]);
+                    } else if (that.audio.indexOf(file.type) != -1) {
+                        fileDom.addClass('audio-file');
+
+                        that.names.push({
+                            'name': $(fileDom).data('file').name
                         });
 
-                        if (that.archives.indexOf(file.type) != -1) {
-                            fileDom.find('[name=archive_password]').show();
-                            fileDom.addClass('archive-file');
-
-                            files.unshift([fileDom, file]);
-                        } else if (that.audio.indexOf(file.type) != -1) {
-                            fileDom.addClass('audio-file');
-
-                            that.names.push({'name': $(fileDom).data('file').name});
-
-                            $('#fileupload .files > .other-file:visible').each(function () {
-                                var audioFile = $(this).find('[name=audio_file]');
-
-                                audioFile.typeahead('destroy');
-                                that.typeahead(audioFile);
-                            });
-
-                            files.unshift([fileDom, file]);
-                        } else {
-                            var audioFile = fileDom.find('[name=audio_file]');
-
-                            var prevFile = null;
-
-                            $(data.files).each(function () {
-                                var file = this;
-
-                                if (that.audio.indexOf(file.type) != -1) {
-                                    prevFile = file;
-                                    return false;
-                                }
-                            });
-
-                            if (prevFile !== null) {
-                                audioFile.val(prevFile.name);
-                            }
-
-                            fileDom.addClass('other-file');
-
-                            audioFile.show();
+                        $('#fileupload .files > .other-file:visible').each(function() {
+                            var audioFile = $(this).find('[name=audio_file]');
 
                             audioFile.typeahead('destroy');
                             that.typeahead(audioFile);
+                        });
 
-                            files.push([fileDom, file]);
+                        files.unshift([fileDom, file]);
+                    } else {
+                        var audioFile = fileDom.find('[name=audio_file]');
+
+                        var prevFile = null;
+
+                        $(data.files).each(function() {
+                            var file = this;
+
+                            if (that.audio.indexOf(file.type) != -1) {
+                                prevFile = file;
+                                return false;
+                            }
+                        });
+
+                        if (prevFile !== null) {
+                            audioFile.val(prevFile.name);
                         }
 
-                        that.totalSize += file.size;
-                    });
+                        fileDom.addClass('other-file');
 
-                    for (var index in files) {
-                        var file = files[index];
+                        audioFile.show();
 
-                        var fileDom = file[0];
-                        file = file[1];
+                        audioFile.typeahead('destroy');
+                        that.typeahead(audioFile);
 
-                        $('#fileupload .files').append(fileDom);
-
-                        that.files.push({
-                            file: file,
-                            dom: fileDom
-                        });
-                    }
-                },
-                progress: function (event, data) {
-                    var loaded = $(data.fileDom).data('loaded');
-
-                    if (typeof loaded == 'undefined' || loaded === null) {
-                        loaded = 0;
+                        files.push([fileDom, file]);
                     }
 
-                    $(data.fileDom).data('loaded', data.loaded);
-
-                    that.totalLoaded += data.loaded - loaded;
-
-                    var progress = parseInt((data.loaded / data.total) * 100, 10);
-                    var totalProgress = parseInt((that.totalLoaded / that.totalSize) * 100, 10);
-
-                    $('.total-progress.progress').addClass('active').find('.progress-bar').eq(0).css(
-                        'width',
-                        totalProgress + '%'
-                    );
-
-                    $(data.fileDom).find('.progress').addClass('active').find('.progress-bar').eq(0).css(
-                        'width',
-                        progress + '%'
-                    );
-                }
-            });
-
-            $('#fileupload .start').click(function (event) {
-                $('#upload .uploaded .tracks').contents().remove();
-                $('#upload .uploaded .messages').contents().remove();
-
-                that.send(true);
-
-                return false;
-            });
-
-            $('#fileupload .edit-invalid').click(function (event) {
-                var ids = [];
-
-                $('.uploaded .tracks .track').each(function () {
-                    var invalid = $(this).data('track-invalid');
-                    var id = $(this).data('track-id');
-
-                    if (invalid !== null) {
-                        ids.push(id);
-                    }
+                    that.totalSize += file.size;
                 });
 
-                if (ids.length > 0) {
-                    ajaxify.setPage('/library/edit/' + ids.join(','));
+                for (var index in files) {
+                    var file = files[index];
+
+                    var fileDom = file[0];
+                    file = file[1];
+
+                    $('#fileupload .files').append(fileDom);
+
+                    that.files.push({
+                        file: file,
+                        dom: fileDom
+                    });
+                }
+            },
+            progress: function(event, data) {
+                var loaded = $(data.fileDom).data('loaded');
+
+                if (typeof loaded == 'undefined' || loaded === null) {
+                    loaded = 0;
                 }
 
-                return false;
+                $(data.fileDom).data('loaded', data.loaded);
+
+                that.totalLoaded += data.loaded - loaded;
+
+                var progress = parseInt((data.loaded / data.total) * 100, 10);
+                var totalProgress = parseInt((that.totalLoaded / that.totalSize) * 100, 10);
+
+                $('.total-progress.progress').addClass('active').find('.progress-bar').eq(0).css(
+                    'width',
+                    totalProgress + '%'
+                );
+
+                $(data.fileDom).find('.progress').addClass('active').find('.progress-bar').eq(0).css(
+                    'width',
+                    progress + '%'
+                );
+            }
+        });
+
+        $('#fileupload .start').click(function(event) {
+            $('#upload .uploaded .tracks').contents().remove();
+            $('#upload .uploaded .messages').contents().remove();
+
+            that.send(true);
+
+            return false;
+        });
+
+        $('#fileupload .edit-invalid').click(function(event) {
+            var ids = [];
+
+            $('.uploaded .tracks .track').each(function() {
+                var invalid = $(this).data('track-invalid');
+                var id = $(this).data('track-id');
+
+                if (invalid !== null) {
+                    ids.push(id);
+                }
             });
-        }
-        done () {
-            this.totalSize = 0;
-            this.totalLoaded = 0;
 
-            setTimeout(function () {
-                $('.total-progress.progress').removeClass('active').find('.progress-bar')
-                    .eq(0).css('width', '0%');
-            }, 3000);
-        }
-        send (start) {
-            var that = this;
+            if (ids.length > 0) {
+                ajaxify.setPage('/library/edit/' + ids.join(','));
+            }
 
-            // first start the session in the backend, then start the actual upload
-            if (start === true) {
-                $.ajax(sprintf('%s?session=%d', $('#fileupload').data('url-start'), that.session), {
-                    success: function (data, textStatus, xhr) {
-                        that.send();
-                    },
-                    error: function (xhr) {
-                        $('.total-progress.progress').addClass('progress-bar-danger')
+            return false;
+        });
+    }
+    done() {
+        this.totalSize = 0;
+        this.totalLoaded = 0;
+
+        setTimeout(function() {
+            $('.total-progress.progress').removeClass('active').find('.progress-bar')
+                .eq(0).css('width', '0%');
+        }, 3000);
+    }
+    send(start) {
+        var that = this;
+
+        // first start the session in the backend, then start the actual upload
+        if (start === true) {
+            $.ajax(sprintf('%s?session=%d', $('#fileupload').data('url-start'), that.session), {
+                success: function(data, textStatus, xhr) {
+                    that.send();
+                },
+                error: function(xhr) {
+                    $('.total-progress.progress').addClass('progress-bar-danger')
                         .popover({
                             html: true,
                             trigger: 'hover',
@@ -275,98 +268,95 @@ define([
                             title: 'Error occured while starting upload.',
                             content: $(xhr.responseText).find('#content').contents()
                         });
-                    }
-                });
+                }
+            });
 
-                return;
+            return;
+        }
+
+        var count = that.parallelUploads - that.activeUploads;
+
+        that.names.splice(0, that.names.length);
+
+        for (var index = 0; index < count; index++) {
+            if (index >= that.files.length) {
+                break;
             }
 
-            var count = that.parallelUploads - that.activeUploads;
+            var file = that.files.splice(0, 1)[0];
 
-            that.names.splice(0, that.names.length);
+            var archivePassword = $(file.dom).find('[name=archive_password]').val();
+            var audioFile = $(file.dom).find('[name=audio_file]').val();
+            var artistNameFallback = $(file.dom).data('artistNameFallback');
 
-            for (var index = 0; index < count; index++) {
-                if (index >= that.files.length) {
-                    break;
-                }
+            var url = sprintf('%s?archive_password=%s&audio_file=%s&session=%d&artist_name_fallback=%s',
+                $('#fileupload').attr('action'), encodeURIComponent(archivePassword),
+                encodeURIComponent(audioFile), that.session, encodeURIComponent(artistNameFallback));
 
-                var file = that.files.splice(0, 1)[0];
+            that.activeUploads++;
 
-                var archivePassword = $(file.dom).find('[name=archive_password]').val();
-                var audioFile = $(file.dom).find('[name=audio_file]').val();
-                var artistNameFallback = $(file.dom).data('artistNameFallback');
+            var done = false;
 
-                var url = sprintf('%s?archive_password=%s&audio_file=%s&session=%d&artist_name_fallback=%s',
-                    $('#fileupload').attr('action'), encodeURIComponent(archivePassword),
-                    encodeURIComponent(audioFile), that.session, encodeURIComponent(artistNameFallback));
+            if (index == that.files.length - 1) {
+                done = true;
+            }
 
-                that.activeUploads++;
+            (function(file, done) {
+                $('#fileupload').fileupload('send', {
+                        files: file.file,
+                        url: url,
+                        fileDom: file.dom
+                    })
+                    .success(function(result, textStatus, jqXHR) {
+                        that.activeUploads--;
 
-                var done = false;
+                        $(file.dom).remove();
 
-                if (index == that.files.length - 1) {
-                    done = true;
-                }
+                        var resultDom = $(result);
 
-                (function (file, done) {
-                    $('#fileupload').fileupload('send', { files: file.file, url: url, fileDom: file.dom })
-                        .success(function (result, textStatus, jqXHR) {
-                            that.activeUploads--;
+                        ajaxify.load(resultDom);
 
-                            $(file.dom).remove();
+                        var tracks = $('#upload .uploaded .tracks');
 
-                            var resultDom = $(result);
+                        tracks.contents().remove();
 
-                            ajaxify.load(resultDom);
+                        tracks.append(
+                            resultDom.find('.tracks-hierarchy')
+                        );
 
-                            var tracks = $('#upload .uploaded .tracks');
+                        $('#upload .uploaded .messages').append(
+                            resultDom.find('.message')
+                        );
 
-                            tracks.contents().remove();
+                        if (done) {
+                            that.done();
+                        } else {
+                            that.send();
+                        }
+                    }).error(function(jqXHR, textStatus, errorThrown) {
+                        that.activeUploads--;
 
-                            tracks.append(
-                                resultDom.find('.tracks-hierarchy')
-                            );
+                        $(file.dom).addClass('danger').find('.progress-bar')
+                            .removeClass('progress-bar-success').addClass('progress-bar-danger');
 
-                            $('#upload .uploaded .messages').append(
-                                resultDom.find('.message')
-                            );
-
-                            if (done) {
-                                that.done();
-                            } else {
-                                that.send();
-                            }
-                        }).error(function (jqXHR, textStatus, errorThrown) {
-                            that.activeUploads--;
-
-                            $(file.dom).addClass('danger').find('.progress-bar')
-                                .removeClass('progress-bar-success').addClass('progress-bar-danger');
-
-                            $(file.dom).popover({
-                                html: true,
-                                trigger: 'hover',
-                                placement: 'bottom',
-                                container: '#upload',
-                                title: sprintf('Error occured while uploading <strong>%s</strong>.', file.file.name),
-                                content: $(jqXHR.responseText).find('#content').contents()
-                            });
-
-                            if (done) {
-                                that.done();
-                            } else {
-                                that.send();
-                            }
+                        $(file.dom).popover({
+                            html: true,
+                            trigger: 'hover',
+                            placement: 'bottom',
+                            container: '#upload',
+                            title: sprintf('Error occured while uploading <strong>%s</strong>.', file.file.name),
+                            content: $(jqXHR.responseText).find('#content').contents()
                         });
-                })(file, done);
-            }
+
+                        if (done) {
+                            that.done();
+                        } else {
+                            that.send();
+                        }
+                    });
+            })(file, done);
         }
     }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Upload();
-        }
-
-        return instance;
-    })();
-});
+export default new Upload();

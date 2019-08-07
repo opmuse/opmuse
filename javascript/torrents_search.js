@@ -17,50 +17,26 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/messages',
-        'opmuse/ajaxify'
-    ], function ($, messages, ajaxify) {
+import $ from 'jquery';
+import messages from 'opmuse/messages';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+function init() {
+    $('#torrents_search .torrent-search-query')
+        .off('keyup.search-query')
+        .on('keyup.search-query', function(event) {
+            if (event.keyCode == 13 && $(this).val() != '') {
+                var value = $(this).val();
+                var encodedValue = encodeURIComponent(value);
 
-    var instance = null;
-
-    class TorrentsSearch {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of TorrentsSearch allowed!');
+                ajaxify.setPage('/torrents/search?query=' + encodedValue);
             }
 
-            var that = this;
+        });
+}
 
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            $('#torrents_search .torrent-search-query')
-                .off('keyup.search-query')
-                .on('keyup.search-query', function (event) {
-                if (event.keyCode == 13 && $(this).val() != '') {
-                    var value = $(this).val();
-                    var encodedValue = encodeURIComponent(value);
-
-                    ajaxify.setPage('/torrents/search?query=' + encodedValue);
-                }
-
-            });
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new TorrentsSearch();
-        }
-
-        return instance;
-    })();
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

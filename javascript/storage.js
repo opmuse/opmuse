@@ -17,46 +17,29 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery'
-    ], function ($) {
+import $ from 'jquery';
 
-    'use strict';
-
-    var instance = null;
-
-    class Storage {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Storage allowed!');
-            }
-
-            this.storage = localStorage;
-            this.typeKeyFormat = '__type__.%s';
-        }
-        set (key, value) {
-            this.storage.setItem(key, value);
-            this.storage.setItem(sprintf(this.typeKeyFormat, key), typeof value);
-        }
-        get (key) {
-            var type = this.storage.getItem(sprintf(this.typeKeyFormat, key));
-            var value = this.storage.getItem(key);
-
-            if (type == 'boolean') {
-                value = value == 'true' ? true : false;
-            } else if (type == 'number') {
-                value = parseFloat(value);
-            }
-
-            return value;
-        }
+class Storage {
+    constructor() {
+        this.storage = localStorage;
+        this.typeKeyFormat = '__type__.%s';
     }
+    set(key, value) {
+        this.storage.setItem(key, value);
+        this.storage.setItem(sprintf(this.typeKeyFormat, key), typeof value);
+    }
+    get(key) {
+        var type = this.storage.getItem(sprintf(this.typeKeyFormat, key));
+        var value = this.storage.getItem(key);
 
-    return (function () {
-        if (instance === null) {
-            instance = new Storage();
+        if (type == 'boolean') {
+            value = value == 'true' ? true : false;
+        } else if (type == 'number') {
+            value = parseFloat(value);
         }
 
-        return instance;
-    })();
-});
+        return value;
+    }
+}
+
+export default new Storage();

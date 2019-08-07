@@ -17,44 +17,18 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'bootstrap',
-        'npm-modernizr'
-    ], function ($) {
+import $ from 'jquery';
+import 'bootstrap';
+import 'npm-modernizr';
 
-    'use strict';
+function init() {
+    $('*[rel=popover]').popover();
+}
 
-    var instance = null;
+if (!Modernizr.touch) {
+    $('#main, #queue').on('ajaxifyInit', function(event) {
+        init();
+    });
 
-    class Popover {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Popover allowed!');
-            }
-
-            var that = this;
-
-            if (Modernizr.touch) {
-                return;
-            }
-
-            $('#main, #queue').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            $('*[rel=popover]').popover();
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Popover();
-        }
-
-        return instance;
-    })();
-});
+    init();
+}

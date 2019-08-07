@@ -17,59 +17,42 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'bootstrap-growl-ifightcrime'
-    ], function ($) {
+import $ from 'jquery';
+import 'bootstrap-growl-ifightcrime';
 
-    'use strict';
+class Messages {
+    constructor() {
+        var that = this;
 
-    var instance = null;
+        $(document).ajaxComplete(function(event, xhr) {
+            var header = xhr.getResponseHeader('X-Opmuse-Message');
 
-    class Messages {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Messages allowed!');
+            if (header !== null) {
+                var message = JSON.parse(header);
+
+                that.message(message.type, message.text);
             }
+        });
 
-            var that = this;
-
-            $(document).ajaxComplete(function (event, xhr) {
-                var header = xhr.getResponseHeader('X-Opmuse-Message');
-
-                if (header !== null) {
-                    var message = JSON.parse(header);
-
-                    that.message(message.type, message.text);
-                }
-            });
-
-        }
-        message (type, text) {
-            $.bootstrapGrowl(text, {
-                type: type,
-                align: 'right',
-                width: 'auto',
-                delay: 6000,
-                allow_dismiss: false
-            });
-        }
-        info (text) {
-            this.message('info', text);
-        }
-        success (text) {
-            this.message('success', text);
-        }
-        danger (text) {
-            this.message('danger', text);
-        }
     }
+    message(type, text) {
+        $.bootstrapGrowl(text, {
+            type: type,
+            align: 'right',
+            width: 'auto',
+            delay: 6000,
+            allow_dismiss: false
+        });
+    }
+    info(text) {
+        this.message('info', text);
+    }
+    success(text) {
+        this.message('success', text);
+    }
+    danger(text) {
+        this.message('danger', text);
+    }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Messages();
-        }
-
-        return instance;
-    })();
-});
+export default new Messages();

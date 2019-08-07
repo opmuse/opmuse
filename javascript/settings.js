@@ -17,61 +17,34 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ajaxify'
-    ], function ($, ajaxify) {
+import $ from 'jquery';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+function init() {
+    $('#settings form button').click(function(event) {
+        var form = $(this).closest('form');
+        var data = $(form).serialize();
 
-    var instance = null;
-
-    class Settings {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Settings allowed!');
+        $.ajax($(form).attr('action'), {
+            type: 'post',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: data,
+            success: function(data) {
+                ajaxify.setPageInDom(data);
+            },
+            error: function(xhr) {
+                ajaxify.setPageInDom(xhr.responseText);
             }
+        });
 
-            var that = this;
+        return false;
+    });
+}
 
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            var that = this;
-
-            $('#settings form button').click(function (event) {
-                var form = $(this).closest('form');
-                var data = $(form).serialize();
-
-                $.ajax($(form).attr('action'), {
-                    type: 'post',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    data: data,
-                    success: function (data) {
-                        ajaxify.setPageInDom(data);
-                    },
-                    error: function (xhr) {
-                        ajaxify.setPageInDom(xhr.responseText);
-                    }
-                });
-
-                return false;
-            });
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Settings();
-        }
-
-        return instance;
-    })();
-
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

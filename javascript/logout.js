@@ -17,39 +17,16 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ajaxify'
-    ], function ($, ajaxify) {
+import $ from 'jquery';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+function init() {
+    $('.logout').data('ajaxify', false);
+}
 
-    var instance = null;
-
-    class Logout {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Logout allowed!');
-            }
-
-            var that = this;
-
-            $('#top').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            $('.logout').data('ajaxify', false);
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Logout();
-        }
-
-        return instance;
-    })();
+$('#top').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();
+

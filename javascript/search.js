@@ -17,71 +17,46 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ajaxify'
-    ], function ($, ajaxify) {
+import $ from 'jquery';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+function init() {
+    var query = $('#search').data('query');
 
-    var instance = null;
+    $('.search-query')
+        .off('keyup.search-query')
+        .on('keyup.search-query', function(event) {
+            if (event.keyCode == 13 && $(this).val() != '') {
+                $(this).blur();
+                $(window).focus();
 
-    class Search {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Search allowed!');
-            }
+                var value = $(this).val();
+                var encodedValue = encodeURIComponent(value);
 
-            if ($('.search-query').length == 0) {
-                return;
-            }
+                var path;
 
-            var that = this;
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            var query = $('#search').data('query');
-
-            $('.search-query')
-                .off('keyup.search-query')
-                .on('keyup.search-query', function (event) {
-                if (event.keyCode == 13 && $(this).val() != '') {
-                    $(this).blur();
-                    $(window).focus();
-
-                    var value = $(this).val();
-                    var encodedValue = encodeURIComponent(value);
-
-                    var path;
-
-                    // this means there's no extended-ASCII chars and we can
-                    // have a fancy url like so
-                    if (encodedValue === value) {
-                        path = '/search/' + encodedValue;
+                // this means there's no extended-ASCII chars and we can
+                // have a fancy url like so
+                if (encodedValue === value) {
+                    path = '/search/' + encodedValue;
                     // this does have extended-ASCII, and because cherrypy seems
                     // to assume latin1 for PATH_INFO we'll have to put it in
                     // a query string...
-                    } else {
-                        path = '/search?query=' + encodedValue;
-                    }
-
-                    ajaxify.setPage(path);
+                } else {
+                    path = '/search?query=' + encodedValue;
                 }
 
-            }).val(query);
-        }
-    }
+                ajaxify.setPage(path);
+            }
 
-    return (function () {
-        if (instance === null) {
-            instance = new Search();
-        }
+        }).val(query);
+}
 
-        return instance;
-    })();
-});
+if ($('.search-query').length > 0) {
+    $('#main').on('ajaxifyInit', function(event) {
+        init();
+    });
+
+    init();
+}
+

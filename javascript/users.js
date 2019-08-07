@@ -17,57 +17,31 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ajaxify'
-    ], function ($, ajaxify) {
+import $ from 'jquery';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+function init() {
+    $('#users .users-add-form button').click(function(event) {
+        var form = $(this).closest('form');
+        var data = $(form).serialize();
 
-    var instance = null;
-
-    class Users {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Users allowed!');
+        $.ajax($(form).attr('action'), {
+            type: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: data,
+            success: function(data) {
+                ajaxify.setPageInDom(data);
             }
+        });
 
-            var that = this;
+        return false;
+    });
+}
 
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            var that = this;
-
-            $('#users .users-add-form button').click(function (event) {
-                var form = $(this).closest('form');
-                var data = $(form).serialize();
-
-                $.ajax($(form).attr('action'), {
-                    type: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    data: data,
-                    success: function (data) {
-                        ajaxify.setPageInDom(data);
-                    }
-                });
-
-                return false;
-            });
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Users();
-        }
-
-        return instance;
-    })();
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

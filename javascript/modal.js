@@ -17,39 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'bootstrap'
-    ], function ($) {
+import $ from 'jquery';
+import 'bootstrap';
 
-    'use strict';
+function init() {
+    $('[data-toggle=modal]').data('ajaxify', false);
+}
 
-    var instance = null;
-
-    class Modal {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Modal allowed!');
-            }
-
-            var that = this;
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            $('[data-toggle=modal]').data('ajaxify', false);
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Modal();
-        }
-
-        return instance;
-    })();
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

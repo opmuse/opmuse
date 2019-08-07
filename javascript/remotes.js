@@ -17,83 +17,66 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ws',
-        'opmuse/ajaxify',
-        'opmuse/reloader'
-    ], function ($, ws, ajaxify, reloader) {
+import $ from 'jquery';
+import ws from 'opmuse/ws';
+import ajaxify from 'opmuse/ajaxify';
+import reloader from 'opmuse/reloader';
 
-    'use strict';
+class Remotes {
+    constructor() {
+        var that = this;
 
-    var instance = null;
+        ws.on('remotes.artist.fetched', function(id, album_ids, track_ids) {
+            var selectors = that.getArtistSelectors(id);
 
-    class Remotes {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Remotes allowed!');
+            // because artist data is shown on album page we
+            // want to update those too, in case the user is on said page.
+            for (var index in album_ids) {
+                var album_id = album_ids[index];
+                selectors = selectors.concat(that.getAlbumSelectors(album_id));
             }
 
-            var that = this;
+            for (var index in track_ids) {
+                var track_id = track_ids[index];
+                selectors = selectors.concat(that.getTrackSelectors(track_id));
+            }
 
-            ws.on('remotes.artist.fetched', function (id, album_ids, track_ids) {
-                var selectors = that.getArtistSelectors(id);
+            reloader.load(selectors);
+        });
 
-                // because artist data is shown on album page we
-                // want to update those too, in case the user is on said page.
-                for (var index in album_ids) {
-                    var album_id = album_ids[index];
-                    selectors = selectors.concat(that.getAlbumSelectors(album_id));
-                }
+        ws.on('remotes.album.fetched', function(id, track_ids) {
+            var selectors = that.getAlbumSelectors(id);
 
-                for (var index in track_ids) {
-                    var track_id = track_ids[index];
-                    selectors = selectors.concat(that.getTrackSelectors(track_id));
-                }
+            for (var index in track_ids) {
+                var track_id = track_ids[index];
+                selectors = selectors.concat(that.getTrackSelectors(track_id));
+            }
 
-                reloader.load(selectors);
-            });
+            reloader.load(selectors);
+        });
 
-            ws.on('remotes.album.fetched', function (id, track_ids) {
-                var selectors = that.getAlbumSelectors(id);
+        ws.on('remotes.track.fetched', function(id) {
+            var selectors = that.getTrackSelectors(id);
+            reloader.load(selectors);
+        });
 
-                for (var index in track_ids) {
-                    var track_id = track_ids[index];
-                    selectors = selectors.concat(that.getTrackSelectors(track_id));
-                }
-
-                reloader.load(selectors);
-            });
-
-            ws.on('remotes.track.fetched', function (id) {
-                var selectors = that.getTrackSelectors(id);
-                reloader.load(selectors);
-            });
-
-            ws.on('remotes.tag.fetched', function (tag_name) {
-                var selectors = that.getTagSelectors(tag_name);
-                reloader.load(selectors);
-            });
-        }
-        getTrackSelectors (id) {
-            return ['.remotes_track_head_' + id, '.remotes_track_nav_' + id];
-        }
-        getArtistSelectors (id) {
-            return ['.remotes_artist_head_' + id, '.remotes_artist_nav_' + id];
-        }
-        getAlbumSelectors (id) {
-            return ['.remotes_album_head_' + id, '.remotes_album_nav_' + id];
-        }
-        getTagSelectors (tag_name) {
-            return ['[data-remotes-tag="' + tag_name + '"]'];
-        }
+        ws.on('remotes.tag.fetched', function(tag_name) {
+            var selectors = that.getTagSelectors(tag_name);
+            reloader.load(selectors);
+        });
     }
+    getTrackSelectors(id) {
+        return ['.remotes_track_head_' + id, '.remotes_track_nav_' + id];
+    }
+    getArtistSelectors(id) {
+        return ['.remotes_artist_head_' + id, '.remotes_artist_nav_' + id];
+    }
+    getAlbumSelectors(id) {
+        return ['.remotes_album_head_' + id, '.remotes_album_nav_' + id];
+    }
+    getTagSelectors(tag_name) {
+        return ['[data-remotes-tag="' + tag_name + '"]'];
+    }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Remotes();
-        }
-
-        return instance;
-    })();
-});
+export default new Remotes();

@@ -17,30 +17,12 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([], function () {
-
-    'use strict';
-
-    var instance = null;
-
-    class Logger {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Logger allowed!');
-            }
-        }
-        log (message) {
-            if (typeof console != 'undefined' && console !== null) {
-                console.log(message);
-            }
+class Logger {
+    log(message) {
+        if (typeof console != 'undefined' && console !== null) {
+            console.log(message);
         }
     }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Logger();
-        }
-
-        return instance;
-    })();
-});
+export default new Logger();

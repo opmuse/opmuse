@@ -17,21 +17,11 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ws'
-    ], function ($, ws) {
+import $ from 'jquery';
+import ws from 'opmuse/ws';
 
-    'use strict';
-
-    var instance = null;
-
-    class Covers {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Covers allowed!');
-            }
-
+class Covers {
+    constructor() {
             var that = this;
 
             // minimum ms two cover updates must be apart,
@@ -41,13 +31,13 @@ define([
 
             that.initImages();
 
-            $('#main').on('ajaxifyInit', function (event) {
+            $('#main').on('ajaxifyInit', function(event) {
                 that.initImages();
             });
 
             that.times = {};
 
-            ws.on(['covers.album.update', 'covers.artist.update'], function (id) {
+            ws.on(['covers.album.update', 'covers.artist.update'], function(id) {
                 var oldTime = null;
 
                 var type;
@@ -76,12 +66,12 @@ define([
                     }
                 }
 
-                setTimeout(function () {
+                setTimeout(function() {
                     that.refresh($('#' + type + '_cover_' + id));
                 }, time);
             });
 
-            $(document).on('click.covers', 'a.remove-cover', function (event) {
+            $(document).on('click.covers', 'a.remove-cover', function(event) {
                 $.ajax($(this).attr('href'));
                 return false;
             });
@@ -89,45 +79,38 @@ define([
         /**
          * defer loading of cover images
          */
-        initImages () {
-            $('.cover-container').each(function () {
-                var img = $(this).find('img');
-                var src = $(this).data('src');
+    initImages() {
+        $('.cover-container').each(function() {
+            var img = $(this).find('img');
+            var src = $(this).data('src');
 
-                if (typeof src != 'undefined' && src !== null) {
-                    img.attr('src', src);
-                }
-            });
-        }
-        refresh (container) {
-            var img = container.find('img');
-
-            if (img.length == 2) {
-                $(img.get(0)).remove();
-                img = $(img.get(1));
-            } else {
-                img = $(img.get(0));
+            if (typeof src != 'undefined' && src !== null) {
+                img.attr('src', src);
             }
-
-            img.removeClass('cover-overlay');
-
-            var overlay = img.clone()
-                .attr('src', img.attr('src') + '&refresh=' + Math.random())
-                .addClass('cover-overlay');
-
-            container.append(overlay)
-
-            overlay.removeClass('cover-hide');
-
-            img.addClass('cover-hide');
-        }
+        });
     }
+    refresh(container) {
+        var img = container.find('img');
 
-    return (function () {
-        if (instance === null) {
-            instance = new Covers();
+        if (img.length == 2) {
+            $(img.get(0)).remove();
+            img = $(img.get(1));
+        } else {
+            img = $(img.get(0));
         }
 
-        return instance;
-    })();
-});
+        img.removeClass('cover-overlay');
+
+        var overlay = img.clone()
+            .attr('src', img.attr('src') + '&refresh=' + Math.random())
+            .addClass('cover-overlay');
+
+        container.append(overlay)
+
+        overlay.removeClass('cover-hide');
+
+        img.addClass('cover-hide');
+    }
+}
+
+export default new Covers();

@@ -17,81 +17,57 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'bootstrap'
-    ], function ($) {
+import $ from 'jquery';
+import 'bootstrap';
 
-    'use strict';
+function init() {
+    $('.download').data('ajaxify', false);
 
-    var instance = null;
+    $('.download').each(function() {
+        var button = this;
 
-    class Download {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Download allowed!');
-            }
+        var url = $(button).attr('href');
 
-            var that = this;
+        var ext = url.split('.').pop();
 
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
+        var options = {
+            html: true,
+            placement: 'top',
+            trigger: 'hover',
+            container: '#main',
+            content: 'Loading...'
+        };
 
-            that.internalInit();
-        }
-        internalInit () {
-            $('.download').data('ajaxify', false);
+        if (['png', 'jpg', 'gif', 'jpeg'].indexOf(ext) != -1) {
+            options.content = $('<img>').attr('src', url);
+            $(button).popover(options);
+        } else if (['txt', 'sfv', 'nfo', 'm3u', 'cue', 'log'].indexOf(ext) != -1) {
+            $(button).popover($.extend({}, options));
 
-            $('.download').each(function () {
-                var button = this;
-
-                var url = $(button).attr('href');
-
-                var ext = url.split('.').pop();
-
-                var options = {
-                    html: true,
-                    placement: 'top',
-                    trigger: 'hover',
-                    container: '#main',
-                    content: 'Loading...'
-                };
-
-                if (['png', 'jpg', 'gif', 'jpeg'].indexOf(ext) != -1) {
-                    options.content = $('<img>').attr('src', url);
-                    $(button).popover(options);
-                } else if (['txt', 'sfv', 'nfo', 'm3u', 'cue', 'log'].indexOf(ext) != -1) {
-                    $(button).popover($.extend({}, options));
-
-                    $(button).on('show.bs.popover', function () {
-                        if ($(this).data('popovered') === true) {
-                            return;
-                        }
-
-                        var popover = $(this).data('bs.popover');
-
-                        popover.options.content = '';
-
-                        $.ajax(url, {
-                            success: function (data) {
-                                popover.options.content = $('<pre>').append(data);
-                                popover.setContent();
-                            }
-                        });
-
-                        $(this).data('popovered', true)
-                    });
+            $(button).on('show.bs.popover', function() {
+                if ($(this).data('popovered') === true) {
+                    return;
                 }
+
+                var popover = $(this).data('bs.popover');
+
+                popover.options.content = '';
+
+                $.ajax(url, {
+                    success: function(data) {
+                        popover.options.content = $('<pre>').append(data);
+                        popover.setContent();
+                    }
+                });
+
+                $(this).data('popovered', true)
             });
         }
-    }
+    });
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new Download();
-        }
-
-        return instance;
-    })();
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

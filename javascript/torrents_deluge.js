@@ -17,90 +17,66 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/messages',
-        'opmuse/ajaxify'
-    ], function ($, messages, ajaxify) {
+import $ from 'jquery';
+import messages from 'opmuse/messages';
+import ajaxify from 'opmuse/ajaxify';
 
-    'use strict';
+function init() {
+    $('#torrents_deluge .torrent-import').click(function() {
+        var button = $(this);
+        var url = button.data('import-url');
 
-    var instance = null;
-
-    class TorrentsDeluge {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of TorrentsDeluge allowed!');
+        $.ajax(url, {
+            success: function(data, textStatus, xhr) {
+                button.closest('tr').find('.status span').text(data.status);
+                button.attr('disabled', 'disabled');
+            },
+            error: function(xhr) {
+                messages.danger('Failed to import torrent');
             }
+        });
+    });
 
-            var that = this;
+    $('#torrents_deluge .mark-all-as-done').click(function() {
+        var button = $(this);
+        var url = button.attr('href');
 
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            $('#torrents_deluge .torrent-import').click(function () {
-                var button = $(this);
-                var url = button.data('import-url');
-
-                $.ajax(url, {
-                    success: function (data, textStatus, xhr) {
-                        button.closest('tr').find('.status span').text(data.status);
-                        button.attr('disabled', 'disabled');
-                    },
-                    error: function (xhr) {
-                        messages.danger('Failed to import torrent');
-                    }
-                });
-            });
-
-            $('#torrents_deluge .mark-all-as-done').click(function () {
-                var button = $(this);
-                var url = button.attr('href');
-
-                $.ajax(url, {
-                    success: function (data, textStatus, xhr) {
-                        ajaxify.setPage(document.location.href);
-                    },
-                    error: function (xhr) {
-                        messages.danger('Failed to mark all as done');
-                    }
-                });
-
-                return false;
-            });
-
-            var connectivity = $('#torrents_deluge .connectivity');
-
-            if (connectivity.length > 0) {
-                var url = connectivity.data('connectivity-url');
-
-                $.ajax(url, {
-                    success: function (data, textStatus, xhr) {
-                        connectivity.removeClass('connecting');
-
-                        if (data.connected) {
-                            connectivity.addClass('connected');
-                        } else {
-                            connectivity.addClass('failed');
-                        }
-                    },
-                    error: function (xhr) {
-                        messages.danger('Failed to test connectivity');
-                    }
-                });
+        $.ajax(url, {
+            success: function(data, textStatus, xhr) {
+                ajaxify.setPage(document.location.href);
+            },
+            error: function(xhr) {
+                messages.danger('Failed to mark all as done');
             }
-        }
+        });
+
+        return false;
+    });
+
+    var connectivity = $('#torrents_deluge .connectivity');
+
+    if (connectivity.length > 0) {
+        var url = connectivity.data('connectivity-url');
+
+        $.ajax(url, {
+            success: function(data, textStatus, xhr) {
+                connectivity.removeClass('connecting');
+
+                if (data.connected) {
+                    connectivity.addClass('connected');
+                } else {
+                    connectivity.addClass('failed');
+                }
+            },
+            error: function(xhr) {
+                messages.danger('Failed to test connectivity');
+            }
+        });
     }
+}
 
-    return (function () {
-        if (instance === null) {
-            instance = new TorrentsDeluge();
-        }
-
-        return instance;
-    })();
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

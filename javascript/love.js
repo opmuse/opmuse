@@ -17,62 +17,45 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/messages'
-    ], function ($, messages) {
+import $ from 'jquery';
+import messages from 'opmuse/messages';
 
-    'use strict';
+class Love {
+    constructor() {
+        var that = this;
 
-    var instance = null;
-
-    class Love {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Love allowed!');
-            }
-
-            var that = this;
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.reload();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            var that = this;
-
-            $(document).on('click', '.btn.love',
-                function (event) {
-                    var url = $(this).attr('href');
-                    $.ajax({
-                        url: url,
-                        success: function () {
-                            messages.success('The track is now marked as loved');
-                        },
-                        error: function () {
-                            messages.danger('An error occured while trying ' +
-                                            'to mark track as loved');
-                        }
-                    });
-                    return false;
-                }
-            );
-
+        $('#main').on('ajaxifyInit', function(event) {
             that.reload();
-        }
-        reload () {
-            var that = this;
-            $('.btn.love').data('ajaxify', false);
-        }
+        });
+
+        that.internalInit();
     }
+    internalInit() {
+        var that = this;
 
-    return (function () {
-        if (instance === null) {
-            instance = new Love();
-        }
+        $(document).on('click', '.btn.love',
+            function(event) {
+                var url = $(this).attr('href');
+                $.ajax({
+                    url: url,
+                    success: function() {
+                        messages.success('The track is now marked as loved');
+                    },
+                    error: function() {
+                        messages.danger('An error occured while trying ' +
+                            'to mark track as loved');
+                    }
+                });
+                return false;
+            }
+        );
 
-        return instance;
-    })();
-});
+        that.reload();
+    }
+    reload() {
+        var that = this;
+        $('.btn.love').data('ajaxify', false);
+    }
+}
+
+export default new Love();

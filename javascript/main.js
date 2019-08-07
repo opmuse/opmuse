@@ -17,71 +17,64 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-'use strict';
-
 /**
  * load ws and layout first so we can bind
  * on ws open event without having to wait for all
  * modules to load... should greatly reduce the risk
  * of the event firing before we listen to it
  */
-require([
-    'jquery',
-    'opmuse/ws',
-    'opmuse/layout'
-    ], function ($, ws, layout) {
+import $ from 'jquery';
+import ws from 'opmuse/ws';
+import layout from 'opmuse/layout';
 
-    var done = function () {
-        layout.unlockOverlay();
-        layout.hideOverlay();
+var done = function() {
+    layout.unlockOverlay();
+    layout.hideOverlay();
 
-        window.onscroll = null;
-        document.body.ontouchmove = null;
-    };
+    window.onscroll = null;
+    document.body.ontouchmove = null;
+};
 
-    if (opmuseGlobals.authenticated) {
-        $(ws).on('open', function () {
-            done();
-        });
-    } else {
+if (opmuseGlobals.authenticated) {
+    $(ws).on('open', function() {
         done();
-    }
-});
-
-require([
-    'jquery',
-    'opmuse/ajaxify',
-    'opmuse/download',
-    'opmuse/collapse',
-    'opmuse/button',
-    'opmuse/queue',
-    'opmuse/search',
-    'opmuse/edit',
-    'opmuse/logout',
-    'opmuse/login',
-    'opmuse/upload',
-    'opmuse/messages',
-    'opmuse/modal',
-    'opmuse/tab',
-    'opmuse/popover',
-    'opmuse/tooltip',
-    'opmuse/locations',
-    'opmuse/settings',
-    'opmuse/users',
-    'opmuse/covers',
-    'opmuse/remotes',
-    'opmuse/filters',
-    'opmuse/navbar',
-    'opmuse/album',
-    'npm-modernizr',
-    'opmuse/dashboard',
-    'opmuse/love',
-    'opmuse/torrents_deluge',
-    'opmuse/torrents_search'
-    ], function ($) {
-
-    $.ajaxSetup({
-        // repoze.who middleware expects content-type to be set :/
-        headers: { 'Content-type': 'text/plain' }
     });
+} else {
+    done();
+}
+
+import 'opmuse/ajaxify';
+import 'opmuse/download';
+import 'opmuse/collapse';
+import 'opmuse/button';
+import 'opmuse/queue';
+import 'opmuse/search';
+import 'opmuse/edit';
+import 'opmuse/logout';
+import 'opmuse/login';
+import 'opmuse/upload';
+import 'opmuse/messages';
+import 'opmuse/modal';
+import 'opmuse/tab';
+import 'opmuse/popover';
+import 'opmuse/tooltip';
+import 'opmuse/locations';
+import 'opmuse/settings';
+import 'opmuse/users';
+import 'opmuse/covers';
+import 'opmuse/remotes';
+import 'opmuse/filters';
+import 'opmuse/navbar';
+import 'opmuse/album';
+import 'npm-modernizr';
+import 'opmuse/dashboard';
+import 'opmuse/love';
+import 'opmuse/torrents_deluge';
+import 'opmuse/torrents_search';
+
+$.ajaxSetup({
+    // repoze.who middleware expects content-type to be set :/
+    headers: {
+        'Content-type': 'text/plain'
+    }
 });

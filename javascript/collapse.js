@@ -17,39 +17,15 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'bootstrap'
-    ], function ($) {
+import $ from 'jquery';
+import 'bootstrap';
 
-    'use strict';
+function init() {
+    $('[data-toggle=collapse]').data('ajaxify', false);
+}
 
-    var instance = null;
-
-    class Collapse {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Collapse allowed!');
-            }
-
-            var that = this;
-
-            $('#main').on('ajaxifyInit', function (event) {
-                that.internalInit();
-            });
-
-            that.internalInit();
-        }
-        internalInit () {
-            $('[data-toggle=collapse]').data('ajaxify', false);
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Collapse();
-        }
-
-        return instance;
-    })();
+$('#main').on('ajaxifyInit', function(event) {
+    init();
 });
+
+init();

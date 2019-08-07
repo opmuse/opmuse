@@ -17,39 +17,14 @@
  * along with opmuse.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define([
-        'jquery',
-        'opmuse/ws',
-        'opmuse/reloader'
-    ], function ($, ws, reloader) {
+import $ from 'jquery';
+import ws from 'opmuse/ws';
+import reloader from 'opmuse/reloader';
 
-    'use strict';
+ws.on('dashboard.recent_tracks.fetched', function() {
+    reloader.load(['#dashboard-top-artists', '#dashboard-recently-listened']);
+});
 
-    var instance = null;
-
-    class Dashboard {
-        constructor () {
-            if (instance !== null) {
-                throw Error('Only one instance of Dashboard allowed!');
-            }
-
-            var that = this;
-
-            ws.on('dashboard.recent_tracks.fetched', function () {
-                reloader.load(['#dashboard-top-artists', '#dashboard-recently-listened']);
-            });
-
-            ws.on('dashboard.listening_now.update', function () {
-                reloader.load(['#dashboard-listening-now']);
-            });
-        }
-    }
-
-    return (function () {
-        if (instance === null) {
-            instance = new Dashboard();
-        }
-
-        return instance;
-    })();
+ws.on('dashboard.listening_now.update', function() {
+    reloader.load(['#dashboard-listening-now']);
 });
