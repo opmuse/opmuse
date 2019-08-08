@@ -301,7 +301,7 @@
 
 <div class="artist-head">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <h2>
                 {% if track is defined and track %}
                     <a href="/library/track/{{ track.slug|urlencode }}">{{ track.name|show_ws }}</a>
@@ -353,7 +353,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             {% if artist is defined and artist %}
                 <div class="reloader remotes_artist_head_{{ artist.id }}">
                     {{ print_articles(remotes_artist) }}

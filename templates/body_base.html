@@ -16,7 +16,7 @@
         <div id="spacer" class="{% block main_class %}{% endblock %}"></div>
         {% block container %}
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-12">
                     <div id="main" class="{{ self.main_class() }}">
                         {% block main %}{% endblock %}
                     </div>
@@ -24,7 +24,7 @@
             </div>
             {% if authenticated %}
                 <div class="row">
-                    <div class="col-xs-6" id="panel">
+                    <div class="col-6" id="panel">
                         <div id="panel-container">
                             <div id="panel-handle" accesskey="e">
                                 <i class="panel-handle-icon-open fa fa-chevron-up"></i>

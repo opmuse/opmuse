@@ -13,9 +13,9 @@
 {% block content %}
 <div id="settings">
     <div class="row">
-        <div class="col-xs-9">
+        <div class="col-9">
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-12">
                     <p>
                         Here's your personal <strong>opmuse</strong> account's settings.
                         <img class="pull-right img-rounded" src="{{ user.gravatar_large }}" alt="{{ user.login }}'s Gravatar" />
@@ -25,12 +25,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-7">
+                <div class="col-7">
                     <h3>Basics</h3>
                     <form method="post" action="/settings/submit" class="form-horizontal">
                         <div class="form-group">
-                            <label class="col-xs-2 control-label" for="login-input">Login</label>
-                            <div class="col-xs-8">
+                            <label class="col-2 control-label" for="login-input">Login</label>
+                            <div class="col-8">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-user"></i></span>
                                     <input class="form-control" autocomplete="off" type="text"
@@ -40,8 +40,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-xs-2 control-label" for="mail-input">Mail</label>
-                            <div class="col-xs-8">
+                            <label class="col-2 control-label" for="mail-input">Mail</label>
+                            <div class="col-8">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                     <input class="form-control" autocomplete="off" type="email"
@@ -50,8 +50,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-xs-2 control-label" for="password1">Password</label>
-                            <div class="col-xs-8">
+                            <label class="col-2 control-label" for="password1">Password</label>
+                            <div class="col-8">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-key"></i></span>
                                     <input class="form-control" autocomplete="off" type="password"
@@ -60,8 +60,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-xs-2 control-label" for="password2"></label>
-                            <div class="col-xs-8">
+                            <label class="col-2 control-label" for="password2"></label>
+                            <div class="col-8">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-key"></i></span>
                                     <input class="form-control" autocomplete="off" type="password"
@@ -70,14 +70,14 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-xs-2"></div>
-                            <div class="col-xs-8">
+                            <div class="col-2"></div>
+                            <div class="col-8">
                                 <button type="submit" class="btn btn-default">Edit</button>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="col-xs-5">
+                <div class="col-5">
                     <a href="http://www.last.fm/">
                         <img class="pull-right " src="{{ "assets/images/lastfm_badge_black_small.gif" | webpack }}" alt="Lastfm badge" />
                     </a>
@@ -115,7 +115,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-3">
+        <div class="col-3">
             <div class="sidebar-nav panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">
