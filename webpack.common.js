@@ -11,7 +11,8 @@ function get_conf(defaultFilename)
     return {
         entry: {
             js_main: './javascript/main.js',
-            css_main: './scss/main.scss',
+            scss_main: './scss/main.scss',
+            less_main: './less/main.less',
             assets: './webpack-asset-entries.js'
         },
         output: {
@@ -85,6 +86,20 @@ function get_conf(defaultFilename)
                         },
                         {
                             loader: 'sass-loader'
+                        },
+                    ]
+                },
+                {
+                    test: /\.less$/,
+                    use: [
+                        {
+                            loader: MiniCssExtractPlugin.loader,
+                        },
+                        {
+                            loader: 'css-loader',
+                        },
+                        {
+                            loader: 'less-loader'
                         },
                     ]
                 },
