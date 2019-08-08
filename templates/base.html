@@ -24,6 +24,7 @@
         <link rel="stylesheet" href="{{ "css_main" | webpack }}" type="text/css">
     </head>
     <body lang="en" class="{% block body_class %}{% endblock %}">
+        {#
         <div id="overlay" class="locked initial">
             <div class="loading">
                 <div class="sk-three-bounce">
@@ -33,6 +34,7 @@
                 </div>
             </div>
         </div>
+        #}
         {% block body %}{% endblock %}
         <script src="{{ "js_main" | webpack }}"></script>
     </body>

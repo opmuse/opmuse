@@ -21,6 +21,7 @@
  * reset scroll and set overlay to size of viewport before we do anything else,
  */
 (function () {
+    return;
     window.scrollTo(0, 0);
 
     var overlay = document.getElementById('overlay');

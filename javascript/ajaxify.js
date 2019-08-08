@@ -80,7 +80,7 @@ class Throb {
         });
     }
     unsetError() {
-        $(this.brand).removeClass('error').popover('destroy');
+        //$(this.brand).removeClass('error').popover('destroy');
     }
 }
 
