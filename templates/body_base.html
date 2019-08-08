@@ -6,10 +6,10 @@
 
 {% block body %}
     {% block navbar %}
-        <div id="top" class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+        <nav id="top" class="navbar navbar-dark fixed-top bg-dark navbar-expand-lg">
             {% import "navbar.html" as navbar %}
             {{ navbar.navbar(subnav_file_path, subnav_extra_file_path, authenticated, current_url) }}
-        </div>
+        </nav>
     {% endblock %}
 
     <div class="container">
