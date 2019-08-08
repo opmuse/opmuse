@@ -18,6 +18,32 @@
  */
 
 /**
+ * reset scroll and set overlay to size of viewport before we do anything else,
+ */
+(function () {
+    window.scrollTo(0, 0);
+
+    var overlay = document.getElementById('overlay');
+
+    overlay.setAttribute('style',
+        'width: ' + window.innerWidth + 'px; ' +
+        'height: ' + window.innerHeight + 'px'
+    );
+
+    overlay.className = overlay.className + ' domcontentloaded';
+
+    // disable scroll on scroll devices
+    window.onscroll = function () {
+        window.scrollTo(0, 0);
+    };
+
+    // disable scroll on touch devices
+    document.body.ontouchmove = function (event) {
+        event.preventDefault();
+    };
+})();
+
+/**
  * load ws and layout first so we can bind
  * on ws open event without having to wait for all
  * modules to load... should greatly reduce the risk

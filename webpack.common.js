@@ -10,7 +10,6 @@ function get_conf(defaultFilename)
 {
     return {
         entry: {
-            js_init: './javascript/init.js',
             js_main: './javascript/main.js',
             css_main: './less/main.less',
             assets: './webpack-asset-entries.js'
