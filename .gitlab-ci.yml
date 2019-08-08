@@ -10,6 +10,7 @@ variables:
     variables:
         DOCKER_IMAGE:
         DOCKER_FILE:
+    image: docker:dind
     script:
         - docker build -t $DOCKER_IMAGE -f $DOCKER_FILE .
         - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
