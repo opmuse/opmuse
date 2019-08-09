@@ -416,13 +416,13 @@
         .panel-open;
         .panel-width(@progress-width: 75%);
 
-        //@media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-        //    .panel-width(@progress-width: 85%);
-        //}
+        @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+            .panel-width(@progress-width: 85%);
+        }
 
-        //@media (max-width: @screen-xs-max) {
-        //    .panel-width(@progress-width: 90%);
-        //}
+        @media (max-width: @screen-xs-max) {
+            .panel-width(@progress-width: 90%);
+        }
 
         .btn-stream {
             margin: 0 10px 8px 0;
