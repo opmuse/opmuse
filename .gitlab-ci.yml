@@ -10,10 +10,14 @@ variables:
     variables:
         DOCKER_IMAGE:
         DOCKER_FILE:
-    image: docker:dind
+        DOCKER_HOST: tcp://docker:2375
+    image: docker:stable
+    services:
+        - docker:dind
+    before_script:
+        - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
     script:
         - docker build -t $DOCKER_IMAGE -f $DOCKER_FILE .
-        - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
         - docker push inty/opmuse-dev
     only:
         - /^develop$/
