@@ -1,8 +1,8 @@
-<ul class="nav navbar-nav">
-    <li class="{{ "active" if request.path_info|startswith("/torrents/deluge") else '' }}">
-        <a href="/torrents/deluge">Deluge</a>
+<ul class="navbar-nav">
+    <li class="nav-item {{ "active" if request.path_info|startswith("/torrents/deluge") else '' }}">
+        <a class="nav-link" href="/torrents/deluge">Deluge</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/torrents/search") else '' }}">
-        <a href="/torrents/search">Search</a>
+    <li class="nav-item {{ "active" if request.path_info|startswith("/torrents/search") else '' }}">
+        <a class="nav-link" href="/torrents/search">Search</a>
     </li>
 </ul>

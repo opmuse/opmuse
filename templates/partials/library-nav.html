@@ -1,16 +1,16 @@
-<ul class="nav navbar-nav">
-    <li class="{{ "active" if request.path_info|startswith("/library/album") else '' }}">
-        <a href="/library/albums">Albums</a>
+<ul class="navbar-nav">
+    <li class="nav-item {{ "active" if request.path_info|startswith("/library/album") else '' }}">
+        <a class="nav-link" href="/library/albums">Albums</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/library/artist") else '' }}">
-        <a href="/library/artists">Artists</a>
+    <li class="nav-item {{ "active" if request.path_info|startswith("/library/artist") else '' }}">
+        <a class="nav-link" href="/library/artists">Artists</a>
     </li>
-    <li class="{{ "active" if request.path_info|startswith("/library/track") else '' }}">
-        <a href="/library/tracks">Tracks</a>
+    <li class="nav-item {{ "active" if request.path_info|startswith("/library/track") else '' }}">
+        <a class="nav-link" href="/library/tracks">Tracks</a>
     </li>
     {% if is_granted('admin') %}
-        <li class="{{ "active" if request.path_info|startswith("/library/upload") else '' }}">
-            <a href="/library/upload">Upload</a>
+        <li class="nav-item {{ "active" if request.path_info|startswith("/library/upload") else '' }}">
+            <a class="nav-link" href="/library/upload">Upload</a>
         </li>
     {% endif %}
 </ul>

@@ -1,6 +1,8 @@
 {# vim: ft=htmldjango
 #}
 {% macro navbar(subnav_file_path, subnav_extra_file_path, authenticated, current_url) -%}
+    <div class="fixed-top">
+        <nav id="top" class="navbar navbar-dark bg-dark navbar-expand-lg">
             <span class="navbar-brand">
                 <span id="letter1" class="letter">o</span>
                 <span id="letter2" class="letter">p</span>
@@ -9,18 +11,17 @@
                 <span id="letter5" class="letter">s</span>
                 <span id="letter6" class="letter">e</span>
             </span>
-        {#
-        <div class="navbar-header">
-            <a class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-        </div>
-        #}
-        <div class="navbar-collapse collapse">
-            <div id="navbar-main">
-                <ul class="navbar-nav mr-auto">
+            {#
+            <div class="navbar-header">
+                <a class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+            </div>
+            #}
+            <div id="navbar-main" class="navbar-collapse">
+                <ul class="navbar-nav">
                     {% if authenticated %}
                         <li class="nav-item {{ "active" if request.path_info|startswith("/dashboard") else '' }}">
                             <a class="nav-link" href="/">Dashboard</a>
@@ -36,26 +37,28 @@
                                 <a class="nav-link" href="/torrents">Torrents</a>
                             </li>
                         {% endif %}
+                        {#
                         <li class="nav-item visible-xs {{ "active" if request.path_info|startswith("/settings") else '' }}">
                             <a class="nav-link" href="/settings">Settings</a>
                         </li>
+                        #}
                         {% if is_granted("admin") %}
                             <li class="nav-item {{ "active" if request.path_info|startswith("/admin") else '' }}">
                                 <a class="nav-link" href="/admin/dashboard">Admin</a>
                             </li>
                         {% endif %}
+                        {#
                         <li class="nav-item visible-xs {{ "active" if request.path_info|startswith("/search") else '' }}">
                             <a class="nav-link" href="/search">Search</a>
                         </li>
-                        <li class="nav-item navbar-search hidden-xs">
-                            <input size="18" accesskey="s" class="search-query form-control input-sm"
-                                type="text" placeholder="Search" autocomplete="off" />
-                        </li>
+                        #}
+                        {#
                         <li class="nav-item visible-xs">
                             <a class="nav-link" class="logout" href="/logout?came_from={{ current_url|urlencode }}">
                                 Sign out
                             </a>
                         </li>
+                        #}
                     {% else %}
                         <li class="nav-item {{ "active" if request.path_info|startswith("/index") else '' }}">
                             <a class="nav-link" href="/">Home</a>
@@ -65,21 +68,28 @@
                         </li>
                     {% endif %}
                 </ul>
+                <div class="form-inline ml-3 mr-auto">
+                    <input size="18" accesskey="s" class="search-query form-control input-sm"
+                        type="text" placeholder="Search" autocomplete="off" />
+                </div>
                 {% if authenticated %}
+                    <ul class="navbar-nav">
+                    {#
                     <ul class="nav navbar-nav navbar-right navbar-you hidden-xs">
+                    #}
                         <li class="nav-item dropdown">
-                            <a class="nav-link" class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
                                 <img class="img-rounded" src="{{ request.user.gravatar_xsmall }}" alt="{{ request.user.login }}'s Gravatar" />
                                 {{ request.user.login }} <i class="fa fa-caret-down"></i>
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
+                                <li class="dropdown-item">
                                     <a href="/settings"><i class="fa fa-wrench"></i> Settings</a>
                                 </li>
-                                <li>
+                                <li class="dropdown-item">
                                     <a href="/users/{{ request.user.login }}"><i class="fa fa-user"></i> Profile</a>
                                 </li>
-                                <li>
+                                <li class="dropdown-item">
                                     <a class="logout" href="/logout?came_from={{ current_url|urlencode }}">
                                         <i class="fa fa-sign-out"></i> Sign out
                                     </a>
@@ -89,6 +99,8 @@
                     </ul>
                 {% endif %}
             </div>
+        </nav>
+        <nav class="navbar navbar-light bg-light navbar-expand-lg py-lg-0">
             <div id="navbar-sub" class="navbar-sub">
                 {%- if subnav_file_path is defined %}
                     {%- include subnav_file_path ignore missing -%}
@@ -97,5 +109,6 @@
                     {%- include subnav_extra_file_path -%}
                 {% endif -%}
             </div>
+        </nav>
     </div>
 {%- endmacro %}

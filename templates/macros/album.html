@@ -1,3 +1,5 @@
+{# vim: ft=htmldjango
+#}
 {% macro album_desc(album, href, prefix = true) %}
     {% import "macros/urls.html" as urls %}
     {%- if album.artists|length > 1 -%}
@@ -40,11 +42,14 @@
     {% import "macros/tracks.html" as tracks %}
 
     <div id="album_{{ album.id }}" class="album">
+        {#
         <figure class="effeckt-caption" data-effeckt-type="half-slide">
+        #}
             {% set album_url = urls.album_url(album, artist) %}
             <a href="{{ album_url }}">
                 {{ covers.album(album) }}
             </a>
+            {#
             <div class="album-seen-container reloader">
                 {% if not album.seen %}
                     <span class="album-seen label label-success">
@@ -58,7 +63,10 @@
                     <i class="loader fa fa-spin fa-spinner"></i>
                 </div>
             </figcaption>
+            #}
+        {#
         </figure>
+        #}
         <div class="album-desc">
             <h3 class="album-name" title="{{ album.name }} {% if album.date %}({{ album.date }}){% endif %}">
                 <a href="{{ album_url }}">

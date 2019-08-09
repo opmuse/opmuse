@@ -3,3 +3,9 @@
 body {
     padding-top: 8.0rem;
 }
+
+.albums {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
