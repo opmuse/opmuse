@@ -44,7 +44,8 @@ RUN cd /srv/ && \
     ./scripts/build-debs.sh /srv/repo buster && \
     echo "deb file:///srv/repo buster main" >> /etc/apt/sources.list && \
     /etc/init.d/mysql start && \
-    apt-get update --allow-insecure-repositories
+    apt-get update --allow-insecure-repositories && \
+    apt-get install -y opmuse --allow-unauthenticated
 
 COPY scripts/docker-start.sh /start.sh
 

@@ -1,6 +1,8 @@
 stages:
     - test
     - docker-dev
+    - docker-test
+    - docker-main
 
 variables:
     DOCKER_HUB_USERNAME: ""
@@ -19,8 +21,6 @@ variables:
     script:
         - docker build -t $DOCKER_IMAGE -f $DOCKER_FILE .
         - docker push inty/opmuse-dev
-    only:
-        - /^develop$/
 
 pycodestyle:
     stage: test
@@ -49,4 +49,35 @@ docker-dev:
     variables:
         DOCKER_IMAGE: inty/opmuse-dev
         DOCKER_FILE: Dockerfile.dev
+    only:
+        - /^develop$/
 
+docker-build:
+    extends: .docker
+    stage: docker-dev
+    variables:
+        DOCKER_IMAGE: inty/opmuse-build
+        DOCKER_FILE: Dockerfile.build
+    only:
+        - /^develop$/
+
+# needs to run after docker-dev
+docker-test:
+    extends: .docker
+    stage: docker-test
+    variables:
+        DOCKER_IMAGE: inty/opmuse-test
+        DOCKER_FILE: Dockerfile.test
+    only:
+        - /^develop$/
+
+# manual because apt repo needs to be updated manually first
+docker-main:
+    extends: .docker
+    stage: docker-main
+    variables:
+        DOCKER_IMAGE: inty/opmuse
+        DOCKER_FILE: Dockerfile
+    only:
+        - /^master$/
+    when: manual
