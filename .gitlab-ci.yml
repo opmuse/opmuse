@@ -20,7 +20,7 @@ variables:
         - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
     script:
         - docker build -t $DOCKER_IMAGE -f $DOCKER_FILE .
-        - docker push inty/opmuse-dev
+        - docker push $DOCKER_IMAGE
 
 pycodestyle:
     stage: test
