@@ -1,10 +1,14 @@
+{# vim: ft=htmldjango
+#}
 {% macro pagination(url, page, pages) %}
     <div class="pagination-container">
         <div class="pagination-inner">
             {{ _pagination(url, page, pages, 8, "visible-lg") }}
+            {#
             {{ _pagination(url, page, pages, 6, "visible-md") }}
             {{ _pagination(url, page, pages, 4, "visible-sm") }}
             {{ _pagination(url, page, pages, 2, "visible-xs") }}
+            #}
         </div>
     </div>
 {% endmacro %}
@@ -12,24 +16,24 @@
 {% macro _pagination(url, page, pages, size, class) %}
     <ul class="pagination {{ class }}">
     {% if page > 1 %}
-        <li>
-            <a href="{{ url }}{{ page - 1 }}">&laquo;</a>
+        <li class="page-item">
+            <a class="page-link" href="{{ url }}{{ page - 1 }}">&laquo;</a>
         </li>
     {% endif %}
     {% for pagination_page in pagination_pages(page, pages, size) %}
         {% if last_page is defined and pagination_page != last_page + 1 %}
-            <li class="disabled">
+            <li class="page-item disabled">
                 <span>&hellip;</span>
             </li>
         {% endif %}
-        <li class="{{ "active" if pagination_page == page else "" }}">
-            <a href="{{ url }}{{ pagination_page }}">{{ pagination_page }}</a>
+        <li class="page-item {{ "active" if pagination_page == page else "" }}">
+            <a class="page-link" href="{{ url }}{{ pagination_page }}">{{ pagination_page }}</a>
         </li>
         {% set last_page = pagination_page %}
     {% endfor %}
     {% if pages > page %}
-        <li>
-            <a href="{{ url }}{{ page + 1 }}">&raquo;</a>
+        <li class="page-item">
+            <a class="page-link" href="{{ url }}{{ page + 1 }}">&raquo;</a>
         </li>
     {% endif %}
     </ul>
