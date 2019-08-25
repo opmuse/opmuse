@@ -25,12 +25,25 @@ Note that opmuse is under development and is **not considered stable**.
 Using
 -----
 
-The recommended way to use opmuse is with Docker. This is the easiest way to do it.
+### Docker
+
+You can use our docker image to test things out.
 
     # docker pull inty/opmuse
     # docker run -d -p 8080:8080 inty/opmuse
 
 You'll reach opmuse at http://localhost:8080/ and you can login with admin and no password.
+
+### Debian Repo
+
+We provide a Debian Buster repo which you can configure like this.
+
+    # echo "deb https://apt.opmu.se/debian/ buster main" > /etc/apt/sources.list.d/opmuse.list
+    # curl -s https://apt.opmu.se/opmuse.pub | apt-key add -
+    # apt-get update
+    # apt-get install opmuse
+
+Then you can access opmuse with the details you provided during installation.
 
 Here is opmuse
 --------------
