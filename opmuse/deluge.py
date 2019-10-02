@@ -213,6 +213,8 @@ class DelugeDao:
 
         if torrent_id is not None:
             query = query.filter(Torrent.torrent_id == torrent_id)
+        else:
+            query = query.filter(Torrent.finished)
 
         query.update({'import_status': status[0:128]})
 
