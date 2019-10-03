@@ -116,16 +116,16 @@ def build_opmuse():
     if not os.path.exists(virtualenv_bin):
         raise Exception("virtualenv is required for building")
 
-    subprocess.check_call([virtualenv_bin, commands_path, 'jinja', 'compile', 'build/templates'],
-        env={'PYTHONPATH': project_root}
-    )
-
     subprocess.check_call([virtualenv_bin, commands_path, 'jinja', 'webpack_scan'],
         env={'PYTHONPATH': project_root}
     )
 
     subprocess.check_call(["npx", "webpack", '--config', 'webpack.prod.js'],
         env={'NODE_ENV': "production"}
+    )
+
+    subprocess.check_call([virtualenv_bin, commands_path, 'jinja', 'compile', 'build/templates'],
+        env={'PYTHONPATH': project_root}
     )
 
     os.mkdir('build/debian-dbconfig-install')
