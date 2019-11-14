@@ -45,13 +45,19 @@
     {{ filters.text("tracks", filter_labels[filter]|lower if filter != "none" else None,
         sort_labels[sort]|lower, None, page, page_size, total) }}
 
+    <hr>
+
+    {% if page %}
+        {% set paginationUrl = "/library/tracks?sort=" + sort + "&filter=" + filter + "&page=" %}
+        {{ pagination.pagination(paginationUrl, page, pages) }}
+    {% endif %}
+
     <div class="tracks">
         {{ tracks_macros.table(tracks) }}
     </div>
 
     {% if page %}
-        {% set url = "/library/tracks?sort=" + sort + "&filter=" + filter + "&page=" %}
-        {{ pagination.pagination(url, page, pages) }}
+        {{ pagination.pagination(paginationUrl, page, pages) }}
     {% endif %}
 </div>
 {% endblock %}

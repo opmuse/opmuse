@@ -55,8 +55,11 @@
         {{ filters.text("albums", filter_labels[filter]|lower if filter != "none" else None,
             sort_labels[sort]|lower, filter_value, page, page_size, total) }}
 
-        {% if view == "covers" %}
-            <hr />
+        <hr />
+
+        {% if page %}
+            {% set paginationUrl = "/library/albums?view=" + view + "&sort=" + sort + "&filter=" + filter + "&filter_value=" + filter_value + "&page=" %}
+            {{ pagination.pagination(paginationUrl, page, pages) }}
         {% endif %}
 
         <div class="albums reloader" data-remotes-tag="{{ filter_value if filter == "tag" else "" }}">
@@ -128,8 +131,7 @@
         </div>
 
         {% if page %}
-            {% set url = "/library/albums?view=" + view + "&sort=" + sort + "&filter=" + filter + "&filter_value=" + filter_value + "&page=" %}
-            {{ pagination.pagination(url, page, pages) }}
+            {{ pagination.pagination(paginationUrl, page, pages) }}
         {% endif %}
     </div>
 {% endblock %}

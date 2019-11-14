@@ -43,6 +43,11 @@
 
         <hr />
 
+        {% if page %}
+            {% set paginationUrl = "/library/artists?sort=" + sort + "&filter=" + filter + "&filter_value=" + filter_value + "&page=" %}
+            {{ pagination.pagination(paginationUrl, page, pages) }}
+        {% endif %}
+
         <div class="artists reloader" data-remotes-tag="{{ filter_value if filter == "tag" else "" }}">
             {% if filter == "tag" and artists|length == 0 %}
                 <p class="alert alert-info">
@@ -58,8 +63,7 @@
         </div>
 
         {% if page %}
-            {% set url = "/library/artists?sort=" + sort + "&filter=" + filter + "&filter_value=" + filter_value + "&page=" %}
-            {{ pagination.pagination(url, page, pages) }}
+            {{ pagination.pagination(paginationUrl, page, pages) }}
         {% endif %}
     </div>
 {% endblock %}
