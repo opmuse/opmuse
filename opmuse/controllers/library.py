@@ -749,7 +749,7 @@ class Library:
 
         page = int(page)
 
-        page_size = 24
+        page_size = 48
 
         offset = page_size * (page - 1)
 
@@ -838,7 +838,7 @@ class Library:
 
         page = int(page)
 
-        page_size = 24
+        page_size = 48
 
         offset = page_size * (page - 1)
 
@@ -863,9 +863,17 @@ class Library:
                         album_ids.append(album_results[0].id)
 
             query = query.filter(Album.id.in_(album_ids))
-        elif filter == "1year":
+        elif filter == "1year" or filter == "2year":
             now = datetime.datetime.utcnow()
-            query = query.filter(Album.created > now - datetime.timedelta(days=365))
+
+            if filter == "2year":
+                years = 2
+            elif filter == "5year":
+                years = 5
+            else:
+                years = 1
+
+            query = query.filter(Album.created > now - datetime.timedelta(days=years * 365))
         elif filter == "va":
             query = (query.join(Artist, Artist.id == Track.artist_id)
                           .having(func.count(distinct(Artist.id)) > 1))

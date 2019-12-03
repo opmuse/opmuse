@@ -23,6 +23,8 @@
 {% set filter_labels = {
     "none": "Nothing",
     "1year": "Created within 1 year",
+    "2year": "Created within 2 years",
+    "5year": "Created within 5 years",
     "yours": "Your Lastfm albums",
     "va": "Multiple artists (VA)",
     "invalid": "Invalid",
@@ -40,6 +42,8 @@
     <h4>Filter by</h4>
     {{ filters.filter('circle-o', filter_labels['none'], 'none', filter, view, sort, filter_value) }}
     {{ filters.filter('asterisk', filter_labels['1year'], '1year', filter, view, sort, filter_value) }}
+    {{ filters.filter('asterisk', filter_labels['2year'], '2year', filter, view, sort, filter_value) }}
+    {{ filters.filter('asterisk', filter_labels['5year'], '5year', filter, view, sort, filter_value) }}
     {{ filters.filter('user', filter_labels['yours'], 'yours', filter, view, sort, filter_value) }}
     {{ filters.filter('circle', filter_labels['va'], 'va', filter, view, sort, filter_value) }}
     {{ filters.filter('exclamation-triangle', filter_labels['invalid'], 'invalid', filter, view, sort, filter_value) }}
