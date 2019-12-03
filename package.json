@@ -17,7 +17,7 @@
     "css-loader": "^3.1.0",
     "effeckt": "^0.5.0",
     "exports-loader": "^0.7.0",
-    "file-loader": "^4.1.0",
+    "file-loader": "^5.0.2",
     "font-awesome": "^4.7.0",
     "imports-loader": "^0.8.0",
     "jquery": "^3.4.1",
@@ -34,7 +34,7 @@
     "typeahead.js-bootstrap-css": "^1.2.1",
     "webpack": "^4.36.1",
     "webpack-cli": "^3.3.6",
-    "webpack-fix-style-only-entries": "^0.3.0",
+    "webpack-fix-style-only-entries": "^0.4.0",
     "webpack-manifest-plugin": "^2.0.4",
     "webpack-merge": "^4.2.1"
   },
