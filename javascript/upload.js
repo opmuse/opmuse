@@ -19,8 +19,8 @@
 
 import $ from 'jquery';
 import ajaxify from 'opmuse/ajaxify';
-import 'typeahead.js/dist/bloodhound';
-import 'typeahead.js/dist/typeahead.jquery';
+import Bloodhound from 'corejs-typeahead';
+import loadjQueryPlugin from 'corejs-typeahead';
 import 'blueimp-file-upload-npm';
 import 'bootstrap';
 

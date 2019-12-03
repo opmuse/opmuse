@@ -19,8 +19,8 @@
 
 import $ from 'jquery';
 import ajaxify from 'opmuse/ajaxify';
-import 'typeahead.js/dist/bloodhound';
-import 'typeahead.js/dist/typeahead.jquery';
+import Bloodhound from 'corejs-typeahead';
+import loadjQueryPlugin from 'corejs-typeahead';
 
 class Edit {
     constructor() {
@@ -51,6 +51,7 @@ class Edit {
                 queryTokenizer: Bloodhound.tokenizers.whitespace,
                 remote: {
                     url: sprintf('/search/api/%s?query=%%QUERY', type),
+                    wildcard: '%QUERY',
                     filter: function(data) {
                         var originalValue = $(input).data('originalValue');
 

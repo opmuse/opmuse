@@ -56,14 +56,6 @@ function get_conf(defaultFilename)
                     loader: "imports-loader?this=>window!exports-loader?window.Modernizr"
                 },
                 {
-                    test: /typeahead\.js\/dist\/typeahead\.jquery\.js$/,
-                    loader: "imports-loader?window.jQuery=jquery"
-                },
-                {
-                    test: /typeahead\.js\/dist\/bloodhound\.js$/,
-                    loader: "imports-loader?window.jQuery=jquery"
-                },
-                {
                     test: /\.less$/,
                     use: [
                         {
