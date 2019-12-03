@@ -2,11 +2,11 @@
 
 set -e
 
-if [[ $# -ne 15 && $# -ne 16 && $# -ne 17 && $# -ne 18 ]]; then
+if [[ $# -lt 16 || $# -gt 19 ]]; then
     echo -n "Usage: $(basename $0) repo dist package_file package_name package_version "
     echo -n "package_before package_after package_deps package_confs package_init package_default "
-    echo -n "package_debconf package_templates package_before_remove package_after_remove [--no-prefix] "
-    echo "[input_type] [version]"
+    echo -n "package_debconf package_templates package_before_remove package_after_remove package_excludes "
+    echo "[--no-prefix] [input_type] [version]"
     exit 1
 fi
 
@@ -29,15 +29,16 @@ package_debconf=$12
 package_templates=$13
 package_before_remove=$14
 package_after_remove=$15
+package_excludes=$16
 
-if [[ $16 == "--no-prefix" ]]; then
+if [[ $17 == "--no-prefix" ]]; then
     prefix=0
 else
     prefix=1
 fi
 
-input_type=$17
-version=$18
+input_type=$18
+version=$19
 
 if [[ $input_type = "" ]]; then
     input_type=python
@@ -134,6 +135,12 @@ if [[ $package_after_remove != "none" ]]; then
     args+=(
         --after-remove $package_after_remove
     )
+fi
+
+if [[ $package_excludes != "none" ]]; then
+    for package_exclude in ${(z)package_excludes}; do
+        args+=(--exclude "$package_exclude")
+    done
 fi
 
 if [[ $package_file == "none" ]]; then
