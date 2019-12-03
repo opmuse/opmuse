@@ -27,7 +27,11 @@ croniter >=0.3,<0.4
 portend >=2.1.1
 tempora <1.13
 cheroot >=8.2.1
+jaraco.collections >=2.1
 # cheroot deps
 jaraco.functools >=2.0
 # tempora deps
 pytz >=2019
+# jaraco.collections deps
+jaraco.text >=3.2.0
+jaraco.classes >=2.0
