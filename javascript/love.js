@@ -38,10 +38,10 @@ class Love {
                 var url = $(this).attr('href');
                 $.ajax({
                     url: url,
-                    success: function() {
+                    done: function() {
                         messages.success('The track is now marked as loved');
                     },
-                    error: function() {
+                    fail: function() {
                         messages.danger('An error occured while trying ' +
                             'to mark track as loved');
                     }

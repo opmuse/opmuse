@@ -307,7 +307,7 @@ class Upload {
                         url: url,
                         fileDom: file.dom
                     })
-                    .success(function(result, textStatus, jqXHR) {
+                    .done(function(result, textStatus, jqXHR) {
                         that.activeUploads--;
 
                         $(file.dom).remove();
@@ -333,7 +333,7 @@ class Upload {
                         } else {
                             that.send();
                         }
-                    }).error(function(jqXHR, textStatus, errorThrown) {
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
                         that.activeUploads--;
 
                         $(file.dom).addClass('danger').find('.progress-bar')

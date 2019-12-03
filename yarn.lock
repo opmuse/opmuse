@@ -2905,15 +2905,10 @@ jquery.ui.widget@^1.10.3:
   resolved "https://registry.yarnpkg.com/jquery.ui.widget/-/jquery.ui.widget-1.10.3.tgz#2ceecfc64995412643eeb9508d2197ea93c02fb3"
   integrity sha1-LO7PxkmVQSZD7rlQjSGX6pPAL7M=
 
-jquery@>=1.11:
+jquery@>=1.11, jquery@^3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.1.tgz#714f1f8d9dde4bdfa55764ba37ef214630d80ef2"
   integrity sha512-36+AdBzCL+y6qjw5Tx7HgzeGCzC81MDDgaUP8ld2zhx58HdqXGoBd+tHdrBMiyjGQs0Hxs/MLZTu/eHNJJuWPw==
-
-jquery@^2.2.4:
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-2.2.4.tgz#2c89d6889b5eac522a7eea32c14521559c6cbf02"
-  integrity sha1-LInWiJterFIqfuoywUUhVZxsvwI=
 
 js-levenshtein@^1.1.3:
   version "1.1.6"
