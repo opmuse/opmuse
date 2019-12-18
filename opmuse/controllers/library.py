@@ -863,7 +863,7 @@ class Library:
                         album_ids.append(album_results[0].id)
 
             query = query.filter(Album.id.in_(album_ids))
-        elif filter == "1year" or filter == "2year":
+        elif filter == "1year" or filter == "2year" or filter == "5year":
             now = datetime.datetime.utcnow()
 
             if filter == "2year":
