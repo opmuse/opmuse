@@ -72,7 +72,7 @@ class Deluge:
         pending_torrents = pending_query.all()
 
         import_torrents = (get_database().query(Torrent).order_by(Torrent.import_date.desc())
-                            .filter(or_(Torrent.import_status == 'importing', Torrent.import_status == "imported"))).all()
+                           .filter(or_(Torrent.import_status == 'importing', Torrent.import_status == "imported"))).all()
 
         deluge_host = config['deluge.host']
         deluge_port = config['deluge.port']
