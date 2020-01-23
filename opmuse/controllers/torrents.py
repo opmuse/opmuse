@@ -17,6 +17,7 @@
 
 import cherrypy
 import os
+from sqlalchemy import or_
 from opmuse.utils import HTTPRedirect
 from opmuse.deluge import deluge_dao, deluge, Torrent, DelugeBackgroundTaskCron
 from opmuse.library import library_dao
@@ -33,7 +34,7 @@ def log(msg, traceback=False):
 class Deluge:
     @staticmethod
     def _import_torrent(torrent_id):
-        deluge_dao.update_import_status('importing', torrent_id)
+        deluge_dao.update_import_status('importing', None, torrent_id)
 
         try:
             deluge.connect()
@@ -47,10 +48,10 @@ class Deluge:
                 torrent_files, move=True, remove_dirs=True
             )
 
-            deluge_dao.update_import_status('imported', torrent_id)
-        except Exception:
+            deluge_dao.update_import_status('imported', None, torrent_id)
+        except Exception as e:
             log("Failed to import torrent", traceback=True)
-            deluge_dao.update_import_status('failed', torrent_id)
+            deluge_dao.update_import_status('failed', str(e), torrent_id)
 
     @cherrypy.expose
     @cherrypy.tools.authenticated(needs_auth=True, roles=['admin'])
@@ -61,14 +62,17 @@ class Deluge:
         if 'deluge.host' not in config:
             raise cherrypy.NotFound()
 
-        query = get_database().query(Torrent).order_by(Torrent.added.desc())
+        pending_query = get_database().query(Torrent).order_by(Torrent.added.desc())
 
         if filter == "importable":
-            query = query.filter(Torrent.importable)
+            pending_query = pending_query.filter(Torrent.importable)
         else:
             filter = "nothing"
 
-        torrents = query.all()
+        pending_torrents = pending_query.all()
+
+        import_torrents = (get_database().query(Torrent).order_by(Torrent.import_date.desc())
+                            .filter(or_(Torrent.import_status == 'importing', Torrent.import_status == "imported"))).all()
 
         deluge_host = config['deluge.host']
         deluge_port = config['deluge.port']
@@ -80,7 +84,8 @@ class Deluge:
             'deluge_port': deluge_port,
             'filter': filter,
             'deluge_updated': deluge_updated,
-            'torrents': torrents
+            'pending_torrents': pending_torrents,
+            'import_torrents': import_torrents
         }
 
     @cherrypy.expose

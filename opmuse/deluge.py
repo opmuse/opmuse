@@ -53,6 +53,8 @@ class Torrent(Base):
     finished = Column(Boolean, default=False, index=True)
     progress = Column(Numeric(precision=4, scale=1, asdecimal=True))
     import_status = Column(String(128), default='', nullable=False)
+    import_date = Column(DateTime, index=True)
+    import_text = Column(String(255))
 
     @hybrid_property
     def importable(self):
@@ -208,7 +210,7 @@ class DelugeBackgroundTaskCron(BackgroundTaskCron):
 
 
 class DelugeDao:
-    def update_import_status(self, status, torrent_id=None):
+    def update_import_status(self, import_status, import_text=None, torrent_id=None):
         query = get_database().query(Torrent)
 
         if torrent_id is not None:
@@ -216,7 +218,11 @@ class DelugeDao:
         else:
             query = query.filter(Torrent.finished)
 
-        query.update({'import_status': status[0:128]})
+        query.update({
+            'import_status': import_status[0:128],
+            'import_date': datetime.datetime.utcnow(),
+            'import_text': import_text[0:255] if import_text is not None else None,
+        }, synchronize_session='fetch')
 
         get_database().commit()
 

@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import messages from 'opmuse/messages';
 import ajaxify from 'opmuse/ajaxify';
+import reloader from 'opmuse/reloader';
 
 function init() {
     $('#torrents_deluge .torrent-import').click(function() {
@@ -28,7 +29,8 @@ function init() {
 
         $.ajax(url, {
             success: function(data, textStatus, xhr) {
-                button.closest('tr').find('.status span').text(data.status);
+                reloader.load([".torrents_import"]);
+                button.closest('tr').addClass("text-muted").find('.status span').text(data.status);
                 button.attr('disabled', 'disabled');
             },
             error: function(xhr) {
