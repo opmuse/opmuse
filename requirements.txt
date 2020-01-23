@@ -19,7 +19,7 @@ alembic >=1.3,<1.4
 musicbrainzngs >=0.7,<0.8
 pycountry >=19,<20
 watchdog >=0.9,<0.10
-deluge-client >=1.7,<1.8
+deluge-client >=1.8,<1.9
 croniter >=0.3,<0.4
 ## The follow are deps on packages we use that are missing
 ## from debian. So we need to build them when building our package.
