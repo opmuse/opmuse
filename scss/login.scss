@@ -1,0 +1,18 @@
+.login {
+    &-Form {
+      width: 100%;
+      max-width: 330px;
+      padding: 15px;
+      margin: auto;
+    }
+
+    &-Body {
+        display: flex;
+        text-align: center;
+    }
+
+    &-Html,
+    &-Body {
+        height: 100%;
+    }
+}

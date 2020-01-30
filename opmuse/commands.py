@@ -31,7 +31,7 @@ from sqlalchemy.exc import ProgrammingError
 from alembic.config import Config
 from alembic import command
 import jinja2_webpack.scan as webpack_scan
-from opmuse.jinja import get_jinja_env
+from opmuse.jinja import get_jinja_env, get_templates_dir
 from opmuse.boot import configure
 from opmuse.database import Base, get_engine, get_database_name, get_database_type, get_raw_session
 from opmuse.library import TrackPath, Track, Artist, Album, UserAndAlbum, ListenedTrack
@@ -104,7 +104,7 @@ def command_jinja(action=None, path=None):
     elif action == "webpack_scan":
         cache_path = cherrypy.config['opmuse'].get('cache.path')
         entries_path = os.path.join(root_path, 'webpack-asset-entries.js')
-        templates_path = os.path.join(root_path, "templates")
+        templates_path = os.path.join(root_path, get_templates_dir())
 
         jinja_env = get_jinja_env()
 

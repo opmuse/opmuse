@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block html_class %}
+    login-Html
+{% endblock %}
+
+{% block body_class %}
+    login-Body
+{% endblock %}
+
+{% block body %}
+<form class="login-Form" method="post" action="/login?{{ request.query_string }}">
+    <img class="mb-4" width="180" height="180" src="{{ "assets/images/opossum.png" | webpack }}" />
+    <h1 class="h3 mb-3 font-weight-normal">
+        Please sign in
+    </h1>
+    <label for="inputUsername" class="sr-only">
+        Username
+    </label>
+    <input name="login" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
+    <label for="inputPassword" class="sr-only">
+        Password
+    </label>
+    <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+</form>
+{% endblock %}

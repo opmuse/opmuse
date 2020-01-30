@@ -36,6 +36,9 @@ from opmuse.library import TrackStructureParser, Library, Album, Track, Artist
 
 VISIBLE_WS = "\u2423"
 
+def get_templates_dir():
+    return 'templates.new'
+
 
 def _max(items):
     return max(items)
@@ -64,12 +67,12 @@ def get_jinja_env():
     if auto_reload is None:
         auto_reload = True
 
-    template_path = os.path.join(os.path.dirname(__file__), '..', 'templates')
+    template_path = os.path.join(os.path.dirname(__file__), '..', get_templates_dir())
 
     if os.path.exists(template_path):
         loader = FileSystemLoader(template_path)
     else:
-        loader = ModuleLoader('/usr/share/opmuse/templates/')
+        loader = ModuleLoader(os.path.join('/usr/share/opmuse/', get_templates_dir()))
 
     env = Environment(
         loader=loader,

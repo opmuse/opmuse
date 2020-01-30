@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html class="{% block html_class %}{% endblock %}">
+    <head>
+        <title>
+            {% block title %}{% endblock %} | opmuse
+        </title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+
+        {% set ws_port = request.app.config.opmuse['ws.port'] if 'ws.port' in request.app.config.opmuse else None %}
+
+        <script type="text/javascript">
+            window.opmuseGlobals = {
+                version: '{{ opmuse_version }}',
+                authenticated: {{ "true" if request.user else "false" }},
+                ws_port: {{ ws_port if ws_port else "null" }}
+            };
+        </script>
+
+        <link href="{{ "assets/images/favicon.png" | webpack }}" rel="shortcut icon" />
+        <link rel="apple-touch-icon" href="{{ "assets/images/opossum-white.png" | webpack }}"/>
+        <link rel="stylesheet" href="{{ "scss_main" | webpack }}" type="text/css">
+    </head>
+    <body lang="en" class="container-fluid {% block body_class %}{% endblock %}">
+        {% block body %}
+            <div class="row">
+                <nav class="col-2">
+                {% block nav %}
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">Active</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Link</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Link</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                        </li>
+                    </ul>
+                {% endblock %}
+                </nav>
+                <main class="col-10">
+                    {% block main %}
+                    {% endblock %}
+                </main>
+            </div>
+        {% endblock %}
+        {# <script src="{{ "js_main" | webpack }}"></script> #}
+    </body>
+</html>

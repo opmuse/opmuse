@@ -12,6 +12,7 @@ function get_conf(defaultFilename)
         entry: {
             js_main: './javascript/main.js',
             css_main: './less/main.less',
+            scss_main: './scss/main.scss',
             assets: './webpack-asset-entries.js'
         },
         output: {
@@ -66,6 +67,31 @@ function get_conf(defaultFilename)
                         },
                         {
                             loader: 'less-loader'
+                        },
+                    ]
+                },
+                {
+                    test: /\.scss$/,
+                    use: [
+                        {
+                            loader: MiniCssExtractPlugin.loader,
+                        },
+                        {
+                            loader: 'css-loader',
+                        },
+                        {
+                            loader: 'postcss-loader',
+                            options: {
+                                plugins: function () {
+                                    return [
+                                        require('precss'),
+                                        require('autoprefixer')
+                                    ];
+                                }
+                            }
+                        },
+                        {
+                            loader: 'sass-loader'
                         },
                     ]
                 },
