@@ -83,7 +83,7 @@ body {
     position: fixed;
     right: 20px;
     bottom: 0;
-    height: 472px;
+    height: var(--panel-height, 472px);
 
     @media (max-width: @screen-md-min) {
         right: auto;
@@ -94,7 +94,7 @@ body {
         width: 100%;
     }
 
-    margin-bottom: -432px;
+    margin-bottom: calc(-1 * (var(--panel-height, 472px) - 40px));
 
     .panel-handle-icon-close {
         display: none;

@@ -31,6 +31,10 @@ class Panel {
 
         this.panel = $('#panel');
 
+        $(window).resize(function() {
+            that.resize();
+        });
+
         $('#panel-handle').click(function(event) {
             // @navbarCollapseWidth
             if (matchMedia('all and (max-width: 940px)').matches) {
@@ -62,6 +66,10 @@ class Panel {
     close() {
         this.panel.removeClass('open');
         storage.set('layout.panel.open', false);
+    }
+    resize() {
+        var windowHeight = $(window).height();
+        this.panel.attr("style", '--panel-height: ' + (windowHeight / 1.2) + 'px;');
     }
 }
 
