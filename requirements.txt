@@ -18,7 +18,7 @@ Unidecode >=1.1.1,<1.2
 alembic >=1.4,<1.5
 musicbrainzngs >=0.7,<0.8
 pycountry >=19,<20
-watchdog >=0.10,<0.11
+watchdog >=1.0,<1.1
 deluge-client >=1.8,<1.9
 croniter >=0.3,<0.4
 ## The follow are deps on packages we use that are missing
