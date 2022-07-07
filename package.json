@@ -26,7 +26,7 @@
     "less-loader": "^5.0.0",
     "matchmedia-polyfill": "^0.3.2",
     "mini-css-extract-plugin": "^0.9.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "npm-modernizr": "~2.8.3",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "spinkit": "^2.0.1",
