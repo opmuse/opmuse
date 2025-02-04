@@ -27,12 +27,8 @@ from setuptools import setup
 from setuptools.command.build_py import build_py
 from distutils.command.install_data import install_data
 
-try:
-    from pip._internal.req import parse_requirements
-    from pip._internal.download import PipSession
-except ImportError:
-    from pip.req import parse_requirements
-    from pip.download import PipSession
+import pkg_resources
+import pathlib
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
@@ -77,12 +73,11 @@ def get_datafiles(src, dest, exclude_exts=[], followlinks=False):
 
 install_requires = []
 
-for install_require in chain(parse_requirements('requirements.txt', session=PipSession()),
-                             parse_requirements('mysql-requirements.txt', session=PipSession())):
-    if install_require.req is not None:
-        install_requires.append(str(install_require.req))
-    else:
-        raise Exception("Couldn't parse requirement from requirements.txt")
+
+for requirements in ['requirements.txt']:
+    with pathlib.Path(requirements).open() as requirements_txt:
+        for requirement in pkg_resources.parse_requirements(requirements_txt):
+            install_requires.append(str(requirement))
 
 
 def build_opmuse():
@@ -120,8 +115,9 @@ def build_opmuse():
         env={'PYTHONPATH': project_root}
     )
 
-    subprocess.check_call(["npx", "webpack", '--config', 'webpack.prod.js'],
-        env={'NODE_ENV': "production"}
+    subprocess.check_call(["yarn", "run", "webpack", '--config', 'webpack.prod.js'],
+        # fix webpack ERR_OSSL_EVP_UNSUPPORTED
+        env={'NODE_ENV': "production", 'NODE_OPTIONS': '--openssl-legacy-provider'}
     )
 
     subprocess.check_call([virtualenv_bin, commands_path, 'jinja', 'compile', 'build/templates'],

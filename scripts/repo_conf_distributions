@@ -1,7 +1,7 @@
 Origin: opmuse
 Label: opmuse
-Suite: buster
-Codename: buster
+Suite: bullseye
+Codename: bullseye
 Architectures: i386 amd64
 Components: main
-Description: Debian Buster repository for opmuse
+Description: Debian Bullseye repository for opmuse

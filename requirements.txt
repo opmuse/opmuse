@@ -8,30 +8,17 @@ CherryPy >=18,<19
 Jinja2 >=2.11,<2.12
 jinja2-webpack >=0.2,<0.3
 SQLAlchemy >=1.3,<1.4
-mmh3 >=2.5
+mmh3 >=2.5,<4.0
 whoosh >=2.7,<2.8
-mutagen >=1.44,<1.45
+mutagen >=1.47,<1.48
 rarfile >=3.1,<3.2
 ws4py >=0.5.1,<0.6
-wsaccel >=0.6.2,<0.7
-Unidecode >=1.1.1,<1.2
+Unidecode >=1.3,<1.4
 alembic >=1.4,<1.5
 musicbrainzngs >=0.7,<0.8
-pycountry >=19,<20
+pycountry >=22,<23
 watchdog >=1.0,<1.1
 deluge-client >=1.8,<1.9
 croniter >=0.3,<0.4
-## The follow are deps on packages we use that are missing
-## from debian. So we need to build them when building our package.
-# cherrypy deps
-portend >=2.1.1
-tempora <1.13
-cheroot >=8.2.1
-jaraco.collections >=2.1
-# cheroot deps
-jaraco.functools >=2.0
-# tempora deps
-pytz >=2019
-# jaraco.collections deps
-jaraco.text >=3.2.0
-jaraco.classes >=2.0
+# jinja deps
+MarkupSafe >=1.1,<2

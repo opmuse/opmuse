@@ -9,6 +9,7 @@
   "dependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
+    "@babel/compat-data": "^7.9.0",
     "babel-loader": "^8.0.6",
     "blueimp-file-upload-npm": "^9.12.3",
     "bootstrap": "^3.4.1",
