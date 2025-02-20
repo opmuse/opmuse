@@ -19,14 +19,14 @@ dist=$2
 reprepro -b $repo deleteunreferenced
 
 # build deb packages from requirements.txt files.
-#grep -hiEv "^#" requirements.txt | \
-#while read -A req; do
-#    package_name=$req[1]
-#    package_version=$req[2]
-#
-#    ./scripts/build-python-deb.sh $repo $dist none $package_name $package_version none \
-#        none none none none none none none none none none
-#done
+grep -hiEv "^#" requirements.txt | \
+while read -A req; do
+    package_name=$req[1]
+    package_version=$req[2]
+
+    ./scripts/build-python-deb.sh $repo $dist none $package_name $package_version none \
+        none none none none none none none none none none
+done
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo $dist setup.py opmuse none scripts/debian-before-install.sh \
