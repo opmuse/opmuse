@@ -44,7 +44,7 @@ RUN cd /srv/ && \
     ./scripts/build-debs.sh /srv/repo bullseye --debug && \
     echo "deb file:///srv/repo bullseye main" >> /etc/apt/sources.list
 
-RUN systemctl start mysql
+RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd &
 RUN apt-get update --allow-insecure-repositories
 RUN apt-get install -y opmuse --allow-unauthenticated
 
