@@ -77,6 +77,9 @@ install_requires = []
 for requirements in ['requirements.txt']:
     with pathlib.Path(requirements).open() as requirements_txt:
         for requirement in pkg_resources.parse_requirements(requirements_txt):
+            if requirement.project_name == "CherryPy":
+                continue
+
             install_requires.append(str(requirement))
 
 

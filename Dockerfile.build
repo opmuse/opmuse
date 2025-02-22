@@ -48,7 +48,8 @@ RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd &
 
 RUN echo "deb-src http://ftp.se.debian.org/debian/ bookworm main contrib non-free" >> /etc/apt/sources.list && \
     apt-get update && \
-    apt-get install -y python3-jaraco.collections && \
+    #apt-get install -y python3-jaraco.collections && \
+    apt-get install -y python3-cherrypy3 && \
     sed -i '/bookworm/d' /etc/apt/sources.list && \
     apt-get update
 

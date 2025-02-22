@@ -24,6 +24,10 @@ while read -A req; do
     package_name=$req[1]
     package_version=$req[2]
 
+    if [[ $package_name = "CherryPy" ]]; then
+        continue
+    fi
+
     ./scripts/build-python-deb.sh $repo $dist none $package_name $package_version none \
         none none none none none none none none none none
 done
