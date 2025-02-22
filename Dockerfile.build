@@ -51,7 +51,7 @@ RUN echo "deb-src http://ftp.se.debian.org/debian/ bookworm main contrib non-fre
     sed -i '/bookworm/d' /etc/apt/sources.list && \
     apt-get update --allow-insecure-repositories
 
-RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd & && \
+RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd & \
     apt-get update --allow-insecure-repositories && \
     apt-get install -y opmuse --allow-unauthenticated
 
