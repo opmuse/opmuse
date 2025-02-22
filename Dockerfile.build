@@ -45,6 +45,13 @@ RUN cd /srv/ && \
     echo "deb file:///srv/repo bullseye main" >> /etc/apt/sources.list
 
 RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd &
+
+RUN echo "deb-src http://ftp.se.debian.org/debian/ bookworm main contrib non-free" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y python3-jaraco.collections && \
+    sed -i '/bookworm/d' /etc/apt/sources.list && \
+    apt-get update
+
 RUN apt-get update --allow-insecure-repositories
 RUN apt-get install -y opmuse --allow-unauthenticated
 
