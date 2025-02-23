@@ -53,8 +53,9 @@ RUN echo "deb-src http://ftp.se.debian.org/debian/ bookworm main contrib non-fre
     apt-get update --allow-insecure-repositories
 
 #RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd & \
-RUN /opt/chsystemctl.sh && \
-    systemctl start mariadb && \
+#RUN /opt/chsystemctl.sh && \
+#    systemctl start mariadb && \
+RUN /etc/init.d/mariadb start && \
     apt-get update --allow-insecure-repositories && \
     apt-get install -y opmuse --allow-unauthenticated
 
