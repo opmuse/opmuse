@@ -27,6 +27,7 @@ RUN sed -i "s/bullseye main/bullseye main contrib non-free/" /etc/apt/sources.li
     mkdir -p /srv/repo/conf
 
 COPY scripts/repo_conf_distributions /srv/repo/conf/distributions
+COPY scripts/chsystemctl.sh /opt/chsystemctl.sh
 
 COPY . /tmp/opmuse
 
@@ -51,7 +52,9 @@ RUN echo "deb-src http://ftp.se.debian.org/debian/ bookworm main contrib non-fre
     sed -i '/bookworm/d' /etc/apt/sources.list && \
     apt-get update --allow-insecure-repositories
 
-RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd & \
+#RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd & \
+RUN /opt/chsystemctl.sh && \
+    systemctl start mariadb && \
     apt-get update --allow-insecure-repositories && \
     apt-get install -y opmuse --allow-unauthenticated
 
