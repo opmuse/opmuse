@@ -34,7 +34,7 @@ done
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo $dist setup.py opmuse none scripts/debian-before-install.sh \
-    scripts/debian-after-install.sh python3,ffmpeg,imagemagick,unrar,default-mysql-server,debconf,dbconfig-common,rsync,python3-mysqldb \
+    scripts/debian-after-install.sh python3,ffmpeg,imagemagick,unrar,default-mysql-server,debconf,dbconfig-common,rsync,python3-mysqldb,python3-zc.lockfile \
     /etc/opmuse/opmuse.ini scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf \
     scripts/debian-templates scripts/debian-before-remove scripts/debian-after-remove none --no-prefix
 
