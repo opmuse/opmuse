@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bookworm
 MAINTAINER Mattias Fliesberg <mattias@fliesberg.email>
 
 WORKDIR /root/
@@ -6,7 +6,7 @@ WORKDIR /root/
 ENV DEBIAN_FRONTEND noninteractive
 ENV LC_ALL en_US.UTF8
 
-RUN sed -i "s/bullseye main/bullseye main contrib non-free/" /etc/apt/sources.list && \
+RUN sed -i "s/bookworm main/bookworm main contrib non-free/" /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y curl wget locales apt-transport-https python3 python3-pip \
         python3-pkg-resources gnupg ffmpeg imagemagick rsync git zsh vim procps reprepro \
@@ -42,15 +42,15 @@ RUN cd /srv/ && \
     deactivate && \
     cp config/opmuse.dist.ini config/opmuse.ini && \
     yarn && \
-    ./scripts/build-debs.sh /srv/repo bullseye --debug && \
-    echo "deb file:///srv/repo bullseye main" >> /etc/apt/sources.list
+    ./scripts/build-debs.sh /srv/repo bookworm --debug && \
+    echo "deb file:///srv/repo bookworm main" >> /etc/apt/sources.list
 
-RUN echo "deb http://ftp.se.debian.org/debian/ bookworm main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get update --allow-insecure-repositories && \
-    #apt-get install -y python3-jaraco.collections && \
-    apt-get install -y python3-cherrypy3 && \
-    sed -i '/bookworm/d' /etc/apt/sources.list && \
-    apt-get update --allow-insecure-repositories
+#RUN echo "deb http://ftp.se.debian.org/debian/ bookworm main contrib non-free" >> /etc/apt/sources.list && \
+#    apt-get update --allow-insecure-repositories && \
+#    #apt-get install -y python3-jaraco.collections && \
+#    apt-get install -y python3-cherrypy3 && \
+#    sed -i '/bookworm/d' /etc/apt/sources.list && \
+#    apt-get update --allow-insecure-repositories
 
 #RUN su mysql -s /bin/sh -c /usr/sbin/mariadbd & \
 #RUN /opt/chsystemctl.sh && \

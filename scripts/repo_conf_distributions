@@ -4,4 +4,4 @@ Suite: bullseye
 Codename: bullseye
 Architectures: i386 amd64
 Components: main
-Description: Debian Bullseye repository for opmuse
+Description: Debian Bookworm repository for opmuse
