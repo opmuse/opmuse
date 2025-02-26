@@ -31,7 +31,7 @@ import pkg_resources
 import pathlib
 
 project_root = os.path.dirname(os.path.abspath(__file__))
-git_version = subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
+git_version = "0.6.0" #subprocess.check_output(['git', 'describe', 'HEAD', '--tags']).strip().decode('utf8')
 git_url = 'https://raw.github.com/opmuse/opmuse/%s/%%s' % git_version
 on_readthedocs = os.environ.get('READTHEDOCS', None) == 'True'
 
