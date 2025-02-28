@@ -23,7 +23,7 @@ RUN apt-get update && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && \
     apt-get install -y yarn && \
-    /etc/init.d/mysql start && \
+    /etc/init.d/mariadb start && \
     cd /root && \
     git clone /tmp/opmuse && \
     cd opmuse && \
