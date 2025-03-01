@@ -34,7 +34,7 @@ RUN apt-get update && \
     pip3 install --break-system-packages -r dev-requirements.txt && \
     cp config/opmuse.dist.ini config/opmuse.ini && \
     yarn && \
-    yarn build:dev && \
+    NODE_OPTIONS='--openssl-legacy-provider' yarn build:dev && \
     sed -i "s/^\(database\.url\)/#\1/; s/^#\(database\.url = 'mysql\)/\1/" config/opmuse.ini && \
     sed -i "s/^#\(server.socket_host = \).*/\1'0.0.0.0'/" config/opmuse.ini && \
     ./console database create && \
