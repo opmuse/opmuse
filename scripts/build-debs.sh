@@ -24,7 +24,7 @@ while read -A req; do
     package_name=$req[1]
     package_version=$req[2]
 
-    if [[ $package_name = "CherryPy" || $package_name = "Jinja2" || $package_name = "sqlalchemy" || $package_name = "alembic" || $package_name = "watchdog" || $package_name = "croniter" ]]; then
+    if [[ $package_name = "CherryPy" || $package_name = "Jinja2" || $package_name = "SQLAlchemy" || $package_name = "alembic" || $package_name = "watchdog" || $package_name = "croniter" ]]; then
         continue
     fi
 
