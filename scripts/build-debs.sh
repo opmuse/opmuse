@@ -24,7 +24,19 @@ while read -A req; do
     package_name=$req[1]
     package_version=$req[2]
 
-    if [[ $package_name = "CherryPy" || $package_name = "Jinja2" || $package_name = "SQLAlchemy" || $package_name = "alembic" || $package_name = "watchdog" || $package_name = "croniter" ]]; then
+    if [[ $package_name = "CherryPy" || \
+        $package_name = "Jinja2" || \
+        $package_name = "SQLAlchemy" || \
+        $package_name = "alembic" || \
+        $package_name = "watchdog" || \
+        $package_name = "croniter" || \
+        $package_name = "pycountry" || \
+        $package_name = "whoosh" || \
+        $package_name = "rarfile" || \
+        $package_name = "unidecode" || \
+        $package_name = "mutagen" || \
+        $package_name = "ws4py" || \
+        $package_name = "musicbrainzngs" ]]; then
         continue
     fi
 
@@ -34,7 +46,7 @@ done
 
 # build opmuse deb package
 ./scripts/build-python-deb.sh $repo $dist setup.py opmuse none scripts/debian-before-install.sh \
-    scripts/debian-after-install.sh python3,ffmpeg,imagemagick,unrar,default-mysql-server,debconf,dbconfig-common,rsync,python3-mysqldb,python3-zc.lockfile,python3-cherrypy3 \
+    scripts/debian-after-install.sh python3,ffmpeg,imagemagick,default-mysql-server,debconf,dbconfig-common,rsync,python3-mysqldb,python3-zc.lockfile,python3-cherrypy3 \
     /etc/opmuse/opmuse.ini scripts/debian-init/opmuse scripts/debian-default/opmuse scripts/debian-debconf \
     scripts/debian-templates scripts/debian-before-remove scripts/debian-after-remove none --no-prefix
 
