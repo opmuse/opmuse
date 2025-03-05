@@ -33,7 +33,7 @@ while read -A req; do
         $package_name = "pycountry" || \
         $package_name = "whoosh" || \
         $package_name = "rarfile" || \
-        $package_name = "unidecode" || \
+        $package_name = "Unidecode" || \
         $package_name = "mutagen" || \
         $package_name = "ws4py" || \
         $package_name = "musicbrainzngs" ]]; then
