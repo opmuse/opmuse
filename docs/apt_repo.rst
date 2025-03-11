@@ -25,7 +25,7 @@ Start the build
 
 .. code-block:: console
 
-    $ ./scripts/build-debs.sh /srv/repo buster --debug
+    $ ./scripts/build-debs.sh /srv/repo bookworm --debug
 
 Using
 -----

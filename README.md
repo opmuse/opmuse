@@ -36,9 +36,9 @@ You'll reach opmuse at http://localhost:8080/ and you can login with admin and n
 
 ### Debian Repo
 
-We provide a Debian Buster repo which you can configure like this.
+We provide a Debian Bookworm repo which you can configure like this.
 
-    # echo "deb https://apt.opmu.se/debian/ buster main" > /etc/apt/sources.list.d/opmuse.list
+    # echo "deb https://apt.opmu.se/debian/ bookworm main" > /etc/apt/sources.list.d/opmuse.list
     # curl -s https://apt.opmu.se/opmuse.pub | apt-key add -
     # apt-get update
     # apt-get install opmuse
